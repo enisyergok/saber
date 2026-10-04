@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:keybinder/keybinder.dart';
 import 'package:saber/components/canvas/hud/canvas_hud.dart';
 import 'package:saber/components/canvas/interactive_canvas.dart';
+import 'package:saber/components/canvas/palm_rejection.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/extensions/matrix4_extensions.dart';
@@ -418,7 +419,11 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
         transformation;
   }
 
+  /// Tells which touches are a resting palm. See [PalmRejection].
+  final palmRejection = PalmRejection();
+
   void _listenerPointerEvent(PointerEvent event) {
+    palmRejection.handleEvent(event);
     final isStylus =
         event.kind == PointerDeviceKind.stylus ||
         event.kind == PointerDeviceKind.invertedStylus;
@@ -477,6 +482,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   }
 
   void _listenerPointerUpEvent(PointerEvent event) {
+    palmRejection.handleEvent(event);
     widget.updatePointerData(event.kind, null);
     if (stylusButtonWasPressed) {
       stylusButtonWasPressed = false;
@@ -494,6 +500,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
           onPointerDown: _listenerPointerEvent,
           onPointerMove: _listenerPointerEvent,
           onPointerUp: _listenerPointerUpEvent,
+          onPointerCancel: _listenerPointerUpEvent,
           onPointerHover: _listenerPointerHoverEvent,
           child: GestureDetector(
             child: LayoutBuilder(
@@ -517,6 +524,8 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
                   ),
 
                   transformationController: widget._transformationController,
+
+                  palmRejection: palmRejection,
 
                   isDrawGesture: widget.isDrawGesture,
                   onInteractionEnd: widget.onInteractionEnd,
