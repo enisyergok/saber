@@ -23,6 +23,7 @@ import 'package:saber/components/canvas/canvas_image.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/editor/editor_tab_strip.dart';
+import 'package:saber/components/editor/page_sidebar.dart';
 import 'package:saber/components/editor/read_only_banner.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
@@ -58,6 +59,7 @@ import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
+import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/home/whiteboard.dart';
 import 'package:sbn/change.dart';
@@ -196,6 +198,7 @@ class EditorState extends State<Editor> {
     DynamicMaterialApp.addFullscreenListener(_setState);
     _transformationController.addListener(_scheduleVisiblePageUpdate);
     OpenTabs.paths.addListener(_setState);
+    stows.editorPageSidebar.addListener(_setState);
 
     _initAsync();
     _assignKeybindings();
@@ -339,12 +342,12 @@ class EditorState extends State<Editor> {
       late final topOfLastPage = -CanvasGestureDetector.getTopOfPage(
         pageIndex: coreInfo.pages.length - 1,
         pages: coreInfo.pages,
-        screenWidth: MediaQuery.sizeOf(context).width,
+        screenWidth: _viewportWidth,
       );
       final bottomOfLastPage = -CanvasGestureDetector.getTopOfPage(
         pageIndex: coreInfo.pages.length,
         pages: coreInfo.pages,
-        screenWidth: MediaQuery.sizeOf(context).width,
+        screenWidth: _viewportWidth,
       );
 
       if (scrollY < bottomOfLastPage) {
@@ -457,6 +460,11 @@ class EditorState extends State<Editor> {
             );
           }
 
+        case .reshape:
+          item.reshapeChange!.forEach((stroke, change) {
+            stroke.setVertexHandles(change.previous);
+          });
+
         case .quillChange:
           final quill = coreInfo.pages[item.pageIndex].quill;
           quill.controller.undo();
@@ -510,6 +518,14 @@ class EditorState extends State<Editor> {
         undo(
           item.copyWith(
             transform: SelectionTransform.inverse(item.transform!),
+          ),
+        );
+      case .reshape:
+        undo(
+          item.copyWith(
+            reshapeChange: item.reshapeChange!.map(
+              (key, value) => MapEntry(key, value.reverse()),
+            ),
           ),
         );
       case .quillChange:
@@ -605,6 +621,7 @@ class EditorState extends State<Editor> {
     history.canRedo = false;
 
     if (currentTool is Pen) {
+      ShapeSnap.redraw = page.redrawLiveInk;
       (currentTool as Pen).onDragStart(
         position,
         page,
@@ -623,7 +640,18 @@ class EditorState extends State<Editor> {
       final select = currentTool as Select;
       _activeHandle = null;
       _transformTotal = null;
+      _activeVertex = null;
+      _vertexBefore = null;
       if (select.doneSelecting &&
+          select.selectResult.pageIndex == dragPageIndex! &&
+          (_activeVertex = SelectionTransform.vertexAt(
+                select.selectResult,
+                position,
+                _transformationController.value.approxScale,
+              )) !=
+              null) {
+        _vertexBefore = select.selectResult.strokes.first.vertexHandles;
+      } else if (select.doneSelecting &&
           select.selectResult.pageIndex == dragPageIndex! &&
           (_activeHandle = SelectionTransform.handleAt(
                 select.selectResult,
@@ -660,6 +688,10 @@ class EditorState extends State<Editor> {
   }
 
   SelectHandle? _activeHandle;
+
+  /// The corner of a selected shape being dragged, and the corners before.
+  int? _activeVertex;
+  List<Offset>? _vertexBefore;
   Matrix4? _transformTotal;
   Offset _transformCenter = .zero;
   Offset _transformAnchor = .zero;
@@ -684,7 +716,17 @@ class EditorState extends State<Editor> {
       removeExcessPages();
     } else if (currentTool is Select) {
       final select = currentTool as Select;
-      if (select.doneSelecting && _activeHandle != null) {
+      if (select.doneSelecting && _activeVertex != null) {
+        final stroke = select.selectResult.strokes.first;
+        final vertices = stroke.vertexHandles;
+        if (vertices != null && _activeVertex! < vertices.length) {
+          vertices[_activeVertex!] = position;
+          stroke.setVertexHandles(vertices);
+          select.selectResult.path = Path()
+            ..addRect(stroke.bounds.inflate(12));
+        }
+        page.redrawStrokes();
+      } else if (select.doneSelecting && _activeHandle != null) {
         final step = _activeHandle == SelectHandle.scale
             ? SelectionTransform.scaleStep(
                 anchor: _transformAnchor,
@@ -734,8 +776,12 @@ class EditorState extends State<Editor> {
 
         if (stows.autoStraightenLines.value &&
             currentTool is! ShapePen &&
+            !ShapeSnap.lastWasSnapped &&
             newStroke.isStraightLine()) {
           newStroke.convertToLine();
+        }
+        if (stows.shapeSnapEndpoints.value) {
+          ShapeSnap.snapToEndpoints(newStroke, page.strokes);
         }
 
         createPage(newStroke.pageIndex);
@@ -766,6 +812,38 @@ class EditorState extends State<Editor> {
         );
       } else if (currentTool is Select) {
         final select = currentTool as Select;
+        if (_activeVertex != null) {
+          final before = _vertexBefore;
+          _activeVertex = null;
+          _vertexBefore = null;
+          if (select.selectResult.strokes.isEmpty) return;
+          final stroke = select.selectResult.strokes.first;
+          if (stows.shapeSnapEndpoints.value) {
+            final others = page.strokes;
+            ShapeSnap.snapToEndpoints(stroke, others);
+            select.selectResult.path = Path()
+              ..addRect(stroke.bounds.inflate(12));
+          }
+          final after = stroke.vertexHandles;
+          if (before == null || after == null) return;
+          var same = before.length == after.length;
+          for (var i = 0; same && i < before.length; i++) {
+            same = before[i] == after[i];
+          }
+          if (same) return;
+          history.recordChange(
+            EditorHistoryItem(
+              type: .reshape,
+              pageIndex: dragPageIndex!,
+              strokes: [stroke],
+              images: const [],
+              reshapeChange: {
+                stroke: Change(previous: before, current: after),
+              },
+            ),
+          );
+          return;
+        }
         if (_activeHandle != null) {
           final total = _transformTotal;
           _activeHandle = null;
@@ -1796,6 +1874,35 @@ class EditorState extends State<Editor> {
                   triggerSave: saveToFile,
                 ),
                 actions: [
+                  if (MediaQuery.sizeOf(context).width >=
+                      PageSidebar.minScreenWidth)
+                    ValueListenableBuilder(
+                      valueListenable: stows.editorPageSidebar,
+                      builder: (context, shown, _) => IconButton(
+                        icon: const Icon(Icons.view_sidebar_outlined),
+                        selectedIcon: const Icon(Icons.view_sidebar),
+                        isSelected: shown,
+                        tooltip: DefterStrings.pageSidebar,
+                        onPressed: () =>
+                            stows.editorPageSidebar.value = !shown,
+                      ),
+                    ),
+                  ValueListenableBuilder(
+                    valueListenable: _visiblePageIndex,
+                    builder: (context, pageIndex, _) {
+                      final shown = (pageIndex < 0 ? 0 : pageIndex) + 1;
+                      return Tooltip(
+                        message: t.editor.pages,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          onPressed: showPageGrid,
+                          child: Text('$shown / ${coreInfo.pages.length}'),
+                        ),
+                      );
+                    },
+                  ),
                   IconButton(
                     icon: const AdaptiveIcon(
                       icon: Icons.insert_page_break,
@@ -1808,18 +1915,10 @@ class EditorState extends State<Editor> {
                       CanvasGestureDetector.scrollToPage(
                         pageIndex: currentPageIndex + 1,
                         pages: coreInfo.pages,
-                        screenWidth: MediaQuery.sizeOf(context).width,
+                        screenWidth: _viewportWidth,
                         transformationController: _transformationController,
                       );
                     }),
-                  ),
-                  IconButton(
-                    icon: const AdaptiveIcon(
-                      icon: Icons.grid_view,
-                      cupertinoIcon: CupertinoIcons.rectangle_grid_2x2,
-                    ),
-                    tooltip: t.editor.pages,
-                    onPressed: showPageGrid,
                   ),
                   IconButton(
                     icon: const Icon(Icons.mic_none),
@@ -1872,7 +1971,34 @@ class EditorState extends State<Editor> {
                   ),
                 ],
               ),
-        body: body,
+        body: _sidebarVisible
+            ? Row(
+                children: [
+                  PageSidebar(
+                    coreInfo: coreInfo,
+                    currentPage: _visiblePageIndex,
+                    onPageSelected: (pageIndex) =>
+                        CanvasGestureDetector.scrollToPage(
+                          pageIndex: pageIndex,
+                          pages: coreInfo.pages,
+                          screenWidth: _viewportWidth,
+                          transformationController: _transformationController,
+                        ),
+                  ),
+                  Expanded(
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        size: Size(
+                          _viewportWidth,
+                          MediaQuery.sizeOf(context).height,
+                        ),
+                      ),
+                      child: body,
+                    ),
+                  ),
+                ],
+              )
+            : body,
         floatingActionButton:
             (DynamicMaterialApp.isFullscreen &&
                 !stows.editorToolbarShowInFullscreen.value)
@@ -2105,7 +2231,7 @@ class EditorState extends State<Editor> {
           CanvasGestureDetector.scrollToPage(
             pageIndex: pageIndex,
             pages: coreInfo.pages,
-            screenWidth: MediaQuery.sizeOf(context).width,
+            screenWidth: _viewportWidth,
             transformationController: _transformationController,
           );
         },
@@ -2125,7 +2251,7 @@ class EditorState extends State<Editor> {
           CanvasGestureDetector.scrollToPage(
             pageIndex: pageIndex,
             pages: coreInfo.pages,
-            screenWidth: MediaQuery.sizeOf(context).width,
+            screenWidth: _viewportWidth,
             transformationController: _transformationController,
           );
         },
@@ -2300,13 +2426,25 @@ class EditorState extends State<Editor> {
     }
   }
 
+  /// Whether the page sidebar is showing: switched on, and the screen is
+  /// wide enough.
+  bool get _sidebarVisible =>
+      mounted &&
+      stows.editorPageSidebar.value &&
+      MediaQuery.sizeOf(context).width >= PageSidebar.minScreenWidth;
+
+  /// How wide the pages can be: the screen, less the sidebar.
+  double get _viewportWidth =>
+      MediaQuery.sizeOf(context).width -
+      (_sidebarVisible ? PageSidebar.width : 0);
+
   late int _lastCurrentPageIndex = coreInfo.initialPageIndex ?? 0;
 
   /// The index of the page that is currently centered on screen.
   int get currentPageIndex {
     if (!mounted) return _lastCurrentPageIndex;
 
-    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenWidth = _viewportWidth;
 
     return _lastCurrentPageIndex = getPageIndexFromScrollPosition(
       scrollY: -scrollY,
@@ -2341,6 +2479,7 @@ class EditorState extends State<Editor> {
     unawaited(_cleanUpAsync());
 
     DynamicMaterialApp.removeFullscreenListener(_setState);
+    stows.editorPageSidebar.removeListener(_setState);
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
     OpenTabs.paths.removeListener(_setState);
 

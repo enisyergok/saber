@@ -31,6 +31,7 @@ import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 
 class Toolbar extends StatefulWidget {
@@ -102,6 +103,40 @@ class _ToolbarState extends State<Toolbar> {
   ValueNotifier<bool> showExportOptions = ValueNotifier(false);
   ValueNotifier<bool> showColorOptions = ValueNotifier(false);
   ValueNotifier<ToolOptions> toolOptionsType = ValueNotifier(ToolOptions.hide);
+
+  /// The pen that was in use before the shape button was pressed, so
+  /// pressing it again (or the pen button) goes back to it.
+  Pen? _penBeforeShape;
+
+  /// The pen the pen button stands for: never the shape pen, which has a
+  /// button of its own.
+  Pen get _writingPen => Pen.currentPen is ShapePen
+      ? (_penBeforeShape ?? Pen.fountainPen())
+      : Pen.currentPen;
+
+  void toggleShapePen() {
+    toolOptionsType.value = .hide;
+    if (widget.currentTool is ShapePen) {
+      widget.setTool(_writingPen);
+    } else {
+      if (Pen.currentPen is! ShapePen) _penBeforeShape = Pen.currentPen;
+      widget.setTool(ShapePen());
+    }
+  }
+
+  /// A thin line between groups of buttons.
+  Widget _groupDivider(bool vertical, ColorScheme colorScheme) {
+    return Padding(
+      padding: vertical
+          ? const EdgeInsets.symmetric(vertical: 4)
+          : const EdgeInsets.symmetric(horizontal: 4),
+      child: SizedBox(
+        width: vertical ? 24 : 1,
+        height: vertical ? 1 : 24,
+        child: ColoredBox(color: colorScheme.outlineVariant),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -350,14 +385,18 @@ class _ToolbarState extends State<Toolbar> {
           child: Wrap(
             direction: isToolbarVertical ? Axis.vertical : Axis.horizontal,
             alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             runSpacing: 8,
             children: [
               ToolbarIconButton(
-                tooltip: Pen.currentPen.name,
-                selected: widget.currentTool == Pen.currentPen,
+                tooltip: _writingPen.name,
+                selected:
+                    widget.currentTool == Pen.currentPen &&
+                    widget.currentTool is! ShapePen,
                 enabled: !widget.readOnly,
                 onPressed: () {
-                  if (widget.currentTool == Pen.currentPen) {
+                  if (widget.currentTool == Pen.currentPen &&
+                      widget.currentTool is! ShapePen) {
                     if (toolOptionsType.value == .pen) {
                       toolOptionsType.value = .hide;
                     } else {
@@ -365,11 +404,11 @@ class _ToolbarState extends State<Toolbar> {
                     }
                   } else {
                     toolOptionsType.value = .hide;
-                    widget.setTool(Pen.currentPen);
+                    widget.setTool(_writingPen);
                   }
                 },
                 padding: buttonPadding,
-                child: UniIcon(Pen.currentPen.icon, size: 16),
+                child: UniIcon(_writingPen.icon, size: 16),
               ),
               ToolbarIconButton(
                 tooltip: t.editor.pens.pencil,
@@ -409,6 +448,14 @@ class _ToolbarState extends State<Toolbar> {
                 padding: buttonPadding,
                 child: const FaIcon(Highlighter.highlighterIcon, size: 16),
               ),
+              ToolbarIconButton(
+                tooltip: t.editor.pens.shapePen,
+                selected: widget.currentTool is ShapePen,
+                enabled: !widget.readOnly,
+                onPressed: toggleShapePen,
+                padding: buttonPadding,
+                child: const FaIcon(ShapePen.shapePenIcon, size: 16),
+              ),
               ValueListenableBuilder(
                 valueListenable: showColorOptions,
                 builder: (context, showColorOptions, child) {
@@ -438,6 +485,7 @@ class _ToolbarState extends State<Toolbar> {
                         ),
                       ),
               ),
+              _groupDivider(isToolbarVertical, colorScheme),
               ToolbarIconButton(
                 tooltip: t.editor.toolbar.select,
                 selected: widget.currentTool is Select,
@@ -462,6 +510,14 @@ class _ToolbarState extends State<Toolbar> {
                 ),
               ),
               ToolbarIconButton(
+                tooltip: t.editor.toolbar.toggleEraser,
+                selected: widget.currentTool is Eraser,
+                enabled: !widget.readOnly,
+                onPressed: toggleEraser,
+                padding: buttonPadding,
+                child: const FaIcon(FontAwesomeIcons.eraser, size: 16),
+              ),
+              ToolbarIconButton(
                 tooltip: t.editor.pens.laserPointer,
                 selected:
                     widget.currentTool == LaserPointer.currentLaserPointer,
@@ -473,14 +529,7 @@ class _ToolbarState extends State<Toolbar> {
                 padding: buttonPadding,
                 child: const Icon(Symbols.stylus_laser_pointer),
               ),
-              ToolbarIconButton(
-                tooltip: t.editor.toolbar.toggleEraser,
-                selected: widget.currentTool is Eraser,
-                enabled: !widget.readOnly,
-                onPressed: toggleEraser,
-                padding: buttonPadding,
-                child: const FaIcon(FontAwesomeIcons.eraser, size: 16),
-              ),
+              _groupDivider(isToolbarVertical, colorScheme),
               ToolbarIconButton(
                 tooltip: t.editor.toolbar.photo,
                 enabled: !widget.readOnly,
@@ -502,6 +551,33 @@ class _ToolbarState extends State<Toolbar> {
                   cupertinoIcon: CupertinoIcons.text_cursor,
                 ),
               ),
+              _groupDivider(isToolbarVertical, colorScheme),
+              Wrap(
+                direction: isToolbarVertical ? Axis.vertical : Axis.horizontal,
+                children: [
+                  ToolbarIconButton(
+                    tooltip: t.editor.toolbar.undo,
+                    enabled: !widget.readOnly && widget.isUndoPossible,
+                    onPressed: widget.undo,
+                    padding: buttonPadding,
+                    child: const AdaptiveIcon(
+                      icon: Icons.undo,
+                      cupertinoIcon: CupertinoIcons.arrow_uturn_left,
+                    ),
+                  ),
+                  ToolbarIconButton(
+                    tooltip: t.editor.toolbar.redo,
+                    enabled: !widget.readOnly && widget.isRedoPossible,
+                    onPressed: widget.redo,
+                    padding: buttonPadding,
+                    child: const AdaptiveIcon(
+                      icon: Icons.redo,
+                      cupertinoIcon: CupertinoIcons.arrow_uturn_right,
+                    ),
+                  ),
+                ],
+              ),
+              _groupDivider(isToolbarVertical, colorScheme),
               if (!stows.hideFingerDrawingToggle.value)
                 ValueListenableBuilder(
                   valueListenable: stows.editorFingerDrawing,
@@ -530,31 +606,6 @@ class _ToolbarState extends State<Toolbar> {
                       ? CupertinoIcons.fullscreen_exit
                       : CupertinoIcons.fullscreen,
                 ),
-              ),
-              Wrap(
-                direction: isToolbarVertical ? Axis.vertical : Axis.horizontal,
-                children: [
-                  ToolbarIconButton(
-                    tooltip: t.editor.toolbar.undo,
-                    enabled: !widget.readOnly && widget.isUndoPossible,
-                    onPressed: widget.undo,
-                    padding: buttonPadding,
-                    child: const AdaptiveIcon(
-                      icon: Icons.undo,
-                      cupertinoIcon: CupertinoIcons.arrow_uturn_left,
-                    ),
-                  ),
-                  ToolbarIconButton(
-                    tooltip: t.editor.toolbar.redo,
-                    enabled: !widget.readOnly && widget.isRedoPossible,
-                    onPressed: widget.redo,
-                    padding: buttonPadding,
-                    child: const AdaptiveIcon(
-                      icon: Icons.redo,
-                      cupertinoIcon: CupertinoIcons.arrow_uturn_right,
-                    ),
-                  ),
-                ],
               ),
               ValueListenableBuilder(
                 valueListenable: showExportOptions,
@@ -590,7 +641,19 @@ class _ToolbarState extends State<Toolbar> {
       ),
     ];
 
-    return Flex(
+    final edge = BorderSide(color: colorScheme.outlineVariant);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        // A line on the side that faces the page.
+        border: switch (stows.editorToolbarAlignment.value) {
+          AxisDirection.up => Border(bottom: edge),
+          AxisDirection.left => Border(right: edge),
+          AxisDirection.right => Border(left: edge),
+          _ => Border(top: edge),
+        },
+      ),
+      child: Flex(
       direction: isToolbarVertical ? Axis.horizontal : Axis.vertical,
       textDirection: switch (stows.editorToolbarAlignment.value) {
         AxisDirection.left => .rtl,
@@ -603,6 +666,7 @@ class _ToolbarState extends State<Toolbar> {
         _ => VerticalDirection.down,
       },
       children: bars,
+      ),
     );
   }
 

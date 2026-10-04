@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
+import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas.dart' as saber;
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
@@ -21,6 +23,9 @@ import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/pen.dart';
+import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/shape_analysis.dart';
+import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/data/tools/stroke_properties.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
@@ -163,6 +168,73 @@ void main() {
         final editor = tester.state<EditorState>(find.byType(Editor));
         editor.toggleBookmark(0);
         editor.showPageGrid();
+        await tester.pump();
+      },
+    );
+    _shot(
+      theme: theme,
+      name: 'editor_sidebar',
+      child: Editor(path: '/Metric Spaces Week 1'),
+      afterLoad: (tester) async {
+        OpenTabs.reset();
+        stows.editorPageSidebar.value = true;
+        addTearDown(() => stows.editorPageSidebar.value = false);
+        await tester.pump();
+      },
+    );
+    _shot(
+      theme: theme,
+      name: 'editor_shape_selected',
+      child: Editor(path: '/Metric Spaces Week 1'),
+      afterLoad: (tester) async {
+        OpenTabs.reset();
+        await tester.pump();
+        final editor = tester.state<EditorState>(find.byType(Editor));
+        final page = editor.coreInfo.pages.first;
+        Stroke raw() => Stroke(
+          color: Colors.indigo,
+          pressureEnabled: false,
+          options: StrokeOptions(size: 6),
+          pageIndex: 0,
+          page: page,
+          toolId: .fountainPen,
+        );
+        final quad = ShapeBuilder.build(
+          raw(),
+          ShapeGuess(
+            kind: ShapeKind.polygon,
+            points: const [
+              Offset(180, 200),
+              Offset(520, 230),
+              Offset(450, 420),
+              Offset(230, 380),
+            ],
+          ),
+        );
+        final ellipse = ShapeBuilder.build(
+          raw()..color = Colors.deepOrange,
+          ShapeGuess(
+            kind: ShapeKind.ellipse,
+            center: const Offset(760, 320),
+            radiusX: 130,
+            radiusY: 70,
+            rotation: 0.3,
+          ),
+        );
+        page.strokes
+          ..add(quad)
+          ..add(ellipse);
+        final select = Select.currentSelect;
+        select.selectResult = SelectResult(
+          pageIndex: 0,
+          strokes: [quad],
+          images: [],
+          path: Path()..addRect(quad.bounds.inflate(12)),
+        );
+        select.doneSelecting = true;
+        editor.currentTool = select;
+        page.redrawStrokes();
+        tester.element(find.byType(Editor)).markNeedsBuild();
         await tester.pump();
       },
     );

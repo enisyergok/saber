@@ -185,6 +185,31 @@ abstract class DefterStrings {
 
   // Pen prediction
   static String get penPrediction => _tr ? 'Kalem tahmini' : 'Pen prediction';
+  static String get pageSidebar =>
+      _tr ? 'Sayfa paneli' : 'Page sidebar';
+
+  // Shapes
+  static String get holdToSnap =>
+      _tr ? 'Bekleyince şekli düzelt' : 'Hold to snap shapes';
+  static String get holdToSnapSubtitle => _tr
+      ? 'Bir şekil çizip kalemi bekletince çizgi düzgün şekle dönüşür'
+      : 'Draw a shape and hold the pen still to straighten it';
+  static String get holdDelay =>
+      _tr ? 'Düzeltme için bekleme' : 'Hold time to snap';
+  static String get holdDelaySubtitle => _tr
+      ? 'Kalemin kaç saniye durması gerektiği'
+      : 'How long the pen has to stay still';
+  static String get advancedShapes =>
+      _tr ? 'Gelişmiş şekil tanıma' : 'Improved shape recognition';
+  static String get advancedShapesSubtitle => _tr
+      ? 'Çokgen, elips ve yay tanır; döndürülmüş dikdörtgeni korur'
+      : 'Recognises polygons, ellipses and arcs, and keeps rotated rectangles';
+  static String get snapEndpoints =>
+      _tr ? 'Şekil uçlarına yapış' : 'Snap to shape ends';
+  static String get snapEndpointsSubtitle => _tr
+      ? 'Çizgi uçları ve köşeler yakındaki şekillerin uçlarına oturur'
+      : 'Line ends and corners snap to nearby shapes';
+
   static String get penPredictionSubtitle => _tr
       ? 'Hızlı yazarken çizginin kalemin ucundan geri kalmasını azaltır'
       : 'Reduces the line trailing behind the pen tip when writing fast';
