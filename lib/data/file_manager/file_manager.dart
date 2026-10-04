@@ -42,6 +42,56 @@ class FileManager {
   /// including previews, e.g. `mynote.sbn2.1`.
   static final assetFileRegex = RegExp(r'\.sbn2?\.[\dp]+$');
 
+  /// Matches the temporary, backup and quarantined copies of a note (or one of
+  /// its assets) that [writeFile] and crash recovery create next to the real
+  /// file. These are never listed in the library or synced.
+  static final transientFileRegex = RegExp(
+    r'\.sbn2?(\.[\dp]+)?\.(tmp|bak|bad)$',
+  );
+
+  /// The last write to each path, so that writes to one file never overlap.
+  static final _pendingWrites = <String, Future<void>>{};
+
+  /// Writes [bytes] to [file] so that a crash or power loss at any point leaves
+  /// either the complete old content or the complete new content on disk.
+  ///
+  /// The bytes go to `<file>.tmp` first and are flushed to disk, then
+  /// the temporary file replaces the real one with a single rename.
+  /// If [keepBackup] is true, the previous content is kept as `<file>.bak`.
+  static Future<void> _writeAtomically(
+    File file,
+    List<int> bytes, {
+    required bool keepBackup,
+  }) {
+    final previous = _pendingWrites[file.path] ?? Future<void>.value();
+    final next = previous
+        .catchError((_) {}) // a failed earlier write must not block this one
+        .then((_) async {
+          final temp = File('${file.path}.tmp');
+          final handle = await temp.open(mode: FileMode.write);
+          try {
+            await handle.writeFrom(bytes);
+            await handle.flush();
+          } finally {
+            await handle.close();
+          }
+
+          if (keepBackup && file.existsSync() && file.lengthSync() > 0) {
+            // Rename (not copy) so that saving stays fast for large notes.
+            // [EditorCoreInfo.loadFromFilePath] falls back to the backup in
+            // the tiny window before the next rename completes.
+            await file.rename('${file.path}.bak');
+          }
+          await temp.rename(file.path);
+        });
+    _pendingWrites[file.path] = next;
+    return next.whenComplete(() {
+      if (identical(_pendingWrites[file.path], next)) {
+        _pendingWrites.remove(file.path);
+      }
+    });
+  }
+
   /// Forbidden names for files and directories (on any/all platforms).
   /// These patterns match the base name only (not the full path).
   /// Source: https://stackoverflow.com/a/31976060/
@@ -168,6 +218,7 @@ class FileManager {
           // The path may or may not be relative,
           // so remove the root directory path to make sure it's relative.
           .replaceFirst(documentsDirectory, '');
+      if (transientFileRegex.hasMatch(path)) return;
       broadcastFileWrite(type, path);
     });
   }
@@ -249,7 +300,11 @@ class FileManager {
     final file = getFile(filePath);
     await _createFileDirectory(filePath);
     Future writeFuture = Future.wait([
-      file.writeAsBytes(toWrite).then((file) async {
+      _writeAtomically(
+        file,
+        toWrite,
+        keepBackup: filePath.endsWith(Editor.extension),
+      ).then((_) async {
         if (lastModified != null) await file.setLastModified(lastModified);
       }),
       // if we're using a new format, also delete the old file
@@ -275,6 +330,29 @@ class FileManager {
 
     writeFuture = writeFuture.then((_) => afterWrite());
     if (awaitWrite) await writeFuture;
+  }
+
+  /// Restores `<mainPath>.bak` as the note when the main file is missing.
+  /// The backup is kept, so a crash right after this loses nothing.
+  static Future<void> copyBackupOverMain(String mainPath) async {
+    await getFile('$mainPath.bak').copy(getFile(mainPath).path);
+  }
+
+  /// Moves an unreadable note to `<mainPath>.bad` (for later inspection) and
+  /// restores `<mainPath>.bak` in its place, so the next save does not
+  /// overwrite the good backup with the broken file.
+  static Future<void> quarantineAndRestore(String mainPath) async {
+    final main = getFile(mainPath);
+    await main.rename('${main.path}.bad');
+    await copyBackupOverMain(mainPath);
+  }
+
+  static Future<void> _deleteIfExists(File file) async {
+    try {
+      await file.delete();
+    } on PathNotFoundException {
+      // already gone
+    }
   }
 
   static Future<void> createFolder(String folderPath) async {
@@ -399,6 +477,12 @@ class FileManager {
     await _createFileDirectory(toPath);
     if (fromFile.existsSync()) {
       await fromFile.rename(toFile.path);
+      if (fromPath.endsWith(Editor.extension)) {
+        final fromBackup = getFile('$fromPath.bak');
+        if (fromBackup.existsSync()) {
+          await fromBackup.rename('${toFile.path}.bak');
+        }
+      }
     } else {
       log.warning('Tried to move non-existent file from $fromPath to $toPath');
     }
@@ -451,6 +535,9 @@ class FileManager {
     final file = getFile(filePath);
     if (!file.existsSync()) return;
     await file.delete();
+    if (filePath.endsWith(Editor.extension)) {
+      await _deleteIfExists(getFile('$filePath.bak'));
+    }
 
     if (alsoUpload) syncer.uploader.enqueueRel(filePath);
 
@@ -587,6 +674,9 @@ class FileManager {
 
           // filter out reserved files
           if (Editor.isReservedPath(filePath)) return null;
+
+          // filter out temporary and backup copies
+          if (transientFileRegex.hasMatch(filePath)) return null;
 
           late final isSbn2 = filePath.endsWith(Editor.extension);
           late final isSbn1 = filePath.endsWith(Editor.extensionOldJson);

@@ -352,7 +352,8 @@ class EditorCoreInfo {
     String path, {
     bool onlyFirstPage = false,
   }) async {
-    final bsonBytes = await FileManager.readFile(path + Editor.extension);
+    final mainPath = path + Editor.extension;
+    final bsonBytes = await FileManager.readFile(mainPath);
 
     final String? jsonString;
     if (bsonBytes != null) {
@@ -364,16 +365,88 @@ class EditorCoreInfo {
       jsonString = jsonBytes != null ? utf8.decode(jsonBytes) : null;
     }
 
+    // Only read the backup if it turns out to be needed.
+    Future<Uint8List?> readBackup() => FileManager.readFile('$mainPath.bak');
+
     if (bsonBytes == null && jsonString == null) {
+      // The note is missing: a save may have been interrupted
+      // between its two renames. Open the previous version if there is one.
+      final backupBytes = await readBackup();
+      if (backupBytes != null) {
+        final recovered = await _tryLoadBackup(
+          path,
+          backupBytes,
+          onlyFirstPage,
+        );
+        if (recovered != null) {
+          log.warning('Opened $path from its backup (main file missing)');
+          await FileManager.copyBackupOverMain(mainPath);
+          return recovered;
+        }
+      }
       return EditorCoreInfo(filePath: path);
     }
 
-    return loadFromFileContents(
-      jsonString: jsonString,
-      bsonBytes: bsonBytes,
-      path: path,
-      onlyFirstPage: onlyFirstPage,
-    );
+    EditorCoreInfo? coreInfo;
+    Object? loadError;
+    StackTrace? loadStackTrace;
+    try {
+      coreInfo = await loadFromFileContents(
+        jsonString: jsonString,
+        bsonBytes: bsonBytes,
+        path: path,
+        onlyFirstPage: onlyFirstPage,
+      );
+    } catch (e, st) {
+      // Debug builds rethrow parse errors; try the backup before giving up.
+      loadError = e;
+      loadStackTrace = st;
+    }
+
+    if (coreInfo != null &&
+        coreInfo.readOnlyReason != ReadOnlyReason.corrupted) {
+      return coreInfo;
+    }
+
+    if (bsonBytes != null) {
+      final backupBytes = await readBackup();
+      if (backupBytes != null) {
+        final recovered = await _tryLoadBackup(
+          path,
+          backupBytes,
+          onlyFirstPage,
+        );
+        if (recovered != null) {
+          log.warning('Opened $path from its backup (main file corrupted)');
+          await FileManager.quarantineAndRestore(mainPath);
+          return recovered;
+        }
+      }
+    }
+    if (loadError != null) {
+      Error.throwWithStackTrace(loadError, loadStackTrace!);
+    }
+    return coreInfo ??
+        EditorCoreInfo(filePath: path, readOnlyReason: .corrupted);
+  }
+
+  /// Parses [backupBytes], returning null if they are unusable as well.
+  static Future<EditorCoreInfo?> _tryLoadBackup(
+    String path,
+    Uint8List backupBytes,
+    bool onlyFirstPage,
+  ) async {
+    try {
+      final info = await loadFromFileContents(
+        bsonBytes: backupBytes,
+        path: path,
+        onlyFirstPage: onlyFirstPage,
+      );
+      return info.readOnlyReason == ReadOnlyReason.corrupted ? null : info;
+    } catch (e, st) {
+      log.severe('Backup of $path is unusable too: $e', e, st);
+      return null;
+    }
   }
 
   @visibleForTesting

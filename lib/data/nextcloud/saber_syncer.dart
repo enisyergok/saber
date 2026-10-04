@@ -42,6 +42,7 @@ class const SaberSyncInterface()
       recursive: true,
     )) {
       if (localFile is! File) continue;
+      if (FileManager.transientFileRegex.hasMatch(localFile.path)) continue;
 
       final syncFile = await getSyncFileFromLocalFile(localFile);
 
