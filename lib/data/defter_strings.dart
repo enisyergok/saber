@@ -172,6 +172,6 @@ abstract class DefterStrings {
   static String get syncNone => _tr ? 'henüz yok' : 'none yet';
   static String get syncNow => _tr ? 'Şimdi eşitle' : 'Sync now';
   static String get syncExplain => _tr
-      ? 'Notlar çevrimdışı da çalışır; internet gelince bekleyenler kendiliğinden gönderilir. Aynı not iki yerde değiştiyse eski sürüm silinmez, kopya olarak saklanır.'
-      : 'Notes work offline; waiting files are sent when the internet returns. If a note changed in two places, the older version is kept as a copy, not deleted.';
+      ? 'Notlar çevrimdışı da çalışır; internet gelince bekleyenler kendiliğinden gönderilir.'
+      : 'Notes work offline; waiting files are sent when the internet returns.';
 }
