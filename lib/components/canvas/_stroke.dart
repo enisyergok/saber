@@ -40,6 +40,24 @@ class Stroke {
   List<Offset> get highQualityPolygon =>
       _highQualityPolygon ??= getPolygon(quality: .high);
 
+  /// The bounding box of [lowQualityPolygon], cached.
+  /// Lets tools skip strokes that are nowhere near them.
+  Rect? _bounds;
+  Rect get bounds => _bounds ??= _boundsOf(lowQualityPolygon);
+
+  static Rect _boundsOf(List<Offset> polygon) {
+    if (polygon.isEmpty) return Rect.zero;
+    var left = polygon.first.dx, right = left;
+    var top = polygon.first.dy, bottom = top;
+    for (final point in polygon) {
+      if (point.dx < left) left = point.dx;
+      if (point.dx > right) right = point.dx;
+      if (point.dy < top) top = point.dy;
+      if (point.dy > bottom) bottom = point.dy;
+    }
+    return Rect.fromLTRB(left, top, right, bottom);
+  }
+
   Path? _lowQualityPath, _highQualityPath;
   Path get lowQualityPath =>
       _lowQualityPath ??= getPath(lowQualityPolygon, smooth: false);
@@ -51,11 +69,13 @@ class Stroke {
     points.shift(offset);
     _lowQualityPolygon?.shift(offset);
     _highQualityPolygon?.shift(offset);
+    _bounds = _bounds?.shift(offset);
     _lowQualityPath = _lowQualityPath?.shift(offset);
     _highQualityPath = _highQualityPath?.shift(offset);
   }
 
   void markPolygonNeedsUpdating() {
+    _bounds = null;
     _lowQualityPolygon = null;
     _highQualityPolygon = null;
     _lowQualityPath = null;

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:saber/components/canvas/_stroke.dart';
@@ -12,6 +13,10 @@ double sqrDistanceBetween(Offset p1, Offset p2) =>
 class Eraser extends Tool {
   final double size;
   late final double sqrSize = square(size);
+
+  /// How far from a stroke's bounding box the eraser can still touch it.
+  /// The extra 1 keeps points exactly on the edge from being missed.
+  late final double _reach = math.sqrt(sqrSize) + 1;
 
   List<Stroke> _erased = [];
 
@@ -28,6 +33,9 @@ class Eraser extends Tool {
     final List<Stroke> overlapping = [];
     for (int i = 0; i < strokes.length; i++) {
       final stroke = strokes[i];
+      // Most strokes are far from the eraser: skip them without looking at
+      // their vertices.
+      if (!stroke.bounds.inflate(_reach).contains(eraserPos)) continue;
       if (_shouldStrokeBeErased(eraserPos, stroke, sqrSize)) {
         overlapping.add(stroke);
         _erased.add(stroke);
