@@ -1,0 +1,7 @@
+Analyzing saber...                                              
+
+warning • The declaration '_getOnyxColor' isn't referenced. Try removing the declaration of '_getOnyxColor' • lib/components/canvas/canvas.dart:47:9 • unused_element
+warning • The declaration '_getOnyxWidth' isn't referenced. Try removing the declaration of '_getOnyxWidth' • lib/components/canvas/canvas.dart:55:10 • unused_element
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • lib/components/settings/settings_sentry.dart:9:5 • prefer_const_declarations
+
+3 issues found. (ran in 24.4s)

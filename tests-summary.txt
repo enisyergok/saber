@@ -1,0 +1,8 @@
+passed=283 failed=1 skipped=0 unfinished=0
+
+## sentry_consent_dialog_test.dart
+- SentryConsentDialog 
+    The following assertion was thrown while running async test code:
+    Golden "goldens/sentry_consent_dialog.png": Pixel test failed: 43.57% diff detected.
+    Failure feedback can be found at /home/runner/work/saber/saber/test/failures
+
