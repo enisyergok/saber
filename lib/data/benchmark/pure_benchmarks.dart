@@ -5,6 +5,7 @@ import 'dart:ui' show Offset;
 import 'package:saber/data/benchmark/synthetic_notes.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
+import 'package:saber/data/tools/eraser.dart';
 
 /// Measurements that need no screen, so they run both on a device
 /// (from the benchmark page) and in CI (to catch regressions).
@@ -34,6 +35,31 @@ abstract class PureBenchmarks {
     }
     stopwatch.stop();
     page.dispose();
+    return stopwatch.elapsed;
+  }
+
+  /// The time for an eraser to sweep diagonally across the first page of
+  /// [note] in [moves] pointer moves, checking every stroke on each move.
+  /// Nothing is erased, so every run does the same work.
+  static Duration eraserSweep(EditorCoreInfo note, {int moves = 200}) {
+    final page = note.pages.first;
+    final eraser = Eraser();
+
+    // Outlines are built lazily; this measures the sweep, not their first use.
+    for (final stroke in page.strokes) {
+      stroke.lowQualityPolygon;
+    }
+
+    final stopwatch = Stopwatch()..start();
+    for (var i = 0; i < moves; i++) {
+      final t = i / (moves - 1);
+      eraser.checkForOverlappingStrokes(
+        Offset(page.size.width * t, page.size.height * t),
+        page.strokes,
+      );
+    }
+    stopwatch.stop();
+    eraser.onDragEnd();
     return stopwatch.elapsed;
   }
 

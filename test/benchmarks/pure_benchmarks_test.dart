@@ -61,6 +61,18 @@ void main() {
     }
   });
 
+  test('BENCH eraser sweep', () {
+    for (final strokes in [1000, 10000, 50000]) {
+      final note = SyntheticNotes.note(strokes: strokes);
+      final best = [
+        for (var i = 0; i < 3; i++) PureBenchmarks.eraserSweep(note),
+      ].reduce((a, b) => a < b ? a : b);
+      note.dispose();
+      // ignore: avoid_print
+      print('BENCH eraser_sweep_200_moves_${strokes}_strokes_ms=${_ms(best)}');
+    }
+  }, timeout: const Timeout(Duration(minutes: 5)));
+
   test('BENCH serialize', () {
     for (final (strokes, pages) in [(1000, 1), (10000, 1), (30000, 100)]) {
       final note = SyntheticNotes.note(strokes: strokes, pages: pages);
