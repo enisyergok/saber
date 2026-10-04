@@ -34,6 +34,7 @@ import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/benchmark.dart';
 import 'package:saber/pages/handwriting_settings.dart';
+import 'package:saber/pages/sync_status.dart';
 import 'package:saber/pages/trash.dart';
 import 'package:stow/stow.dart';
 
@@ -618,6 +619,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const TrashPage(),
+                    ),
+                  ),
+                ),
+                SettingsButton(
+                  title: DefterStrings.syncStatus,
+                  subtitle: DefterStrings.syncStatusSubtitle,
+                  icon: Icons.cloud_sync_outlined,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const SyncStatusPage(),
                     ),
                   ),
                 ),

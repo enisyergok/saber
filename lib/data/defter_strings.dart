@@ -153,4 +153,25 @@ abstract class DefterStrings {
   static String get play => _tr ? 'Oynat' : 'Play';
   static String get pause => _tr ? 'Duraklat' : 'Pause';
   static String get delete => _tr ? 'Sil' : 'Delete';
+
+  // Sync status
+  static String get syncStatus => _tr ? 'Senkron durumu' : 'Sync status';
+  static String get syncStatusSubtitle => _tr
+      ? 'Bekleyen dosyalar ve son aktarım'
+      : 'Waiting files and the last transfer';
+  static String syncOn(String user) =>
+      _tr ? 'Nextcloud\'a bağlı: $user' : 'Connected to Nextcloud: $user';
+  static String get syncOff =>
+      _tr ? 'Senkron kapalı (giriş yapılmadı)' : 'Sync is off (not logged in)';
+  static String get syncWaitingDownloads =>
+      _tr ? 'İndirilmeyi bekleyen' : 'Waiting to download';
+  static String get syncWaitingUploads =>
+      _tr ? 'Yüklenmeyi bekleyen' : 'Waiting to upload';
+  static String get syncLastTransfer =>
+      _tr ? 'Son aktarım (bu oturum)' : 'Last transfer (this session)';
+  static String get syncNone => _tr ? 'henüz yok' : 'none yet';
+  static String get syncNow => _tr ? 'Şimdi eşitle' : 'Sync now';
+  static String get syncExplain => _tr
+      ? 'Notlar çevrimdışı da çalışır; internet gelince bekleyenler kendiliğinden gönderilir. Aynı not iki yerde değiştiyse eski sürüm silinmez, kopya olarak saklanır.'
+      : 'Notes work offline; waiting files are sent when the internet returns. If a note changed in two places, the older version is kept as a copy, not deleted.';
 }

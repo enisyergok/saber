@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
+import 'package:saber/data/nextcloud/sync_status.dart';
 import 'package:saber/data/prefs.dart';
 
 class const SyncingButton({super.key}) extends HookWidget {
@@ -35,6 +36,7 @@ class const SyncingButton({super.key}) extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    useMemoized(SyncStatus.attach);
     useListenable(filesTransferred);
 
     useStream(syncer.downloader.queueStream);
