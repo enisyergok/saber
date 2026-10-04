@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:pdfrx/pdfrx.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';

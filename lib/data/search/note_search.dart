@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/file_manager/file_manager.dart';

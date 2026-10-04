@@ -5,7 +5,7 @@ import 'package:saber/data/pdf/pdf_note_text.dart';
 void main() {
   group('PDF text search:', () {
     test('finds matches ignoring case and Turkish letters', () {
-      expect(PdfNoteText.findMatches('Sınav tarihi: SINAV', 'sinav'), [0, 13]);
+      expect(PdfNoteText.findMatches('Sınav tarihi: SINAV', 'sinav'), [0, 14]);
       expect(PdfNoteText.findMatches('İstanbul', 'istanbul'), [0]);
       expect(PdfNoteText.findMatches('abc', ''), isEmpty);
       expect(PdfNoteText.findMatches('abc', 'xyz'), isEmpty);
