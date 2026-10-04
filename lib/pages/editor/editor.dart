@@ -51,6 +51,8 @@ import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
+import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
+import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
@@ -1805,6 +1807,12 @@ class EditorState extends State<Editor> {
                     tooltip: t.editor.pages,
                     onPressed: showPageGrid,
                   ),
+                  if (PdfNoteText.hasPdf(coreInfo))
+                    IconButton(
+                      icon: const Icon(Icons.picture_as_pdf_outlined),
+                      tooltip: DefterStrings.pdfTools,
+                      onPressed: showPdfTools,
+                    ),
                   ValueListenableBuilder(
                     valueListenable: _visiblePageIndex,
                     builder: (context, pageIndex, _) {
@@ -2061,6 +2069,25 @@ class EditorState extends State<Editor> {
       page.bookmarked = !page.bookmarked;
     });
     autosaveAfterDelay();
+  }
+
+  /// Search the PDF text and jump through its table of contents.
+  void showPdfTools() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => PdfToolsDialog(
+        coreInfo: coreInfo,
+        onPageSelected: (pageIndex) {
+          Navigator.of(dialogContext).pop();
+          CanvasGestureDetector.scrollToPage(
+            pageIndex: pageIndex,
+            pages: coreInfo.pages,
+            screenWidth: MediaQuery.sizeOf(context).width,
+            transformationController: _transformationController,
+          );
+        },
+      ),
+    );
   }
 
   /// Shows every page as a thumbnail, for jumping around the notebook.

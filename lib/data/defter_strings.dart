@@ -79,4 +79,16 @@ abstract class DefterStrings {
 
   // Tools
   static String get eraserSize => _tr ? 'Silgi boyutu' : 'Eraser size';
+
+  // PDF
+  static String get pdfTools => _tr ? 'PDF: ara ve içindekiler' : 'PDF: search and contents';
+  static String get pdfSearchHint => _tr ? 'PDF içinde ara' : 'Search in the PDF';
+  static String get pdfNoText => _tr
+      ? 'Bu PDF\'te aranabilir metin yok (taranmış olabilir)'
+      : 'This PDF has no searchable text (it may be a scan)';
+  static String get pdfNoOutline =>
+      _tr ? 'Bu PDF\'te içindekiler listesi yok' : 'This PDF has no table of contents';
+  static String get pdfContents => _tr ? 'İçindekiler' : 'Contents';
+  static String get pdfSearch => _tr ? 'Ara' : 'Search';
+  static String pdfPageLabel(int page) => _tr ? 'Sayfa $page' : 'Page $page';
 }

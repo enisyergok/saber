@@ -78,7 +78,6 @@ class NoteSearchIndex {
   /// Makes Turkish (and other) letters comparable regardless of how the
   /// person types: `İ`, `I`, `ı` all become `i`, and `ş ğ ü ö ç` lose their
   /// marks.
-  @visibleForTesting
   static String fold(String text) {
     const map = {
       'İ': 'i', 'I': 'i', 'ı': 'i',
