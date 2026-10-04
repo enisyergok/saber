@@ -22,6 +22,9 @@ import 'package:yaru/yaru.dart';
 import 'utils/test_mock_channel_handlers.dart';
 import 'utils/test_user.dart';
 
+/// The modified time given to every demo file.
+final demoFilesLastModified = DateTime(2026, 1, 15, 12);
+
 Future<void> setupDemoFiles() async {
   const demoFiles = <String>[
     // These files will be at the top of recent files
@@ -45,7 +48,10 @@ Future<void> setupDemoFiles() async {
           final bytes = await file.readAsBytes();
           final dstFile = FileManager.getFile(fileName);
           await dstFile.create(recursive: true);
-          return dstFile.writeAsBytes(bytes);
+          await dstFile.writeAsBytes(bytes);
+          // The library shows each note's modified date under its cover;
+          // pin it so that golden images don't change from day to day.
+          await dstFile.setLastModified(demoFilesLastModified);
         }),
   );
   stows.recentFiles.value = [...demoFiles, ...fillerFiles..sort()];
