@@ -355,6 +355,73 @@ class FileManager {
     }
   }
 
+  /// Where deleted notes wait before being removed for good.
+  /// A hidden folder: it is never listed in the library.
+  static const trashDirectory = '/.Trash';
+
+  static bool isInTrash(String filePath) =>
+      filePath.startsWith('$trashDirectory/');
+
+  /// Moves the note at [filePath] (with its extension), together with its
+  /// assets and backup, to the trash. Returns where it went.
+  /// Keeps its folder structure, so [restoreFromTrash] can put it back.
+  static Future<String?> moveToTrash(String filePath) async {
+    filePath = _sanitisePath(filePath);
+    if (isInTrash(filePath) || !doesFileExist(filePath)) return null;
+
+    final trashed = await moveFile(filePath, '$trashDirectory$filePath');
+    // The note should not show up as "recent" or "favourite" in the trash.
+    await _removeReferences(trashed);
+    return trashed;
+  }
+
+  /// Moves every note inside [directoryPath] to the trash, then removes the
+  /// (now empty) directory.
+  static Future<void> moveDirectoryToTrash(String directoryPath) async {
+    directoryPath = _sanitisePath(directoryPath);
+    final directory = Directory(documentsDirectory + directoryPath);
+    if (!directory.existsSync()) return;
+
+    final notes = <String>[
+      await for (final entity in directory.list(recursive: true))
+        if (entity is File)
+          if (entity.path.endsWith(Editor.extension) ||
+              entity.path.endsWith(Editor.extensionOldJson))
+            entity.path.substring(documentsDirectory.length),
+    ];
+    for (final note in notes) {
+      await moveToTrash(note);
+    }
+    // Whatever is left (stray files) is deleted with the folder.
+    await deleteDirectory(directoryPath);
+  }
+
+  /// Moves a trashed note back to where it came from. If something is there
+  /// already, the restored note gets a numbered name instead.
+  static Future<String> restoreFromTrash(String trashedPath) {
+    trashedPath = _sanitisePath(trashedPath);
+    assert(isInTrash(trashedPath), '$trashedPath is not in the trash');
+    return moveFile(trashedPath, trashedPath.substring(trashDirectory.length));
+  }
+
+  /// The notes in the trash, as file paths with their extension.
+  static Future<List<String>> listTrash() async {
+    final directory = Directory(documentsDirectory + trashDirectory);
+    if (!directory.existsSync()) return const [];
+    return [
+      await for (final entity in directory.list(recursive: true))
+        if (entity is File)
+          if (entity.path.endsWith(Editor.extension) ||
+              entity.path.endsWith(Editor.extensionOldJson))
+            entity.path
+                .substring(documentsDirectory.length)
+                .replaceAll('\\', '/'),
+    ]..sort();
+  }
+
+  /// Deletes everything in the trash for good.
+  static Future<void> emptyTrash() => deleteDirectory(trashDirectory);
+
   static Future<void> createFolder(String folderPath) async {
     folderPath = _sanitisePath(folderPath);
 
@@ -670,7 +737,9 @@ class FileManager {
           final filePath = entity.path.substring(documentsDirectory.length);
 
           // directories don't need any further processing
-          if (entity is Directory) return filePath;
+          if (entity is Directory) {
+            return filePath == trashDirectory ? null : filePath;
+          }
 
           // filter out reserved files
           if (Editor.isReservedPath(filePath)) return null;
@@ -1012,6 +1081,18 @@ class FileManager {
       }
     }
     stows.recentFiles.notifyListeners();
+
+    // rename file in favourites
+    final favorites = stows.favoriteFiles.value;
+    final favoriteIndex = favorites.indexOf(fromPath);
+    if (favoriteIndex != -1) {
+      if (favorites.contains(toPath)) {
+        favorites.removeAt(favoriteIndex);
+      } else {
+        favorites[favoriteIndex] = toPath;
+      }
+      stows.favoriteFiles.notifyListeners();
+    }
   }
 
   static Future _removeReferences(String filePath) async {
@@ -1021,6 +1102,11 @@ class FileManager {
       stows.recentFiles.value.removeAt(i);
     }
     stows.recentFiles.notifyListeners();
+
+    // remove file from favourites
+    if (stows.favoriteFiles.value.remove(filePath)) {
+      stows.favoriteFiles.notifyListeners();
+    }
   }
 
   static Future _saveFileAsRecentlyAccessed(String filePath) async {

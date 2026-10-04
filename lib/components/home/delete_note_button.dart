@@ -89,7 +89,7 @@ class _DeleteNoteDialogState extends State<_DeleteNoteDialog> {
                           filePath + Editor.extensionOldJson,
                         ),
                       ).then(
-                        (oldExtension) => FileManager.deleteFile(
+                        (oldExtension) => FileManager.moveToTrash(
                           filePath +
                               (oldExtension
                                   ? Editor.extensionOldJson

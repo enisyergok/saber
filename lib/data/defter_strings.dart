@@ -41,4 +41,39 @@ abstract class DefterStrings {
       : 'Generates sample notes and measures frame times while writing, '
             'stroke outline cost, and save/open times. Takes about a minute; '
             'your notes are not touched.';
+
+  // Trash
+  static String get trash => _tr ? 'Çöp kutusu' : 'Trash';
+  static String get trashSubtitle => _tr
+      ? 'Silinen notları geri al veya kalıcı olarak sil'
+      : 'Restore deleted notes or remove them for good';
+  static String get trashEmpty =>
+      _tr ? 'Çöp kutusu boş' : 'The trash is empty';
+  static String get restore => _tr ? 'Geri al' : 'Restore';
+  static String get deleteForever =>
+      _tr ? 'Kalıcı olarak sil' : 'Delete forever';
+  static String get emptyTrash => _tr ? 'Çöpü boşalt' : 'Empty trash';
+  static String get emptyTrashConfirm => _tr
+      ? 'Çöp kutusundaki tüm notlar kalıcı olarak silinecek.'
+      : 'Every note in the trash will be deleted for good.';
+  static String get cancel => _tr ? 'Vazgeç' : 'Cancel';
+
+  // Favourites
+  static String get favorites => _tr ? 'Favoriler' : 'Favorites';
+  static String get addToFavorites =>
+      _tr ? 'Favorilere ekle' : 'Add to favorites';
+  static String get removeFromFavorites =>
+      _tr ? 'Favorilerden çıkar' : 'Remove from favorites';
+  static String get noFavorites => _tr
+      ? 'Henüz favori not yok. Bir notu seçip yıldıza dokun.'
+      : 'No favorites yet. Select a note and tap the star.';
+
+  // Search
+  static String get search => _tr ? 'Ara' : 'Search';
+  static String get searchHint =>
+      _tr ? 'Not adı veya içerik ara' : 'Search note names and text';
+  static String get searchNoResults =>
+      _tr ? 'Sonuç bulunamadı' : 'No results';
+  static String get searchIndexing =>
+      _tr ? 'Notlar taranıyor…' : 'Indexing notes…';
 }

@@ -33,6 +33,7 @@ import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/benchmark.dart';
+import 'package:saber/pages/trash.dart';
 import 'package:stow/stow.dart';
 
 class const SettingsPage({super.key}) extends StatefulWidget {
@@ -608,6 +609,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: t.logs.debuggingInfo,
                   icon: Icons.receipt_long,
                   onPressed: () => context.push(RoutePaths.logs),
+                ),
+                SettingsButton(
+                  title: DefterStrings.trash,
+                  subtitle: DefterStrings.trashSubtitle,
+                  icon: Icons.delete_outline,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const TrashPage(),
+                    ),
+                  ),
                 ),
                 SettingsButton(
                   title: DefterStrings.benchmark,

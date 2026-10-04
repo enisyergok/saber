@@ -178,7 +178,7 @@ class _BrowsePageState extends State<BrowsePage> {
             },
             deleteFolder: (String folderName) async {
               final folderPath = '${path ?? ''}/$folderName';
-              await FileManager.deleteDirectory(folderPath);
+              await FileManager.moveDirectoryToTrash(folderPath);
               findChildrenOfPath();
             },
             folders: [

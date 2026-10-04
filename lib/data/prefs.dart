@@ -350,6 +350,13 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Notes marked as favourites, as file paths with their extension.
+  final favoriteFiles = PlainStow(
+    'favoriteFiles',
+    <String>[],
+    volatile: !_isOnMainIsolate,
+  );
+
   /// File paths that have been deleted locally
   final fileSyncAlreadyDeleted = PlainStow(
     'fileSyncAlreadyDeleted',
