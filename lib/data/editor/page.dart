@@ -281,9 +281,21 @@ class EditorPage extends ChangeNotifier implements HasSize {
 
   /// Triggers a redraw of the strokes. If you need to redraw images,
   /// call [setState] instead.
+  ///
+  /// This repaints both ink layers. While the pen or laser is moving,
+  /// call [redrawLiveInk] instead so the finished strokes aren't repainted.
   void redrawStrokes() {
     notifyListeners();
   }
+
+  final _liveInk = _LiveInkNotifier();
+
+  /// Notifies only the live ("wet") ink layer: the stroke being drawn, laser
+  /// strokes, the shape guide and the selection outline.
+  void redrawLiveInk() => _liveInk.ping();
+
+  /// Fires on [redrawStrokes] and [redrawLiveInk].
+  late final Listenable liveInkListenable = Listenable.merge([this, _liveInk]);
 
   /// Updates the `pageIndex` fields of this page's strokes/images.
   void updatePageIndex(int pageIndex) {
@@ -296,6 +308,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
   @override
   void dispose() {
     quill.dispose();
+    _liveInk.dispose();
     _pencilShader?.dispose();
     isRendered = false;
     for (final image in images) {
@@ -369,4 +382,8 @@ class QuillStruct {
     ),
     focusNode: FocusNode(debugLabel: 'Screenshot Quill Focus Node'),
   );
+}
+
+class _LiveInkNotifier extends ChangeNotifier {
+  void ping() => notifyListeners();
 }

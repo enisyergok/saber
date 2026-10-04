@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:one_dollar_unistroke_recognizer/one_dollar_unistroke_recognizer.dart';
 import 'package:path_drawing/path_drawing.dart';
@@ -15,9 +16,23 @@ import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 
+/// Which part of a page's ink a [CanvasPainter] draws.
+///
+/// The two layers are painted by separate painters in separate repaint
+/// boundaries, so drawing a stroke only repaints the (small) live layer.
+enum InkLayer {
+  /// Finished strokes. Repainted only when the strokes themselves change.
+  dry,
+
+  /// Everything that changes while the pen is moving: the current stroke,
+  /// laser strokes, the detected shape, the selection and the page number.
+  live,
+}
+
 class CanvasPainter extends CustomPainter {
   const new({
     super.repaint,
+    required this.layer,
     this.invert = false,
     required this.strokes,
     required this.laserStrokes,
@@ -32,6 +47,7 @@ class CanvasPainter extends CustomPainter {
     required this.defaultTextStyle,
   });
 
+  final InkLayer layer;
   final bool invert;
   final List<Stroke> strokes;
   final List<LaserStroke> laserStrokes;
@@ -45,21 +61,44 @@ class CanvasPainter extends CustomPainter {
   final double currentScale;
   final TextStyle defaultTextStyle;
 
+  /// Called at the start of every [paint], so tests can count repaints.
+  @visibleForTesting
+  static void Function(InkLayer layer)? debugOnPaint;
+
   @override
   void paint(Canvas canvas, Size size) {
+    debugOnPaint?.call(layer);
     final canvasRect = Offset.zero & size;
 
-    _drawHighlighterStrokes(canvas, canvasRect);
-    _drawNonHighlighterStrokes(canvas);
-    for (final stroke in laserStrokes) _drawLaserStroke(canvas, stroke);
-    _drawCurrentStroke(canvas);
-    _drawDetectedShape(canvas);
-    _drawSelection(canvas);
-    _drawPageIndicator(canvas, size);
+    switch (layer) {
+      case .dry:
+        _drawHighlighterStrokes(canvas, canvasRect);
+        _drawNonHighlighterStrokes(canvas);
+      case .live:
+        for (final stroke in laserStrokes) _drawLaserStroke(canvas, stroke);
+        _drawCurrentStroke(canvas);
+        _drawDetectedShape(canvas);
+        _drawSelection(canvas);
+        _drawPageIndicator(canvas, size);
+    }
   }
 
   @override
   bool shouldRepaint(CanvasPainter oldDelegate) {
+    if (layer == .dry) {
+      // The finished strokes don't change while a stroke is being drawn.
+      // [strokes] is the page's own (mutated) list, so a stroke being added
+      // or removed is noticed through the page's repaint listenable, or by
+      // the current stroke starting/ending.
+      return currentStroke != oldDelegate.currentStroke ||
+          invert != oldDelegate.invert ||
+          strokes.length != oldDelegate.strokes.length ||
+          currentSelection != oldDelegate.currentSelection ||
+          primaryColor != oldDelegate.primaryColor ||
+          page != oldDelegate.page ||
+          currentScale != oldDelegate.currentScale;
+    }
+
     return false ||
         // Current stroke is being drawn, so always repaint if present
         (currentStroke != null || oldDelegate.currentStroke != null) ||
@@ -67,7 +106,6 @@ class CanvasPainter extends CustomPainter {
         (laserStrokes.isNotEmpty || oldDelegate.laserStrokes.isNotEmpty) ||
         // Check for any other changes
         invert != oldDelegate.invert ||
-        strokes.length != oldDelegate.strokes.length ||
         currentSelection != oldDelegate.currentSelection ||
         primaryColor != oldDelegate.primaryColor ||
         page != oldDelegate.page ||

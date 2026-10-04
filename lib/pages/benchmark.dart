@@ -215,7 +215,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
         phase: phase,
       );
       stroke.addPoint(position, pressure);
-      page.redrawStrokes();
+      page.redrawLiveInk();
       await SchedulerBinding.instance.endOfFrame;
     }
 

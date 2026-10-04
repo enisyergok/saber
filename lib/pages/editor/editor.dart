@@ -620,7 +620,7 @@ class EditorState extends State<Editor> {
 
     if (currentTool is Pen) {
       (currentTool as Pen).onDragUpdate(position, currentPressure);
-      page.redrawStrokes();
+      page.redrawLiveInk();
     } else if (currentTool is Eraser) {
       for (final stroke in (currentTool as Eraser).checkForOverlappingStrokes(
         position,
@@ -646,7 +646,7 @@ class EditorState extends State<Editor> {
       page.redrawStrokes();
     } else if (currentTool is LaserPointer) {
       (currentTool as LaserPointer).onDragUpdate(position);
-      page.redrawStrokes();
+      page.redrawLiveInk();
     }
     previousPosition = position;
     moveOffset += offset;
@@ -722,7 +722,7 @@ class EditorState extends State<Editor> {
       } else if (currentTool is LaserPointer) {
         shouldSave = false;
         final newStroke = (currentTool as LaserPointer).onDragEnd(
-          page.redrawStrokes,
+          page.redrawLiveInk,
           (Stroke stroke) {
             page.laserStrokes.remove(stroke);
           },

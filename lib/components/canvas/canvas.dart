@@ -90,6 +90,7 @@ class Canvas extends StatelessWidget {
                       key: page.innerCanvasKey,
                       pageIndex: pageIndex,
                       redrawPageListenable: page,
+                      liveInkListenable: page.liveInkListenable,
                       width: page.size.width,
                       height: page.size.height,
                       textEditing: textEditing,

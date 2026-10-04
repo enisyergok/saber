@@ -19,6 +19,7 @@ class InnerCanvas extends StatefulWidget {
     super.key,
     required this.pageIndex,
     this.redrawPageListenable,
+    this.liveInkListenable,
     required this.width,
     required this.height,
     this.showPageIndicator = true,
@@ -35,6 +36,10 @@ class InnerCanvas extends StatefulWidget {
 
   final int pageIndex;
   final Listenable? redrawPageListenable;
+
+  /// Fires on every pen move; repaints only the live ink layer.
+  /// Defaults to [redrawPageListenable].
+  final Listenable? liveInkListenable;
   final double width;
   final double height;
   final bool showPageIndicator;
@@ -103,7 +108,7 @@ class _InnerCanvasState extends State<InnerCanvas> {
           )
         : null;
 
-    return RepaintBoundary(
+    final staticPage = RepaintBoundary(
       child: CustomPaint(
         painter: CanvasBackgroundPainter(
           invert: invert,
@@ -127,6 +132,7 @@ class _InnerCanvasState extends State<InnerCanvas> {
           secondaryColor: colorScheme.secondary,
         ),
         foregroundPainter: CanvasPainter(
+          layer: .dry,
           repaint: widget.redrawPageListenable,
           invert: invert,
           strokes: page.strokes,
@@ -187,6 +193,41 @@ class _InnerCanvasState extends State<InnerCanvas> {
           ),
         ),
       ),
+    );
+
+    // The live ink layer sits above the page in its own repaint boundary, so
+    // drawing a stroke only repaints this layer, not the page below it.
+    return Stack(
+      children: [
+        staticPage,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: RepaintBoundary(
+              child: CustomPaint(
+                painter: CanvasPainter(
+                  layer: .live,
+                  repaint:
+                      widget.liveInkListenable ?? widget.redrawPageListenable,
+                  invert: invert,
+                  strokes: page.strokes,
+                  laserStrokes: page.laserStrokes,
+                  currentStroke: widget.currentStroke,
+                  currentSelection: widget.currentSelection,
+                  primaryColor: colorScheme.primary,
+                  page: page,
+                  showPageIndicator: widget.showPageIndicator,
+                  pageIndex: widget.pageIndex,
+                  totalPages: widget.coreInfo.pages.length,
+                  currentScale: widget.currentScale,
+                  defaultTextStyle: theme.textTheme.bodyMedium!,
+                ),
+                isComplex: false,
+                willChange: true,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
