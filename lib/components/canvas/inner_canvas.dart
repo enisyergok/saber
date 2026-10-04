@@ -161,7 +161,9 @@ class _InnerCanvasState extends State<InnerCanvas> {
           defaultTextStyle: theme.textTheme.bodyMedium!,
         ),
         isComplex: true,
-        willChange: true,
+        // The finished strokes don't change while writing (only the live
+        // layer on top does), so the engine may keep them as a bitmap.
+        willChange: false,
         child: SizedBox(
           width: widget.width,
           height: widget.height,
