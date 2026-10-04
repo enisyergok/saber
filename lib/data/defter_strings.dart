@@ -23,4 +23,22 @@ abstract class DefterStrings {
   static String get nameOptional => _tr
       ? 'Boş bırakırsan tarihle adlandırılır'
       : 'Leave empty to name it by date';
+
+  static String get benchmark => _tr ? 'Performans ölçümü' : 'Benchmark';
+  static String get benchmarkSubtitle => _tr
+      ? 'Kalem ve kayıt hızını bu cihazda ölçer'
+      : 'Measures pen and save speed on this device';
+  static String get benchmarkStart => _tr ? 'Ölçümü başlat' : 'Start';
+  static String get benchmarkRunning =>
+      _tr ? 'Ölçülüyor, ekrana dokunma' : 'Measuring, please don\'t touch';
+  static String get benchmarkCopy => _tr ? 'Sonuçları kopyala' : 'Copy results';
+  static String get benchmarkCopied =>
+      _tr ? 'Sonuçlar panoya kopyalandı' : 'Results copied to clipboard';
+  static String get benchmarkIntro => _tr
+      ? 'Örnek notlar üretip yazma sırasındaki kare sürelerini, çizgi '
+            'hesabını ve kayıt/açılış sürelerini ölçer. Yaklaşık bir dakika '
+            'sürer; notlarına dokunmaz.'
+      : 'Generates sample notes and measures frame times while writing, '
+            'stroke outline cost, and save/open times. Takes about a minute; '
+            'your notes are not touched.';
 }

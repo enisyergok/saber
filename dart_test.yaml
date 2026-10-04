@@ -2,3 +2,6 @@ tags:
   # Renders screens to PNG for review; not a regression test.
   # Run with `--tags screens --update-goldens`.
   screens:
+  # Timing measurements; slow and noisy, so not part of the regression run.
+  # Run with `--tags benchmark`.
+  benchmark:

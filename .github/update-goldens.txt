@@ -1,0 +1,6 @@
+# Library and editor redesign (builds 2-3): covers grid, Documents first,
+# toolbar on top with quick presets, new navigation order.
+test/browse_page_test.dart
+test/home_simplified_layout_test.dart
+test/home_theme_test.dart
+test/screenshot_goldens_test.dart

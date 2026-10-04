@@ -26,11 +26,13 @@ import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/is_this_a_test.dart';
 import 'package:saber/data/locales.dart';
+import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
+import 'package:saber/pages/benchmark.dart';
 import 'package:stow/stow.dart';
 
 class const SettingsPage({super.key}) extends StatefulWidget {
@@ -606,6 +608,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: t.logs.debuggingInfo,
                   icon: Icons.receipt_long,
                   onPressed: () => context.push(RoutePaths.logs),
+                ),
+                SettingsButton(
+                  title: DefterStrings.benchmark,
+                  subtitle: DefterStrings.benchmarkSubtitle,
+                  icon: Icons.speed,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const BenchmarkPage(),
+                    ),
+                  ),
                 ),
               ],
             ),

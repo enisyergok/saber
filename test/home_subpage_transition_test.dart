@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
-import 'package:saber/main.dart';
 import 'package:saber/pages/home/home.dart';
 
 void main() {
@@ -16,7 +15,10 @@ void main() {
         stows.layoutSize.value = .phone;
 
         final router = GoRouter(
-          initialLocation: App.initialLocation,
+          // Start on the recent notes page, which shows the welcome text
+          // when there are no notes.
+          initialLocation:
+              '${RoutePaths.prefixOfHome}/${HomePage.recentSubpage}',
           routes: [
             GoRoute(
               path: RoutePaths.home,
@@ -43,7 +45,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 150));
 
         expect(
-          [find.text('Welcome to Saber'), find.text('Logged out')],
+          [find.text('Welcome to Defter'), find.text('Logged out')],
           [findsOneWidget, findsOneWidget],
         );
       });
