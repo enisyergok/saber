@@ -149,9 +149,14 @@ class EditorHistoryItem {
     this.quillChange,
     this.colorChange,
     this.backgroundPatternChange,
+    this.transform,
   }) : assert(
          type != .move || offset != null,
          'Offset must be provided for move',
+       ),
+       assert(
+         type != .transform || transform != null,
+         'Transform must be provided for transform',
        ),
        assert(
          type != .deletePage || page != null,
@@ -188,6 +193,10 @@ class EditorHistoryItem {
   final Map<Stroke, Change<Color>>? colorChange;
   final Change<CanvasBackgroundPattern>? backgroundPatternChange;
 
+  /// For [EditorHistoryItemType.transform]: the matrix that was applied to
+  /// [strokes] and [images] (undoing applies its inverse).
+  final Matrix4? transform;
+
   EditorHistoryItem copyWith({
     EditorHistoryItemType? type,
     int? pageIndex,
@@ -198,6 +207,7 @@ class EditorHistoryItem {
     DocChange? quillChange,
     Map<Stroke, Change<Color>>? colorChange,
     Change<CanvasBackgroundPattern>? backgroundPatternChange,
+    Matrix4? transform,
   }) {
     return EditorHistoryItem(
       type: type ?? this.type,
@@ -210,6 +220,7 @@ class EditorHistoryItem {
       colorChange: colorChange ?? this.colorChange,
       backgroundPatternChange:
           backgroundPatternChange ?? this.backgroundPatternChange,
+      transform: transform ?? this.transform,
     );
   }
 }
@@ -220,6 +231,7 @@ enum EditorHistoryItemType {
   deletePage,
   insertPage,
   move,
+  transform,
   quillChange,
   quillUndoneChange,
   changeColor,

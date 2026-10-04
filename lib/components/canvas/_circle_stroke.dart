@@ -6,6 +6,7 @@ import 'package:one_dollar_unistroke_recognizer/one_dollar_unistroke_recognizer.
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:sbn/has_size.dart';
+import 'package:vector_math/vector_math_64.dart' show Matrix4;
 
 class CircleStroke extends Stroke {
   Offset center;
@@ -123,6 +124,13 @@ class CircleStroke extends Stroke {
   void shift(Offset offset) {
     center += offset;
     super.shift(offset);
+  }
+
+  @override
+  void transform(Matrix4 matrix) {
+    center = MatrixUtils.transformPoint(matrix, center);
+    radius *= Stroke.scaleOfMatrix(matrix);
+    super.transform(matrix);
   }
 
   @override

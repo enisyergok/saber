@@ -14,6 +14,7 @@ import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 
 /// Which part of a page's ink a [CanvasPainter] draws.
@@ -288,6 +289,41 @@ class CanvasPainter extends CustomPainter {
         ..strokeWidth = 3
         ..style = .stroke,
     );
+
+    if (Select.currentSelect.doneSelecting) _drawSelectionHandles(canvas);
+  }
+
+  void _drawSelectionHandles(Canvas canvas) {
+    final selection = currentSelection!;
+    final bounds = SelectionTransform.contentBounds(selection);
+    if (bounds == null) return;
+    final scale = currentScale <= 0 ? 1.0 : currentScale;
+
+    final fill = Paint()..color = Colors.white;
+    final ring = Paint()
+      ..color = primaryColor
+      ..strokeWidth = 2 / scale
+      ..style = .stroke;
+    final radius = 9 / scale;
+
+    canvas.drawRect(bounds, ring);
+
+    final scaleHandle = SelectionTransform.scaleHandlePosition(bounds);
+    canvas.drawRect(
+      Rect.fromCenter(center: scaleHandle, width: radius * 2, height: radius * 2),
+      fill,
+    );
+    canvas.drawRect(
+      Rect.fromCenter(center: scaleHandle, width: radius * 2, height: radius * 2),
+      ring,
+    );
+
+    if (SelectionTransform.canRotate(selection)) {
+      final rotateHandle = SelectionTransform.rotateHandlePosition(bounds, scale);
+      canvas.drawLine(Offset(bounds.center.dx, bounds.top), rotateHandle, ring);
+      canvas.drawCircle(rotateHandle, radius, fill);
+      canvas.drawCircle(rotateHandle, radius, ring);
+    }
   }
 
   static const double _pageIndicatorFontSize = 20;

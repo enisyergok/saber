@@ -11,6 +11,7 @@ import 'package:saber/components/canvas/_rectangle_stroke.dart';
 import 'package:saber/data/extensions/list_extensions.dart';
 import 'package:saber/data/extensions/point_extensions.dart';
 import 'package:sbn/has_size.dart';
+import 'package:vector_math/vector_math_64.dart' show Matrix4;
 import 'package:sbn/tool_id.dart';
 
 class Stroke {
@@ -73,6 +74,29 @@ class Stroke {
     _lowQualityPath = _lowQualityPath?.shift(offset);
     _highQualityPath = _highQualityPath?.shift(offset);
   }
+
+  /// Whether [transform] can rotate this stroke (rectangles can't).
+  bool get canRotate => true;
+
+  /// Applies [matrix], which may scale (uniformly), rotate and translate, to
+  /// the stroke. Its thickness is scaled along with it.
+  /// Undo it by applying the inverse matrix.
+  void transform(Matrix4 matrix) {
+    for (var i = 0; i < points.length; i++) {
+      final point = points[i];
+      final moved = MatrixUtils.transformPoint(matrix, Offset(point.x, point.y));
+      points[i] = PointVector(moved.dx, moved.dy, point.pressure);
+    }
+    options.size *= scaleOfMatrix(matrix);
+    markPolygonNeedsUpdating();
+  }
+
+  /// How much [matrix] scales lengths (the matrix is assumed to be uniform).
+  static double scaleOfMatrix(Matrix4 matrix) => sqrt(
+    (matrix.entry(0, 0) * matrix.entry(1, 1) -
+            matrix.entry(0, 1) * matrix.entry(1, 0))
+        .abs(),
+  );
 
   void markPolygonNeedsUpdating() {
     _bounds = null;

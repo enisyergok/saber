@@ -52,6 +52,7 @@ import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/home/whiteboard.dart';
@@ -432,6 +433,26 @@ class EditorState extends State<Editor> {
             );
           }
 
+        case .transform:
+          final inverse = SelectionTransform.inverse(item.transform!);
+          for (final stroke in item.strokes) {
+            stroke.transform(inverse);
+          }
+          if (!SelectionTransform.hasRotation(inverse)) {
+            for (final image in item.images) {
+              image.dstRect = Rect.fromPoints(
+                MatrixUtils.transformPoint(inverse, image.dstRect.topLeft),
+                MatrixUtils.transformPoint(inverse, image.dstRect.bottomRight),
+              );
+            }
+          }
+          final select = Select.currentSelect;
+          if (select.doneSelecting) {
+            select.selectResult.path = select.selectResult.path.transform(
+              inverse.storage,
+            );
+          }
+
         case .quillChange:
           final quill = coreInfo.pages[item.pageIndex].quill;
           quill.controller.undo();
@@ -449,7 +470,7 @@ class EditorState extends State<Editor> {
           coreInfo.backgroundPattern = item.backgroundPatternChange!.previous;
       }
 
-      if (item.type != .move) {
+      if (item.type != .move && item.type != .transform) {
         Select.currentSelect.unselect();
       }
     });
@@ -479,6 +500,12 @@ class EditorState extends State<Editor> {
               -item.offset!.right,
               -item.offset!.bottom,
             ),
+          ),
+        );
+      case .transform:
+        undo(
+          item.copyWith(
+            transform: SelectionTransform.inverse(item.transform!),
           ),
         );
       case .quillChange:
@@ -590,7 +617,22 @@ class EditorState extends State<Editor> {
       removeExcessPages();
     } else if (currentTool is Select) {
       final select = currentTool as Select;
+      _activeHandle = null;
+      _transformTotal = null;
       if (select.doneSelecting &&
+          select.selectResult.pageIndex == dragPageIndex! &&
+          (_activeHandle = SelectionTransform.handleAt(
+                select.selectResult,
+                position,
+                _transformationController.value.approxScale,
+              )) !=
+              null) {
+        final bounds = SelectionTransform.contentBounds(select.selectResult)!;
+        _transformCenter = bounds.center;
+        _transformAnchor = bounds.topLeft;
+        _transformTotal = Matrix4.identity();
+        _transformScale = 1;
+      } else if (select.doneSelecting &&
           select.selectResult.pageIndex == dragPageIndex! &&
           select.selectResult.path.contains(position)) {
         // drag selection in onDrawUpdate
@@ -613,6 +655,12 @@ class EditorState extends State<Editor> {
     setState(() {});
   }
 
+  SelectHandle? _activeHandle;
+  Matrix4? _transformTotal;
+  Offset _transformCenter = .zero;
+  Offset _transformAnchor = .zero;
+  double _transformScale = 1;
+
   void onDrawUpdate(ScaleUpdateDetails details) {
     final page = coreInfo.pages[dragPageIndex!];
     final position = page.renderBox!.globalToLocal(details.focalPoint);
@@ -632,7 +680,26 @@ class EditorState extends State<Editor> {
       removeExcessPages();
     } else if (currentTool is Select) {
       final select = currentTool as Select;
-      if (select.doneSelecting) {
+      if (select.doneSelecting && _activeHandle != null) {
+        final step = _activeHandle == SelectHandle.scale
+            ? SelectionTransform.scaleStep(
+                anchor: _transformAnchor,
+                previous: previousPosition,
+                current: position,
+                totalScaleSoFar: _transformScale,
+              )
+            : SelectionTransform.rotateStep(
+                center: _transformCenter,
+                previous: previousPosition,
+                current: position,
+              );
+        if (step != null) {
+          SelectionTransform.apply(select.selectResult, step);
+          _transformTotal = step * _transformTotal!;
+          _transformScale *= SelectionTransform.scaleOf(step);
+        }
+        page.redrawStrokes();
+      } else if (select.doneSelecting) {
         for (final stroke in select.selectResult.strokes) {
           stroke.shift(offset);
         }
@@ -694,8 +761,24 @@ class EditorState extends State<Editor> {
           ),
         );
       } else if (currentTool is Select) {
-        if (moveOffset == .zero) return;
         final select = currentTool as Select;
+        if (_activeHandle != null) {
+          final total = _transformTotal;
+          _activeHandle = null;
+          _transformTotal = null;
+          if (total == null || total.isIdentity()) return;
+          history.recordChange(
+            EditorHistoryItem(
+              type: .transform,
+              pageIndex: dragPageIndex!,
+              strokes: List.of(select.selectResult.strokes),
+              images: List.of(select.selectResult.images),
+              transform: total,
+            ),
+          );
+          return;
+        }
+        if (moveOffset == .zero) return;
         if (select.doneSelecting) {
           history.recordChange(
             EditorHistoryItem(

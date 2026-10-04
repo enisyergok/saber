@@ -4,6 +4,7 @@ import 'package:one_dollar_unistroke_recognizer/one_dollar_unistroke_recognizer.
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:sbn/has_size.dart';
+import 'package:vector_math/vector_math_64.dart' show Matrix4;
 
 class RectangleStroke extends Stroke {
   Rect rect;
@@ -135,6 +136,24 @@ class RectangleStroke extends Stroke {
   void shift(Offset offset) {
     rect = rect.shift(offset);
     super.shift(offset);
+  }
+
+  /// A rectangle is drawn from an axis-aligned [rect], so it can be scaled
+  /// and moved but not rotated.
+  @override
+  bool get canRotate => false;
+
+  @override
+  void transform(Matrix4 matrix) {
+    assert(
+      matrix.entry(0, 1).abs() < 1e-9 && matrix.entry(1, 0).abs() < 1e-9,
+      'A rectangle stroke cannot be rotated',
+    );
+    rect = Rect.fromPoints(
+      MatrixUtils.transformPoint(matrix, rect.topLeft),
+      MatrixUtils.transformPoint(matrix, rect.bottomRight),
+    );
+    super.transform(matrix);
   }
 
   @override
