@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:one_dollar_unistroke_recognizer/one_dollar_unistroke_recognizer.dart';
-import 'package:onyxsdk_pen/onyxsdk_pen.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
@@ -44,29 +43,6 @@ class Canvas extends StatelessWidget {
   final double currentScale;
   final bool placeholder;
 
-  OnyxStrokeStyle _getOnyxTool(Tool currentTool) {
-    if (placeholder) return OnyxStrokeStyle.pen;
-    switch (currentTool.toolId) {
-      case ToolId.fountainPen:
-        return OnyxStrokeStyle.brush;
-      case ToolId.ballpointPen:
-        return OnyxStrokeStyle.pen;
-      case ToolId.highlighter:
-        return OnyxStrokeStyle.marker;
-      case ToolId.pencil:
-        return OnyxStrokeStyle.pencil;
-      case ToolId.shapePen:
-        return OnyxStrokeStyle.disabled;
-      case ToolId.eraser:
-        return OnyxStrokeStyle.disabled;
-      case ToolId.select:
-        return OnyxStrokeStyle.pen;
-      case ToolId.laserPointer:
-        return OnyxStrokeStyle.pen;
-      default:
-        return OnyxStrokeStyle.disabled;
-    }
-  }
 
   Color _getOnyxColor() {
     if (currentTool is Pen) {
@@ -109,11 +85,7 @@ class Canvas extends StatelessWidget {
               ? SizedBox(
                   width: page.size.width,
                   height: page.size.height,
-                  child: OnyxSdkPenArea(
-                    refreshDelay: const Duration(seconds: 1),
-                    strokeStyle: _getOnyxTool(currentTool),
-                    strokeColor: _getOnyxColor(),
-                    strokeWidth: _getOnyxWidth(),
+                  child: SizedBox(
                     child: InnerCanvas(
                       key: page.innerCanvasKey,
                       pageIndex: pageIndex,

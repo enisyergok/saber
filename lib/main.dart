@@ -9,7 +9,6 @@ import 'package:flutter_sharing_intent/flutter_sharing_intent.dart';
 import 'package:flutter_sharing_intent/model/sharing_file.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:onyxsdk_pen/onyxsdk_pen.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_to_regexp/path_to_regexp.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -98,7 +97,6 @@ Future<void> appRunner(List<String> args) async {
     Printing.info().then((info) {
       Editor.canRasterPdf = info.canRaster;
     }),
-    OnyxSdkPenArea.init(),
   ]);
 
   setLocale();

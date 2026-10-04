@@ -2,10 +2,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven("https://jitpack.io")
-        maven("http://repo.boox.com/repository/maven-public/") {
-            isAllowInsecureProtocol = true
-        }
     }
 }
 
