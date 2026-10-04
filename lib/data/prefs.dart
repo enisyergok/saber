@@ -142,6 +142,20 @@ class Stows {
     10.0,
     volatile: !_isOnMainIsolate,
   );
+
+  /// The OpenRouter key used for handwriting recognition. Empty if not set.
+  final openRouterApiKey = PlainStow<String>(
+    'openRouterApiKey',
+    '',
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// The OpenRouter model used for handwriting recognition.
+  final handwritingModel = PlainStow<String>(
+    'handwritingModel',
+    'google/gemini-3.8-flash',
+    volatile: !_isOnMainIsolate,
+  );
   final editorFingerDrawing = PlainStow(
     'editorFingerDrawing',
     true,

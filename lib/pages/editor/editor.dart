@@ -52,6 +52,7 @@ import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
+import 'package:saber/components/toolbar/recognize_dialog.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/selection_transform.dart';
@@ -1589,6 +1590,17 @@ class EditorState extends State<Editor> {
               );
               autosaveAfterDelay();
             });
+          },
+          recognizeSelection: () {
+            final select = currentTool as Select;
+            if (!select.doneSelecting) return;
+            if (stows.openRouterApiKey.value.trim().isEmpty) {
+              ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+                SnackBar(content: Text(DefterStrings.recognizeNoKey)),
+              );
+              return;
+            }
+            RecognizeDialog.show(context, List.of(select.selectResult.strokes));
           },
           deleteSelection: () {
             final select = currentTool as Select;

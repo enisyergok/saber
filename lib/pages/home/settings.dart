@@ -33,6 +33,7 @@ import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/benchmark.dart';
+import 'package:saber/pages/handwriting_settings.dart';
 import 'package:saber/pages/trash.dart';
 import 'package:stow/stow.dart';
 
@@ -617,6 +618,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const TrashPage(),
+                    ),
+                  ),
+                ),
+                SettingsButton(
+                  title: DefterStrings.handwritingSettings,
+                  subtitle: DefterStrings.handwritingSettingsSubtitle,
+                  icon: Icons.text_fields,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const HandwritingSettingsPage(),
                     ),
                   ),
                 ),

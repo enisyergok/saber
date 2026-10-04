@@ -91,4 +91,31 @@ abstract class DefterStrings {
   static String get pdfContents => _tr ? 'İçindekiler' : 'Contents';
   static String get pdfSearch => _tr ? 'Ara' : 'Search';
   static String pdfPageLabel(int page) => _tr ? 'Sayfa $page' : 'Page $page';
+
+  // Handwriting recognition
+  static String get recognize => _tr ? 'Yazıyı metne çevir' : 'Convert handwriting to text';
+  static String get recognizing => _tr ? 'Yazı okunuyor…' : 'Reading handwriting…';
+  static String get recognizeNoKey => _tr
+      ? 'Önce Ayarlar > El yazısı tanıma bölümünden OpenRouter anahtarını gir.'
+      : 'First enter your OpenRouter key in Settings > Handwriting recognition.';
+  static String get recognizeEmpty =>
+      _tr ? 'Okunabilir bir yazı bulunamadı' : 'No readable handwriting found';
+  static String get recognizeNoStrokes => _tr
+      ? 'Seçimde kalemle yazılmış bir şey yok'
+      : 'There is no pen writing in the selection';
+  static String get recognizeNote => _tr
+      ? 'Seçilen yazı görüntü olarak OpenRouter\'a gönderilir.'
+      : 'The selected writing is sent to OpenRouter as a picture.';
+  static String get copy => _tr ? 'Kopyala' : 'Copy';
+  static String get copied => _tr ? 'Kopyalandı' : 'Copied';
+  static String get close => _tr ? 'Kapat' : 'Close';
+  static String get save => _tr ? 'Kaydet' : 'Save';
+  static String get handwritingSettings =>
+      _tr ? 'El yazısı tanıma' : 'Handwriting recognition';
+  static String get handwritingSettingsSubtitle => _tr
+      ? 'OpenRouter anahtarı ve model'
+      : 'OpenRouter key and model';
+  static String get apiKey => _tr ? 'OpenRouter API anahtarı' : 'OpenRouter API key';
+  static String get modelName => _tr ? 'Model' : 'Model';
+  static String get resetDefault => _tr ? 'Varsayılana dön' : 'Reset to default';
 }
