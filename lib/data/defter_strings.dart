@@ -137,4 +137,20 @@ abstract class DefterStrings {
 
   // Links
   static String get linkToNote => _tr ? 'Nota bağlantı ekle' : 'Link to a note';
+
+  // Audio
+  static String get recordings => _tr ? 'Ses kayıtları' : 'Audio recordings';
+  static String get startRecording => _tr ? 'Kayda başla' : 'Start recording';
+  static String get stopRecording => _tr ? 'Kaydı bitir' : 'Stop recording';
+  static String get noRecordings =>
+      _tr ? 'Bu notta ses kaydı yok' : 'No recordings in this note';
+  static String get micDenied => _tr
+      ? 'Mikrofon izni verilmedi. Telefon ayarlarından izin ver.'
+      : 'Microphone permission was not granted. Allow it in the device settings.';
+  static String get recordingsNote => _tr
+      ? 'Kayıtlar yalnızca bu cihazda saklanır, senkronize edilmez.'
+      : 'Recordings stay on this device and are not synced.';
+  static String get play => _tr ? 'Oynat' : 'Play';
+  static String get pause => _tr ? 'Duraklat' : 'Pause';
+  static String get delete => _tr ? 'Sil' : 'Delete';
 }

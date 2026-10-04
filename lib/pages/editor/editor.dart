@@ -53,6 +53,7 @@ import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
+import 'package:saber/components/toolbar/recordings_dialog.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/selection_transform.dart';
@@ -1819,6 +1820,15 @@ class EditorState extends State<Editor> {
                     ),
                     tooltip: t.editor.pages,
                     onPressed: showPageGrid,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.mic_none),
+                    tooltip: DefterStrings.recordings,
+                    onPressed: () => showDialog<void>(
+                      context: context,
+                      builder: (_) =>
+                          RecordingsDialog(notePath: coreInfo.filePath),
+                    ),
                   ),
                   if (PdfNoteText.hasPdf(coreInfo))
                     IconButton(

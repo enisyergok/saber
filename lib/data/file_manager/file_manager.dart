@@ -13,6 +13,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:saber/components/home/sort_button.dart';
+import 'package:saber/data/audio/note_recordings.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -554,6 +555,11 @@ class FileManager {
       log.warning('Tried to move non-existent file from $fromPath to $toPath');
     }
 
+    if (fromPath.endsWith(Editor.extension) &&
+        toPath.endsWith(Editor.extension)) {
+      await NoteRecordings.move(fromPath, toPath);
+    }
+
     syncer.uploader.enqueueRel(fromPath);
     syncer.uploader.enqueueRel(toPath);
 
@@ -604,6 +610,7 @@ class FileManager {
     await file.delete();
     if (filePath.endsWith(Editor.extension)) {
       await _deleteIfExists(getFile('$filePath.bak'));
+      await NoteRecordings.deleteAll(filePath);
     }
 
     if (alsoUpload) syncer.uploader.enqueueRel(filePath);

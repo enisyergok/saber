@@ -3,6 +3,9 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Needed for recording audio in a note -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <!-- Needed for saving photos -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- Needed for reading files opened with the app -->
