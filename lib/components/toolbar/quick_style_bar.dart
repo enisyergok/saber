@@ -86,11 +86,15 @@ class QuickStyleBar extends StatelessWidget {
           _ColorDot(
             color: color.withInversion(invert),
             selected: currentArgb == color.withAlpha(255).toARGB32(),
-            onTap: () => setColor(
-              pen is Highlighter
-                  ? color
-                  : color.withValues(alpha: currentColor?.a ?? 1),
-            ),
+            onTap: () {
+              // Keep a see-through setting when picking another color.
+              final alpha = currentColor?.a ?? 1;
+              setColor(
+                pen is Highlighter || alpha >= 1
+                    ? color
+                    : color.withValues(alpha: alpha),
+              );
+            },
           ),
         if (supportsOpacity(pen) && currentColor != null)
           IconButton(
