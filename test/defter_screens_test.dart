@@ -9,15 +9,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
+import 'package:saber/components/canvas/canvas.dart' as saber;
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/syncing_button.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
+import 'package:saber/data/benchmark/synthetic_notes.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
+import 'package:saber/data/tools/pen.dart';
+import 'package:saber/data/tools/stroke_properties.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
 import 'package:saber/pages/home/browse.dart';
@@ -52,6 +56,7 @@ void main() {
     disableSentryForTesting();
 
     FlavorConfig.setup();
+    StrokeOptionsExtension.setDefaults();
     SyncingButton.debugForceButtonActive = true;
 
     stows.lastStorageQuota.value = TestUser.getQuota();
@@ -117,6 +122,36 @@ void main() {
         OpenTabs.open('/Import PDFs');
         await tester.pump();
       },
+    );
+    // What the benchmark writes on: 1,000 synthetic letters on one page.
+    final syntheticNote = SyntheticNotes.note(strokes: 1000);
+    _shot(
+      theme: theme,
+      name: 'benchmark_note',
+      child: Scaffold(
+        body: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Center(
+            child: SizedBox(
+              width: 1000,
+              height: 1400,
+              child: saber.Canvas(
+                path: syntheticNote.filePath,
+                page: syntheticNote.pages.first,
+                pageIndex: 0,
+                textEditing: false,
+                coreInfo: syntheticNote,
+                currentStroke: null,
+                currentStrokeDetectedShape: null,
+                currentSelection: null,
+                setAsBackground: null,
+                currentTool: Pen.currentPen,
+                currentScale: 1,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
     _shot(
       theme: theme,
