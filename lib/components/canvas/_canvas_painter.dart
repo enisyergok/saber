@@ -12,7 +12,9 @@ import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/tools/highlighter.dart';
+import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
+import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
@@ -217,6 +219,21 @@ class CanvasPainter extends CustomPainter {
 
     // Current stroke always uses high quality
     canvas.drawPath(currentStroke!.highQualityPath, paint);
+
+    // A short guess of where the pen is heading, so the line doesn't trail
+    // behind a fast-moving tip. It is only drawn, never part of the stroke.
+    final tip = PenPrediction.tip;
+    final points = currentStroke!.points;
+    if (tip != null && points.isNotEmpty && stows.penPrediction.value) {
+      canvas.drawLine(
+        points.last,
+        tip,
+        paint
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = currentStroke!.options.size * 0.9,
+      );
+    }
   }
 
   void _drawLaserStroke(Canvas canvas, LaserStroke stroke) {

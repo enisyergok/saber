@@ -182,4 +182,10 @@ abstract class DefterStrings {
       : 'Adds an arrowhead to straight lines drawn with the shape pen';
 
   static String get opacity => _tr ? 'Saydamlık' : 'Opacity';
+
+  // Pen prediction
+  static String get penPrediction => _tr ? 'Kalem tahmini' : 'Pen prediction';
+  static String get penPredictionSubtitle => _tr
+      ? 'Hızlı yazarken çizginin kalemin ucundan geri kalmasını azaltır'
+      : 'Reduces the line trailing behind the pen tip when writing fast';
 }

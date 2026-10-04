@@ -69,7 +69,8 @@ jobs:
           flutter build apk \
             --target-platform android-arm64 \
             --build-number=$((baseBuildNumber + RUN_NUMBER)) \
-            --dart-define=UPDATE_CHECK="false"
+            --dart-define=UPDATE_CHECK="false" \
+            --dart-define=CI_BUILD="${RUN_NUMBER}"
 
       - name: Rename apk
         id: rename_apk

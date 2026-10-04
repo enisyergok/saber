@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui' show FrameTiming;
 
 import 'package:flutter/material.dart';
+import 'package:saber/data/ci_build.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:saber/components/canvas/_stroke.dart';
@@ -62,7 +63,10 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
 
     try {
       final size = view.physicalSize;
-      _log('Defter $buildName ($buildNumber)');
+      _log(
+        'Defter $buildName ($buildNumber)'
+        '${ciBuild.isEmpty ? '' : ', build $ciBuild'}',
+      );
       _log(
         'screen ${size.width.round()}x${size.height.round()} '
         '@${view.devicePixelRatio.toStringAsFixed(2)}x, '

@@ -181,6 +181,13 @@ class Stows {
     10000,
     volatile: !_isOnMainIsolate,
   );
+  /// Whether the line is drawn a little ahead of the pen tip while writing.
+  final penPrediction = PlainStow(
+    'penPrediction',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// Whether straight lines drawn with the shape pen get an arrowhead.
   final shapePenArrows = PlainStow(
     'shapePenArrows',

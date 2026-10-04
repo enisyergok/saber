@@ -6,6 +6,7 @@ import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/highlighter.dart';
+import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/tool_id.dart';
@@ -89,16 +90,30 @@ class Pen extends Tool {
       page: page,
       toolId: toolId,
     );
+    PenPrediction.reset();
     onDragUpdate(position, pressure);
   }
 
   void onDragUpdate(Offset position, double? pressure) {
     currentStroke?.addPoint(position, pressure);
+    if (stows.penPrediction.value && predictsAhead) {
+      PenPrediction.add(position, _clock.elapsed);
+    }
   }
+
+  /// Measures time between pen movements for [PenPrediction].
+  static final _clock = Stopwatch()..start();
+
+  /// Whether the line is drawn a little ahead of the pen. Not for the
+  /// highlighter and pencil, which are drawn differently, nor the shape pen,
+  /// which turns the line into a shape.
+  bool get predictsAhead =>
+      toolId == .fountainPen || toolId == .ballpointPen;
 
   Stroke? onDragEnd() {
     final stroke = currentStroke;
     currentStroke = null;
+    PenPrediction.reset();
     if (stroke == null) return null;
 
     return stroke

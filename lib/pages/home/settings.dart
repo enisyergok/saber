@@ -529,6 +529,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
                 SettingsSwitch(
+                  title: DefterStrings.penPrediction,
+                  subtitle: DefterStrings.penPredictionSubtitle,
+                  icon: Icons.timeline,
+                  pref: stows.penPrediction,
+                ),
+                SettingsSwitch(
                   title: DefterStrings.shapeArrows,
                   subtitle: DefterStrings.shapeArrowsSubtitle,
                   icon: Icons.north_east,
