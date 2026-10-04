@@ -1,6 +1,10 @@
 // Renders the main screens on a tablet-sized surface so that UI work can be
-// reviewed from CI without a device. Run with `--update-goldens`; the images
-// land in test/defter_shots/ and are not committed.
+// reviewed from CI without a device. Run with
+// `--tags screens --update-goldens`; the images land in test/defter_shots/
+// and are not committed.
+@Tags(['screens'])
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
