@@ -727,6 +727,55 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
 
   bool isCurrentGestureADrawGesture = false;
 
+  /// Whether a touch gesture has been started on the viewer, and whether the
+  /// pen has taken the viewer over since (so the rest of that touch gesture
+  /// belongs to a resting palm and must be ignored).
+  bool _touchGestureActive = false;
+  bool _touchGestureSuppressed = false;
+
+  /// Whether the pen's gesture is the one currently driving the viewer.
+  bool _penGestureActive = false;
+
+  void _onTouchScaleStart(ScaleStartDetails details) {
+    // The pen is already down: these touches are a palm.
+    if (_penGestureActive) {
+      _touchGestureSuppressed = true;
+      return;
+    }
+    _touchGestureActive = true;
+    _touchGestureSuppressed = false;
+    _onScaleStart(details);
+  }
+
+  void _onTouchScaleUpdate(ScaleUpdateDetails details) {
+    if (_touchGestureSuppressed || _penGestureActive) return;
+    _onScaleUpdate(details);
+  }
+
+  void _onTouchScaleEnd(ScaleEndDetails details) {
+    if (_touchGestureSuppressed) {
+      _touchGestureSuppressed = false;
+      _touchGestureActive = false;
+      return;
+    }
+    if (_penGestureActive) return;
+    _touchGestureActive = false;
+    _onScaleEnd(details);
+  }
+
+  void _onPenScaleStart(ScaleStartDetails details) {
+    // A palm that was already resting started a touch gesture: the pen takes
+    // over, and the palm's gesture is ignored until it ends.
+    if (_touchGestureActive) _touchGestureSuppressed = true;
+    _penGestureActive = true;
+    _onScaleStart(details);
+  }
+
+  void _onPenScaleEnd(ScaleEndDetails details) {
+    _penGestureActive = false;
+    _onScaleEnd(details);
+  }
+
   // Handle the start of a gesture. All of pan, scale, and rotate are handled
   // with GestureDetector's scale gesture.
   void _onScaleStart(ScaleStartDetails details) {
@@ -1121,16 +1170,30 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
     return Listener(
       key: _parentKey,
       onPointerSignal: _receivedPointerSignal,
-      // Same as a [GestureDetector] with only the scale callbacks, except the
-      // recognizer ignores palms.
+      // Same as a [GestureDetector] with only the scale callbacks, except that
+      // the pen and touches have a recognizer each. That way a resting palm
+      // can never join (or move the focal point of) a pen stroke.
       child: RawGestureDetector(
         behavior: HitTestBehavior.opaque, // Necessary when panning off screen.
         gestures: <Type, GestureRecognizerFactory>{
-          _PalmAwareScaleGestureRecognizer:
+          _PenScaleGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<_PenScaleGestureRecognizer>(
+                () => _PenScaleGestureRecognizer(debugOwner: this),
+                (_PenScaleGestureRecognizer instance) {
+                  instance
+                    ..onStart = _onPenScaleStart
+                    ..onUpdate = _onScaleUpdate
+                    ..onEnd = _onPenScaleEnd
+                    ..gestureSettings = MediaQuery.maybeGestureSettingsOf(
+                      context,
+                    );
+                },
+              ),
+          _TouchScaleGestureRecognizer:
               GestureRecognizerFactoryWithHandlers<
-                _PalmAwareScaleGestureRecognizer
+                _TouchScaleGestureRecognizer
               >(
-                () => _PalmAwareScaleGestureRecognizer(
+                () => _TouchScaleGestureRecognizer(
                   debugOwner: this,
                   trackpadScrollCausesScale: widget.trackpadScrollCausesScale,
                   trackpadScrollToScaleFactor: Offset(
@@ -1138,12 +1201,12 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
                     -1 / widget.scaleFactor,
                   ),
                 ),
-                (_PalmAwareScaleGestureRecognizer instance) {
+                (_TouchScaleGestureRecognizer instance) {
                   instance
                     ..palmRejection = widget.palmRejection
-                    ..onStart = _onScaleStart
-                    ..onUpdate = _onScaleUpdate
-                    ..onEnd = _onScaleEnd
+                    ..onStart = _onTouchScaleStart
+                    ..onUpdate = _onTouchScaleUpdate
+                    ..onEnd = _onTouchScaleEnd
                     ..gestureSettings = MediaQuery.maybeGestureSettingsOf(
                       context,
                     )
@@ -1162,54 +1225,45 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
   }
 }
 
-/// A [ScaleGestureRecognizer] that leaves resting palms out of the gesture.
-///
-/// A palm that touches down while a stylus is touching (or just after) is
-/// never tracked, and palms that were already down when the stylus lands are
-/// dropped, so the stylus is always a one-pointer gesture at its own position.
-class _PalmAwareScaleGestureRecognizer extends ScaleGestureRecognizer {
-  _PalmAwareScaleGestureRecognizer({
+/// Recognizes the gesture of a stylus. There is only ever one stylus pointer
+/// down, so this is always a one-pointer gesture at the pen's own position.
+class _PenScaleGestureRecognizer extends ScaleGestureRecognizer {
+  _PenScaleGestureRecognizer({super.debugOwner})
+    : super(
+        supportedDevices: const {
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.invertedStylus,
+        },
+      );
+
+  // Trackpad pan/zoom isn't filtered by [supportedDevices] and belongs to
+  // the touch recognizer.
+  @override
+  bool isPointerPanZoomAllowed(PointerPanZoomStartEvent event) => false;
+}
+
+/// Recognizes the gesture of fingers (and mouse and trackpad). While a stylus
+/// is down, or just after, new touches are a resting palm and are ignored.
+class _TouchScaleGestureRecognizer extends ScaleGestureRecognizer {
+  _TouchScaleGestureRecognizer({
     super.debugOwner,
     super.trackpadScrollCausesScale,
     super.trackpadScrollToScaleFactor,
-  });
+  }) : super(
+         supportedDevices: {
+           for (final kind in PointerDeviceKind.values)
+             if (kind != PointerDeviceKind.stylus &&
+                 kind != PointerDeviceKind.invertedStylus)
+               kind,
+         },
+       );
 
   PalmRejection? palmRejection;
 
-  /// Touch pointers this recognizer is currently tracking.
-  final _touches = <int>{};
-
   @override
   bool isPointerAllowed(PointerDownEvent event) {
-    final palmRejection = this.palmRejection;
-    if (palmRejection != null) {
-      palmRejection.handleEvent(event);
-      if (palmRejection.shouldRejectNewPointer(event)) return false;
-    }
+    if (palmRejection?.shouldRejectNewPointer(event) ?? false) return false;
     return super.isPointerAllowed(event);
-  }
-
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    if (palmRejection != null && PalmRejection.isStylus(event)) {
-      // Any touch already down is a palm resting before the pen landed.
-      // Give up on the gesture they started (through the normal lifecycle),
-      // so the pen below starts a fresh one of its own.
-      if (_touches.isNotEmpty) {
-        _touches.clear();
-        resolve(GestureDisposition.rejected);
-      }
-    }
-    if (event.kind == PointerDeviceKind.touch) _touches.add(event.pointer);
-    super.addAllowedPointer(event);
-  }
-
-  @override
-  void handleEvent(PointerEvent event) {
-    if (event is PointerUpEvent || event is PointerCancelEvent) {
-      _touches.remove(event.pointer);
-    }
-    super.handleEvent(event);
   }
 }
 
