@@ -1,0 +1,102 @@
+name: Check
+
+# Fast feedback for work-in-progress branches: static analysis plus
+# rendered screenshots of the main screens. The APK is only built from main.
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - main
+      - "check-results*"
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Analyze and render screenshots
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: "./.github/shared_workflows/install_apt_dependencies"
+
+      - name: Setup Flutter
+        uses: adil192/setup-flutter-submodule@v3
+        with:
+          flutter-path: submodules/flutter
+          no-save-caches: true
+
+      - name: Disable Flutter CLI animations
+        run: flutter config --no-cli-animations
+
+      - run: flutter pub get
+
+      - name: Static analysis
+        id: analyze
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.txt
+
+      - name: Download fonts used by golden tests
+        continue-on-error: true
+        run: dart run golden_screenshot:download_apple_fonts
+
+      - name: Run tests
+        id: tests
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          flutter test --no-pub --exclude-tags screens \
+            --file-reporter=json:test-results.json 2>&1 | tail -n 60
+
+      - name: Summarize tests
+        if: always()
+        run: |
+          if [ -f test-results.json ]; then
+            python3 .github/scripts/summarize_tests.py test-results.json > tests-summary.txt
+            head -n 40 tests-summary.txt
+          fi
+
+      - name: Render screenshots
+        id: screenshots
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          if [ -f test/defter_screens_test.dart ]; then
+            flutter test --no-pub --tags screens --update-goldens test/defter_screens_test.dart 2>&1 | tee screenshots.txt
+          fi
+
+      # Results go to an orphan branch per source branch,
+      # so they can be fetched with plain git.
+      - name: Publish results to a check-results branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          results="$RUNNER_TEMP/check-results"
+          mkdir -p "$results"
+          cp analyze.txt screenshots.txt tests-summary.txt "$results/" 2>/dev/null || true
+          cp -r test/defter_shots "$results/" 2>/dev/null || true
+          cp -r test/failures "$results/" 2>/dev/null || true
+          echo "$GITHUB_SHA" > "$results/commit.txt"
+          cd "$results"
+          branch="check-results-${GITHUB_REF_NAME//\//-}"
+          git init -q -b "$branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Check results for $GITHUB_SHA"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
+
+      - name: Fail if a step failed
+        if: steps.analyze.outcome == 'failure' || steps.tests.outcome == 'failure' || steps.screenshots.outcome == 'failure'
+        run: exit 1
