@@ -185,6 +185,9 @@ abstract class DefterStrings {
 
   // Pen prediction
   static String get penPrediction => _tr ? 'Kalem tahmini' : 'Pen prediction';
+  static String get pageSidebar =>
+      _tr ? 'Sayfa paneli' : 'Page sidebar';
+
   // Shapes
   static String get holdToSnap =>
       _tr ? 'Bekleyince şekli düzelt' : 'Hold to snap shapes';

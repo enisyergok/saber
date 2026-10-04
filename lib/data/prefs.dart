@@ -224,6 +224,14 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Whether the editor shows the page thumbnails beside the page, on wide
+  /// screens.
+  final editorPageSidebar = PlainStow(
+    'editorPageSidebar',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   final shapeRecognitionDelay = PlainStow(
     'shapeRecognitionDelay',
     500,

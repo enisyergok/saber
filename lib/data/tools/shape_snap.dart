@@ -63,14 +63,15 @@ abstract class ShapeBuilder {
       case ShapeKind.ellipse:
       case ShapeKind.polygon:
       case ShapeKind.curve:
+        // Fresh end options: the pen's own ones are shared with the copy.
         final options = raw.options.copyWith(
           smoothing: 0,
           streamline: 0,
           simulatePressure: false,
           isComplete: true,
+          start: StrokeEndOptions.start(taperEnabled: false),
+          end: StrokeEndOptions.end(taperEnabled: false),
         );
-        options.start.taperEnabled = false;
-        options.end.taperEnabled = false;
         final stroke = Stroke(
           color: raw.color,
           pressureEnabled: false,

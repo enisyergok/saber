@@ -372,7 +372,8 @@ void main() {
     Map<String, int> count(List<Offset> Function(Random) draw) {
       final got = <String, int>{};
       for (var seed = 0; seed < 40; seed++) {
-        final name = recognizeUnistroke(draw(Random(seed)))?.name ?? 'none';
+        final name = (recognizeUnistroke(draw(Random(seed)))?.name ?? 'none')
+            .toString();
         got[name] = (got[name] ?? 0) + 1;
       }
       return got;
