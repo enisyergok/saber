@@ -45,6 +45,40 @@ void main() {
       expect(palm.shouldRejectNewPointer(_down(.touch, 3, 1400)), isFalse);
     });
 
+    test('a hand landing while the pen hovers is rejected', () {
+      final palm = PalmRejection();
+      palm.handleEvent(
+        const PointerHoverEvent(
+          kind: .stylus,
+          timeStamp: Duration(milliseconds: 1000),
+        ),
+      );
+      expect(palm.isStylusDown, isFalse);
+      expect(palm.shouldRejectNewPointer(_down(.touch, 2, 1500)), isTrue);
+    });
+
+    test('touches work again once the pen has stopped hovering', () {
+      final palm = PalmRejection();
+      palm.handleEvent(
+        const PointerHoverEvent(
+          kind: .stylus,
+          timeStamp: Duration(milliseconds: 1000),
+        ),
+      );
+      expect(palm.shouldRejectNewPointer(_down(.touch, 2, 1900)), isFalse);
+    });
+
+    test('a hovering finger or mouse does not block touches', () {
+      final palm = PalmRejection();
+      palm.handleEvent(
+        const PointerHoverEvent(
+          kind: .mouse,
+          timeStamp: Duration(milliseconds: 1000),
+        ),
+      );
+      expect(palm.shouldRejectNewPointer(_down(.touch, 2, 1100)), isFalse);
+    });
+
     test('a cancelled stylus pointer counts as lifted', () {
       final palm = PalmRejection();
       palm.handleEvent(_down(.stylus, 1, 0));

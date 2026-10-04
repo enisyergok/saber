@@ -2,19 +2,27 @@ import 'package:flutter/gestures.dart';
 
 /// Decides which touches belong to a resting palm instead of a finger.
 ///
-/// While a stylus is touching the screen (and for a moment after it lifts),
-/// new touches are ignored, so a hand resting on the tablet can't pan, zoom
+/// While a stylus is touching or hovering over the screen (and for a moment
+/// after it lifts), new touches are ignored, so a hand resting on the tablet can't pan, zoom
 /// or turn a pen stroke into a two-finger gesture.
 class PalmRejection {
   /// How long after the stylus last touched the screen new touches are still
   /// treated as part of the same hand.
   static const graceAfterStylus = Duration(milliseconds: 300);
 
+  /// How long after the stylus was last seen hovering above the screen new
+  /// touches are still treated as a resting palm. A hand usually lands just
+  /// before the pen does, while the pen is already in the air.
+  static const hoverWindow = Duration(milliseconds: 800);
+
   /// The stylus pointers currently touching the screen.
   final _stylusDown = <int>{};
 
   /// When a stylus last touched down, moved or lifted.
   Duration? _lastStylusActivity;
+
+  /// When a stylus was last seen hovering above the screen.
+  Duration? _lastHover;
 
   /// Whether a stylus is touching the screen right now.
   bool get isStylusDown => _stylusDown.isNotEmpty;
@@ -27,6 +35,11 @@ class PalmRejection {
   void handleEvent(PointerEvent event) {
     if (!isStylus(event)) return;
 
+    if (event is PointerHoverEvent) {
+      _noteHover(event);
+      return;
+    }
+
     if (event is PointerDownEvent) {
       _stylusDown.add(event.pointer);
       _lastStylusActivity = event.timeStamp;
@@ -36,15 +49,22 @@ class PalmRejection {
     } else if (event is PointerMoveEvent && _stylusDown.contains(event.pointer)) {
       _lastStylusActivity = event.timeStamp;
     }
-    // Hover events are deliberately ignored: with the pen held in the air a
-    // finger should still be able to scroll.
   }
+
+  /// Notes that the stylus is hovering above the screen.
+  void _noteHover(PointerEvent event) => _lastHover = event.timeStamp;
 
   /// Whether a new touch should be ignored because of the stylus.
   /// Only touches are ever rejected, never the stylus itself or a mouse.
   bool shouldRejectNewPointer(PointerDownEvent event) {
     if (event.kind != PointerDeviceKind.touch) return false;
     if (isStylusDown) return true;
+
+    final hover = _lastHover;
+    if (hover != null) {
+      final sinceHover = event.timeStamp - hover;
+      if (sinceHover >= Duration.zero && sinceHover <= hoverWindow) return true;
+    }
 
     final last = _lastStylusActivity;
     if (last == null) return false;

@@ -494,6 +494,10 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   void _listenerPointerHoverEvent(PointerEvent event) {
     if (event.kind != .stylus && event.kind != .invertedStylus) return;
 
+    // Real hovering (not the one synthesized on pointer down) means the pen
+    // is in the air: a hand is probably about to rest on the screen.
+    if (!event.synthesized) palmRejection.handleEvent(event);
+
     // Apparently flutter synthesizes a hover event on pointer down,
     // so these are used to detect when hovering ends
     if (event.synthesized) {
