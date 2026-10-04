@@ -153,7 +153,11 @@ void main() {
         await FileManager.init(shouldWatchRootDirectory: false);
         await tester.pumpWidget(
           MaterialApp(
-            home: SearchPage(index: index, onOpen: (_, path) => opened = path),
+            home: SearchPage(
+              index: index,
+              refreshIndex: false,
+              onOpen: (_, path) => opened = path,
+            ),
           ),
         );
         await Future<void>.delayed(const Duration(milliseconds: 300));

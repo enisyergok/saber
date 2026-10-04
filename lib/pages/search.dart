@@ -8,10 +8,19 @@ import 'package:saber/data/search/note_search.dart';
 
 /// Searches note names and the text typed in notes.
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key, this.index, this.onOpen});
+  const SearchPage({
+    super.key,
+    this.index,
+    this.onOpen,
+    this.refreshIndex = true,
+  });
 
   /// The index to search; defaults to the app's shared one.
   final NoteSearchIndex? index;
+
+  /// Whether to bring the index up to date with the notes on disk when the
+  /// page opens. Tests turn this off to search a hand-made index.
+  final bool refreshIndex;
 
   /// Called with a note's path (without extension) when a result is tapped.
   final void Function(BuildContext context, String path)? onOpen;
@@ -35,9 +44,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _refreshIndex() async {
-    await _index.load();
-    if (mounted) setState(_runSearch); // show what was indexed last time
-    await _index.refresh();
+    if (widget.refreshIndex) {
+      await _index.load();
+      if (mounted) setState(_runSearch); // show what was indexed last time
+      await _index.refresh();
+    }
     if (!mounted) return;
     setState(() {
       _indexing = false;
