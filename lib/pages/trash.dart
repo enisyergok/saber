@@ -10,6 +10,18 @@ class TrashPage extends StatefulWidget {
 
   @override
   State<TrashPage> createState() => _TrashPageState();
+
+  /// A trashed path as the person knew it: no trash folder, no extension.
+  static String displayName(String trashedPath) {
+    var path = trashedPath.substring(FileManager.trashDirectory.length);
+    for (final extension in [Editor.extension, Editor.extensionOldJson]) {
+      if (path.endsWith(extension)) {
+        path = path.substring(0, path.length - extension.length);
+        break;
+      }
+    }
+    return path.startsWith('/') ? path.substring(1) : path;
+  }
 }
 
 class _TrashPageState extends State<TrashPage> {
@@ -24,18 +36,6 @@ class _TrashPageState extends State<TrashPage> {
   Future<void> _reload() async {
     final notes = await FileManager.listTrash();
     if (mounted) setState(() => _notes = notes);
-  }
-
-  /// A trashed path as the person knew it: no trash folder, no extension.
-  static String displayName(String trashedPath) {
-    var path = trashedPath.substring(FileManager.trashDirectory.length);
-    for (final extension in [Editor.extension, Editor.extensionOldJson]) {
-      if (path.endsWith(extension)) {
-        path = path.substring(0, path.length - extension.length);
-        break;
-      }
-    }
-    return path.startsWith('/') ? path.substring(1) : path;
   }
 
   Future<void> _restore(String trashedPath) async {
@@ -95,7 +95,7 @@ class _TrashPageState extends State<TrashPage> {
             final trashedPath = notes[index];
             return ListTile(
               leading: const Icon(Icons.description_outlined),
-              title: Text(displayName(trashedPath)),
+              title: Text(TrashPage.displayName(trashedPath)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
