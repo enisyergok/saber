@@ -50,6 +50,22 @@ class QuickStyleBar extends StatelessWidget {
   /// The diameters used to draw the three thickness presets.
   static const _sizeDotDiameters = <double>[5, 9, 13];
 
+  /// The opacities a pen cycles through, most opaque first.
+  static const opacities = <double>[1, 0.6, 0.3];
+
+  /// The opacity after [current]: the next preset, wrapping round.
+  static double nextOpacity(double current) {
+    for (var i = 0; i < opacities.length; i++) {
+      if ((current - opacities[i]).abs() < 0.08) {
+        return opacities[(i + 1) % opacities.length];
+      }
+    }
+    return opacities.first;
+  }
+
+  /// Whether [pen] draws with a color that can be see-through.
+  static bool supportsOpacity(Pen pen) => pen is! Highlighter && pen is! Pencil;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
@@ -70,7 +86,27 @@ class QuickStyleBar extends StatelessWidget {
           _ColorDot(
             color: color.withInversion(invert),
             selected: currentArgb == color.withAlpha(255).toARGB32(),
-            onTap: () => setColor(color),
+            onTap: () => setColor(
+              pen is Highlighter
+                  ? color
+                  : color.withValues(alpha: currentColor?.a ?? 1),
+            ),
+          ),
+        if (supportsOpacity(pen) && currentColor != null)
+          IconButton(
+            tooltip:
+                '${DefterStrings.opacity}: ${(currentColor!.a * 100).round()}%',
+            visualDensity: VisualDensity.compact,
+            icon: Icon(
+              Icons.opacity,
+              size: 20,
+              color: colorScheme.onSurface.withValues(
+                alpha: 0.35 + 0.65 * currentColor!.a,
+              ),
+            ),
+            onPressed: () => setColor(
+              currentColor!.withValues(alpha: nextOpacity(currentColor!.a)),
+            ),
           ),
         const SizedBox(width: 10),
         for (var i = 0; i < sizes.length; i++)

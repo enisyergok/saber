@@ -180,4 +180,6 @@ abstract class DefterStrings {
   static String get shapeArrowsSubtitle => _tr
       ? 'Şekil kalemiyle çizdiğin düz çizgilerin ucuna ok ekler'
       : 'Adds an arrowhead to straight lines drawn with the shape pen';
+
+  static String get opacity => _tr ? 'Saydamlık' : 'Opacity';
 }
