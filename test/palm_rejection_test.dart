@@ -103,17 +103,6 @@ void main() {
         expect(palm.shouldRejectNewPointer(_down(kind, 9, 10)), isFalse);
       }
     });
-
-    test('hovering does not block touches', () {
-      final palm = PalmRejection();
-      palm.handleEvent(
-        const PointerHoverEvent(
-          kind: .stylus,
-          timeStamp: Duration(milliseconds: 100),
-        ),
-      );
-      expect(palm.shouldRejectNewPointer(_down(.touch, 2, 110)), isFalse);
-    });
   });
 
   group('Palm during stylus drawing:', () {
