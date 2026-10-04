@@ -185,6 +185,7 @@ class EditorState extends State<Editor> {
   @override
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
+    _transformationController.addListener(_scheduleVisiblePageUpdate);
 
     _initAsync();
     _assignKeybindings();
@@ -1692,10 +1693,9 @@ class EditorState extends State<Editor> {
                     tooltip: t.editor.pages,
                     onPressed: showPageGrid,
                   ),
-                  ListenableBuilder(
-                    listenable: _transformationController,
-                    builder: (context, _) {
-                      final pageIndex = currentPageIndex;
+                  ValueListenableBuilder(
+                    valueListenable: _visiblePageIndex,
+                    builder: (context, pageIndex, _) {
                       final bookmarked =
                           pageIndex >= 0 &&
                           pageIndex < coreInfo.pages.length &&
@@ -1877,6 +1877,24 @@ class EditorState extends State<Editor> {
       currentTool: currentTool,
       currentScale: _transformationController.value.approxScale,
     );
+  }
+
+  /// The page currently in view, for widgets that follow scrolling
+  /// (e.g. the bookmark button).
+  final _visiblePageIndex = ValueNotifier<int>(0);
+  var _visiblePageUpdateScheduled = false;
+
+  /// The transform can change while the widget tree is building,
+  /// so [_visiblePageIndex] is only updated after the frame.
+  void _scheduleVisiblePageUpdate() {
+    if (_visiblePageUpdateScheduled) return;
+    _visiblePageUpdateScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _visiblePageUpdateScheduled = false;
+      if (!mounted) return;
+      _visiblePageIndex.value = currentPageIndex;
+    });
+    WidgetsBinding.instance.scheduleFrame();
   }
 
   void toggleBookmark(int pageIndex) {
@@ -2117,6 +2135,7 @@ class EditorState extends State<Editor> {
     unawaited(_cleanUpAsync());
 
     DynamicMaterialApp.removeFullscreenListener(_setState);
+    _transformationController.removeListener(_scheduleVisiblePageUpdate);
 
     _delayedSaveTimer?.cancel();
     _watchServerTimer?.cancel();

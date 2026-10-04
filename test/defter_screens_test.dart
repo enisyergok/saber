@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/components/canvas/pencil_shader.dart';
+import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/syncing_button.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
@@ -42,6 +43,7 @@ void main() {
 
     setupMockPathProvider();
     setupMockPrinting();
+    setupMockWindowManager();
     disableSentryForTesting();
 
     FlavorConfig.setup();
@@ -85,6 +87,15 @@ void main() {
         ],
       ),
       child: const HomePage(subpage: HomePage.browseSubpage, path: null),
+    );
+    _shot(
+      theme: theme,
+      name: 'new_notebook',
+      child: const HomePage(subpage: HomePage.recentSubpage, path: null),
+      afterLoad: (tester) async {
+        NewNotebookDialog.show(tester.element(find.byType(HomePage)));
+        await tester.pump();
+      },
     );
     _shot(
       theme: theme,

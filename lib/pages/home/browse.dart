@@ -11,6 +11,7 @@ import 'package:saber/components/home/grid_folders.dart';
 import 'package:saber/components/home/masonry_files.dart';
 import 'package:saber/components/home/move_note_button.dart';
 import 'package:saber/components/home/new_note_button.dart';
+import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/path_components.dart';
 import 'package:saber/components/home/rename_note_button.dart';
@@ -111,11 +112,13 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 
   Future<void> createNote() async {
-    if (path == null) {
-      context.push(RoutePaths.edit);
-      return;
-    }
-    final newFilePath = await FileManager.newFilePath('$path/');
+    final name = await NewNotebookDialog.show(context);
+    if (name == null || !mounted) return;
+
+    final folder = '${path ?? ''}/';
+    final newFilePath = name.isEmpty
+        ? await FileManager.newFilePath(folder)
+        : await FileManager.suffixFilePathToMakeItUnique('$folder$name');
     if (!mounted) return;
     context.push(RoutePaths.editFilePath(newFilePath));
   }
