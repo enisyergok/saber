@@ -1,0 +1,2 @@
+test/browse_page_test.dart
+test/screenshot_goldens_test.dart
