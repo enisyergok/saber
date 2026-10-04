@@ -1,0 +1,19 @@
+Analyzing saber...                                              
+
+warning • The declaration '_getOnyxColor' isn't referenced. Try removing the declaration of '_getOnyxColor' • lib/components/canvas/canvas.dart:47:9 • unused_element
+warning • The declaration '_getOnyxWidth' isn't referenced. Try removing the declaration of '_getOnyxWidth' • lib/components/canvas/canvas.dart:55:10 • unused_element
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor/editor_tab_strip.dart:5:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/new_notebook_dialog.dart:16:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:30:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:62:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:109:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:148:9 • unnecessary_type_name_in_constructor
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • lib/components/settings/settings_sentry.dart:9:5 • prefer_const_declarations
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/editor_page_grid.dart:9:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/editor_page_grid.dart:139:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:11:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:90:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:135:9 • unnecessary_type_name_in_constructor
+   info • Uncancelled instance of 'StreamSubscription'. Try invoking 'cancel' in the function in which the 'StreamSubscription' was created • lib/data/open_tabs.dart:15:45 • cancel_subscriptions
+
+15 issues found. (ran in 29.0s)

@@ -1,0 +1,10 @@
+
+::group::✅ Passing tests
+✅ Defter screens: library
+✅ Defter screens: new_notebook
+✅ Defter screens: recent
+✅ Defter screens: editor
+✅ Defter screens: editor_pages
+::endgroup::
+
+🎉 5 tests passed.

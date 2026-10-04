@@ -1,0 +1,109 @@
+passed=274 failed=32 skipped=0 unfinished=0
+
+## /home/runner/work/saber/saber/test/browse_page_test.dart
+- BrowsePage at 0 depth: Empty
+    Test failed. See exception logs above.
+    The test description was: Empty
+- BrowsePage at 0 depth: Non-empty
+    Test failed. See exception logs above.
+    The test description was: Non-empty
+- BrowsePage at 1 depth: Empty
+    Test failed. See exception logs above.
+    The test description was: Empty
+- BrowsePage at 1 depth: Non-empty
+    Test failed. See exception logs above.
+    The test description was: Non-empty
+- BrowsePage at 4 depth: Empty
+    Test failed. See exception logs above.
+    The test description was: Empty
+- BrowsePage at 4 depth: Non-empty
+    Test failed. See exception logs above.
+    The test description was: Non-empty
+
+## /home/runner/work/saber/saber/test/home_simplified_layout_test.dart
+- simplifiedHomeLayout golden
+    Test failed. See exception logs above.
+    The test description was: golden
+
+## /home/runner/work/saber/saber/test/home_subpage_transition_test.dart
+- Home subpage transition dark
+    Test failed. See exception logs above.
+    The test description was: dark
+- Home subpage transition light
+    Test failed. See exception logs above.
+    The test description was: light
+
+## /home/runner/work/saber/saber/test/home_theme_test.dart
+- Home themes android_dark
+    Test failed. See exception logs above.
+    The test description was: android_dark
+- Home themes android_light
+    Test failed. See exception logs above.
+    The test description was: android_light
+- Home themes fuchsia_dark
+    Test failed. See exception logs above.
+    The test description was: fuchsia_dark
+- Home themes fuchsia_light
+    Test failed. See exception logs above.
+    The test description was: fuchsia_light
+- Home themes iOS_dark
+    Test failed. See exception logs above.
+    The test description was: iOS_dark
+- Home themes iOS_light
+    Test failed. See exception logs above.
+    The test description was: iOS_light
+- Home themes linux_dark
+    Test failed. See exception logs above.
+    The test description was: linux_dark
+- Home themes linux_light
+    Test failed. See exception logs above.
+    The test description was: linux_light
+- Home themes macOS_dark
+    Test failed. See exception logs above.
+    The test description was: macOS_dark
+- Home themes macOS_light
+    Test failed. See exception logs above.
+    The test description was: macOS_light
+- Home themes windows_dark
+    Test failed. See exception logs above.
+    The test description was: windows_dark
+- Home themes windows_light
+    Test failed. See exception logs above.
+    The test description was: windows_light
+
+## /home/runner/work/saber/saber/test/screenshot_goldens_test.dart
+- Screenshots: 1_home for flathub in en
+    Test failed. See exception logs above.
+    The test description was: for flathub in en
+- Screenshots: 1_home for iphone in en
+    Test failed. See exception logs above.
+    The test description was: for iphone in en
+- Screenshots: 1_home for androidPhone in en
+    Test failed. See exception logs above.
+    The test description was: for androidPhone in en
+- Screenshots: 2_editor for flathub in en
+    Test failed. See exception logs above.
+    The test description was: for flathub in en
+- Screenshots: 2_editor for iphone in en
+    Test failed. See exception logs above.
+    The test description was: for iphone in en
+- Screenshots: 2_editor for androidPhone in en
+    Test failed. See exception logs above.
+    The test description was: for androidPhone in en
+- Screenshots: 3_login for flathub in en
+    Test failed. See exception logs above.
+    The test description was: for flathub in en
+- Screenshots: 4_settings for flathub in en
+    Test failed. See exception logs above.
+    The test description was: for flathub in en
+- Screenshots: 4_settings for iphone in en
+    Test failed. See exception logs above.
+    The test description was: for iphone in en
+- Screenshots: 4_settings for androidPhone in en
+    Test failed. See exception logs above.
+    The test description was: for androidPhone in en
+
+## /home/runner/work/saber/saber/test/sentry_consent_dialog_test.dart
+- SentryConsentDialog 
+    Test failed. See exception logs above.
+
