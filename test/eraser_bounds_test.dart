@@ -85,7 +85,7 @@ void main() {
       final strokes = [
         for (var i = 0; i < 200; i++)
           _stroke([
-            for (var j = 0; j < 2 + random.nextInt(4); j++)
+            for (var j = 0; j < 2 + random.nextInt(2); j++)
               Offset(random.nextDouble() * 1000, random.nextDouble() * 1000),
           ]),
       ];
