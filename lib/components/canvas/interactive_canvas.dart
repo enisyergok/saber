@@ -1193,10 +1193,12 @@ class _PalmAwareScaleGestureRecognizer extends ScaleGestureRecognizer {
   void addAllowedPointer(PointerDownEvent event) {
     if (palmRejection != null && PalmRejection.isStylus(event)) {
       // Any touch already down is a palm resting before the pen landed.
-      for (final pointer in _touches.toList()) {
-        rejectGesture(pointer);
+      // Give up on the gesture they started (through the normal lifecycle),
+      // so the pen below starts a fresh one of its own.
+      if (_touches.isNotEmpty) {
+        _touches.clear();
+        resolve(GestureDisposition.rejected);
       }
-      _touches.clear();
     }
     if (event.kind == PointerDeviceKind.touch) _touches.add(event.pointer);
     super.addAllowedPointer(event);
