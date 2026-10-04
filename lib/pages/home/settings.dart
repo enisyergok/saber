@@ -528,6 +528,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(-1, Text(t.settings.autosaveDisabled)),
                   ],
                 ),
+                SettingsSwitch(
+                  title: DefterStrings.shapeArrows,
+                  subtitle: DefterStrings.shapeArrowsSubtitle,
+                  icon: Icons.north_east,
+                  pref: stows.shapePenArrows,
+                ),
                 SettingsSelection(
                   title: t.settings.prefLabels.shapeRecognitionDelay,
                   subtitle: t.settings.prefDescriptions.shapeRecognitionDelay,

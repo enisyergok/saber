@@ -78,7 +78,9 @@ class ShapePen extends Pen {
         return rawStroke;
       case DefaultUnistrokeNames.line:
         log.info('Detected line');
-        return rawStroke..convertToLine();
+        rawStroke.convertToLine();
+        if (stows.shapePenArrows.value) rawStroke.convertToArrow();
+        return rawStroke;
       case DefaultUnistrokeNames.rectangle:
         final rect = detectedShape.convertToRect();
         log.info('Detected rectangle: $rect');

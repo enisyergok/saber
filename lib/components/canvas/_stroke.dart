@@ -417,6 +417,47 @@ class Stroke {
     options.end.taperEnabled = false;
   }
 
+  /// The two points that, drawn from the tip, make the head of an arrow
+  /// pointing from [tail] to [tip].
+  static (Offset left, Offset right) arrowHead(
+    Offset tail,
+    Offset tip, {
+    required double headLength,
+    double angle = 0.45, // about 26 degrees
+  }) {
+    final back = (tail - tip).direction;
+    Offset wing(double a) =>
+        tip + Offset.fromDirection(back + a, headLength);
+    return (wing(angle), wing(-angle));
+  }
+
+  /// Turns a line (see [convertToLine]) into an arrow pointing at its end.
+  /// The head is drawn as part of the same stroke, so arrows are saved,
+  /// moved and resized like any other stroke.
+  void convertToArrow() {
+    assert(points.length >= 2);
+    final tail = points.first;
+    final tip = points[1];
+    final length = (tip - tail).distance;
+    if (length < 1) return;
+
+    final headLength = min(max(options.size * 6, 18.0), length * 0.4);
+    final (left, right) = arrowHead(tail, tip, headLength: headLength);
+    final pressure = points.first.pressure;
+    PointVector at(Offset o) => PointVector.fromOffset(offset: o, pressure: pressure);
+
+    points.clear();
+    points
+      ..add(at(tail))
+      ..add(at(tip))
+      ..add(at(left))
+      ..add(at(tip))
+      ..add(at(right))
+      ..add(at(right));
+    options.isComplete = true;
+    markPolygonNeedsUpdating();
+  }
+
   /// Snaps a line to either horizontal or vertical
   /// if the angle is close enough.
   static (PointVector firstPoint, PointVector lastPoint) snapLine(

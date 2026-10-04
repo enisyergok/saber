@@ -174,4 +174,10 @@ abstract class DefterStrings {
   static String get syncExplain => _tr
       ? 'Notlar çevrimdışı da çalışır; internet gelince bekleyenler kendiliğinden gönderilir.'
       : 'Notes work offline; waiting files are sent when the internet returns.';
+
+  // Arrows
+  static String get shapeArrows => _tr ? 'Çizgilere ok ucu' : 'Arrowheads on lines';
+  static String get shapeArrowsSubtitle => _tr
+      ? 'Şekil kalemiyle çizdiğin düz çizgilerin ucuna ok ekler'
+      : 'Adds an arrowhead to straight lines drawn with the shape pen';
 }

@@ -181,6 +181,12 @@ class Stows {
     10000,
     volatile: !_isOnMainIsolate,
   );
+  /// Whether straight lines drawn with the shape pen get an arrowhead.
+  final shapePenArrows = PlainStow(
+    'shapePenArrows',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
   final shapeRecognitionDelay = PlainStow(
     'shapeRecognitionDelay',
     500,
