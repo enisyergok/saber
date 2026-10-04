@@ -118,4 +118,20 @@ abstract class DefterStrings {
   static String get apiKey => _tr ? 'OpenRouter API anahtarı' : 'OpenRouter API key';
   static String get modelName => _tr ? 'Model' : 'Model';
   static String get resetDefault => _tr ? 'Varsayılana dön' : 'Reset to default';
+
+  // Ask my notes
+  static String get askNotes => _tr ? 'Notlarıma sor' : 'Ask my notes';
+  static String get askHint =>
+      _tr ? 'Notlarında ne arıyorsun?' : 'What are you looking for in your notes?';
+  static String get askNoNotes => _tr
+      ? 'Notlarında bununla ilgili bir şey bulamadım'
+      : 'I found nothing about this in your notes';
+  static String get askSources => _tr ? 'Kullanılan notlar' : 'Notes used';
+  static String get askTypedOnly => _tr
+      ? 'Yalnızca yazıyla girilen metin taranır; el yazısını önce metne çevir.'
+      : 'Only typed text is searched; convert handwriting to text first.';
+  static String get askSending => _tr
+      ? 'Sorunla ilgili not parçaları OpenRouter\'a gönderilir.'
+      : 'Relevant note excerpts are sent to OpenRouter with your question.';
+  static String get ask => _tr ? 'Sor' : 'Ask';
 }

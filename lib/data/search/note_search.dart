@@ -74,6 +74,8 @@ class NoteSearchIndex {
 
   int get length => _entries.length;
 
+  Iterable<NoteSearchEntry> get entries => _entries.values;
+
   /// Makes Turkish (and other) letters comparable regardless of how the
   /// person types: `İ`, `I`, `ı` all become `i`, and `ş ğ ü ö ç` lose their
   /// marks.

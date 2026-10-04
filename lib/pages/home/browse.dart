@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/defter_strings.dart';
+import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/pages/favorites.dart';
 import 'package:saber/pages/search.dart';
 import 'package:saber/components/home/export_note_button.dart';
@@ -160,6 +161,13 @@ class _BrowsePageState extends State<BrowsePage> {
                 icon: const Icon(Icons.search),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const SearchPage()),
+                ),
+              ),
+              IconButton(
+                tooltip: DefterStrings.askNotes,
+                icon: const Icon(Icons.auto_awesome),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const AskNotesPage()),
                 ),
               ),
               IconButton(
