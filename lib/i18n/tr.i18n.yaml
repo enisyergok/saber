@@ -4,23 +4,23 @@ common:
   cancel: İptal
 home:
   tabs:
-    home: Giriş
-    browse: Göz at
+    home: Son
+    browse: Belgeler
     whiteboard: Beyaz tahta
     settings: Ayarlar
   titles:
-    home: Son notlar
-    browse: Göz at
+    home: Son kullanılanlar
+    browse: Belgeler
     whiteboard: Beyaz tahta
     settings: Ayarlar
   tooltips:
-    newNote: Yeni not
+    newNote: Yeni defter
     showUpdateDialog: Güncelleme diyalogunu göster
     exportNote: Notu dışa aktar
   create:
-    newNote: Yeni not
+    newNote: Yeni defter
     importNote: Notu içeri aktar
-  welcome: Saber'a hoş geldiniz
+  welcome: Defter'e hoş geldiniz
   invalidFormat: Seçtiğiniz dosya desteklenmiyor. Lütfen bir .sbn, .sbn2, .sba veya .pdf dosyası seçin.
   noFiles: Dosya yok
   createNewNote: Yeni bir not oluşturmak için + butonuna tıklayınız

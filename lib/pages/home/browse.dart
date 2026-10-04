@@ -8,11 +8,10 @@ import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
 import 'package:saber/components/home/export_note_button.dart';
 import 'package:saber/components/home/grid_folders.dart';
-import 'package:saber/components/home/home_layout_button.dart';
 import 'package:saber/components/home/masonry_files.dart';
 import 'package:saber/components/home/move_note_button.dart';
 import 'package:saber/components/home/new_note_button.dart';
-import 'package:saber/components/home/no_files.dart';
+import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/path_components.dart';
 import 'package:saber/components/home/rename_note_button.dart';
 import 'package:saber/components/home/sort_button.dart';
@@ -111,6 +110,16 @@ class _BrowsePageState extends State<BrowsePage> {
     findChildrenOfPath();
   }
 
+  Future<void> createNote() async {
+    if (path == null) {
+      context.push(RoutePaths.edit);
+      return;
+    }
+    final newFilePath = await FileManager.newFilePath('$path/');
+    if (!mounted) return;
+    context.push(RoutePaths.editFilePath(newFilePath));
+  }
+
   Future<void> createFolder(String folderName) async {
     final folderPath = '${path ?? ''}/$folderName';
     await FileManager.createFolder(folderPath);
@@ -121,34 +130,24 @@ class _BrowsePageState extends State<BrowsePage> {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
     final platform = Theme.of(context).platform;
-    final crossAxisCount = MediaQuery.sizeOf(context).width ~/ 300 + 1;
-    useListenable(stows.homeLayout);
+    final crossAxisCount = MediaQuery.sizeOf(context).width ~/ 220 + 1;
     useOnListenableChange(stows.browseSortMetric, findChildrenOfPath);
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            collapsedHeight: kToolbarHeight,
-            expandedHeight: 200 - 8,
             pinned: true,
             scrolledUnderElevation: 1,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                t.home.titles.browse,
-                style: TextStyle(color: colorScheme.onSurface),
-              ),
-              centerTitle: false,
-              titlePadding: const EdgeInsetsDirectional.only(
-                start: 16,
-                bottom: 8, // less than other pages for path components
+            centerTitle: false,
+            title: Text(
+              t.home.titles.browse,
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            actions: const [
-              BrowseSortButton(),
-              HomeLayoutButton(),
-              SyncingButton(),
-            ],
+            actions: const [BrowseSortButton(), SyncingButton()],
           ),
           SliverToBoxAdapter(
             child: PathComponents(path, onPathComponentTap: onPathComponentTap),
@@ -186,8 +185,6 @@ class _BrowsePageState extends State<BrowsePage> {
           ),
           if (children == null) ...[
             // loading
-          ] else if (children!.isEmpty) ...[
-            const SliverSafeArea(sliver: SliverToBoxAdapter(child: NoFiles())),
           ] else ...[
             SliverSafeArea(
               top: false,
@@ -197,7 +194,10 @@ class _BrowsePageState extends State<BrowsePage> {
                 bottom: 70,
               ),
               sliver: MasonryFiles(
-                crossAxisCount: crossAxisCount,
+                leading: NewNotebookTile(
+                  label: t.home.create.newNote,
+                  onTap: createNote,
+                ),
                 files: [
                   for (final filePath in children?.files ?? const [])
                     "${path ?? ""}/$filePath",

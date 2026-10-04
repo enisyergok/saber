@@ -127,7 +127,7 @@ class Stows {
 
   final editorToolbarAlignment = PlainStow(
     'editorToolbarAlignment',
-    AxisDirection.down,
+    AxisDirection.up,
     codec: const EnumCodec(AxisDirection.values),
     volatile: !_isOnMainIsolate,
   );

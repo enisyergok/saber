@@ -78,8 +78,8 @@ class Translations$home$en {
 	late final Translations$home$tooltips$en tooltips = Translations$home$tooltips$en.internal(_root);
 	late final Translations$home$create$en create = Translations$home$create$en.internal(_root);
 
-	/// en: 'Welcome to Saber'
-	String get welcome => 'Welcome to Saber';
+	/// en: 'Welcome to Defter'
+	String get welcome => 'Welcome to Defter';
 
 	/// en: 'The file you selected is not supported. Please select an sbn, sbn2, sba, or pdf file.'
 	String get invalidFormat => 'The file you selected is not supported. Please select an sbn, sbn2, sba, or pdf file.';
@@ -334,11 +334,11 @@ class Translations$home$tabs$en {
 
 	// Translations
 
-	/// en: 'Home'
-	String get home => 'Home';
+	/// en: 'Recent'
+	String get home => 'Recent';
 
-	/// en: 'Browse'
-	String get browse => 'Browse';
+	/// en: 'Documents'
+	String get browse => 'Documents';
 
 	/// en: 'Whiteboard'
 	String get whiteboard => 'Whiteboard';
@@ -355,11 +355,11 @@ class Translations$home$titles$en {
 
 	// Translations
 
-	/// en: 'Recent notes'
-	String get home => 'Recent notes';
+	/// en: 'Recent'
+	String get home => 'Recent';
 
-	/// en: 'Browse'
-	String get browse => 'Browse';
+	/// en: 'Documents'
+	String get browse => 'Documents';
 
 	/// en: 'Whiteboard'
 	String get whiteboard => 'Whiteboard';

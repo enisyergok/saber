@@ -4,13 +4,13 @@ common:
   cancel: Cancel
 home:
   tabs:
-    home: Home
-    browse: Browse
+    home: Recent
+    browse: Documents
     whiteboard: Whiteboard
     settings: Settings
   titles:
-    home: Recent notes
-    browse: Browse
+    home: Recent
+    browse: Documents
     whiteboard: Whiteboard
     settings: Settings
   tooltips:
@@ -20,7 +20,7 @@ home:
   create:
     newNote: New note
     importNote: Import note
-  welcome: Welcome to Saber
+  welcome: Welcome to Defter
   invalidFormat: The file you selected is not supported. Please select an sbn, sbn2, sba, or pdf file.
   noFiles: No files found
   noPreviewAvailable: No preview available

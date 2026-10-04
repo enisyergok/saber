@@ -27,7 +27,7 @@ abstract class RoutePaths {
 
 abstract class HomeRoutes {
   static String browseFilePath(String? filePath) {
-    var path = routes[1].path;
+    var path = routes[0].path;
     if (filePath != '/' && filePath != '' && filePath != null) {
       path += '?path=${Uri.encodeQueryComponent(filePath)}';
     }
@@ -38,22 +38,22 @@ abstract class HomeRoutes {
 
   static List<HomeRoute> get routes => <HomeRoute>[
     HomeRoute._(
-      _homeFunction({'subpage': HomePage.recentSubpage}),
-      destination: NavigationDestination(
-        label: t.home.tabs.home,
-        icon: const AdaptiveIcon(
-          icon: Icons.home,
-          cupertinoIcon: CupertinoIcons.house_fill,
-        ),
-      ),
-    ),
-    HomeRoute._(
       _homeFunction({'subpage': HomePage.browseSubpage}),
       destination: NavigationDestination(
         label: t.home.tabs.browse,
         icon: const AdaptiveIcon(
-          icon: Icons.folder,
-          cupertinoIcon: CupertinoIcons.folder_fill,
+          icon: Icons.auto_stories,
+          cupertinoIcon: CupertinoIcons.book_fill,
+        ),
+      ),
+    ),
+    HomeRoute._(
+      _homeFunction({'subpage': HomePage.recentSubpage}),
+      destination: NavigationDestination(
+        label: t.home.tabs.home,
+        icon: const AdaptiveIcon(
+          icon: Icons.schedule,
+          cupertinoIcon: CupertinoIcons.clock_fill,
         ),
       ),
     ),

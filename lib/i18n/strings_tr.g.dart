@@ -69,7 +69,7 @@ class _Translations$home$tr extends Translations$home$en {
 	@override late final _Translations$home$titles$tr titles = _Translations$home$titles$tr._(_root);
 	@override late final _Translations$home$tooltips$tr tooltips = _Translations$home$tooltips$tr._(_root);
 	@override late final _Translations$home$create$tr create = _Translations$home$create$tr._(_root);
-	@override String get welcome => 'Saber\'a hoş geldiniz';
+	@override String get welcome => 'Defter\'e hoş geldiniz';
 	@override String get invalidFormat => 'Seçtiğiniz dosya desteklenmiyor. Lütfen bir .sbn, .sbn2, .sba veya .pdf dosyası seçin.';
 	@override String get noFiles => 'Dosya yok';
 	@override String get createNewNote => 'Yeni bir not oluşturmak için + butonuna tıklayınız';
@@ -241,8 +241,8 @@ class _Translations$home$tabs$tr extends Translations$home$tabs$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get home => 'Giriş';
-	@override String get browse => 'Göz at';
+	@override String get home => 'Son';
+	@override String get browse => 'Belgeler';
 	@override String get whiteboard => 'Beyaz tahta';
 	@override String get settings => 'Ayarlar';
 }
@@ -254,8 +254,8 @@ class _Translations$home$titles$tr extends Translations$home$titles$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get home => 'Son notlar';
-	@override String get browse => 'Göz at';
+	@override String get home => 'Son kullanılanlar';
+	@override String get browse => 'Belgeler';
 	@override String get whiteboard => 'Beyaz tahta';
 	@override String get settings => 'Ayarlar';
 }
@@ -267,7 +267,7 @@ class _Translations$home$tooltips$tr extends Translations$home$tooltips$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get newNote => 'Yeni not';
+	@override String get newNote => 'Yeni defter';
 	@override String get showUpdateDialog => 'Güncelleme diyalogunu göster';
 	@override String get exportNote => 'Notu dışa aktar';
 }
@@ -279,7 +279,7 @@ class _Translations$home$create$tr extends Translations$home$create$en {
 	final TranslationsTr _root; // ignore: unused_field
 
 	// Translations
-	@override String get newNote => 'Yeni not';
+	@override String get newNote => 'Yeni defter';
 	@override String get importNote => 'Notu içeri aktar';
 }
 

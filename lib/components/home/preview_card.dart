@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
 import 'package:saber/components/canvas/invert_widget.dart';
+import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/sync_indicator.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
@@ -13,7 +14,6 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
-import 'package:yaru/yaru.dart';
 
 class PreviewCard extends StatefulWidget {
   new({
@@ -36,6 +36,9 @@ class _PreviewCardState extends State<PreviewCard> {
   final expanded = ValueNotifier(false);
   final thumbnail = _ThumbnailState();
 
+  /// When the note was last modified, shown under the cover.
+  DateTime? _modified;
+
   @override
   void initState() {
     fileWriteSubscription = FileManager.fileWriteStream.stream.listen(
@@ -43,7 +46,17 @@ class _PreviewCardState extends State<PreviewCard> {
     );
 
     expanded.value = widget.selected;
+    _readModified();
     super.initState();
+  }
+
+  void _readModified() {
+    try {
+      final file = FileManager.getFile('${widget.filePath}${Editor.extension}');
+      _modified = file.existsSync() ? file.lastModifiedSync() : null;
+    } catch (_) {
+      _modified = null;
+    }
   }
 
   @override
@@ -71,6 +84,7 @@ class _PreviewCardState extends State<PreviewCard> {
     } else if (event.type == .write) {
       thumbnail.image?.evict();
       thumbnail.markAsChanged();
+      if (mounted) setState(_readModified);
     } else {
       throw Exception('Unknown file operation type: ${event.type}');
     }
@@ -99,149 +113,134 @@ class _PreviewCardState extends State<PreviewCard> {
       milliseconds: disableAnimations ? 0 : 300,
     );
     final invert = theme.brightness == .dark && stows.editorAutoInvert.value;
+    final coverRadius = kNotebookCoverRadius.resolve(
+      Directionality.of(context),
+    );
+    final modified = _modified;
 
-    final Widget card = MouseRegion(
+    final Widget cover = MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.isAnythingSelected ? _toggleCardSelection : null,
         onSecondaryTap: _toggleCardSelection,
         onLongPress: _toggleCardSelection,
-        child: Column(
-          mainAxisSize: stows.homeLayout.value.fillVertical ? .max : .min,
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Flexible(
-              fit: stows.homeLayout.value.fillVertical ? .tight : .loose,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    top: kYaruContainerRadius,
-                    left: kYaruFocusBorderWidth,
-                    right: kYaruFocusBorderWidth,
-                    child: ColoredBox(
-                      color: InnerCanvas.defaultBackgroundColor.withInversion(
-                        invert,
-                      ),
-                    ),
+            ColoredBox(
+              color: InnerCanvas.defaultBackgroundColor.withInversion(invert),
+            ),
+            ListenableBuilder(
+              listenable: thumbnail,
+              builder: (context, _) => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: SizedBox.expand(
+                  key: ValueKey(thumbnail.updateCount),
+                  child: InvertWidget(
+                    invert: invert,
+                    child: thumbnail.doesImageExist
+                        ? Image(
+                            image: thumbnail.image!,
+                            alignment: .topCenter,
+                            fit: .cover,
+                          )
+                        : const _FallbackThumbnail(),
                   ),
-                  ListenableBuilder(
-                    listenable: thumbnail,
-                    builder: (context, _) => AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: ConstrainedBox(
-                        key: ValueKey(thumbnail.updateCount),
-                        constraints: const BoxConstraints(
-                          minWidth: double.infinity,
-                          minHeight: 100,
+                ),
+              ),
+            ),
+            const NotebookSpine(),
+            ValueListenableBuilder(
+              valueListenable: expanded,
+              builder: (context, expanded, child) => AnimatedOpacity(
+                opacity: expanded ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: IgnorePointer(ignoring: !expanded, child: child!),
+              ),
+              child: GestureDetector(
+                onTap: _toggleCardSelection,
+                child: ColoredBox(
+                  color: colorScheme.primary.withValues(alpha: 0.18),
+                  child: Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: Padding(
+                      padding: const .all(8),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          shape: BoxShape.circle,
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(
-                            top: kYaruFocusBorderWidth,
-                            left: kYaruFocusBorderWidth,
-                            right: kYaruFocusBorderWidth,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: const .only(
-                              topLeft: .circular(
-                                kYaruContainerRadius - kYaruFocusBorderWidth,
-                              ),
-                              topRight: .circular(
-                                kYaruContainerRadius - kYaruFocusBorderWidth,
-                              ),
-                            ),
-                            child: InvertWidget(
-                              invert: invert,
-                              child: thumbnail.doesImageExist
-                                  ? Image(
-                                      image: thumbnail.image!,
-                                      alignment: .topCenter,
-                                      fit: .cover,
-                                    )
-                                  : const _FallbackThumbnail(),
-                            ),
+                          padding: const .all(3),
+                          child: Icon(
+                            Icons.check,
+                            size: 18,
+                            color: colorScheme.onPrimary,
                           ),
                         ),
                       ),
                     ),
                   ),
-                  Positioned.fill(
-                    left: -1,
-                    top: -1,
-                    right: -1,
-                    bottom: -1,
-                    child: ValueListenableBuilder(
-                      valueListenable: expanded,
-                      builder: (context, expanded, child) => AnimatedOpacity(
-                        opacity: expanded ? 1 : 0,
-                        duration: const Duration(milliseconds: 200),
-                        child: IgnorePointer(
-                          ignoring: !expanded,
-                          child: child!,
-                        ),
-                      ),
-                      child: GestureDetector(
-                        onTap: _toggleCardSelection,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: .topCenter,
-                              end: .bottomCenter,
-                              colors: [
-                                colorScheme.surface.withValues(alpha: 0.2),
-                                colorScheme.surface.withValues(alpha: 0.8),
-                                colorScheme.surface.withValues(alpha: 1),
-                              ],
-                            ),
-                          ),
-                          child: ColoredBox(
-                            color: colorScheme.primary.withValues(alpha: 0.05),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SyncIndicator(filePath: widget.filePath),
-                ],
+                ),
               ),
             ),
-            Padding(
-              padding: const .all(8),
-              child: Text(
-                widget.filePath.substring(widget.filePath.lastIndexOf('/') + 1),
-                maxLines: 2,
-                overflow: .ellipsis,
-              ),
-            ),
+            SyncIndicator(filePath: widget.filePath),
           ],
         ),
       ),
     );
 
-    return ValueListenableBuilder(
-      valueListenable: expanded,
-      builder: (context, expanded, _) {
-        return OpenContainer(
-          clipBehavior: Clip.none,
-          closedColor: colorScheme.surface,
-          closedShape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: expanded
-                  ? colorScheme.primary
-                  : colorScheme.onSurface.withValues(alpha: 0.12),
-              width: kYaruFocusBorderWidth,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AspectRatio(
+          aspectRatio: kNotebookCoverAspectRatio,
+          child: ValueListenableBuilder(
+            valueListenable: expanded,
+            builder: (context, expanded, _) {
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: coverRadius,
+                  boxShadow: notebookCoverShadow(theme.brightness),
+                ),
+                child: OpenContainer(
+                  clipBehavior: Clip.antiAlias,
+                  closedColor: colorScheme.surface,
+                  closedShape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: expanded
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.12),
+                      width: expanded ? 2.5 : 1,
+                    ),
+                    borderRadius: coverRadius,
+                  ),
+                  closedElevation: 0,
+                  closedBuilder: (context, action) => cover,
+                  openColor: colorScheme.surface,
+                  openBuilder: (context, action) =>
+                      Editor(path: widget.filePath),
+                  transitionDuration: transitionDuration,
+                  routeSettings: RouteSettings(
+                    name: RoutePaths.editFilePath(widget.filePath),
+                  ),
+                  onClosed: (_) => _refreshThumbnailAfterDelay(),
+                ),
+              );
+            },
+          ),
+        ),
+        Expanded(
+          child: NotebookCaption(
+            title: widget.filePath.substring(
+              widget.filePath.lastIndexOf('/') + 1,
             ),
-            borderRadius: const .all(.circular(kYaruContainerRadius)),
+            subtitle: modified == null
+                ? null
+                : MaterialLocalizations.of(context).formatShortDate(modified),
           ),
-          closedElevation: 0,
-          closedBuilder: (context, action) => card,
-          openColor: colorScheme.surface,
-          openBuilder: (context, action) => Editor(path: widget.filePath),
-          transitionDuration: transitionDuration,
-          routeSettings: RouteSettings(
-            name: RoutePaths.editFilePath(widget.filePath),
-          ),
-          onClosed: (_) => _refreshThumbnailAfterDelay(),
-        );
-      },
+        ),
+      ],
     );
   }
 

@@ -23,8 +23,8 @@ class HomePage extends StatefulWidget {
   static const whiteboardSubpage = 'whiteboard';
   static const settingsSubpage = 'settings';
   static const List<String> subpages = [
-    recentSubpage,
     browseSubpage,
+    recentSubpage,
     whiteboardSubpage,
     settingsSubpage,
   ];
@@ -58,7 +58,8 @@ class _HomePageState extends State<HomePage> {
           HomePage.browseSubpage => BrowsePage(path: widget.path),
           HomePage.whiteboardSubpage => const Whiteboard(),
           HomePage.settingsSubpage => const SettingsPage(),
-          _ => const RecentPage(),
+          HomePage.recentSubpage => const RecentPage(),
+          _ => BrowsePage(path: widget.path),
         },
       ),
     );
