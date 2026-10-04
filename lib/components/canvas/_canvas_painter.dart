@@ -25,7 +25,7 @@ enum InkLayer {
   dry,
 
   /// Everything that changes while the pen is moving: the current stroke,
-  /// laser strokes, the detected shape, the selection and the page number.
+  /// laser strokes, the detected shape and the selection outline.
   live,
 }
 
@@ -74,12 +74,14 @@ class CanvasPainter extends CustomPainter {
       case .dry:
         _drawHighlighterStrokes(canvas, canvasRect);
         _drawNonHighlighterStrokes(canvas);
+        // The page number only changes with the page, so it is cached with
+        // the strokes (and repainted with them once fonts have loaded).
+        _drawPageIndicator(canvas, size);
       case .live:
         for (final stroke in laserStrokes) _drawLaserStroke(canvas, stroke);
         _drawCurrentStroke(canvas);
         _drawDetectedShape(canvas);
         _drawSelection(canvas);
-        _drawPageIndicator(canvas, size);
     }
   }
 
@@ -96,7 +98,10 @@ class CanvasPainter extends CustomPainter {
           currentSelection != oldDelegate.currentSelection ||
           primaryColor != oldDelegate.primaryColor ||
           page != oldDelegate.page ||
-          currentScale != oldDelegate.currentScale;
+          currentScale != oldDelegate.currentScale ||
+          showPageIndicator != oldDelegate.showPageIndicator ||
+          pageIndex != oldDelegate.pageIndex ||
+          totalPages != oldDelegate.totalPages;
     }
 
     return false ||
@@ -109,9 +114,6 @@ class CanvasPainter extends CustomPainter {
         currentSelection != oldDelegate.currentSelection ||
         primaryColor != oldDelegate.primaryColor ||
         page != oldDelegate.page ||
-        showPageIndicator != oldDelegate.showPageIndicator ||
-        pageIndex != oldDelegate.pageIndex ||
-        totalPages != oldDelegate.totalPages ||
         currentScale != oldDelegate.currentScale;
   }
 
