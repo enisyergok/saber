@@ -43,7 +43,7 @@ class _NewNotebookDialogState extends State<NewNotebookDialog> {
   CanvasBackgroundPattern _paper = stows.lastBackgroundPattern.value;
   String? _nameError;
 
-  static const _previewWidth = 96.0;
+  static const _previewWidth = 88.0;
   static const _previewHeight =
       _previewWidth * EditorPage.defaultHeight / EditorPage.defaultWidth;
 
@@ -84,7 +84,7 @@ class _NewNotebookDialogState extends State<NewNotebookDialog> {
                 controller: _nameController,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  labelText: t.home.renameNote.noteName,
+                  labelText: DefterStrings.notebookName,
                   helperText: DefterStrings.nameOptional,
                   errorText: _nameError,
                   border: const OutlineInputBorder(),
@@ -102,7 +102,7 @@ class _NewNotebookDialogState extends State<NewNotebookDialog> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: NewNotebookDialog.papers.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
                   itemBuilder: (context, index) {
                     final paper = NewNotebookDialog.papers[index];
                     final selected = paper == _paper;

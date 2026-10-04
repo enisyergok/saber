@@ -18,6 +18,7 @@ abstract class DefterStrings {
   static String get editPages =>
       _tr ? 'Sayfaları düzenle ve sırala' : 'Edit and reorder pages';
   static String get thickness => _tr ? 'Kalınlık' : 'Thickness';
+  static String get notebookName => _tr ? 'Defter adı' : 'Notebook name';
   static String get paper => _tr ? 'Kâğıt' : 'Paper';
   static String get nameOptional => _tr
       ? 'Boş bırakırsan tarihle adlandırılır'

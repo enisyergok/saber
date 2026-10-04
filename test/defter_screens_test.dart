@@ -11,6 +11,7 @@ import 'package:saber/components/home/syncing_button.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/flavor_config.dart';
+import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -106,12 +107,20 @@ void main() {
       theme: theme,
       name: 'editor',
       child: Editor(path: '/Metric Spaces Week 1'),
+      afterLoad: (tester) async {
+        // Pretend two other notebooks were opened earlier.
+        OpenTabs.open('/Golden ratio');
+        OpenTabs.open('/Import PDFs');
+        await tester.pump();
+      },
     );
     _shot(
       theme: theme,
       name: 'editor_pages',
       child: Editor(path: '/Metric Spaces Week 1'),
       afterLoad: (tester) async {
+        OpenTabs.reset();
+        await tester.pump();
         final editor = tester.state<EditorState>(find.byType(Editor));
         editor.toggleBookmark(0);
         editor.showPageGrid();

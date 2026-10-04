@@ -10,6 +10,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' as flutter_quill;
+import 'package:go_router/go_router.dart';
 import 'package:keybinder/keybinder.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
@@ -21,6 +22,7 @@ import 'package:saber/components/canvas/canvas_gesture_detector.dart';
 import 'package:saber/components/canvas/canvas_image.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/save_indicator.dart';
+import 'package:saber/components/editor/editor_tab_strip.dart';
 import 'package:saber/components/editor/read_only_banner.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
@@ -40,7 +42,9 @@ import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/extensions/matrix4_extensions.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
+import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
+import 'package:saber/data/routes.dart';
 import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
@@ -186,6 +190,7 @@ class EditorState extends State<Editor> {
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
     _transformationController.addListener(_scheduleVisiblePageUpdate);
+    OpenTabs.paths.addListener(_setState);
 
     _initAsync();
     _assignKeybindings();
@@ -196,6 +201,11 @@ class EditorState extends State<Editor> {
   void _initAsync() async {
     final filePath = await widget.initialPath;
     filenameTextEditingController.text = p.basename(filePath);
+
+    if (_usesTabs) {
+      _tabPath = filePath;
+      OpenTabs.open(filePath);
+    }
 
     if (needsNaming) {
       filenameTextEditingController.selection = TextSelection(
@@ -1005,6 +1015,8 @@ class EditorState extends State<Editor> {
 
     if (_filenameFormKey.currentState?.validate() ??
         _validateFilenameTextField(newName) == null) {
+      final oldPath = coreInfo.filePath;
+      final oldTabIndex = OpenTabs.paths.value.indexOf(oldPath);
       coreInfo.filePath = await FileManager.moveFile(
         coreInfo.filePath + Editor.extension,
         newName.trim() + Editor.extension,
@@ -1014,6 +1026,15 @@ class EditorState extends State<Editor> {
         coreInfo.filePath.lastIndexOf(Editor.extension),
       );
       needsNaming = false;
+
+      if (_usesTabs && coreInfo.filePath != oldPath) {
+        _tabPath = coreInfo.filePath;
+        OpenTabs.rename(
+          oldPath,
+          coreInfo.filePath,
+          index: oldTabIndex < 0 ? null : oldTabIndex,
+        );
+      }
     }
 
     final actualName = coreInfo.fileName;
@@ -1648,6 +1669,14 @@ class EditorState extends State<Editor> {
             ? null
             : AppBar(
                 toolbarHeight: kToolbarHeight,
+                bottom: _usesTabs && OpenTabs.paths.value.length > 1
+                    ? EditorTabStrip(
+                        paths: OpenTabs.paths.value,
+                        currentPath: _tabPath,
+                        onSelect: switchToTab,
+                        onClose: closeTab,
+                      )
+                    : null,
                 title: widget.customTitle != null
                     ? Text(widget.customTitle!)
                     : Form(
@@ -1877,6 +1906,50 @@ class EditorState extends State<Editor> {
       currentTool: currentTool,
       currentScale: _transformationController.value.approxScale,
     );
+  }
+
+  /// The whiteboard is a single fixed note, so it doesn't take part in tabs.
+  bool get _usesTabs => widget.customTitle == null;
+
+  /// This editor's entry in [OpenTabs], once its path is known.
+  String? _tabPath;
+
+  /// Opens another notebook in place of this one.
+  ///
+  /// This editor saves itself as it's disposed.
+  void switchToTab(String path) {
+    if (path == _tabPath) return;
+    final location = RoutePaths.editFilePath(path);
+    if (ModalRoute.of(context)?.settings is Page) {
+      // This editor was opened through the router, whose pages
+      // can't be replaced with the imperative Navigator API.
+      GoRouter.of(context).pushReplacement(location);
+    } else {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder<void>(
+          settings: RouteSettings(name: location),
+          pageBuilder: (context, _, _) => Editor(path: path),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        ),
+      );
+    }
+  }
+
+  void closeTab(String path) {
+    if (path != _tabPath) {
+      OpenTabs.close(path);
+      return;
+    }
+
+    final index = OpenTabs.paths.value.indexOf(path);
+    OpenTabs.close(path);
+    final remaining = OpenTabs.paths.value;
+    if (remaining.isEmpty) {
+      Navigator.of(context).maybePop();
+    } else {
+      switchToTab(remaining[index.clamp(0, remaining.length - 1)]);
+    }
   }
 
   /// The page currently in view, for widgets that follow scrolling
@@ -2136,6 +2209,7 @@ class EditorState extends State<Editor> {
 
     DynamicMaterialApp.removeFullscreenListener(_setState);
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
+    OpenTabs.paths.removeListener(_setState);
 
     _delayedSaveTimer?.cancel();
     _watchServerTimer?.cancel();
