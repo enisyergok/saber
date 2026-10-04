@@ -303,7 +303,9 @@ class Stroke {
   /// in [polygon] for performance.
   @protected
   Path getPath(List<Offset> polygon, {bool smooth = true}) {
-    if (smooth && options.isComplete) {
+    // Shapes with corners are drawn with straight sides: smoothing the few
+    // points of a polygon would round it into a blob.
+    if (smooth && options.isComplete && vertexHandles == null) {
       return smoothPathFromPolygon(polygon);
     }
 

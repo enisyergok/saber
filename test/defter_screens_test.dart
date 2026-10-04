@@ -234,6 +234,7 @@ void main() {
         select.doneSelecting = true;
         editor.currentTool = select;
         page.redrawStrokes();
+        tester.element(find.byType(Editor)).markNeedsBuild();
         await tester.pump();
       },
     );
