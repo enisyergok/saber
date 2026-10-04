@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:saber/components/canvas/_stroke.dart';
+import 'package:saber/data/prefs.dart';
 
 import 'package:saber/data/tools/_tool.dart';
 import 'package:sbn/tool_id.dart';
@@ -11,16 +12,21 @@ double sqrDistanceBetween(Offset p1, Offset p2) =>
     square(p1.dx - p2.dx) + square(p1.dy - p2.dy);
 
 class Eraser extends Tool {
-  final double size;
-  late final double sqrSize = square(size);
+  /// The radius of the eraser. Can be changed while the tool is in use.
+  double size;
+  double get sqrSize => square(size);
 
   /// How far from a stroke's bounding box the eraser can still touch it.
   /// The extra 1 keeps points exactly on the edge from being missed.
-  late final double _reach = math.sqrt(sqrSize) + 1;
+  double get _reach => math.sqrt(sqrSize) + 1;
+
+  /// The sizes offered by the toolbar, smallest first.
+  static const sizePresets = <double>[10, 25, 50];
 
   List<Stroke> _erased = [];
 
-  new({this.size = 10});
+  /// Uses the person's last chosen size unless [size] is given.
+  new({double? size}) : size = size ?? stows.eraserSize.value;
 
   @override
   ToolId get toolId => .eraser;

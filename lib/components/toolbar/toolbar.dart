@@ -557,7 +557,9 @@ class _ToolbarState extends State<Toolbar> {
                     invert: invert,
                     setColor: widget.setColor,
                     onSizeChanged: _setState,
-                  ),
+                  )
+                else if (widget.currentTool case final Eraser eraser)
+                  EraserSizeBar(eraser: eraser, onSizeChanged: _setState),
             ],
           ),
         ),

@@ -76,4 +76,7 @@ abstract class DefterStrings {
       _tr ? 'Sonuç bulunamadı' : 'No results';
   static String get searchIndexing =>
       _tr ? 'Notlar taranıyor…' : 'Indexing notes…';
+
+  // Tools
+  static String get eraserSize => _tr ? 'Silgi boyutu' : 'Eraser size';
 }

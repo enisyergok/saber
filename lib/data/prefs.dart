@@ -136,6 +136,12 @@ class Stows {
     true,
     volatile: !_isOnMainIsolate,
   );
+  /// The radius of the eraser, in page units.
+  final eraserSize = PlainStow(
+    'eraserSize',
+    10.0,
+    volatile: !_isOnMainIsolate,
+  );
   final editorFingerDrawing = PlainStow(
     'editorFingerDrawing',
     true,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
+import 'package:saber/data/prefs.dart';
+import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
@@ -78,6 +80,49 @@ class QuickStyleBar extends StatelessWidget {
             tooltip: '${DefterStrings.thickness}: ${sizes[i].round()}',
             onTap: () {
               pen.options.size = sizes[i];
+              onSizeChanged();
+            },
+          ),
+      ],
+    );
+  }
+}
+
+/// Three eraser sizes, shown next to the tools while the eraser is selected.
+class EraserSizeBar extends StatelessWidget {
+  const EraserSizeBar({
+    super.key,
+    required this.eraser,
+    required this.onSizeChanged,
+  });
+
+  final Eraser eraser;
+  final VoidCallback onSizeChanged;
+
+  /// The diameters used to draw the three size presets.
+  static const _sizeDotDiameters = <double>[7, 12, 18];
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 1,
+          height: 24,
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          color: colorScheme.outlineVariant,
+        ),
+        for (var i = 0; i < Eraser.sizePresets.length; i++)
+          _SizeDot(
+            diameter: _sizeDotDiameters[i],
+            selected: eraser.size == Eraser.sizePresets[i],
+            tooltip:
+                '${DefterStrings.eraserSize}: ${Eraser.sizePresets[i].round()}',
+            onTap: () {
+              eraser.size = Eraser.sizePresets[i];
+              stows.eraserSize.value = eraser.size;
               onSizeChanged();
             },
           ),
