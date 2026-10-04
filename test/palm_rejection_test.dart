@@ -61,7 +61,11 @@ void main() {
     test('the stylus, inverted stylus and mouse are never rejected', () {
       final palm = PalmRejection();
       palm.handleEvent(_down(.stylus, 1, 0));
-      for (final kind in [PointerDeviceKind.stylus, .invertedStylus, .mouse]) {
+      for (final kind in <PointerDeviceKind>[
+        .stylus,
+        .invertedStylus,
+        .mouse,
+      ]) {
         expect(palm.shouldRejectNewPointer(_down(kind, 9, 10)), isFalse);
       }
     });
