@@ -43,11 +43,12 @@ class GridFolders extends StatelessWidget {
     ];
 
     return SliverPadding(
-      padding: const .symmetric(horizontal: 12, vertical: 8),
+      padding: const .symmetric(horizontal: 24, vertical: 8),
       sliver: SliverAlignedGrid.count(
         itemCount: folders.length + extraCards.length,
         crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 8,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
         itemBuilder: (context, index) {
           final cardType = extraCards.getOrNull(index) ?? .realFolder;
           final folderName = cardType == .realFolder
@@ -133,9 +134,12 @@ class _GridFolderState extends State<_GridFolder> {
         onSecondaryTap: widget.cardType == .realFolder
             ? () => expanded.value = !expanded.value
             : null,
-        child: Card(
+        child: Material(
+          color: cardElevatedColor,
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          clipBehavior: Clip.antiAlias,
           child: Padding(
-            padding: const .all(8),
+            padding: const .symmetric(horizontal: 8, vertical: 12),
             child: Column(
               mainAxisSize: .min,
               children: [
@@ -151,6 +155,7 @@ class _GridFolderState extends State<_GridFolder> {
                             .realFolder => '',
                           },
                           child: AdaptiveIcon(
+                            color: colorScheme.primary,
                             icon: switch (widget.cardType) {
                               .backFolder => Icons.folder_open,
                               .newFolder => Icons.create_new_folder,
@@ -229,7 +234,12 @@ class _GridFolderState extends State<_GridFolder> {
                 switch (widget.cardType) {
                   .backFolder => const Icon(Icons.arrow_back),
                   .newFolder => Text(t.home.newFolder.newFolder),
-                  .realFolder => Text(widget.folderName!),
+                  .realFolder => Text(
+                    widget.folderName!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 },
               ],
             ),

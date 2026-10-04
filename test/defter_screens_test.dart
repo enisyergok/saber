@@ -14,6 +14,7 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
+import 'package:saber/pages/home/browse.dart';
 import 'package:saber/pages/home/home.dart';
 import 'package:yaru/yaru.dart';
 
@@ -69,6 +70,20 @@ void main() {
     _shot(
       theme: theme,
       name: 'library',
+      // Real directory listings don't complete inside the test zone.
+      children: DirectoryChildren(
+        ['Projeler', 'Toplantılar'],
+        [
+          'Annotate images and diagrams',
+          'Golden ratio',
+          'Import PDFs',
+          'Metric Spaces Week 1',
+          'You can type notes too!',
+          'Coding review 1',
+          'HG Week 6',
+          'Topology week 1',
+        ],
+      ),
       child: const HomePage(subpage: HomePage.browseSubpage, path: null),
     );
     _shot(
@@ -88,8 +103,11 @@ void _shot({
   required ThemeData theme,
   required String name,
   required Widget child,
+  DirectoryChildren? children,
 }) {
   testGoldens(name, (tester) async {
+    BrowsePage.overrideChildren = children;
+    addTearDown(() => BrowsePage.overrideChildren = null);
     stows.platform.value = _tablet.platform;
     await tester.runAsync(() => LocaleSettings.setLocaleRaw('tr'));
 
