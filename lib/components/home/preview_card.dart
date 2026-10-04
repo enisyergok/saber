@@ -150,6 +150,28 @@ class _PreviewCardState extends State<PreviewCard> {
               ),
             ),
             const NotebookSpine(),
+            PositionedDirectional(
+              top: 6,
+              end: 6,
+              child: IgnorePointer(
+                child: ListenableBuilder(
+                  listenable: stows.favoriteFiles,
+                  builder: (context, _) =>
+                      stows.favoriteFiles.value.contains(
+                        widget.filePath + Editor.extension,
+                      )
+                      ? const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 22,
+                          shadows: [
+                            Shadow(blurRadius: 3, color: Colors.black45),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ),
             ValueListenableBuilder(
               valueListenable: expanded,
               builder: (context, expanded, child) => AnimatedOpacity(

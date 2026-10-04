@@ -6,6 +6,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
+import 'package:saber/components/home/favorite_note_button.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/pages/favorites.dart';
+import 'package:saber/pages/search.dart';
 import 'package:saber/components/home/export_note_button.dart';
 import 'package:saber/components/home/grid_folders.dart';
 import 'package:saber/components/home/masonry_files.dart';
@@ -150,7 +154,26 @@ class _BrowsePageState extends State<BrowsePage> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            actions: const [BrowseSortButton(), SyncingButton()],
+            actions: [
+              IconButton(
+                tooltip: DefterStrings.search,
+                icon: const Icon(Icons.search),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const SearchPage()),
+                ),
+              ),
+              IconButton(
+                tooltip: DefterStrings.favorites,
+                icon: const Icon(Icons.star_outline),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const FavoritesPage(),
+                  ),
+                ),
+              ),
+              const BrowseSortButton(),
+              const SyncingButton(),
+            ],
           ),
           SliverToBoxAdapter(
             child: PathComponents(path, onPathComponentTap: onPathComponentTap),
@@ -230,6 +253,10 @@ class _BrowsePageState extends State<BrowsePage> {
               ),
               MoveNoteButton(
                 filesToMove: selectedFiles.value,
+                unselectNotes: () => selectedFiles.value = [],
+              ),
+              FavoriteNoteButton(
+                selectedFiles: selectedFiles.value,
                 unselectNotes: () => selectedFiles.value = [],
               ),
               DeleteNoteButton(
