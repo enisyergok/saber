@@ -422,8 +422,41 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   /// Tells which touches are a resting palm. See [PalmRejection].
   final palmRejection = PalmRejection();
 
+  /// Touches currently on the screen, and those of them that are a palm.
+  /// Palm events must not change [CanvasGestureDetector.updatePointerData],
+  /// or a resting palm would make the pen look like a finger.
+  final _activeTouches = <int>{};
+  final _palmPointers = <int>{};
+
+  /// Returns true if [event] belongs to a palm and should be ignored.
+  bool _isPalmEvent(PointerEvent event) {
+    if (PalmRejection.isStylus(event)) {
+      if (event is PointerDownEvent) {
+        // Touches that were already down are a palm resting before the pen.
+        _palmPointers.addAll(_activeTouches);
+      }
+      return false;
+    }
+    if (event.kind != PointerDeviceKind.touch) return false;
+
+    if (event is PointerDownEvent) {
+      _activeTouches.add(event.pointer);
+      if (palmRejection.shouldRejectNewPointer(event)) {
+        _palmPointers.add(event.pointer);
+      }
+    }
+    final isPalm =
+        palmRejection.isStylusDown || _palmPointers.contains(event.pointer);
+    if (event is PointerUpEvent || event is PointerCancelEvent) {
+      _activeTouches.remove(event.pointer);
+      _palmPointers.remove(event.pointer);
+    }
+    return isPalm;
+  }
+
   void _listenerPointerEvent(PointerEvent event) {
     palmRejection.handleEvent(event);
+    if (_isPalmEvent(event)) return;
     final isStylus =
         event.kind == PointerDeviceKind.stylus ||
         event.kind == PointerDeviceKind.invertedStylus;
@@ -483,6 +516,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
 
   void _listenerPointerUpEvent(PointerEvent event) {
     palmRejection.handleEvent(event);
+    if (_isPalmEvent(event)) return;
     widget.updatePointerData(event.kind, null);
     if (stylusButtonWasPressed) {
       stylusButtonWasPressed = false;
