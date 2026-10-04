@@ -194,6 +194,36 @@ class Stows {
     false,
     volatile: !_isOnMainIsolate,
   );
+
+  /// Hold the pen still after drawing a shape to straighten it, with the
+  /// normal pens.
+  final shapeHoldToSnap = PlainStow(
+    'shapeHoldToSnap',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// How long (milliseconds) the pen is held still before the shape snaps.
+  final shapeHoldDelay = PlainStow(
+    'shapeHoldDelay',
+    600,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Recognise polygons, ellipses and arcs, not only the basic shapes.
+  final advancedShapes = PlainStow(
+    'advancedShapes',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Ends and corners of shapes snap to those of nearby shapes.
+  final shapeSnapEndpoints = PlainStow(
+    'shapeSnapEndpoints',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   final shapeRecognitionDelay = PlainStow(
     'shapeRecognitionDelay',
     500,

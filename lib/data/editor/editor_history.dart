@@ -150,6 +150,7 @@ class EditorHistoryItem {
     this.colorChange,
     this.backgroundPatternChange,
     this.transform,
+    this.reshapeChange,
   }) : assert(
          type != .move || offset != null,
          'Offset must be provided for move',
@@ -157,6 +158,10 @@ class EditorHistoryItem {
        assert(
          type != .transform || transform != null,
          'Transform must be provided for transform',
+       ),
+       assert(
+         type != .reshape || reshapeChange != null,
+         'Reshape change must be provided for reshape',
        ),
        assert(
          type != .deletePage || page != null,
@@ -197,6 +202,10 @@ class EditorHistoryItem {
   /// [strokes] and [images] (undoing applies its inverse).
   final Matrix4? transform;
 
+  /// For [EditorHistoryItemType.reshape]: the corners of each shape before
+  /// and after one of its corners was dragged.
+  final Map<Stroke, Change<List<Offset>>>? reshapeChange;
+
   EditorHistoryItem copyWith({
     EditorHistoryItemType? type,
     int? pageIndex,
@@ -208,6 +217,7 @@ class EditorHistoryItem {
     Map<Stroke, Change<Color>>? colorChange,
     Change<CanvasBackgroundPattern>? backgroundPatternChange,
     Matrix4? transform,
+    Map<Stroke, Change<List<Offset>>>? reshapeChange,
   }) {
     return EditorHistoryItem(
       type: type ?? this.type,
@@ -221,6 +231,7 @@ class EditorHistoryItem {
       backgroundPatternChange:
           backgroundPatternChange ?? this.backgroundPatternChange,
       transform: transform ?? this.transform,
+      reshapeChange: reshapeChange ?? this.reshapeChange,
     );
   }
 }
@@ -232,6 +243,7 @@ enum EditorHistoryItemType {
   insertPage,
   move,
   transform,
+  reshape,
   quillChange,
   quillUndoneChange,
   changeColor,

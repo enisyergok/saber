@@ -8,6 +8,7 @@ import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/pencil.dart';
+import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/tool_id.dart';
 
@@ -91,11 +92,21 @@ class Pen extends Tool {
       toolId: toolId,
     );
     PenPrediction.reset();
+    if (holdsToSnap && stows.shapeHoldToSnap.value) {
+      ShapeSnap.begin(
+        currentStroke!,
+        position,
+        hold: Duration(milliseconds: stows.shapeHoldDelay.value),
+      );
+    }
     onDragUpdate(position, pressure);
   }
 
   void onDragUpdate(Offset position, double? pressure) {
     currentStroke?.addPoint(position, pressure);
+    if (holdsToSnap && stows.shapeHoldToSnap.value) {
+      ShapeSnap.onMove(position);
+    }
     if (stows.penPrediction.value && predictsAhead) {
       PenPrediction.add(position, _clock.elapsed);
     }
@@ -110,15 +121,27 @@ class Pen extends Tool {
   bool get predictsAhead =>
       toolId == .fountainPen || toolId == .ballpointPen;
 
+  /// Whether holding the pen still after drawing a shape straightens it
+  /// (see [ShapeSnap]). Not for the pencil, which is textured, nor the shape
+  /// pen, which recognises shapes on its own.
+  bool get holdsToSnap =>
+      toolId == .fountainPen ||
+      toolId == .ballpointPen ||
+      toolId == .highlighter;
+
   Stroke? onDragEnd() {
     final stroke = currentStroke;
     currentStroke = null;
     PenPrediction.reset();
-    if (stroke == null) return null;
+    if (stroke == null) {
+      ShapeSnap.reset();
+      return null;
+    }
 
-    return stroke
+    stroke
       ..options.isComplete = true
       ..markPolygonNeedsUpdating();
+    return holdsToSnap ? ShapeSnap.finish(stroke) : stroke;
   }
 
   /// The default stroke options.

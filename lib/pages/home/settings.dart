@@ -535,6 +535,35 @@ class _SettingsPageState extends State<SettingsPage> {
                   pref: stows.penPrediction,
                 ),
                 SettingsSwitch(
+                  title: DefterStrings.holdToSnap,
+                  subtitle: DefterStrings.holdToSnapSubtitle,
+                  icon: Icons.gesture,
+                  pref: stows.shapeHoldToSnap,
+                ),
+                SettingsSelection(
+                  title: DefterStrings.holdDelay,
+                  subtitle: DefterStrings.holdDelaySubtitle,
+                  icon: Icons.timer_outlined,
+                  pref: stows.shapeHoldDelay,
+                  options: const [
+                    ToggleButtonsOption(400, Text('0.4s')),
+                    ToggleButtonsOption(600, Text('0.6s')),
+                    ToggleButtonsOption(900, Text('0.9s')),
+                  ],
+                ),
+                SettingsSwitch(
+                  title: DefterStrings.advancedShapes,
+                  subtitle: DefterStrings.advancedShapesSubtitle,
+                  icon: Icons.interests_outlined,
+                  pref: stows.advancedShapes,
+                ),
+                SettingsSwitch(
+                  title: DefterStrings.snapEndpoints,
+                  subtitle: DefterStrings.snapEndpointsSubtitle,
+                  icon: Icons.control_point,
+                  pref: stows.shapeSnapEndpoints,
+                ),
+                SettingsSwitch(
                   title: DefterStrings.shapeArrows,
                   subtitle: DefterStrings.shapeArrowsSubtitle,
                   icon: Icons.north_east,

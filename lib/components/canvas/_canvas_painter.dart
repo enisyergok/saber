@@ -12,6 +12,8 @@ import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/tools/highlighter.dart';
+import 'package:saber/data/tools/shape_analysis.dart';
+import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen_prediction.dart';
@@ -84,6 +86,7 @@ class CanvasPainter extends CustomPainter {
         for (final stroke in laserStrokes) _drawLaserStroke(canvas, stroke);
         _drawCurrentStroke(canvas);
         _drawDetectedShape(canvas);
+        _drawShapeSnapPreview(canvas);
         _drawSelection(canvas);
     }
   }
@@ -249,7 +252,33 @@ class CanvasPainter extends CustomPainter {
     canvas.drawPath(stroke.innerPath, Paint()..color = const Color(0xDDffffff));
   }
 
+  /// The shape a held pen would snap the current stroke to.
+  void _drawShapeSnapPreview(Canvas canvas) {
+    final guess = ShapeSnap.preview;
+    if (guess == null || currentStroke == null) return;
+    _drawGuess(canvas, guess);
+  }
+
+  void _drawGuess(Canvas canvas, ShapeGuess guess) {
+    final color = currentStroke?.color.withInversion(invert) ?? Colors.black;
+    final paint = Paint()
+      ..color = Color.lerp(color, primaryColor, 0.5)!.withValues(alpha: 0.7)
+      ..style = .stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = currentStroke?.options.size ?? 3;
+    final outline = guess.outline();
+    if (outline.length < 2) return;
+    canvas.drawPath(Path()..addPolygon(outline, false), paint);
+  }
+
   void _drawDetectedShape(Canvas canvas) {
+    final guess = ShapePen.detectedGuess;
+    if (guess != null && currentStroke != null) {
+      _drawGuess(canvas, guess);
+      return;
+    }
+
     final shape = ShapePen.detectedShape;
     if (shape == null) return;
 
@@ -340,6 +369,15 @@ class CanvasPainter extends CustomPainter {
       canvas.drawLine(Offset(bounds.center.dx, bounds.top), rotateHandle, ring);
       canvas.drawCircle(rotateHandle, radius, fill);
       canvas.drawCircle(rotateHandle, radius, ring);
+    }
+
+    // A single shape also shows its corners, which can be dragged.
+    final vertices = SelectionTransform.vertexHandles(selection);
+    if (vertices != null) {
+      for (final vertex in vertices) {
+        canvas.drawCircle(vertex, radius * 1.15, fill);
+        canvas.drawCircle(vertex, radius * 1.15, ring);
+      }
     }
   }
 

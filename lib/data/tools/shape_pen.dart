@@ -9,6 +9,8 @@ import 'package:saber/components/canvas/_rectangle_stroke.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/pen.dart';
+import 'package:saber/data/tools/shape_analysis.dart';
+import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
 
 class ShapePen extends Pen {
@@ -30,8 +32,24 @@ class ShapePen extends Pen {
   static const shapePenIcon = FontAwesomeIcons.shapes;
 
   static RecognizedUnistroke? detectedShape;
+
+  /// What the improved recogniser (see [ShapeAnalysis]) makes of the stroke,
+  /// shown as the preview instead of [detectedShape] when it finds a shape.
+  static ShapeGuess? detectedGuess;
+
   void _detectShape() {
-    detectedShape = Pen.currentStroke?.detectShape();
+    final stroke = Pen.currentStroke;
+    detectedShape = stroke?.detectShape();
+    detectedGuess = stroke != null && stows.advancedShapes.value
+        ? _guessFor(stroke, detectedShape)
+        : null;
+  }
+
+  /// The improved recogniser's guess, unless the basic one saw a straight
+  /// line, which it handles well already.
+  static ShapeGuess? _guessFor(Stroke stroke, RecognizedUnistroke? basic) {
+    if (basic?.name == DefaultUnistrokeNames.line) return null;
+    return ShapeAnalysis.analyze(stroke.pointOffsets);
   }
 
   static Timer? _detectShapeDebouncer;
@@ -69,6 +87,15 @@ class ShapePen extends Pen {
 
     final detectedShape = ShapePen.detectedShape;
     ShapePen.detectedShape = null;
+    ShapePen.detectedGuess = null;
+
+    if (stows.advancedShapes.value) {
+      final guess = _guessFor(rawStroke, detectedShape);
+      if (guess != null) {
+        log.info('Recognised ${guess.kind}');
+        return ShapeBuilder.build(rawStroke, guess);
+      }
+    }
 
     if (detectedShape == null) return rawStroke;
 

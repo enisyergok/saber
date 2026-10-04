@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/painting.dart' show MatrixUtils;
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/shape_snap.dart';
 import 'package:vector_math/vector_math_64.dart' show Matrix4;
 
 /// The two handles shown around a finished selection.
@@ -66,6 +67,30 @@ abstract class SelectionTransform {
   static bool canRotate(SelectResult selection) =>
       selection.images.isEmpty &&
       selection.strokes.every((stroke) => stroke.canRotate);
+
+  /// The corners of the one shape that is selected (see
+  /// [Stroke.vertexHandles]), or null if the selection is anything else.
+  static List<Offset>? vertexHandles(SelectResult selection) {
+    if (selection.images.isNotEmpty || selection.strokes.length != 1) {
+      return null;
+    }
+    return selection.strokes.first.vertexHandles;
+  }
+
+  /// The index of the corner at [position] (page coordinates), if any.
+  static int? vertexAt(
+    SelectResult selection,
+    Offset position,
+    double viewScale,
+  ) {
+    final vertices = vertexHandles(selection);
+    if (vertices == null) return null;
+    return ShapeSnap.nearestHandle(
+      vertices,
+      position,
+      handleHitRadius / viewScale,
+    );
+  }
 
   static Offset scaleHandlePosition(Rect bounds) => bounds.bottomRight;
 

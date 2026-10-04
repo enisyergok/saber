@@ -486,6 +486,65 @@ class Stroke {
     }
   }
 
+  /// The points of this stroke as plain offsets.
+  List<Offset> get pointOffsets => [
+    for (final point in points) Offset(point.dx, point.dy),
+  ];
+
+  /// The most points a stroke can have and still count as a shape with
+  /// corners that can be dragged.
+  static const _maxVertexPoints = 16;
+
+  /// The corners of a stroke made by shape recognition: both ends of a line,
+  /// or every corner of a closed polygon. Null for any other stroke.
+  ///
+  /// Such strokes are recognised by their points: they are few, and the last
+  /// point is repeated (see [setVertexHandles]).
+  List<Offset>? get vertexHandles {
+    final n = points.length;
+    if (n < 3 || n > _maxVertexPoints) return null;
+    if (this is CircleStroke || this is RectangleStroke) return null;
+    final last = points[n - 1], before = points[n - 2];
+    if (last.dx != before.dx || last.dy != before.dy) return null;
+
+    final core = [
+      for (var i = 0; i < n - 1; i++) Offset(points[i].dx, points[i].dy),
+    ];
+    if (core.length == 2) return core;
+    // An arrow is a line with a head: its corners aren't separate handles.
+    if (core.length == 5 && core[1] == core[3]) return null;
+    if (core.length >= 4 && core.first == core.last) {
+      return core.sublist(0, core.length - 1);
+    }
+    return null;
+  }
+
+  /// Replaces the shape of this stroke with [vertices]: two points make a
+  /// line, three or more a closed polygon. See [vertexHandles].
+  void setVertexHandles(List<Offset> vertices) {
+    assert(vertices.length >= 2);
+    final pressure = points.isEmpty ? null : points.first.pressure;
+    PointVector at(Offset o) =>
+        PointVector.fromOffset(offset: o, pressure: pressure);
+
+    points.clear();
+    if (vertices.length == 2) {
+      points
+        ..add(at(vertices[0]))
+        ..add(at(vertices[1]))
+        ..add(at(vertices[1]));
+    } else {
+      for (final vertex in vertices) {
+        points.add(at(vertex));
+      }
+      points
+        ..add(at(vertices[0]))
+        ..add(at(vertices[0]));
+    }
+    options.isComplete = true;
+    markPolygonNeedsUpdating();
+  }
+
   Stroke copy() => Stroke(
     color: color,
     pressureEnabled: pressureEnabled,
