@@ -7,7 +7,7 @@ on:
   push:
     branches-ignore:
       - main
-      - check-results
+      - "check-results*"
 
 concurrency:
   group: check-${{ github.ref }}
@@ -56,7 +56,7 @@ jobs:
         run: |
           set -o pipefail
           flutter test --no-pub --exclude-tags screens \
-            --file-reporter=json:test-results.json 2>&1 | tail -n 200 | tee tests.txt
+            --file-reporter=json:test-results.json 2>&1 | tail -n 60
 
       - name: Summarize tests
         if: always()
@@ -71,27 +71,31 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          flutter test --no-pub --tags screens --update-goldens test/defter_screens_test.dart 2>&1 | tee screenshots.txt
+          if [ -f test/defter_screens_test.dart ]; then
+            flutter test --no-pub --tags screens --update-goldens test/defter_screens_test.dart 2>&1 | tee screenshots.txt
+          fi
 
-      # Results go to an orphan branch so they can be fetched with plain git.
-      - name: Publish results to the check-results branch
+      # Results go to an orphan branch per source branch,
+      # so they can be fetched with plain git.
+      - name: Publish results to a check-results branch
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           results="$RUNNER_TEMP/check-results"
           mkdir -p "$results"
-          cp analyze.txt screenshots.txt tests.txt tests-summary.txt "$results/" 2>/dev/null || true
+          cp analyze.txt screenshots.txt tests-summary.txt "$results/" 2>/dev/null || true
           cp -r test/defter_shots "$results/" 2>/dev/null || true
           cp -r test/failures "$results/" 2>/dev/null || true
           echo "$GITHUB_SHA" > "$results/commit.txt"
           cd "$results"
-          git init -q -b check-results
+          branch="check-results-${GITHUB_REF_NAME//\//-}"
+          git init -q -b "$branch"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -q -m "Check results for $GITHUB_SHA"
-          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" check-results
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
 
       - name: Fail if a step failed
         if: steps.analyze.outcome == 'failure' || steps.tests.outcome == 'failure' || steps.screenshots.outcome == 'failure'
