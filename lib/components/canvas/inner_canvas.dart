@@ -1,6 +1,7 @@
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:go_router/go_router.dart';
 import 'package:one_dollar_unistroke_recognizer/one_dollar_unistroke_recognizer.dart';
 import 'package:saber/components/canvas/_canvas_background_painter.dart';
 import 'package:saber/components/canvas/_canvas_painter.dart';
@@ -8,11 +9,14 @@ import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas_image.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
+import 'package:saber/data/links/note_link.dart';
+import 'package:saber/data/routes.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/canvas_background_pattern.dart';
 import 'package:sbn/quill_styles.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InnerCanvas extends StatefulWidget {
   const new({
@@ -102,6 +106,15 @@ class _InnerCanvasState extends State<InnerCanvas> {
                 bottom: widget.coreInfo.lineHeight * 0.5,
               ),
               showCodeBlockLineNumbers: false,
+              onLaunchUrl: (url) async {
+                final notePath = NoteLink.decode(url);
+                if (notePath != null) {
+                  context.push(RoutePaths.editFilePath(notePath));
+                } else {
+                  final uri = Uri.tryParse(url);
+                  if (uri != null) await launchUrl(uri);
+                }
+              },
             ),
             scrollController: ScrollController(),
             focusNode: widget.coreInfo.pages[widget.pageIndex].quill.focusNode,

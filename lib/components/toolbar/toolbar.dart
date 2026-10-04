@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:collapsible/collapsible.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:saber/components/toolbar/note_link_dialog.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/links/note_link.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -50,6 +53,7 @@ class Toolbar extends StatefulWidget {
     required this.duplicateSelection,
     required this.deleteSelection,
     required this.recognizeSelection,
+    this.currentNotePath,
     required this.exportAsSba,
     required this.exportAsPdf,
     required this.exportAsPng,
@@ -79,6 +83,9 @@ class Toolbar extends StatefulWidget {
   final VoidCallback duplicateSelection;
   final VoidCallback deleteSelection;
   final VoidCallback recognizeSelection;
+
+  /// The path of the note being edited, left out of the link picker.
+  final String? currentNotePath;
 
   final Future Function(BuildContext)? exportAsSba;
   final Future Function(BuildContext)? exportAsPdf;
@@ -317,6 +324,20 @@ class _ToolbarState extends State<Toolbar> {
                       showFontSize: false,
                       showFontFamily: false,
                       showClearFormat: false,
+                      customButtons: [
+                        QuillToolbarCustomButtonOptions(
+                          icon: const Icon(Icons.note_add_outlined),
+                          tooltip: DefterStrings.linkToNote,
+                          onPressed: () async {
+                            final path = await NoteLinkDialog.show(
+                              context,
+                              excludePath: widget.currentNotePath,
+                            );
+                            if (path == null) return;
+                            NoteLink.apply(quill.controller, path);
+                          },
+                        ),
+                      ],
                     ),
                   )
                 : const SizedBox.shrink(),

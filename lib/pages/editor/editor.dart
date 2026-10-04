@@ -1591,6 +1591,7 @@ class EditorState extends State<Editor> {
               autosaveAfterDelay();
             });
           },
+          currentNotePath: coreInfo.filePath,
           recognizeSelection: () {
             final select = currentTool as Select;
             if (!select.doneSelecting) return;

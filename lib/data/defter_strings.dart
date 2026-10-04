@@ -134,4 +134,7 @@ abstract class DefterStrings {
       ? 'Sorunla ilgili not parçaları OpenRouter\'a gönderilir.'
       : 'Relevant note excerpts are sent to OpenRouter with your question.';
   static String get ask => _tr ? 'Sor' : 'Ask';
+
+  // Links
+  static String get linkToNote => _tr ? 'Nota bağlantı ekle' : 'Link to a note';
 }
