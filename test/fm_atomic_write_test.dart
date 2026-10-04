@@ -187,7 +187,7 @@ void main() {
     test('a missing note opens from its backup', () async {
       const note = '/recover_missing';
       await saveTwice(note);
-      await f('$note$Editor.extension').delete();
+      await f('$note${Editor.extension}').delete();
 
       final info = await EditorCoreInfo.loadFromFilePath(note);
       expect(info.readOnlyReason, isNull);
@@ -197,7 +197,7 @@ void main() {
     test('a corrupted note opens from its backup and is repaired', () async {
       const note = '/recover_corrupt';
       await saveTwice(note);
-      await f('$note$Editor.extension').writeAsBytes([1, 2, 3, 4, 5, 6, 7, 8]);
+      await f('$note${Editor.extension}').writeAsBytes([1, 2, 3, 4, 5, 6, 7, 8]);
 
       final info = await EditorCoreInfo.loadFromFilePath(note);
       expect(info.readOnlyReason, isNull);
@@ -207,12 +207,12 @@ void main() {
       final again = await EditorCoreInfo.loadFromFilePath(note);
       expect(again.readOnlyReason, isNull);
       expect(again.backgroundPattern, CanvasBackgroundPattern.grid);
-      expect(f('$note$Editor.extension.bad').existsSync(), isTrue);
+      expect(f('$note${Editor.extension}.bad').existsSync(), isTrue);
     });
 
     test('a corrupted note without a backup stays read-only', () async {
       const note = '/recover_nobackup';
-      await f('$note$Editor.extension').writeAsBytes([1, 2, 3, 4, 5, 6, 7, 8]);
+      await f('$note${Editor.extension}').writeAsBytes([1, 2, 3, 4, 5, 6, 7, 8]);
 
       // Debug builds (tests) rethrow parse errors, release builds open the
       // note as read-only so it is never overwritten.
