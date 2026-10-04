@@ -28,8 +28,10 @@ import 'package:saber/components/theming/dynamic_material_app.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/components/toolbar/color_bar.dart';
 import 'package:saber/components/toolbar/editor_bottom_sheet.dart';
+import 'package:saber/components/toolbar/editor_page_grid.dart';
 import 'package:saber/components/toolbar/editor_page_manager.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
+import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/editor_exporter.dart';
 import 'package:saber/data/editor/editor_history.dart';
@@ -1688,14 +1690,24 @@ class EditorState extends State<Editor> {
                       cupertinoIcon: CupertinoIcons.rectangle_grid_2x2,
                     ),
                     tooltip: t.editor.pages,
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AdaptiveAlertDialog(
-                          title: Text(t.editor.pages),
-                          content: pageManager(context),
-                          actions: const [],
+                    onPressed: showPageGrid,
+                  ),
+                  ListenableBuilder(
+                    listenable: _transformationController,
+                    builder: (context, _) {
+                      final pageIndex = currentPageIndex;
+                      final bookmarked =
+                          pageIndex >= 0 &&
+                          pageIndex < coreInfo.pages.length &&
+                          coreInfo.pages[pageIndex].bookmarked;
+                      return IconButton(
+                        icon: Icon(
+                          bookmarked ? Icons.bookmark : Icons.bookmark_border,
                         ),
+                        tooltip: DefterStrings.bookmark,
+                        onPressed: coreInfo.readOnly
+                            ? null
+                            : () => toggleBookmark(pageIndex),
                       );
                     },
                   ),
@@ -1864,6 +1876,48 @@ class EditorState extends State<Editor> {
       },
       currentTool: currentTool,
       currentScale: _transformationController.value.approxScale,
+    );
+  }
+
+  void toggleBookmark(int pageIndex) {
+    if (coreInfo.readOnly) return;
+    if (pageIndex < 0 || pageIndex >= coreInfo.pages.length) return;
+    setState(() {
+      final page = coreInfo.pages[pageIndex];
+      page.bookmarked = !page.bookmarked;
+    });
+    autosaveAfterDelay();
+  }
+
+  /// Shows every page as a thumbnail, for jumping around the notebook.
+  void showPageGrid() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => EditorPageGrid(
+        coreInfo: coreInfo,
+        currentPageIndex: currentPageIndex,
+        onPageSelected: (pageIndex) {
+          Navigator.of(dialogContext).pop();
+          CanvasGestureDetector.scrollToPage(
+            pageIndex: pageIndex,
+            pages: coreInfo.pages,
+            screenWidth: MediaQuery.sizeOf(context).width,
+            transformationController: _transformationController,
+          );
+        },
+        toggleBookmark: coreInfo.readOnly ? null : toggleBookmark,
+        openPageManager: () {
+          Navigator.of(dialogContext).pop();
+          showDialog(
+            context: context,
+            builder: (context) => AdaptiveAlertDialog(
+              title: Text(t.editor.pages),
+              content: pageManager(context),
+              actions: const [],
+            ),
+          );
+        },
+      ),
     );
   }
 

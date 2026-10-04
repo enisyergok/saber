@@ -96,6 +96,17 @@ void main() {
       name: 'editor',
       child: Editor(path: '/Metric Spaces Week 1'),
     );
+    _shot(
+      theme: theme,
+      name: 'editor_pages',
+      child: Editor(path: '/Metric Spaces Week 1'),
+      afterLoad: (tester) async {
+        final editor = tester.state<EditorState>(find.byType(Editor));
+        editor.toggleBookmark(0);
+        editor.showPageGrid();
+        await tester.pump();
+      },
+    );
   });
 }
 
@@ -104,6 +115,7 @@ void _shot({
   required String name,
   required Widget child,
   DirectoryChildren? children,
+  Future<void> Function(WidgetTester tester)? afterLoad,
 }) {
   testGoldens(name, (tester) async {
     BrowsePage.overrideChildren = children;
@@ -137,6 +149,8 @@ void _shot({
       () => Future.delayed(const Duration(milliseconds: 300)),
     );
     await tester.pump();
+
+    await afterLoad?.call(tester);
 
     await tester.loadAssets();
     await tester.pumpAndSettle();

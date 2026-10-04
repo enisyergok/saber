@@ -14,6 +14,7 @@ import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/components/toolbar/color_bar.dart';
 import 'package:saber/components/toolbar/export_bar.dart';
 import 'package:saber/components/toolbar/pen_modal.dart';
+import 'package:saber/components/toolbar/quick_style_bar.dart';
 import 'package:saber/components/toolbar/selection_bar.dart';
 import 'package:saber/components/toolbar/size_picker.dart';
 import 'package:saber/components/toolbar/toolbar_button.dart';
@@ -548,6 +549,15 @@ class _ToolbarState extends State<Toolbar> {
                   cupertinoIcon: CupertinoIcons.share,
                 ),
               ),
+              if (!isToolbarVertical && !widget.readOnly)
+                if (widget.currentTool case final Pen pen)
+                  QuickStyleBar(
+                    pen: pen,
+                    currentColor: currentColor,
+                    invert: invert,
+                    setColor: widget.setColor,
+                    onSizeChanged: _setState,
+                  ),
             ],
           ),
         ),

@@ -51,6 +51,9 @@ class EditorPage extends ChangeNotifier implements HasSize {
 
   EditorImage? backgroundImage;
 
+  /// Whether the user has bookmarked this page.
+  bool bookmarked;
+
   bool get isEmpty =>
       strokes.isEmpty &&
       images.isEmpty &&
@@ -108,6 +111,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
     List<EditorImage>? images,
     QuillStruct? quill,
     this.backgroundImage,
+    this.bookmarked = false,
   }) : assert(
          (size == null) || (width == null && height == null),
          "size and width/height shouldn't both be specified",
@@ -166,6 +170,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
               assetCache: assetCache,
             )
           : null,
+      bookmarked: json['bm'] == true,
     );
   }
 
@@ -179,6 +184,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
     if (!quill.controller.document.isEmpty())
       'q': quill.controller.document.toDelta().toJson(),
     if (backgroundImage != null) 'b': backgroundImage?.toJson(assets),
+    if (bookmarked) 'bm': true,
   };
 
   /// Inserts a stroke, while keeping the strokes sorted by
