@@ -1,3 +1,4 @@
+import 'dart:math' show acos;
 import 'dart:ui';
 
 /// Guesses where the pen tip will be a few milliseconds from now, so the
@@ -37,25 +38,50 @@ class PenPrediction {
     tip = predict(_samples);
   }
 
+  /// A turn sharper than this (radians, between the first and second half of
+  /// the recent movement) is not predicted at all. Smaller turns shorten the
+  /// guess in proportion, so the tip never sticks out of a curve.
+  static const fullTurn = 0.6;
+
   /// The predicted tip for [samples] (oldest first), or null.
+  ///
+  /// The guess follows the latest speed and direction, but is shortened when
+  /// the pen is turning or slowing down. On a straight stroke it reaches the
+  /// full [horizon]; in a letter's curve it shrinks towards nothing instead of
+  /// poking out of the line and snapping back.
   static Offset? predict(
     List<(Offset, Duration)> samples, {
     Duration ahead = horizon,
   }) {
-    if (samples.length < 2) return null;
+    if (samples.length < 3) return null;
 
-    final (lastPosition, lastTime) = samples.last;
-    final (firstPosition, firstTime) = samples.first;
-    final elapsed = (lastTime - firstTime).inMicroseconds / 1000;
-    if (elapsed < 4) return null; // too little time to know the speed
+    final first = samples.first;
+    final middle = samples[samples.length ~/ 2];
+    final last = samples.last;
+    final firstMs = (middle.$2 - first.$2).inMicroseconds / 1000;
+    final secondMs = (last.$2 - middle.$2).inMicroseconds / 1000;
+    if (firstMs < 2 || secondMs < 2) return null; // too little time
 
-    final velocity = (lastPosition - firstPosition) / elapsed;
-    if (velocity.distance < minSpeed) return null;
+    final earlier = (middle.$1 - first.$1) / firstMs;
+    final latest = (last.$1 - middle.$1) / secondMs;
+    final earlierSpeed = earlier.distance;
+    final latestSpeed = latest.distance;
+    if (latestSpeed < minSpeed || earlierSpeed < minSpeed) return null;
 
-    var step = velocity * (ahead.inMicroseconds / 1000);
+    final cosTurn =
+        ((earlier.dx * latest.dx + earlier.dy * latest.dy) /
+                (earlierSpeed * latestSpeed))
+            .clamp(-1.0, 1.0);
+    final turn = acos(cosTurn);
+    final straightness = (1 - turn / fullTurn).clamp(0.0, 1.0);
+    final steadiness = (latestSpeed / earlierSpeed).clamp(0.0, 1.0);
+    final trust = straightness * steadiness;
+    if (trust <= 0) return null;
+
+    var step = latest * (ahead.inMicroseconds / 1000 * trust);
     if (step.distance > maxDistance) {
       step = step / step.distance * maxDistance;
     }
-    return lastPosition + step;
+    return last.$1 + step;
   }
 }
