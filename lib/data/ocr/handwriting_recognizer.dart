@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -35,7 +36,10 @@ abstract class HandwritingRecognizer {
       'If there is no readable handwriting, answer with an empty message.';
 
   /// The longest side of the picture sent to the model, in pixels.
-  static const maxImageSide = 1600.0;
+  /// How long one try waits for the model.
+  static const requestTimeout = Duration(seconds: 90);
+
+  static const maxImageSide = 1280.0;
 
   static Map<String, dynamic> buildRequestBody({
     required String model,
@@ -44,6 +48,9 @@ abstract class HandwritingRecognizer {
     return {
       'model': model,
       'temperature': 0,
+      // A band of handwriting never needs more than this; it also stops a
+      // model from rambling on.
+      'max_tokens': 2000,
       'messages': [
         {
           'role': 'user',
@@ -105,24 +112,42 @@ abstract class HandwritingRecognizer {
     required String apiKey,
     String model = defaultModel,
     http.Client? client,
+    Duration timeout = requestTimeout,
   }) async {
     if (apiKey.trim().isEmpty) {
       throw const HandwritingException('No API key');
     }
     final httpClient = client ?? http.Client();
     try {
-      final response = await httpClient
-          .post(
-            Uri.parse(endpoint),
-            headers: {
-              'Authorization': 'Bearer ${apiKey.trim()}',
-              'Content-Type': 'application/json',
-              'X-Title': 'Defter',
-            },
-            body: jsonEncode(buildRequestBody(model: model, png: png)),
-          )
-          .timeout(const Duration(seconds: 60));
-      return parseResponse(response.statusCode, utf8.decode(response.bodyBytes));
+      final body = jsonEncode(buildRequestBody(model: model, png: png));
+      // A slow answer is retried once: a picture of a full page can take a
+      // model longer than a short test does.
+      for (var attempt = 0;; attempt++) {
+        try {
+          final response = await httpClient
+              .post(
+                Uri.parse(endpoint),
+                headers: {
+                  'Authorization': 'Bearer ${apiKey.trim()}',
+                  'Content-Type': 'application/json',
+                  'X-Title': 'Defter',
+                },
+                body: body,
+              )
+              .timeout(timeout);
+          return parseResponse(
+            response.statusCode,
+            utf8.decode(response.bodyBytes),
+          );
+        } on TimeoutException {
+          if (attempt >= 1) {
+            throw HandwritingException(
+              'No answer from the model within '
+              '${timeout.inSeconds * 2} seconds',
+            );
+          }
+        }
+      }
     } on HandwritingException {
       rethrow;
     } catch (e) {

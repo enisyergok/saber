@@ -99,6 +99,25 @@ void main() {
       expect(called, isFalse);
     });
 
+    test('a slow answer is retried once, then reported', () async {
+      var calls = 0;
+      final client = MockClient((request) async {
+        calls++;
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+        return http.Response('{}', 200);
+      });
+      await expectLater(
+        HandwritingRecognizer.recognize(
+          Uint8List.fromList([1, 2, 3]),
+          apiKey: 'sk-test',
+          client: client,
+          timeout: const Duration(milliseconds: 50),
+        ),
+        throwsA(isA<HandwritingException>()),
+      );
+      expect(calls, 2);
+    });
+
     test('the picture is limited in size', () {
       final small = HandwritingRecognizer.imageSize(
         const Rect.fromLTWH(0, 0, 100, 50),
