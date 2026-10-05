@@ -434,7 +434,7 @@ final List<CoverDesign> _designs = [
       c.drawRect(
         Offset.zero & s,
         Paint()
-          ..shader = ui.Gradient.linear(Offset.zero, Offset(0, s.height * 0.62), const [Color(0xFF3A1C71), Color(0xFFD76D77), Color(0xFFFFAF7B)]),
+          ..shader = ui.Gradient.linear(Offset.zero, Offset(0, s.height * 0.62), const [Color(0xFF3A1C71), Color(0xFFD76D77), Color(0xFFFFAF7B)], const [0.0, 0.5, 1.0]),
       );
       final horizon = s.height * 0.62;
       c.drawCircle(Offset(s.width * 0.5, horizon - s.width * 0.02), s.width * 0.16, Paint()..color = const Color(0xFFFFE29A));
