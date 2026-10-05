@@ -149,6 +149,18 @@ class _GnPenSettingsState extends State<GnPenSettings> {
               divisions: 20,
               onChanged: (v) => setState(() => options.streamline = v),
             ),
+          if (tool.pressureEnabled && !isShapePen)
+            ValueListenableBuilder<bool>(
+              valueListenable: stows.pressureAuto,
+              builder: (context, on, _) => SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text(DefterStrings.pressureAuto),
+                subtitle: Text(DefterStrings.pressureAutoHint),
+                value: on,
+                onChanged: (v) => stows.pressureAuto.value = v,
+              ),
+            ),
           const Divider(height: 20),
           Text(
             DefterStrings.penSettingsSection,

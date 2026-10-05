@@ -9,6 +9,12 @@ abstract class DefterStrings {
   static bool get _tr => LocaleSettings.currentLocale.languageCode == 'tr';
   static bool get isTr => _tr;
 
+  static String get pressureAuto =>
+      _tr ? 'Basıncı otomatik ayarla' : 'Adjust pressure automatically';
+  static String get pressureAutoHint => _tr
+      ? 'Kalemin basınç aralığı dar ise çizgi yine de kalınlaşıp incelir; basınç hiç değişmiyorsa hıza göre'
+      : 'Lines still thicken and thin if the pen\'s pressure range is narrow; by speed if it never changes';
+
   static String get coverTitle => _tr ? 'Kapak ekle' : 'Add cover';
   static String get coverAdded => _tr ? 'Kapak eklendi' : 'Cover added';
 
