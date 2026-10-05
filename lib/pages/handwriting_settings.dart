@@ -16,12 +16,47 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
   late final _key = TextEditingController(text: stows.openRouterApiKey.value);
   late final _model = TextEditingController(text: stows.handwritingModel.value);
   bool _hideKey = true;
+  bool _testing = false;
+  String? _testResult;
+  bool _testOk = false;
 
   @override
   void dispose() {
     _key.dispose();
     _model.dispose();
     super.dispose();
+  }
+
+  Future<void> _test() async {
+    setState(() {
+      _testing = true;
+      _testResult = null;
+    });
+    String message;
+    var ok = false;
+    try {
+      final png = await HandwritingRecognizer.renderTestImage();
+      final model = _model.text.trim().isEmpty
+          ? HandwritingRecognizer.defaultModel
+          : _model.text.trim();
+      final text = await HandwritingRecognizer.recognize(
+        png,
+        apiKey: _key.text.trim(),
+        model: model,
+      );
+      ok = true;
+      message = DefterStrings.testRead(HandwritingRecognizer.testPhrase, text);
+    } on HandwritingException catch (e) {
+      message = e.message;
+    } catch (e) {
+      message = '$e';
+    }
+    if (!mounted) return;
+    setState(() {
+      _testing = false;
+      _testOk = ok;
+      _testResult = message;
+    });
   }
 
   void _save() {
@@ -72,6 +107,28 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            onPressed: _testing ? null : _test,
+            icon: _testing
+                ? const SizedBox.square(
+                    dimension: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.wifi_tethering),
+            label: Text(DefterStrings.testConnection),
+          ),
+          if (_testResult != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _testResult!,
+              style: TextStyle(
+                color: _testOk
+                    ? ColorScheme.of(context).primary
+                    : ColorScheme.of(context).error,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           FilledButton(onPressed: _save, child: Text(DefterStrings.save)),
         ],
