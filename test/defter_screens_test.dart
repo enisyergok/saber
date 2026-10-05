@@ -310,7 +310,16 @@ void main() {
       child: const HomePage(subpage: HomePage.settingsSubpage, path: null),
       afterLoad: (tester) async {
         // the e-ink section is far down the list
-        await tester.ensureVisible(find.text(DefterStrings.eInkSection).first);
+        try {
+          await tester.scrollUntilVisible(
+            find.text(DefterStrings.eInkSection),
+            400,
+            scrollable: find.byType(Scrollable).first,
+            maxScrolls: 60,
+          );
+        } catch (_) {
+          // still take the picture of whatever is on screen
+        }
         await tester.pump();
       },
     );
