@@ -10,6 +10,7 @@ PenLatencyReport simulate({
   int seconds = 2,
   bool prediction = true,
   int slowEvery = 0,
+  int clockOffsetUs = 0,
 }) {
   final recorder = PenLatencyRecorder()..start(0);
   final end = seconds * 1000000;
@@ -18,7 +19,7 @@ PenLatencyReport simulate({
   for (var frame = frameUs + 2000; frame < end; frame += frameUs) {
     while (nextEvent <= frame) {
       recorder.onPointerMove(
-        eventUs: nextEvent,
+        eventUs: nextEvent + clockOffsetUs,
         arrivalUs: nextEvent,
         x: x,
         y: 0,
@@ -79,9 +80,9 @@ void main() {
     final report = simulate(spanUs: 10000);
     expect(
       report.trailPx,
-      closeTo(report.fastSpeed * report.softwareLatencyMs / 1000, 1e-9),
+      closeTo(report.fastSpeed * report.totalLatencyMs / 1000, 1e-9),
     );
-    expect(report.trailPx, inInclusiveRange(9, 15));
+    expect(report.trailPx, inInclusiveRange(15, 30));
   });
 
   test('a slower frame cost raises the latency', () {
@@ -96,6 +97,37 @@ void main() {
     expect(report.spanMs.max, closeTo(30, 0.01));
   });
 
+  test('the screen refresh adds one frame to the total', () {
+    final report = simulate();
+    expect(report.frameIntervalMs, closeTo(8.33, 0.1));
+    expect(
+      report.totalLatencyMs,
+      closeTo(report.softwareLatencyMs + report.frameIntervalMs, 1e-9),
+    );
+  });
+
+  test('different pen and frame clocks are detected and compensated', () {
+    // The pen clock runs 64 hours ahead of the frame clock.
+    final offset = (230386.5 * 1e6).round();
+    final aligned = simulate();
+    final shifted = simulate(clockOffsetUs: offset);
+    expect(aligned.clocksDiffer, isFalse);
+    expect(shifted.clocksDiffer, isTrue);
+    expect(shifted.ageMs.p50, inInclusiveRange(0, 4.2));
+    expect(shifted.softwareLatencyMs, inInclusiveRange(10, 14.2));
+    expect(shifted.toText(), contains('farklı saat'));
+  });
+
+  test('the display modes are shown when known', () {
+    final recorder = PenLatencyRecorder()..start(0);
+    final report = recorder.finish(
+      prediction: true,
+      displayModes: '1: 2800x1840 @ 60 Hz, 2: 2800x1840 @ 120 Hz',
+    );
+    expect(report.displayModes, contains('120 Hz'));
+    expect(report.hasData, isFalse);
+  });
+
   test('no data is reported as such', () {
     final report = (PenLatencyRecorder()..start(0)).finish(prediction: false);
     expect(report.hasData, isFalse);
@@ -105,7 +137,7 @@ void main() {
   test('the text shows the main numbers', () {
     final text = simulate(prediction: false).toText();
     expect(text, contains('Kalem tahmini: kapalı'));
-    expect(text, contains('Tahmini yazılım gecikmesi'));
+    expect(text, contains('Yazılım gecikmesi'));
     expect(text, contains('gerisinde'));
     expect(text, contains('120 Hz'));
   });

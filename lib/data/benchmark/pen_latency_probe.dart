@@ -3,6 +3,7 @@ import 'dart:ui' show FrameTiming;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/widgets.dart';
 import 'package:saber/data/benchmark/pen_latency.dart';
 import 'package:saber/data/prefs.dart';
@@ -37,8 +38,10 @@ class PenLatencyProbe {
     recording.value = true;
   }
 
+  static const _channel = MethodChannel('defter/display');
+
   /// Stops the recording and returns what it found.
-  PenLatencyReport? stop() {
+  Future<PenLatencyReport?> stop() async {
     if (!recording.value) return null;
     recording.value = false;
     SchedulerBinding.instance.removeTimingsCallback(_onTimings);
@@ -48,7 +51,17 @@ class PenLatencyProbe {
     return recorder.finish(
       prediction: stows.penPrediction.value,
       displayHz: _displayHz(),
+      displayModes: await _displayModes(),
     );
+  }
+
+  /// The display modes reported by the Android side, if available.
+  Future<String?> _displayModes() async {
+    try {
+      return await _channel.invokeMethod<String>('modes');
+    } catch (_) {
+      return null;
+    }
   }
 
   double? _displayHz() {
