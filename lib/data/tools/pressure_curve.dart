@@ -5,7 +5,7 @@
 /// at nothing; the other four ([ys]) can be dragged up and down, and never
 /// go below the point before them.
 class PressureCurve {
-  const PressureCurve(this.ys) : assert(ys.length == 4);
+  const PressureCurve(this.ys);
 
   /// The heights at a pressure of a quarter, a half, three quarters and
   /// full.

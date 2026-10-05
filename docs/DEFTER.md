@@ -15,7 +15,8 @@ Defter, Saber Notes'un (Flutter) çatalıdır. Tablet için kalem deneyimi,
 | Düzen | Çöp kutusu, favoriler, ad ve metin araması (Türkçe harf duyarlı), sayfa ızgarası ve yer imleri, sekmeler |
 | PDF | PDF içinde metin arama, içindekiler listesi, sayfa kırpma (Alt menü > PDF), PDF'e dışa aktarma |
 | Kalem | (devamı) Kalem çift dokunuşu eylemi (Ayarlar), kalem sinyali testi, kalem gecikme ölçümü (Ayarlar > Kalem gecikme ölçümü; editörde kayıt düğmesi) |
-| Kalem paneli | Kalem düğmesine ikinci dokunuş: dolma, tükenmez ve fırça uçlu kalem; uç keskinliği ve basınç duyarlılığı (5 kademe), çizgi stabilizasyonu, kalınlık, çiz ve tut, kalem hareketleri. Basınç, tablette ölçülen değerlere göre (hafif yazı 0,1–0,45, sert 0,94) çizgi kalınlığına yayılır. Fırça kalemin çizgileri dosyada dolma kalem olarak saklanır. |
+| Kalem paneli | Kalem düğmesine ikinci dokunuş. Altı kalem (dolma, tükenmez, fırça, kurşun kalem, marker, kaligrafi), canlı önizleme, kalınlık (mm), opaklık, uç keskinliği, basınç duyarlılığı, çizgi stabilizasyonu, noktaları sürüklenen basınç eğrisi, renkler, hazır ve kendi kalem profillerin. |
+| Teknik araçlar | Kalem panelinde: otomatik düz çizgi, tutmadan şekil tanıma, 15° adımlı açı kılavuzu, cetvel (her çizgi düz), kareli kâğıt, ölçüm (çizerken uzunluk ve açı), ok ve ölçülendirme (çizgiye ok uçları ve mm olarak uzunluğu, daireye çap, dikdörtgene en ve boy; mürekkep olarak yazılır). Şekli otomatik düzeltme: neredeyse kare olan kare, neredeyse daire olan daire olur. |
 | E-mürekkep modu | Ayarlar > E-mürekkep modu. Arayüz ve notlar gri tonlarda, kâğıt gibi görünür (kâğıt sıcaklığı, mürekkep koyuluğu, doku şiddeti ayarlanır). Yalnızca görünümdür; notların renkleri değişmez. Resim ve PDF sayfaları gri tona çevrilir, sayfa değişince hafif yenileme efekti olur (Alt menü > Sayfayı yenile ile tam yenileme), pencere parlaklığı düşürülebilir, dışa aktarma isteğe bağlı gri tonlu olur |
 | Ses | Nota bağlı ses kaydı (cihazda saklanır) |
 | Bağlantılar | Metinden başka nota bağlantı |
@@ -36,6 +37,12 @@ saklanır (şifrelenmez, eşitlenmez).
 
 ## Bilinen sınırlar
 
+- Uzunluklar sayfanın A4 genişliğinde (210 mm) olduğu varsayılarak hesaplanır: 1000 sayfa birimi = 210 mm. Başka boyutta yazdırırsan ölçüler aynı oranda değişir; PDF üzerine çizilen notlarda sayfa genişliği A4 değilse mm değeri gerçek ölçüyü vermez.
+- Ölçülendirme yazısı sıradan mürekkeptir: çizgiyi sonradan taşır ya da uzatırsan yazı kendiliğinden güncellenmez.
+- Fırça ve kaligrafi kalemlerinin çizgileri dosyada dolma kalem çizgisi olarak saklanır (eski sürümler de açabilsin diye); bu yüzden not yeniden açıldığında çizgiler aynı görünür ama hangi kalemle çizildikleri ayırt edilmez.
+- Kaligrafi kaleminin ucu 45° sabittir; açı ayarı yok.
+- Tutmadan şekil tanıma açıkken yaklaşık 2 cm'den büyük kapalı çizimler şekle döner; büyük yazılmış "O" gibi harfler de daireye dönebilir. Varsayılan olarak kapalıdır.
+- Kalem paneli yatay tablette ekrana sığmayabilir; içi kaydırılır.
 - Notlarıma sor, yazıyla girilen metni ve "Aramaya ekle" ile okunmuş el yazısını tarar. Aramaya eklenmemiş notların el yazısı taranmaz; not sonradan değişirse metin eski kalır (menü uyarır, yenilemek için dokun). Aramaya ekleme internet ve OpenRouter anahtarı ister; eklendikten sonra arama çevrimdışıdır. Uzun not en çok 60 parça okunur.
 - Ses kayıtları eşitlenmez. Not yeniden adlandırılırsa, taşınırsa veya çöpe atılırsa kayıtlar notla birlikte gider; klasör olarak taşınırsa kayıtlar yerinde kalır.
 - Notlar arası bağlantılar yolu içerir; hedef not yeniden adlandırılırsa bağlantı eski adı gösterir.
