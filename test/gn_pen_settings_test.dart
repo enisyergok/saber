@@ -5,7 +5,6 @@ import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pen_feel.dart';
-import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/tool_id.dart';
 
 void main() {
@@ -81,7 +80,7 @@ void main() {
     expect(pen.toolId, ToolId.fountainPen);
     expect(find.byType(Slider), findsNWidgets(4));
 
-    await tester.tap(find.text(t.editor.pens.ballpointPen).last);
+    await tester.tap(find.text(DefterStrings.ballpointPenName).last);
     await tester.pump();
     expect(pen.kind, PenKind.ballpoint);
     // No tip sharpness for the ballpoint.

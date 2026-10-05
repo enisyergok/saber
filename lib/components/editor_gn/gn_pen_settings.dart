@@ -85,14 +85,14 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                 _typeButton(
                   context,
                   icon: Pen.fountainPenIcon,
-                  label: t.editor.pens.fountainPen,
+                  label: DefterStrings.fountainPenName,
                   selected: kind == PenKind.fountain,
                   onTap: () => setState(() => widget.setTool(Pen.fountainPen())),
                 ),
                 _typeButton(
                   context,
                   icon: Pen.ballpointPenIcon,
-                  label: t.editor.pens.ballpointPen,
+                  label: DefterStrings.ballpointPenName,
                   selected: kind == PenKind.ballpoint,
                   onTap: () =>
                       setState(() => widget.setTool(Pen.ballpointPen())),
@@ -303,8 +303,8 @@ class _PenGesturesDialog extends StatelessWidget {
   }
 }
 
-/// A short wavy line drawn with the pen's own options, with a little
-/// deterministic jitter so that line stabilization can be seen working.
+/// A short wavy line drawn with the pen's own options, pressed lightly at
+/// the ends and firmly in the middle.
 class PenPreviewPainter extends CustomPainter {
   const PenPreviewPainter({
     required this.options,
@@ -324,9 +324,7 @@ class PenPreviewPainter extends CustomPainter {
     for (var i = 0; i < n; i++) {
       final u = i / (n - 1);
       final x = size.width * (0.08 + 0.84 * u);
-      final y =
-          size.height * (0.5 + 0.28 * math.sin(u * math.pi * 1.6 - 0.9)) +
-          math.sin(i * 2.7) * 1.2;
+      final y = size.height * (0.5 + 0.3 * math.sin(u * math.pi * 1.9 + 0.5));
       final p = pressure ? 0.25 + 0.7 * math.sin(u * math.pi) : null;
       points.add(PointVector(x, y, p));
     }
