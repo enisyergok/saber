@@ -9,7 +9,7 @@ import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/components/toolbar/color_bar.dart';
 import 'package:saber/components/toolbar/export_bar.dart';
 import 'package:saber/components/toolbar/note_link_dialog.dart';
-import 'package:saber/components/toolbar/pen_modal.dart';
+import 'package:saber/components/editor_gn/gn_pen_settings.dart';
 import 'package:saber/components/toolbar/quick_style_bar.dart';
 import 'package:saber/components/toolbar/selection_bar.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
@@ -244,7 +244,10 @@ class _GnOverlayState extends State<GnOverlay> {
     final Widget body;
     switch (panel) {
       case GnPanel.penSettings:
-        body = PenModal(getTool: () => spec.currentTool, setTool: spec.setTool);
+        body = GnPenSettings(
+          getTool: () => spec.currentTool,
+          setTool: spec.setTool,
+        );
       case GnPanel.color:
         final tool = spec.currentTool;
         body = SizedBox(

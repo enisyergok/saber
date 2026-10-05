@@ -183,6 +183,13 @@ abstract class DefterStrings {
   static String get gnMoreTools => _tr ? 'Diğer araçlar' : 'More tools';
   static String get gnMenu => _tr ? 'Menü' : 'Menu';
   static String get gnStickers => _tr ? 'Çıkartmalar' : 'Stickers';
+  static String get tipSharpness => _tr ? 'Uç keskinliği' : 'Tip sharpness';
+  static String get pressureSensitivity =>
+      _tr ? 'Basınç duyarlılığı' : 'Pressure sensitivity';
+  static String get lineStabilization =>
+      _tr ? 'Çizgi stabilizasyonu' : 'Line stabilization';
+  static String get penSettingsSection => _tr ? 'Ayarlar' : 'Settings';
+  static String get drawAndHold => _tr ? 'Çiz ve tut' : 'Draw and hold';
   static String get gnRename => _tr ? 'Yeniden adlandır' : 'Rename';
 
   // Handwriting search
