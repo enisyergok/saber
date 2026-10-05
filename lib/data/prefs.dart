@@ -205,6 +205,14 @@ class Stows {
 
   /// Hold the pen still after drawing a shape to straighten it, with the
   /// normal pens.
+  /// Stretches a stylus' narrow pressure range over the full line width and
+  /// falls back to speed based width when the pressure never changes.
+  final pressureAuto = PlainStow(
+    'pressureAuto',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   final shapeHoldToSnap = PlainStow(
     'shapeHoldToSnap',
     true,

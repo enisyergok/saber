@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
@@ -7,6 +9,7 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen_prediction.dart';
+import 'package:saber/data/tools/pressure_calibration.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -92,6 +95,14 @@ class Pen extends Tool {
       toolId: toolId,
     );
     PenPrediction.reset();
+    _rawLow = double.infinity;
+    _rawHigh = double.negativeInfinity;
+    _rawCount = 0;
+    _fallback = pressureEnabled &&
+        stows.pressureAuto.value &&
+        PressureCalibration.isFlat;
+    // Without usable pressure the width follows the pen's speed instead.
+    if (_fallback) currentStroke!.options.simulatePressure = true;
     if (holdsToSnap && stows.shapeHoldToSnap.value) {
       ShapeSnap.begin(
         currentStroke!,
@@ -102,7 +113,17 @@ class Pen extends Tool {
     onDragUpdate(position, pressure);
   }
 
+  double _rawLow = double.infinity, _rawHigh = double.negativeInfinity;
+  int _rawCount = 0;
+  bool _fallback = false;
+
   void onDragUpdate(Offset position, double? pressure) {
+    if (pressureEnabled && pressure != null && stows.pressureAuto.value) {
+      _rawLow = math.min(_rawLow, pressure);
+      _rawHigh = math.max(_rawHigh, pressure);
+      _rawCount++;
+      pressure = _fallback ? null : PressureCalibration.map(pressure);
+    }
     currentStroke?.addPoint(position, pressure);
     if (holdsToSnap && stows.shapeHoldToSnap.value) {
       ShapeSnap.onMove(position);
@@ -138,6 +159,10 @@ class Pen extends Tool {
       return null;
     }
 
+    if (_rawCount > 0) {
+      PressureCalibration.addStroke(_rawLow, _rawHigh, _rawCount);
+      _rawCount = 0;
+    }
     stroke
       ..options.isComplete = true
       ..markPolygonNeedsUpdating();
