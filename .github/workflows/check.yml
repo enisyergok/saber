@@ -98,7 +98,7 @@ jobs:
         run: |
           set -o pipefail
           if [ -f test/defter_screens_test.dart ]; then
-            flutter test --no-pub --tags screens --update-goldens test/defter_screens_test.dart 2>&1 | tee screenshots.txt
+            flutter test --no-pub --timeout=120s --tags screens --update-goldens test/defter_screens_test.dart 2>&1 | tee screenshots.txt
           fi
 
       # Results go to an orphan branch per source branch,

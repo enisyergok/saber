@@ -369,7 +369,7 @@ void _shot({
           () => Future.delayed(const Duration(milliseconds: 100)),
         );
         // never wait for ever: a note with nothing in it looks unloaded
-        if (!waitForEditor && ++waited >= 15) break;
+        if (++waited >= (waitForEditor ? 100 : 15)) break;
       }
       await tester.pump();
     }
@@ -383,7 +383,11 @@ void _shot({
     await afterLoad?.call(tester);
 
     await tester.loadAssets();
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 100),
+      EnginePhase.sendSemanticsUpdate,
+      const Duration(seconds: 20),
+    );
 
     await expectLater(
       find.byType(MaterialApp),
