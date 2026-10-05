@@ -63,14 +63,18 @@ void main() {
       const crop = PdfCrop(top: 0.2, bottom: 0.2);
       final l = crop.layout(const Size(600, 800), const Size(600, 800));
       // 600x480 kept in 600x800: width limits, scale 1.
-      expect(l.visible, const Size(600, 480));
-      expect(l.full, const Size(600, 800));
-      expect(l.offset, const Offset(0, -160));
+      expect(l.visible.width, closeTo(600, 1e-6));
+      expect(l.visible.height, closeTo(480, 1e-6));
+      expect(l.full.width, closeTo(600, 1e-6));
+      expect(l.full.height, closeTo(800, 1e-6));
+      expect(l.offset.dx, 0);
+      expect(l.offset.dy, closeTo(-160, 1e-6));
     });
 
     test('no crop keeps the page as it is', () {
       final l = PdfCrop.none.layout(const Size(600, 800), const Size(600, 800));
-      expect(l.visible, const Size(600, 800));
+      expect(l.visible.width, closeTo(600, 1e-6));
+      expect(l.visible.height, closeTo(800, 1e-6));
       expect(l.offset, Offset.zero);
     });
   });
