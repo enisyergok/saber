@@ -13,9 +13,9 @@ enum EInkRefreshKind {
 /// mode and its refresh effect are on, and the person hasn't asked for
 /// reduced motion; see `EInkRefreshOverlay`.
 class EInkRefresh extends ChangeNotifier {
-  EInkRefresh._();
+  new._();
 
-  static final instance = EInkRefresh._();
+  static final instance = new._();
 
   /// Page turns closer together than this show one flash, so scrolling
   /// quickly through pages doesn't flicker.

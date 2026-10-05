@@ -9,7 +9,7 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
 
 class _Counter extends StatefulWidget {
-  const _Counter();
+  const new();
 
   @override
   State<_Counter> createState() => _CounterState();
@@ -64,7 +64,7 @@ void main() {
       await pump(tester);
 
       stows.eInkMode.value = true;
-      await tester.pump();
+      await tester.pumpAndSettle();
       var context = tester.element(find.byType(_Counter));
       expect(EInkScope.maybeOf(context), const EInkStyle());
       expect(Theme.of(context).colorScheme.surface, const EInkStyle().paper);
@@ -72,7 +72,7 @@ void main() {
       expect(Theme.brightnessOf(context), Brightness.light);
 
       stows.eInkMode.value = false;
-      await tester.pump();
+      await tester.pumpAndSettle();
       context = tester.element(find.byType(_Counter));
       expect(EInkScope.maybeOf(context), isNull);
     });
@@ -83,7 +83,7 @@ void main() {
       await pump(tester);
       stows.eInkMode.value = true;
       stows.eInkPaperWarmth.value = 1;
-      await tester.pump();
+      await tester.pumpAndSettle();
       final context = tester.element(find.byType(_Counter));
       expect(
         Theme.of(context).colorScheme.surface,

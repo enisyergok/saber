@@ -12,7 +12,7 @@ import 'package:saber/data/eink/eink_texture.dart';
 /// no power, physical refresh).
 @immutable
 class EInkStyle {
-  const EInkStyle({
+  const new({
     this.paperWarmth = 0.4,
     this.inkDarkness = 0.8,
     this.texture = 0.3,

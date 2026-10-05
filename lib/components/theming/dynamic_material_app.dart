@@ -252,6 +252,8 @@ class ExplicitlyThemedApp extends StatelessWidget {
         ),
       ],
       themeMode: themeMode,
+      // an e-ink screen has no use for a fade between themes
+      themeAnimationDuration: eInk != null ? Duration.zero : kThemeAnimationDuration,
       theme: theme,
       darkTheme: darkTheme,
       highContrastTheme: highContrastTheme,

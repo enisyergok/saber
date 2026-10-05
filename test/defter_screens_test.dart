@@ -253,9 +253,13 @@ void main() {
       ('photo', '/Annotate images and diagrams'),
       ('pdf', '/Import PDFs'),
     ]) {
+      // An empty note never counts as "loaded" (it has nothing in it), so
+      // for that scene the editor is given a moment instead.
+      final waitForEditor = scene != 'blank';
       _shot(
         theme: theme,
         name: 'cmp_${scene}_normal',
+        waitForEditor: waitForEditor,
         child: Editor(path: path),
         afterLoad: (_) async => OpenTabs.reset(),
       );
@@ -263,6 +267,7 @@ void main() {
         theme: theme,
         eInk: eInk,
         name: 'cmp_${scene}_eink',
+        waitForEditor: waitForEditor,
         child: Editor(path: path),
         afterLoad: (_) async => OpenTabs.reset(),
       );
@@ -315,6 +320,7 @@ void _shot({
   EInkStyle? eInk,
   required String name,
   required Widget child,
+  bool waitForEditor = true,
   DirectoryChildren? children,
   Future<void> Function(WidgetTester tester)? afterLoad,
 }) {
@@ -357,10 +363,13 @@ void _shot({
       find.byType(Editor),
     )) {
       // Wait for the editor to load
+      var waited = 0;
       while (editorState.coreInfo.isEmpty) {
         await tester.runAsync(
           () => Future.delayed(const Duration(milliseconds: 100)),
         );
+        // never wait for ever: a note with nothing in it looks unloaded
+        if (!waitForEditor && ++waited >= 15) break;
       }
       await tester.pump();
     }

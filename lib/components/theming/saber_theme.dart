@@ -376,7 +376,7 @@ extension SaberThemePlatform on TargetPlatform {
 
 /// Page changes happen at once; an e-ink screen has no use for slides.
 class _InstantPageTransitionsBuilder extends PageTransitionsBuilder {
-  const _InstantPageTransitionsBuilder();
+  const new();
 
   @override
   Widget buildTransitions<T>(

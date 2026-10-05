@@ -7,7 +7,7 @@ import 'package:saber/data/eink/eink_style.dart';
 /// widget tree without a scope, so they stay in the notes' own colours
 /// unless the user asks for the e-ink look.
 class EInkScope extends InheritedWidget {
-  const EInkScope({super.key, required this.style, required super.child});
+  const new({super.key, required this.style, required super.child});
 
   /// Null while e-ink mode is off.
   final EInkStyle? style;

@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:saber/components/eink/eink_scope.dart';
-import 'package:saber/data/eink/eink_style.dart';
 import 'package:saber/data/eink/eink_texture.dart';
 
 /// Shows continuous-tone content (photos, PDF pages, thumbnails) in the
@@ -15,7 +14,7 @@ import 'package:saber/data/eink/eink_texture.dart';
 /// Android version, with no shader needed. Pen strokes and text are never
 /// drawn through this; they have their own colour mapping.
 class EInkImageFilter extends StatelessWidget {
-  const EInkImageFilter({super.key, required this.child});
+  const new({super.key, required this.child});
 
   final Widget child;
 
@@ -36,7 +35,7 @@ class EInkImageFilter extends StatelessWidget {
 }
 
 class _GrainPainter extends CustomPainter {
-  const _GrainPainter(this.grain);
+  const new(this.grain);
 
   final ui.Image grain;
 

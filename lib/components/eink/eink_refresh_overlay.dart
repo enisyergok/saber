@@ -6,7 +6,7 @@ import 'package:saber/data/eink/eink_style.dart';
 /// Draws the short e-ink refresh over [child] when [EInkRefresh] asks for
 /// one. It never blocks touches or the pen, and costs nothing while idle.
 class EInkRefreshOverlay extends StatefulWidget {
-  const EInkRefreshOverlay({super.key, required this.child});
+  const new({super.key, required this.child});
 
   final Widget? child;
 
@@ -81,7 +81,7 @@ class _EInkRefreshOverlayState extends State<EInkRefreshOverlay>
 
 /// The flash itself, as a function of time [t] (0 to 1).
 class EInkRefreshPainter extends CustomPainter {
-  const EInkRefreshPainter({
+  const new({
     required this.kind,
     required this.t,
     required this.style,

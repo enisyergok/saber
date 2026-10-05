@@ -6,7 +6,7 @@ import 'package:stow/stow.dart';
 /// A setting from 0 to 1 in ten steps, shown as a slider under its title.
 /// Long-press resets it, like the other settings.
 class SettingsSlider extends StatefulWidget {
-  const SettingsSlider({
+  const new({
     super.key,
     required this.title,
     this.subtitle,
