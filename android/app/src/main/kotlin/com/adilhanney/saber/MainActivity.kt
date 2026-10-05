@@ -57,7 +57,20 @@ class MainActivity: FlutterActivity() {
         }
     }
 
+    private var inputChannel: MethodChannel? = null
+
+    /// The key code HONOR/HUAWEI pens send for their double tap. Flutter has
+    /// no name for it, so it is handed to the app by hand.
+    private val penDoubleTapKeyCode = 718
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.keyCode == penDoubleTapKeyCode) {
+            recordInput("PEN KEY ${event.keyCode} action=${event.action}")
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                inputChannel?.invokeMethod("stylusKey", null)
+            }
+            return inputChannel != null
+        }
         recordInput(
             "KEY ${KeyEvent.keyCodeToString(event.keyCode)} (${event.keyCode}) " +
                 "action=${event.action} source=0x${Integer.toHexString(event.source)} " +
@@ -138,8 +151,8 @@ class MainActivity: FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/input")
-            .setMethodCallHandler { call, result ->
+        inputChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/input")
+        inputChannel!!.setMethodCallHandler { call, result ->
                 when (call.method) {
                     "events" -> synchronized(rawInput) { result.success(ArrayList(rawInput)) }
                     "devices" -> result.success(describeInputDevices())

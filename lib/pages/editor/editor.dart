@@ -195,6 +195,21 @@ class EditorState extends State<Editor> {
 
   final _stylusTaps = StylusTapCounter();
   final _stylusClock = Stopwatch()..start();
+  StreamSubscription<void>? _nativeStylusSub;
+  int _lastNativeStylusMs = -100000;
+
+  /// The pen's double tap arrived from the Android side (see
+  /// [NativeStylusPress]). Quick repeats count as one.
+  void _onNativeStylusPress(void _) {
+    if (!mounted || ModalRoute.of(context)?.isCurrent == false) return;
+    final now = _stylusClock.elapsedMilliseconds;
+    final isRepeat = now - _lastNativeStylusMs < NativeStylusPress.mergeMs;
+    _lastNativeStylusMs = now;
+    if (isRepeat) return;
+    final action = StylusAction.fromIndex(stows.stylusAction.value);
+    if (action == StylusAction.none) return;
+    performStylusAction(action);
+  }
 
   /// The last non-Eraser [currentTool] value.
   late Tool _lastNonEraserTool = Pen.currentPen;
@@ -219,6 +234,8 @@ class EditorState extends State<Editor> {
     _initAsync();
     _assignKeybindings();
     HardwareKeyboard.instance.addHandler(_handleStylusKey);
+    NativeStylusPress.init();
+    _nativeStylusSub = NativeStylusPress.presses.listen(_onNativeStylusPress);
 
     super.initState();
   }
@@ -2659,6 +2676,7 @@ class EditorState extends State<Editor> {
 
     _removeKeybindings();
     HardwareKeyboard.instance.removeHandler(_handleStylusKey);
+    unawaited(_nativeStylusSub?.cancel());
     unawaited(PenLatencyProbe.instance.stop());
 
     // manually save pen properties since the listeners don't fire if a property is changed
