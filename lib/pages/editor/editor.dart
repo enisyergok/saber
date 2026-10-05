@@ -323,7 +323,8 @@ class EditorState extends State<Editor> {
 
     final cover = spec.cover;
     if (cover != null) {
-      await insertCover(cover);
+      // A notebook without a name of its own gets a cover without one.
+      await insertCover(cover, title: spec.name.trim());
     } else if (mounted) {
       setState(() {});
       autosaveAfterDelay();
@@ -2782,14 +2783,19 @@ class EditorState extends State<Editor> {
   });
 
   /// Inserts [design] as a new first page, with the note's name as title.
-  Future<void> insertCover(CoverDesign design) async {
+  ///
+  /// [title] is what is written on the cover instead (nothing, if empty).
+  Future<void> insertCover(CoverDesign design, {String? title}) async {
     if (coreInfo.readOnly) return;
     // As big as the notebook's own pages.
     final first = coreInfo.pages.firstOrNull;
     final size = first == null || first.backgroundImage is PdfEditorImage
         ? EditorPage.defaultSize
         : first.size;
-    final bytes = await design.renderPng(size, title: coreInfo.fileName);
+    final bytes = await design.renderPng(
+      size,
+      title: title ?? coreInfo.fileName,
+    );
     if (!mounted) return;
     setState(() {
       final page = EditorPage(
