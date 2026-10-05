@@ -17,6 +17,7 @@ import 'package:saber/components/settings/settings_selection.dart';
 import 'package:saber/components/settings/settings_sentry.dart';
 import 'package:saber/components/settings/settings_subtitle.dart';
 import 'package:saber/components/settings/settings_switch.dart';
+import 'package:saber/components/settings/stylus_test_dialog.dart';
 import 'package:saber/components/settings/update_manager.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/adaptive_toggle_buttons.dart';
@@ -31,6 +32,7 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/shape_pen.dart';
+import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/benchmark.dart';
 import 'package:saber/pages/handwriting_settings.dart';
@@ -533,6 +535,61 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: DefterStrings.penPredictionSubtitle,
                   icon: Icons.timeline,
                   pref: stows.penPrediction,
+                ),
+                SettingsSelection(
+                  title: DefterStrings.stylusAction,
+                  subtitle: DefterStrings.stylusActionSubtitle,
+                  icon: Icons.touch_app_outlined,
+                  pref: stows.stylusAction,
+                  options: [
+                    ToggleButtonsOption(
+                      StylusAction.none.index,
+                      Text(DefterStrings.stylusNone),
+                    ),
+                    ToggleButtonsOption(
+                      StylusAction.toggleEraser.index,
+                      Text(DefterStrings.stylusToggleEraser),
+                    ),
+                    ToggleButtonsOption(
+                      StylusAction.previousTool.index,
+                      Text(DefterStrings.stylusPreviousTool),
+                    ),
+                    ToggleButtonsOption(
+                      StylusAction.lasso.index,
+                      Text(DefterStrings.stylusLasso),
+                    ),
+                    ToggleButtonsOption(
+                      StylusAction.highlighter.index,
+                      Text(DefterStrings.stylusHighlighter),
+                    ),
+                    ToggleButtonsOption(
+                      StylusAction.undo.index,
+                      Text(DefterStrings.stylusUndo),
+                    ),
+                    ToggleButtonsOption(
+                      StylusAction.redo.index,
+                      Text(DefterStrings.stylusRedo),
+                    ),
+                  ],
+                ),
+                SettingsSelection(
+                  title: DefterStrings.stylusTaps,
+                  subtitle: DefterStrings.stylusTapsSubtitle,
+                  icon: Icons.looks_two_outlined,
+                  pref: stows.stylusTapsNeeded,
+                  options: const [
+                    ToggleButtonsOption(1, Text('1')),
+                    ToggleButtonsOption(2, Text('2')),
+                  ],
+                ),
+                SettingsButton(
+                  title: DefterStrings.stylusTest,
+                  subtitle: DefterStrings.stylusTestSubtitle,
+                  icon: Icons.bug_report_outlined,
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (_) => const StylusTestDialog(),
+                  ),
                 ),
                 SettingsSwitch(
                   title: DefterStrings.holdToSnap,

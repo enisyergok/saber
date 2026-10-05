@@ -59,6 +59,7 @@ import 'package:saber/components/toolbar/recognize_dialog.dart';
 import 'package:saber/components/toolbar/recordings_dialog.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/data/tools/shape_snap.dart';
@@ -170,6 +171,7 @@ class EditorState extends State<Editor> {
   }();
   Tool get currentTool => _currentTool;
   set currentTool(Tool tool) {
+    if (!identical(tool, _currentTool)) _previousTool = _currentTool;
     _currentTool = tool;
     if (tool is! Eraser) _lastNonEraserTool = tool;
     stows.lastTool.value = tool.toolId;
@@ -184,6 +186,12 @@ class EditorState extends State<Editor> {
   Timer? _lastSeenPointerCountTimer;
 
   ValueNotifier<QuillStruct?> quillFocus = ValueNotifier(null);
+
+  /// The tool that was in use before [currentTool].
+  Tool? _previousTool;
+
+  final _stylusTaps = StylusTapCounter();
+  final _stylusClock = Stopwatch()..start();
 
   /// The last non-Eraser [currentTool] value.
   late Tool _lastNonEraserTool = Pen.currentPen;
@@ -204,6 +212,7 @@ class EditorState extends State<Editor> {
 
     _initAsync();
     _assignKeybindings();
+    HardwareKeyboard.instance.addHandler(_handleStylusKey);
 
     super.initState();
   }
@@ -303,6 +312,67 @@ class EditorState extends State<Editor> {
     Keybinder.bind(_ctrlZ!, undo);
     Keybinder.bind(_ctrlY!, redo);
     Keybinder.bind(_ctrlShiftZ!, redo);
+  }
+
+  /// Stylus button key events (Android sends the pen's button or double tap
+  /// this way) run the action chosen in the settings.
+  bool _handleStylusKey(KeyEvent event) {
+    if (!StylusKeys.isStylusKey(event.logicalKey.keyId)) return false;
+    if (!mounted || ModalRoute.of(context)?.isCurrent == false) return false;
+    if (event is! KeyDownEvent) return true;
+
+    final action = StylusAction.fromIndex(stows.stylusAction.value);
+    if (action == StylusAction.none) return false;
+    final triggered = _stylusTaps.press(
+      _stylusClock.elapsedMilliseconds,
+      needed: stows.stylusTapsNeeded.value,
+    );
+    if (triggered) performStylusAction(action);
+    return true;
+  }
+
+  /// Runs [action], unless a stroke is being drawn right now.
+  void performStylusAction(StylusAction action) {
+    if (Pen.currentStroke != null) return;
+
+    switch (action) {
+      case .none:
+        return;
+      case .toggleEraser:
+        _toggleTool(Eraser(), (tool) => tool is Eraser);
+      case .lasso:
+        _toggleTool(Select.currentSelect, (tool) => tool is Select);
+      case .highlighter:
+        _toggleTool(
+          Highlighter.currentHighlighter,
+          (tool) => tool is Highlighter,
+        );
+      case .previousTool:
+        final previous = _previousTool;
+        if (previous != null) currentTool = previous;
+      case .undo:
+        if (!coreInfo.readOnly) undo();
+      case .redo:
+        if (!coreInfo.readOnly) redo();
+    }
+    if (mounted) setState(() {});
+  }
+
+  /// Switches to [target], or back to the tool used before it if
+  /// [isTarget] says it is already in use.
+  void _toggleTool(Tool target, bool Function(Tool) isTarget) {
+    if (!isTarget(currentTool)) {
+      currentTool = target;
+      return;
+    }
+    final previous = _previousTool;
+    if (previous != null && !isTarget(previous)) {
+      currentTool = previous;
+    } else if (!isTarget(_lastNonEraserTool)) {
+      currentTool = _lastNonEraserTool;
+    } else {
+      currentTool = Pen.currentPen;
+    }
   }
 
   void _removeKeybindings() {
@@ -2530,6 +2600,7 @@ class EditorState extends State<Editor> {
     _lastSeenPointerCountTimer?.cancel();
 
     _removeKeybindings();
+    HardwareKeyboard.instance.removeHandler(_handleStylusKey);
 
     // manually save pen properties since the listeners don't fire if a property is changed
     stows.lastFountainPenOptions.notifyListeners();
