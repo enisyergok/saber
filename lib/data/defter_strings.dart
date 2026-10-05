@@ -190,6 +190,20 @@ abstract class DefterStrings {
   static String get gnMoreTools => _tr ? 'Diğer araçlar' : 'More tools';
   static String get gnMenu => _tr ? 'Menü' : 'Menu';
   static String get gnStickers => _tr ? 'Çıkartmalar' : 'Stickers';
+  static String get pressureLabel => _tr ? 'Basınç' : 'Pressure';
+  static String get pressureNone => _tr
+      ? 'Kalemle bu alana yaz; kalemin bildirdiği basınç burada görünür.'
+      : 'Write here with the pen; the pressure it reports shows here.';
+  static String get pressureNoRange => _tr
+      ? 'Bu kalem basınç aralığı bildirmiyor: çizgi kalınlığı basınca '
+            'değil hıza göre değişir.'
+      : 'The pen reports no pressure range, so line width follows speed, '
+            'not pressure.';
+  static String get pressureFlat => _tr
+      ? 'Basınç değeri değişmiyor. Kalemi hafif ve sert bastırarak dene.'
+      : 'The pressure value is not changing. Try pressing lightly and hard.';
+  static String get pressureWorks =>
+      _tr ? 'Basınç değişiyor: kalem basıncı bildiriyor.' : 'Pressure varies: the pen reports it.';
   static String get tipSharpness => _tr ? 'Uç keskinliği' : 'Tip sharpness';
   static String get pressureSensitivity =>
       _tr ? 'Basınç duyarlılığı' : 'Pressure sensitivity';

@@ -22,6 +22,9 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
   int _lastButtons = -1;
   PointerDeviceKind? _lastKind;
 
+  // What Flutter is told about the pen's pressure.
+  double? _pressure, _rangeMin, _rangeMax, _seenLow, _seenHigh;
+
   static const _input = MethodChannel('defter/input');
 
   /// What Android itself reports to the window (before Flutter sees it).
@@ -99,6 +102,19 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
         event.kind == PointerDeviceKind.stylus ||
         event.kind == PointerDeviceKind.invertedStylus;
     if (!isStylus) return;
+    if (event is! PointerHoverEvent) {
+      setState(() {
+        _pressure = event.pressure;
+        _rangeMin = event.pressureMin;
+        _rangeMax = event.pressureMax;
+        _seenLow = _seenLow == null
+            ? event.pressure
+            : (event.pressure < _seenLow! ? event.pressure : _seenLow);
+        _seenHigh = _seenHigh == null
+            ? event.pressure
+            : (event.pressure > _seenHigh! ? event.pressure : _seenHigh);
+      });
+    }
     // only changes are listed, or moving the pen would flood the list
     if (event.buttons == _lastButtons && event.kind == _lastKind) return;
     _lastButtons = event.buttons;
@@ -106,6 +122,52 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
     _add(
       'Kalem: tür ${event.kind.name}, düğme değeri ${event.buttons}'
       '${event is PointerHoverEvent ? ' (havada)' : ''}',
+    );
+  }
+
+  Widget _pressureBox(ColorScheme colors) {
+    final p = _pressure;
+    final min = _rangeMin, max = _rangeMax;
+    final hasRange = min != null && max != null && min != max;
+    final String verdict;
+    if (p == null) {
+      verdict = DefterStrings.pressureNone;
+    } else if (!hasRange) {
+      verdict = DefterStrings.pressureNoRange;
+    } else if (_seenHigh! - _seenLow! < 0.05 * (max - min)) {
+      verdict = DefterStrings.pressureFlat;
+    } else {
+      verdict = DefterStrings.pressureWorks;
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              p == null
+                  ? DefterStrings.pressureLabel
+                  : '${DefterStrings.pressureLabel}: ${p.toStringAsFixed(3)}'
+                        ' (${min?.toStringAsFixed(2)} – '
+                        '${max?.toStringAsFixed(2)}), '
+                        '${_seenLow!.toStringAsFixed(3)} … '
+                        '${_seenHigh!.toStringAsFixed(3)}',
+              style: _mono,
+            ),
+            if (hasRange && p != null)
+              LinearProgressIndicator(
+                value: ((p - min) / (max - min)).clamp(0.0, 1.0),
+              ),
+            const SizedBox(height: 4),
+            Text(verdict),
+          ],
+        ),
+      ),
     );
   }
 
@@ -121,6 +183,8 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(DefterStrings.stylusTestHint),
+            const SizedBox(height: 8),
+            _pressureBox(colors),
             const SizedBox(height: 8),
             Expanded(
               child: Listener(
