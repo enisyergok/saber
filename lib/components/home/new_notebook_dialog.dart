@@ -55,7 +55,102 @@ class NewNotebookDialog extends StatefulWidget {
     CanvasBackgroundPattern.legal,
     CanvasBackgroundPattern.hexagon,
     CanvasBackgroundPattern.diamond,
+    CanvasBackgroundPattern.yearly,
+    CanvasBackgroundPattern.classSchedule,
+    CanvasBackgroundPattern.habits,
+    CanvasBackgroundPattern.budget,
+    CanvasBackgroundPattern.meals,
+    CanvasBackgroundPattern.travel,
+    CanvasBackgroundPattern.project,
+    CanvasBackgroundPattern.water,
+    CanvasBackgroundPattern.reading,
+    CanvasBackgroundPattern.shopping,
+    CanvasBackgroundPattern.mindMap,
+    CanvasBackgroundPattern.conceptMap,
+    CanvasBackgroundPattern.flowchart,
+    CanvasBackgroundPattern.decisionTree,
+    CanvasBackgroundPattern.venn,
+    CanvasBackgroundPattern.cycle,
+    CanvasBackgroundPattern.pyramid,
+    CanvasBackgroundPattern.fishbone,
+    CanvasBackgroundPattern.swot,
+    CanvasBackgroundPattern.timeline,
+    CanvasBackgroundPattern.rings,
+    CanvasBackgroundPattern.wheel,
+    CanvasBackgroundPattern.wireframe,
+    CanvasBackgroundPattern.math,
+    CanvasBackgroundPattern.recipe,
   ];
+
+  /// The papers by kind, for the chips above the list.
+  static const categories = <String, List<CanvasBackgroundPattern>>{
+    'plain': [
+      CanvasBackgroundPattern.none,
+      CanvasBackgroundPattern.lined,
+      CanvasBackgroundPattern.collegeLtr,
+      CanvasBackgroundPattern.grid,
+      CanvasBackgroundPattern.dots,
+      CanvasBackgroundPattern.isometric,
+      CanvasBackgroundPattern.engineering,
+      CanvasBackgroundPattern.hexagon,
+      CanvasBackgroundPattern.diamond,
+      CanvasBackgroundPattern.legal,
+      CanvasBackgroundPattern.writing,
+    ],
+    'columns': [
+      CanvasBackgroundPattern.cornell,
+      CanvasBackgroundPattern.table,
+      CanvasBackgroundPattern.twoColumns,
+      CanvasBackgroundPattern.threeColumns,
+      CanvasBackgroundPattern.fourColumns,
+      CanvasBackgroundPattern.sideSplit,
+      CanvasBackgroundPattern.topBottom,
+      CanvasBackgroundPattern.verticalSplit,
+      CanvasBackgroundPattern.squareSplit,
+      CanvasBackgroundPattern.titled,
+      CanvasBackgroundPattern.bullets,
+      CanvasBackgroundPattern.numbered,
+      CanvasBackgroundPattern.todo,
+    ],
+    'planners': [
+      CanvasBackgroundPattern.yearly,
+      CanvasBackgroundPattern.monthly,
+      CanvasBackgroundPattern.weekly,
+      CanvasBackgroundPattern.daily,
+      CanvasBackgroundPattern.classSchedule,
+      CanvasBackgroundPattern.habits,
+      CanvasBackgroundPattern.budget,
+      CanvasBackgroundPattern.meals,
+      CanvasBackgroundPattern.travel,
+      CanvasBackgroundPattern.project,
+      CanvasBackgroundPattern.water,
+      CanvasBackgroundPattern.reading,
+      CanvasBackgroundPattern.shopping,
+      CanvasBackgroundPattern.meeting,
+    ],
+    'diagrams': [
+      CanvasBackgroundPattern.mindMap,
+      CanvasBackgroundPattern.conceptMap,
+      CanvasBackgroundPattern.flowchart,
+      CanvasBackgroundPattern.decisionTree,
+      CanvasBackgroundPattern.venn,
+      CanvasBackgroundPattern.cycle,
+      CanvasBackgroundPattern.pyramid,
+      CanvasBackgroundPattern.fishbone,
+      CanvasBackgroundPattern.swot,
+      CanvasBackgroundPattern.timeline,
+      CanvasBackgroundPattern.rings,
+      CanvasBackgroundPattern.wheel,
+    ],
+    'special': [
+      CanvasBackgroundPattern.storyboard,
+      CanvasBackgroundPattern.wireframe,
+      CanvasBackgroundPattern.math,
+      CanvasBackgroundPattern.staffs,
+      CanvasBackgroundPattern.tablature,
+      CanvasBackgroundPattern.recipe,
+    ],
+  };
 
   @override
   State<NewNotebookDialog> createState() => _NewNotebookDialogState();
@@ -65,10 +160,15 @@ class _NewNotebookDialogState extends State<NewNotebookDialog> {
   final _nameController = TextEditingController();
   CanvasBackgroundPattern _paper = stows.lastBackgroundPattern.value;
   String? _nameError;
+  String? _category; // null: all papers
 
   static const _previewWidth = 88.0;
   static const _previewHeight =
       _previewWidth * EditorPage.defaultHeight / EditorPage.defaultWidth;
+
+  List<CanvasBackgroundPattern> get _shown => _category == null
+      ? NewNotebookDialog.papers
+      : NewNotebookDialog.categories[_category]!;
 
   @override
   void dispose() {
@@ -119,15 +219,27 @@ class _NewNotebookDialogState extends State<NewNotebookDialog> {
               ),
               const SizedBox(height: 20),
               Text(DefterStrings.paper, style: textTheme.titleSmall),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (final key in [null, ...NewNotebookDialog.categories.keys])
+                    ChoiceChip(
+                      label: Text(DefterStrings.paperCategory(key)),
+                      selected: _category == key,
+                      onSelected: (_) => setState(() => _category = key),
+                    ),
+                ],
+              ),
               const SizedBox(height: 10),
               SizedBox(
                 height: _previewHeight + 30,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: NewNotebookDialog.papers.length,
+                  itemCount: _shown.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 10),
                   itemBuilder: (context, index) {
-                    final paper = NewNotebookDialog.papers[index];
+                    final paper = _shown[index];
                     final selected = paper == _paper;
                     return InkWell(
                       borderRadius: const BorderRadius.all(Radius.circular(8)),

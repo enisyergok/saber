@@ -206,6 +206,15 @@ abstract class DefterStrings {
       _tr ? 'Basınç değişiyor: kalem basıncı bildiriyor.' : 'Pressure varies: the pen reports it.';
   static String get paperColor => _tr ? 'Kâğıt rengi' : 'Paper colour';
 
+  static String paperCategory(String? key) => switch (key) {
+    null => _tr ? 'Tümü' : 'All',
+    'plain' => _tr ? 'Düz / çizgili' : 'Plain / ruled',
+    'columns' => _tr ? 'Sütunlar ve bölmeler' : 'Columns and splits',
+    'planners' => _tr ? 'Planlayıcılar' : 'Planners',
+    'diagrams' => _tr ? 'Diyagramlar' : 'Diagrams',
+    _ => _tr ? 'Özel amaçlı' : 'Special',
+  };
+
   // Paper templates
   static String get paperYearly => _tr ? 'Yıllık planlayıcı' : 'Yearly planner';
   static String get paperClassSchedule => _tr ? 'Ders programı' : 'Class schedule';

@@ -134,8 +134,8 @@ void main() {
                 (p) => p.template,
               ))
                 SizedBox(
-                  width: 150,
-                  height: 150 * 1.4,
+                  width: 110,
+                  height: 110 * 1.4,
                   child: FittedBox(
                     child: CanvasBackgroundPreview(
                       selected: false,
