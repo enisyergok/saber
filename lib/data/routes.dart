@@ -23,6 +23,16 @@ abstract class RoutePaths {
         '?path=${Uri.encodeQueryComponent(filePath)}'
         '&pdfPath=${Uri.encodeQueryComponent(pdfPath)}';
   }
+
+  /// A new note at [filePath] that starts with the picture at [imagePath].
+  static String editWithImage(String filePath, String imagePath) {
+    return '$edit'
+        '?path=${Uri.encodeQueryComponent(filePath)}'
+        '&imagePath=${Uri.encodeQueryComponent(imagePath)}';
+  }
+
+  /// The home screen with the sidebar: recent notes, folders, templates.
+  static final dashboard = '$prefixOfHome/${HomePage.dashboardSubpage}';
 }
 
 abstract class HomeRoutes {

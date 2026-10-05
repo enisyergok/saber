@@ -335,6 +335,199 @@ abstract class DefterStrings {
   static String get paperWireframe => _tr ? 'Wireframe' : 'Wireframe';
   static String get paperMath => _tr ? 'Koordinat düzlemi' : 'Coordinate plane';
   static String get paperRecipe => _tr ? 'Tarif defteri' : 'Recipe';
+  static String get paperMillimetre => _tr ? 'Milimetrik' : 'Millimetre';
+  static String get paperCircuit => _tr ? 'Devre şeması' : 'Circuit';
+  static String get paperPcb => _tr ? 'PCB ızgarası' : 'PCB grid';
+  static String get paperBlockDiagram => _tr ? 'Blok diyagram' : 'Block diagram';
+  static String get paperGantt => _tr ? 'Gantt şeması' : 'Gantt chart';
+  static String get paperMeasureTable =>
+      _tr ? 'Ölçüm tablosu' : 'Measurement table';
+  static String get paperOrgChart => _tr ? 'Hiyerarşi' : 'Hierarchy';
+  static String get paperArrowDiagram => _tr ? 'Ok şeması' : 'Process arrows';
+  static String get paperRelationDiagram =>
+      _tr ? 'İlişki şeması' : 'Relationship diagram';
+  static String get paperAcademicPlanner =>
+      _tr ? 'Akademik planlayıcı' : 'Academic planner';
+  static String get paperGoalPlanner => _tr ? 'Hedef planlayıcı' : 'Goal planner';
+  static String get paperFinancePlanner =>
+      _tr ? 'Finans planlayıcı' : 'Finance planner';
+  static String get paperMoodTracker => _tr ? 'Ruh hali takibi' : 'Mood tracker';
+  static String get paperStudentPlanner =>
+      _tr ? 'Öğrenci planlayıcı' : 'Student planner';
+  static String get paperLedger => _tr ? 'Hesap defteri' : 'Ledger';
+
+  // -- home screen and new notebook -----------------------------------------
+  static String get homeDashboard => _tr ? 'Yeni ana sayfa' : 'New home screen';
+  static String get homeDashboardSubtitle => _tr
+      ? 'Kenar çubuğu, son kullanılanlar, klasörler ve şablonlar tek ekranda'
+      : 'Sidebar, recent notes, folders and templates on one screen';
+  static String get appName => 'Defter';
+  static String get navHome => _tr ? 'Ana Sayfa' : 'Home';
+  static String get navNotes => _tr ? 'Notlarım' : 'My Notes';
+  static String get navPlanners => _tr ? 'Planlayıcılar' : 'Planners';
+  static String get navTemplates => _tr ? 'Şablonlar' : 'Templates';
+  static String get navFavorites => _tr ? 'Favoriler' : 'Favorites';
+  static String get navRecent => _tr ? 'Son Kullanılanlar' : 'Recent';
+  static String get navTrash => _tr ? 'Çöp Kutusu' : 'Trash';
+  static String get navWhiteboard => _tr ? 'Beyaz Tahta' : 'Whiteboard';
+  static String get navSettings => _tr ? 'Ayarlar' : 'Settings';
+  static String get folders => _tr ? 'Klasörler' : 'Folders';
+  static String get newFolder => _tr ? 'Yeni Klasör' : 'New Folder';
+  static String get folderName => _tr ? 'Klasör adı' : 'Folder name';
+  static String get folderNameEmpty =>
+      _tr ? 'Klasör adı boş olamaz' : 'A folder needs a name';
+  static String get folderNameSlash => _tr
+      ? 'Klasör adında eğik çizgi olamaz'
+      : 'A folder name can\'t have a slash';
+  static String get folderNameExists =>
+      _tr ? 'Bu adda bir klasör var' : 'There is a folder with this name';
+  static String get heroTitle => _tr
+      ? 'Tek bir yerde, tüm düşünceleriniz.'
+      : 'All your thoughts, in one place.';
+  static String get heroSubtitle => _tr
+      ? 'Not alın, planlayın, tasarlayın, daha fazlasını yapın.'
+      : 'Take notes, plan, design and more.';
+  static String get searchNotes => _tr ? 'Notlarda ara…' : 'Search notes…';
+  static String get actionNewNote => _tr ? 'Yeni Not' : 'New Note';
+  static String get actionFromTemplate =>
+      _tr ? 'Şablondan Oluştur' : 'From Template';
+  static String get actionImportPdf => _tr ? 'PDF İçe Aktar' : 'Import PDF';
+  static String get actionAddImage => _tr ? 'Görüntü Ekle' : 'Add Image';
+  static String get actionNewFolder => _tr ? 'Klasör Oluştur' : 'Create Folder';
+  static String get actionMore => _tr ? 'Diğer' : 'More';
+  static String get actionImportNote => _tr ? 'Not içe aktar' : 'Import a note';
+  static String get seeAll => _tr ? 'Tümü' : 'All';
+  static String get newItem => _tr ? 'Yeni' : 'New';
+  static String get noRecentNotes => _tr
+      ? 'Henüz not yok. "Yeni Not" ile başlayın.'
+      : 'No notes yet. Start with "New Note".';
+  static String get noFolders =>
+      _tr ? 'Henüz klasör yok.' : 'No folders yet.';
+  static String itemCount(int count) => _tr ? '$count öğe' : '$count items';
+  static String templatesOf(String group) =>
+      _tr ? '$group Şablonları' : '$group Templates';
+  static String get pdfNotSupported => _tr
+      ? 'Bu cihazda PDF içe aktarılamıyor.'
+      : 'PDFs can\'t be imported on this device.';
+  static String get invalidNoteFile => _tr
+      ? 'Bu dosya türü içe aktarılamıyor (.sbn, .sbn2, .sba ya da .pdf seçin)'
+      : 'This kind of file can\'t be imported (choose .sbn, .sbn2, .sba or .pdf)';
+  static String get wizardTitle =>
+      _tr ? 'Yeni Defter Oluştur' : 'Create a New Notebook';
+  static String get stepTemplate => _tr ? 'Şablon Seç' : 'Choose a Template';
+  static String get stepCover => _tr ? 'Kapak Tasarla' : 'Design the Cover';
+  static String get stepSize => _tr ? 'Boyut ve Yön' : 'Size and Orientation';
+  static String get stepName => _tr ? 'Adlandır' : 'Name It';
+  static String get stepFolder => _tr ? 'Klasör Seç' : 'Choose a Folder';
+  static String get stepCreate => _tr ? 'Oluştur' : 'Create';
+  static String get coverDesign => _tr ? 'Kapak Tasarımı' : 'Cover Design';
+  static String get noCover => _tr ? 'Kapaksız' : 'No Cover';
+  static String get coverMinimal => _tr ? 'Minimal' : 'Minimal';
+  static String get coverColourful => _tr ? 'Renkli' : 'Colourful';
+  static String get coverPatterned => _tr ? 'Desenli' : 'Patterned';
+  static String get coverClassic => _tr ? 'Klasik' : 'Classic';
+  static String get coverNature => _tr ? 'Doğa' : 'Nature';
+  static String get orientationPortrait => _tr ? 'Dikey' : 'Portrait';
+  static String get orientationLandscape => _tr ? 'Yatay' : 'Landscape';
+  static String get paperColour => _tr ? 'Kağıt Rengi' : 'Paper Colour';
+  static String get colourWhite => _tr ? 'Beyaz' : 'White';
+  static String get colourCream => _tr ? 'Krem' : 'Cream';
+  static String get colourIvory => _tr ? 'Fildişi' : 'Ivory';
+  static String get colourGrey => _tr ? 'Gri' : 'Grey';
+  static String get colourBlack => _tr ? 'Siyah' : 'Black';
+  static String get colourPink => _tr ? 'Pembe' : 'Pink';
+  static String get colourBlue => _tr ? 'Mavi' : 'Blue';
+  static String get colourGreen => _tr ? 'Yeşil' : 'Green';
+  static String get colourLilac => _tr ? 'Lila' : 'Lilac';
+  static String get colourYellow => _tr ? 'Sarı' : 'Yellow';
+  static String get colourPeach => _tr ? 'Şeftali' : 'Peach';
+  static String get colourMint => _tr ? 'Mint' : 'Mint';
+  static String get rootFolder => _tr ? 'Ana klasör' : 'Top folder';
+  static String get back => _tr ? 'Geri' : 'Back';
+  static String get next => _tr ? 'İleri' : 'Next';
+  static String get summaryTemplate => _tr ? 'Şablon' : 'Template';
+  static String get summaryCover => _tr ? 'Kapak' : 'Cover';
+  static String get summarySize => _tr ? 'Boyut' : 'Size';
+  static String get summaryName => _tr ? 'Ad' : 'Name';
+  static String get summaryFolder => _tr ? 'Klasör' : 'Folder';
+  static String get defaultName =>
+      _tr ? 'Tarihli varsayılan ad' : 'Dated default name';
+
+  // -- paper catalogue -----------------------------------------------------
+  static String get groupAll => _tr ? 'Tümü' : 'All';
+  static String get groupBlank => _tr ? 'Boş' : 'Blank';
+  static String get groupLined => _tr ? 'Çizgili' : 'Lined';
+  static String get groupSquared => _tr ? 'Kareli' : 'Squared';
+  static String get groupDotted => _tr ? 'Noktalı' : 'Dotted';
+  static String get groupPlanner => _tr ? 'Planlayıcı' : 'Planner';
+  static String get groupDiagram => _tr ? 'Diyagram' : 'Diagram';
+  static String get groupEngineering => _tr ? 'Mühendislik' : 'Engineering';
+  static String get groupAcademic => _tr ? 'Akademik' : 'Academic';
+  static String get groupSpecial => _tr ? 'Özel' : 'Special';
+  static String get topicYearly => _tr ? 'Yıllık' : 'Yearly';
+  static String get topicMonthly => _tr ? 'Aylık' : 'Monthly';
+  static String get topicWeekly => _tr ? 'Haftalık' : 'Weekly';
+  static String get topicDaily => _tr ? 'Günlük' : 'Daily';
+  static String get topicFinance => _tr ? 'Finans' : 'Finance';
+  static String get topicHealth => _tr ? 'Sağlık' : 'Health';
+  static String get topicSchool => _tr ? 'Akademik' : 'School';
+  static String get topicProject => _tr ? 'Proje' : 'Project';
+  static String get topicFood => _tr ? 'Yemek' : 'Food';
+  static String get topicTravel => _tr ? 'Seyahat' : 'Travel';
+  static String get topicTechnical => _tr ? 'Teknik Çizim' : 'Technical Drawing';
+  static String get topicElectronics =>
+      _tr ? 'Elektrik-Elektronik' : 'Electronics';
+  static String get topicMechanical => _tr ? 'Mekanik' : 'Mechanical';
+  static String get topicArchitecture => _tr ? 'Mimari' : 'Architecture';
+  static String get topicComputing => _tr ? 'Bilgi İşlem' : 'Computing';
+  static String get topicFlow => _tr ? 'Akış' : 'Flow';
+  static String get topicMindMap => _tr ? 'Zihin Haritası' : 'Mind Map';
+  static String get topicOrganisation => _tr ? 'Organizasyon' : 'Organisation';
+  static String get topicAnalysis => _tr ? 'Analiz' : 'Analysis';
+  static String get topicMaths => _tr ? 'Matematik' : 'Maths';
+  static String get topicOther => _tr ? 'Diğer' : 'Other';
+  static String get linedNarrow => _tr ? 'Dar Çizgili' : 'Narrow Ruled';
+  static String get linedMedium => _tr ? 'Orta Çizgili' : 'Medium Ruled';
+  static String get linedWide => _tr ? 'Geniş Çizgili' : 'Wide Ruled';
+  static String get squaredSmall => _tr ? 'Küçük Kareli' : 'Small Squares';
+  static String get squaredMedium => _tr ? 'Orta Kareli' : 'Medium Squares';
+  static String get squaredLarge => _tr ? 'Büyük Kareli' : 'Large Squares';
+  static String get dottedDense => _tr ? 'Sık Noktalı' : 'Dense Dots';
+  static String get dottedMedium => _tr ? 'Noktalı' : 'Dotted';
+  static String get dottedWide => _tr ? 'Seyrek Noktalı' : 'Wide Dots';
+  static String get formatStandard => _tr ? 'Standart' : 'Standard';
+  static String get formatSquare => _tr ? 'Kare' : 'Square';
+
+  static String get labelNo => 'No';
+  static String get labelFeature => _tr ? 'Ölçülen özellik' : 'Feature';
+  static String get labelNominal => _tr ? 'Nominal' : 'Nominal';
+  static String get labelTolerance => _tr ? 'Tolerans' : 'Tolerance';
+  static String get labelMeasured => _tr ? 'Ölçülen' : 'Measured';
+  static String get labelResult => _tr ? 'Sonuç' : 'Result';
+  static String get labelPart => _tr ? 'Parça' : 'Part';
+  static String get labelInstrument => _tr ? 'Ölçü aleti' : 'Instrument';
+  static String get labelDrawnBy => _tr ? 'Çizen' : 'Drawn by';
+  static String get labelSheet => _tr ? 'Sayfa' : 'Sheet';
+  static String get labelWeek => _tr ? 'Hafta' : 'Week';
+  static String get labelTerm => _tr ? 'Dönem' : 'Term';
+  static String get labelLessons => _tr ? 'Dersler' : 'Classes';
+  static String get labelHomework => _tr ? 'Ödevler' : 'Homework';
+  static String get labelExams => _tr ? 'Sınavlar' : 'Exams';
+  static String get labelLesson => _tr ? 'Ders' : 'Class';
+  static String get labelGrade => _tr ? 'Not' : 'Grade';
+  static String get labelWhy => _tr ? 'Neden önemli?' : 'Why it matters';
+  static String get labelPlanSteps => _tr ? 'Adımlar' : 'Steps';
+  static String get labelDeadline => _tr ? 'Bitiş tarihi' : 'Deadline';
+  static String get labelProgress => _tr ? 'İlerleme' : 'Progress';
+  static String get labelSavings => _tr ? 'Birikim' : 'Savings';
+  static String get labelDescription => _tr ? 'Açıklama' : 'Description';
+  static String get labelDebit => _tr ? 'Borç' : 'Debit';
+  static String get labelCredit => _tr ? 'Alacak' : 'Credit';
+  static String get labelBalance => _tr ? 'Bakiye' : 'Balance';
+  static String get labelMood => _tr ? 'Ruh hali' : 'Mood';
+  static String get labelDay => _tr ? 'Gün' : 'Day';
+  static String get labelStart => _tr ? 'Başlangıç' : 'Start';
+  static String get labelEnd => _tr ? 'Bitiş' : 'End';
 
   static List<String> get months => _tr
       ? const ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']

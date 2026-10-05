@@ -183,7 +183,52 @@ enum CanvasBackgroundPattern(
   math('math', template: true),
 
   /// Recipe
-  recipe('recipe', template: true);
+  recipe('recipe', template: true),
+
+  /// Millimetre paper: 2 mm squares, every fifth line stronger
+  millimetre('millimetre', requiresClipping: true, template: true),
+
+  /// Circuit paper: a fine dot grid and a title block
+  circuit('circuit', requiresClipping: true, template: true),
+
+  /// Perfboard style grid of pads with a frame
+  pcb('pcb', requiresClipping: true, template: true),
+
+  /// Block diagram
+  blockDiagram('block-diagram', template: true),
+
+  /// Gantt chart
+  gantt('gantt', template: true),
+
+  /// Measurement table (nominal, tolerance, measured, result)
+  measureTable('measure-table', template: true),
+
+  /// Organisation chart
+  orgChart('org-chart', template: true),
+
+  /// Process arrows: steps from left to right
+  arrowDiagram('arrow-diagram', template: true),
+
+  /// Relationship diagram
+  relationDiagram('relation-diagram', template: true),
+
+  /// Academic week planner
+  academicPlanner('academic-planner', template: true),
+
+  /// Goal planner
+  goalPlanner('goal-planner', template: true),
+
+  /// Finance planner: a year of income, expenses and savings
+  financePlanner('finance-planner', template: true),
+
+  /// Mood tracker
+  moodTracker('mood-tracker', template: true),
+
+  /// Student planner
+  studentPlanner('student-planner', template: true),
+
+  /// Ledger: date, description, debit, credit, balance
+  ledger('ledger', template: true);
 
   static CanvasBackgroundPattern fromName(String? name) {
     return values.firstWhere(

@@ -280,6 +280,21 @@ class CanvasBackgroundPainter extends CustomPainter {
       case .wireframe:
       case .math:
       case .recipe:
+      case .millimetre:
+      case .circuit:
+      case .pcb:
+      case .blockDiagram:
+      case .gantt:
+      case .measureTable:
+      case .orgChart:
+      case .arrowDiagram:
+      case .relationDiagram:
+      case .academicPlanner:
+      case .goalPlanner:
+      case .financePlanner:
+      case .moodTracker:
+      case .studentPlanner:
+      case .ledger:
         yield* _templateElements(pattern, size, lineHeight.toDouble());
       case .cornell:
         // half-width line for name field
@@ -1115,6 +1130,441 @@ Iterable<PatternElement> _templateElements(
           yield hLine(left + l, mid - l * 0.4, y);
           yield hLine(mid + l, right, y);
         }
+      }
+    case .millimetre:
+      {
+        // 2 mm squares (a page unit is 0.21 mm), every fifth line stronger.
+        const step = 2 / 0.21;
+        var i = 0;
+        for (var y = 0.0; y <= h; y += step, i++) {
+          yield hLine(0, w, y, strong: i % 5 == 0);
+        }
+        i = 0;
+        for (var x = 0.0; x <= w; x += step, i++) {
+          yield vLine(x, 0, h, strong: i % 5 == 0);
+        }
+      }
+    case .circuit:
+      {
+        // never so fine that the page turns grey
+        final step = math.max(l / 2, 12.0);
+        final blockW = l * 9, blockH = l * 3;
+        final bx = right - blockW, by = bottom - blockH;
+        for (var y = top; y <= bottom; y += step) {
+          for (var x = left; x <= right; x += step) {
+            // keep the title block clear
+            if (x > bx - 1 && y > by - 1) continue;
+            yield PatternElement(Offset(x, y), Offset(x, y), isLine: false);
+          }
+        }
+        yield* box(left, top, right, bottom);
+        yield* box(bx, by, right, bottom);
+        yield hLine(bx, right, by + l);
+        yield hLine(bx, right, by + 2 * l);
+        yield vLine(bx + blockW / 2, by + l, bottom);
+        yield text(DefterStrings.labelTitle, bx + l * 0.2, by + l * 0.2, width: blockW - l);
+        yield text(DefterStrings.labelDrawnBy, bx + l * 0.2, by + l * 1.2, width: blockW / 2 - l * 0.4);
+        yield text(DefterStrings.labelDate, bx + blockW / 2 + l * 0.2, by + l * 1.2, width: blockW / 2 - l * 0.4);
+        yield text(DefterStrings.labelNo, bx + l * 0.2, by + l * 2.2, width: blockW / 2 - l * 0.4);
+        yield text(DefterStrings.labelSheet, bx + blockW / 2 + l * 0.2, by + l * 2.2, width: blockW / 2 - l * 0.4);
+      }
+    case .pcb:
+      {
+        // Pads 5.08 mm apart (twice the 2.54 mm pitch), ruler ticks on
+        // the frame every fifth pad.
+        const step = 5.08 / 0.21;
+        // room for the frame and its ticks, whatever the line height
+        final m = math.max(l, 30.0) + step / 2;
+        final cols = ((w - 2 * m) / step).floor();
+        final rows = ((h - 2 * m) / step).floor();
+        final x0 = (w - cols * step) / 2;
+        final y0 = (h - rows * step) / 2;
+        for (var r = 0; r <= rows; r++) {
+          for (var c = 0; c <= cols; c++) {
+            final o = Offset(x0 + c * step, y0 + r * step);
+            yield PatternElement(o, o, isLine: false);
+          }
+        }
+        final fx1 = x0 - step / 2, fy1 = y0 - step / 2;
+        final fx2 = x0 + cols * step + step / 2;
+        final fy2 = y0 + rows * step + step / 2;
+        yield* box(fx1, fy1, fx2, fy2);
+        for (var c = 0; c <= cols; c += 5) {
+          yield vLine(x0 + c * step, fy1 - 10, fy1, strong: true);
+        }
+        for (var r = 0; r <= rows; r += 5) {
+          yield hLine(fx1 - 10, fx1, y0 + r * step, strong: true);
+        }
+      }
+    case .blockDiagram:
+      {
+        const cols = 3, rows = 4;
+        final bw = (right - left) * 0.24;
+        final bh = (bottom - top) * 0.12;
+        final gapX = ((right - left) - cols * bw) / (cols - 1);
+        final gapY = ((bottom - top) - rows * bh) / (rows - 1);
+        for (var r = 0; r < rows; r++) {
+          final y = top + r * (bh + gapY);
+          for (var c = 0; c < cols; c++) {
+            final x = left + c * (bw + gapX);
+            yield* box(x, y, x + bw, y + bh);
+            if (c < cols - 1) {
+              final ax = x + bw + gapX, ay = y + bh / 2;
+              yield hLine(x + bw, ax, ay);
+              yield PatternElement(Offset(ax, ay), Offset(ax - l * 0.35, ay - l * 0.2));
+              yield PatternElement(Offset(ax, ay), Offset(ax - l * 0.35, ay + l * 0.2));
+            }
+          }
+          // each row feeds the next one, from its last block down
+          if (r < rows - 1) {
+            final x = left + (cols - 1) * (bw + gapX) + bw / 2;
+            yield vLine(x, y + bh, y + bh + gapY / 2);
+            yield hLine(left + bw / 2, x, y + bh + gapY / 2);
+            yield vLine(left + bw / 2, y + bh + gapY / 2, y + bh + gapY);
+          }
+        }
+      }
+    case .gantt:
+      {
+        final rowH = l * 1.5;
+        final taskW = (right - left) * 0.3;
+        const periods = 12;
+        final colW = (right - left - taskW) / periods;
+        yield text(DefterStrings.labelTask, left + l * 0.3, top + l * 0.35, width: taskW - l * 0.6);
+        for (var i = 0; i < periods; i++) {
+          yield text('${i + 1}', left + taskW + i * colW + colW * 0.3, top + l * 0.35, width: colW * 0.6);
+        }
+        var y = top;
+        var first = true;
+        while (y <= bottom + 0.01) {
+          yield hLine(left, right, y, strong: first || y == top + rowH);
+          first = false;
+          y += rowH;
+        }
+        final last = y - rowH;
+        yield vLine(left, top, last);
+        yield vLine(left + taskW, top, last, strong: true);
+        for (var i = 1; i <= periods; i++) {
+          yield vLine(left + taskW + i * colW, top, last);
+        }
+      }
+    case .measureTable:
+      {
+        // Part, drawing and instrument above; then the readings.
+        final headH = l * 1.5;
+        final half = (right - left) / 2;
+        yield text(DefterStrings.labelPart, left, top - l * 0.9, width: half - l * 3);
+        yield hLine(left + l * 2.2, left + half - l * 0.5, top - l * 0.2);
+        yield text(DefterStrings.labelDate, left + half, top - l * 0.9, width: l * 2);
+        yield hLine(left + half + l * 2.2, right, top - l * 0.2);
+        yield text(DefterStrings.labelInstrument, left, top + l * 0.2, width: l * 4);
+        yield hLine(left + l * 4.2, right, top + l * 0.9);
+
+        final tableTop = top + l * 1.6;
+        const widths = [0.08, 0.32, 0.15, 0.15, 0.15, 0.15];
+        final labels = [
+          DefterStrings.labelNo,
+          DefterStrings.labelFeature,
+          DefterStrings.labelNominal,
+          DefterStrings.labelTolerance,
+          DefterStrings.labelMeasured,
+          DefterStrings.labelResult,
+        ];
+        var x = left;
+        for (var i = 0; i < widths.length; i++) {
+          final cw = (right - left) * widths[i];
+          yield text(labels[i], x + l * 0.2, tableTop + l * 0.4, width: cw - l * 0.4);
+          yield vLine(x, tableTop, bottom, strong: i == 0);
+          x += cw;
+        }
+        yield vLine(right, tableTop, bottom, strong: true);
+        yield hLine(left, right, tableTop, strong: true);
+        yield hLine(left, right, tableTop + headH, strong: true);
+        for (var y = tableTop + headH + l * 1.25; y < bottom - 1; y += l * 1.25) {
+          yield hLine(left, right, y);
+        }
+        yield hLine(left, right, bottom, strong: true);
+      }
+    case .orgChart:
+      {
+        final bw = w * 0.2, bh = h * 0.07;
+        final topY = top + l;
+        final cx = w / 2;
+        yield* box(cx - bw / 2, topY, cx + bw / 2, topY + bh);
+        final midY = topY + bh + h * 0.1;
+        final lowY = midY + bh + h * 0.1;
+        final busY = topY + bh + h * 0.05;
+        yield vLine(cx, topY + bh, busY);
+        final mids = [w * 0.2, w * 0.5, w * 0.8];
+        yield hLine(mids.first, mids.last, busY);
+        for (final mx in mids) {
+          yield vLine(mx, busY, midY);
+          yield* box(mx - bw / 2, midY, mx + bw / 2, midY + bh);
+          // two below each
+          final bus2 = midY + bh + h * 0.05;
+          yield vLine(mx, midY + bh, bus2);
+          final lw = bw * 0.62;
+          final offs = [-lw * 0.6, lw * 0.6];
+          yield hLine(mx + offs.first, mx + offs.last, bus2);
+          for (final o in offs) {
+            yield vLine(mx + o, bus2, lowY);
+            yield* box(mx + o - lw / 2, lowY, mx + o + lw / 2, lowY + bh);
+          }
+        }
+        for (var y = lowY + bh + l * 2; y <= bottom; y += l) {
+          yield hLine(left, right, y);
+        }
+      }
+    case .arrowDiagram:
+      {
+        const steps = 4, rows = 3;
+        final bw = (right - left) * 0.19;
+        final gap = ((right - left) - steps * bw) / (steps - 1);
+        final bh = l * 2.5;
+        final rowH = (bottom - top) / rows;
+        for (var r = 0; r < rows; r++) {
+          final y = top + r * rowH + l * 0.5;
+          for (var i = 0; i < steps; i++) {
+            final x = left + i * (bw + gap);
+            yield* box(x, y, x + bw, y + bh);
+            if (i < steps - 1) {
+              final ax = x + bw + gap, ay = y + bh / 2;
+              yield hLine(x + bw, ax, ay, strong: true);
+              yield PatternElement(Offset(ax, ay), Offset(ax - l * 0.4, ay - l * 0.25), secondaryColor: true);
+              yield PatternElement(Offset(ax, ay), Offset(ax - l * 0.4, ay + l * 0.25), secondaryColor: true);
+            }
+          }
+          for (var ly = y + bh + l; ly < top + (r + 1) * rowH - l * 0.2; ly += l) {
+            yield hLine(left, right, ly);
+          }
+        }
+      }
+    case .relationDiagram:
+      {
+        final c = Offset(w / 2, top + (bottom - top) * 0.42);
+        final ring = math.min(w, h) * 0.3;
+        final r0 = w * 0.1;
+        yield PatternElement(c, c, isLine: false, radius: r0);
+        final nodes = <Offset>[
+          for (var i = 0; i < 6; i++)
+            c + Offset(
+              math.cos(-math.pi / 2 + i * math.pi / 3),
+              math.sin(-math.pi / 2 + i * math.pi / 3),
+            ) * ring,
+        ];
+        final rn = w * 0.075;
+        for (var i = 0; i < nodes.length; i++) {
+          final n = nodes[i];
+          yield PatternElement(n, n, isLine: false, radius: rn);
+          // to the centre
+          final d = (n - c) / ring;
+          yield PatternElement(c + d * r0, n - d * rn);
+          // to the next one round the ring
+          final m = nodes[(i + 1) % nodes.length];
+          final e = (m - n) / (m - n).distance;
+          yield PatternElement(n + e * rn, m - e * rn);
+        }
+        for (var y = c.dy + ring + rn + l * 1.5; y <= bottom; y += l) {
+          yield hLine(left, right, y);
+        }
+      }
+    case .academicPlanner:
+      {
+        yield text(DefterStrings.labelTerm, left, top - l * 0.9, width: l * 3);
+        yield hLine(left + l * 2.2, w * 0.45, top - l * 0.2);
+        yield text(DefterStrings.labelWeek, w * 0.55, top - l * 0.9, width: l * 3);
+        yield hLine(w * 0.55 + l * 2.2, right, top - l * 0.2);
+
+        final days = DefterStrings.weekDaysShort;
+        final rowLabels = [
+          DefterStrings.labelLessons,
+          DefterStrings.labelHomework,
+          DefterStrings.labelExams,
+          DefterStrings.labelNotes,
+        ];
+        final labelW = l * 3.2;
+        final gridTop = top + l * 0.8;
+        final headH = l * 1.2;
+        final colW = (right - left - labelW) / 5;
+        final rowH = (bottom - gridTop - headH) / rowLabels.length;
+        for (var d = 0; d < 5; d++) {
+          yield text(days[d], left + labelW + d * colW + l * 0.25, gridTop + l * 0.25, width: colW - l * 0.5);
+        }
+        yield hLine(left, right, gridTop, strong: true);
+        yield hLine(left, right, gridTop + headH, strong: true);
+        for (var r = 0; r < rowLabels.length; r++) {
+          final y = gridTop + headH + r * rowH;
+          yield text(rowLabels[r], left + l * 0.2, y + l * 0.3, width: labelW - l * 0.4);
+          yield hLine(left, right, y + rowH, strong: r == rowLabels.length - 1);
+        }
+        yield vLine(left, gridTop, bottom, strong: true);
+        yield vLine(left + labelW, gridTop, bottom, strong: true);
+        for (var d = 1; d <= 5; d++) {
+          yield vLine(left + labelW + d * colW, gridTop, bottom, strong: d == 5);
+        }
+      }
+    case .goalPlanner:
+      {
+        yield text(DefterStrings.labelGoal, left, top - l * 0.9, width: l * 3);
+        yield hLine(left, right, top + l * 0.6, strong: true);
+        yield text(DefterStrings.labelWhy, left, top + l * 1.2, width: w / 2);
+        final whyTop = top + l * 2.1;
+        yield* box(left, whyTop, right, whyTop + l * 3.5);
+
+        var y = whyTop + l * 4.4;
+        yield text(DefterStrings.labelPlanSteps, left, y, width: w / 2);
+        y += l * 1.6;
+        final side = l * 0.8;
+        for (var i = 0; i < 6; i++, y += l * 1.5) {
+          yield* box(left, y - side, left + side, y);
+          yield hLine(left + side + l * 0.5, right - l * 4.5, y);
+          yield hLine(right - l * 4, right, y);
+        }
+        yield text(DefterStrings.labelDeadline, left, y, width: l * 5);
+        yield hLine(left + l * 4.5, w * 0.6, y + l * 0.7);
+        y += l * 1.8;
+        yield text(DefterStrings.labelProgress, left, y, width: l * 5);
+        y += l;
+        final cell = (right - left) / 10;
+        yield* box(left, y, right, y + l * 1.2);
+        for (var i = 1; i < 10; i++) {
+          yield vLine(left + i * cell, y, y + l * 1.2);
+        }
+        for (var ly = y + l * 2.6; ly <= bottom; ly += l) {
+          yield hLine(left, right, ly);
+        }
+      }
+    case .financePlanner:
+      {
+        yield text(DefterStrings.labelYear, left, top - l * 0.9, width: l * 2);
+        yield hLine(left + l * 1.6, left + l * 6, top - l * 0.2);
+        final months = DefterStrings.months;
+        final labels = [
+          DefterStrings.labelMonth,
+          DefterStrings.labelIncome,
+          DefterStrings.labelExpenses,
+          DefterStrings.labelSavings,
+          DefterStrings.labelNotes,
+        ];
+        const widths = [0.2, 0.18, 0.18, 0.18, 0.26];
+        final tableTop = top + l * 0.6;
+        final rowH = (bottom - tableTop) / 14;
+        var x = left;
+        for (var i = 0; i < widths.length; i++) {
+          final cw = (right - left) * widths[i];
+          yield text(labels[i], x + l * 0.2, tableTop + rowH * 0.25, width: cw - l * 0.4);
+          yield vLine(x, tableTop, bottom, strong: i == 0);
+          x += cw;
+        }
+        yield vLine(right, tableTop, bottom, strong: true);
+        for (var r = 0; r <= 14; r++) {
+          yield hLine(left, right, tableTop + r * rowH, strong: r <= 1 || r >= 13);
+        }
+        for (var m = 0; m < 12; m++) {
+          yield text(months[m], left + l * 0.2, tableTop + (m + 1) * rowH + rowH * 0.25, width: (right - left) * widths[0] - l * 0.4);
+        }
+        yield text(DefterStrings.labelTotal, left + l * 0.2, tableTop + 13 * rowH + rowH * 0.25, width: (right - left) * widths[0] - l * 0.4);
+      }
+    case .moodTracker:
+      {
+        yield text(DefterStrings.labelMonth, left, top - l * 0.9, width: l * 2);
+        yield hLine(left + l * 1.6, left + l * 8, top - l * 0.2);
+        // A row per day, a column per mood from 1 to 5, and a note.
+        final headH = l * 1.2;
+        final dayW = l * 2;
+        final moodW = l * 1.4;
+        final rowH = (bottom - top - headH) / 31;
+        yield text(DefterStrings.labelDay, left + l * 0.2, top + l * 0.25, width: dayW - l * 0.3);
+        for (var m = 0; m < 5; m++) {
+          yield text('${m + 1}', left + dayW + m * moodW + moodW * 0.35, top + l * 0.25, width: moodW * 0.6);
+        }
+        final noteX = left + dayW + 5 * moodW;
+        yield text(DefterStrings.labelNotes, noteX + l * 0.2, top + l * 0.25, width: right - noteX - l * 0.4);
+        yield hLine(left, right, top, strong: true);
+        yield hLine(left, right, top + headH, strong: true);
+        for (var d = 1; d <= 31; d++) {
+          final y = top + headH + d * rowH;
+          yield hLine(left, right, y, strong: d == 31);
+          if (rowH >= l * 0.7) {
+            yield text('$d', left + l * 0.3, y - rowH + rowH * 0.12, width: dayW - l * 0.4);
+          }
+          for (var m = 0; m < 5; m++) {
+            final o = Offset(left + dayW + m * moodW + moodW / 2, y - rowH / 2);
+            yield PatternElement(o, o, isLine: false, radius: math.min(rowH, moodW) * 0.3);
+          }
+        }
+        yield vLine(left, top, bottom, strong: true);
+        yield vLine(left + dayW, top, bottom);
+        yield vLine(noteX, top, bottom);
+        yield vLine(right, top, bottom, strong: true);
+      }
+    case .studentPlanner:
+      {
+        final mid = w / 2;
+        final split = top + (bottom - top) * 0.6;
+        // classes on the left
+        yield text(DefterStrings.labelLessons, left, top - l * 0.9, width: mid - left - l);
+        yield hLine(left, mid - l * 0.5, top, strong: true);
+        for (var y = top + l * 1.25; y < split - l * 0.5; y += l * 1.25) {
+          yield hLine(left, mid - l * 0.5, y);
+        }
+        // homework to tick off on the right
+        yield text(DefterStrings.labelHomework, mid + l * 0.5, top - l * 0.9, width: right - mid - l);
+        yield hLine(mid + l * 0.5, right, top, strong: true);
+        final side = l * 0.7;
+        for (var y = top + l * 1.25; y < split - l * 0.5; y += l * 1.25) {
+          yield* box(mid + l * 0.5, y - side, mid + l * 0.5 + side, y);
+          yield hLine(mid + l * 0.5 + side + l * 0.4, right, y);
+        }
+        // exams below
+        yield text(DefterStrings.labelExams, left, split, width: w / 2);
+        final tableTop = split + l * 1.1;
+        final labels = [
+          DefterStrings.labelLesson,
+          DefterStrings.labelDate,
+          DefterStrings.labelTopic,
+          DefterStrings.labelGrade,
+        ];
+        const widths = [0.3, 0.2, 0.35, 0.15];
+        var x = left;
+        for (var i = 0; i < widths.length; i++) {
+          final cw = (right - left) * widths[i];
+          yield text(labels[i], x + l * 0.2, tableTop + l * 0.3, width: cw - l * 0.4);
+          yield vLine(x, tableTop, bottom, strong: i == 0);
+          x += cw;
+        }
+        yield vLine(right, tableTop, bottom, strong: true);
+        yield hLine(left, right, tableTop, strong: true);
+        yield hLine(left, right, tableTop + l * 1.3, strong: true);
+        for (var y = tableTop + l * 2.55; y < bottom - 1; y += l * 1.25) {
+          yield hLine(left, right, y);
+        }
+        yield hLine(left, right, bottom, strong: true);
+      }
+    case .ledger:
+      {
+        final labels = [
+          DefterStrings.labelDate,
+          DefterStrings.labelDescription,
+          DefterStrings.labelDebit,
+          DefterStrings.labelCredit,
+          DefterStrings.labelBalance,
+        ];
+        const widths = [0.15, 0.4, 0.15, 0.15, 0.15];
+        var x = left;
+        for (var i = 0; i < widths.length; i++) {
+          final cw = (right - left) * widths[i];
+          yield text(labels[i], x + l * 0.2, top + l * 0.3, width: cw - l * 0.4);
+          yield vLine(x, top, bottom, strong: i == 0 || i >= 2);
+          x += cw;
+        }
+        yield vLine(right, top, bottom, strong: true);
+        yield hLine(left, right, top, strong: true);
+        yield hLine(left, right, top + l * 1.3, strong: true);
+        for (var y = top + l * 2.3; y < bottom - 1; y += l) {
+          yield hLine(left, right, y);
+        }
+        yield hLine(left, right, bottom, strong: true);
       }
     default:
       return;

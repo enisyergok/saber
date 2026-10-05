@@ -80,6 +80,21 @@ class NewNotebookDialog extends StatefulWidget {
     CanvasBackgroundPattern.wireframe,
     CanvasBackgroundPattern.math,
     CanvasBackgroundPattern.recipe,
+    CanvasBackgroundPattern.millimetre,
+    CanvasBackgroundPattern.circuit,
+    CanvasBackgroundPattern.pcb,
+    CanvasBackgroundPattern.blockDiagram,
+    CanvasBackgroundPattern.gantt,
+    CanvasBackgroundPattern.measureTable,
+    CanvasBackgroundPattern.orgChart,
+    CanvasBackgroundPattern.arrowDiagram,
+    CanvasBackgroundPattern.relationDiagram,
+    CanvasBackgroundPattern.academicPlanner,
+    CanvasBackgroundPattern.goalPlanner,
+    CanvasBackgroundPattern.financePlanner,
+    CanvasBackgroundPattern.moodTracker,
+    CanvasBackgroundPattern.studentPlanner,
+    CanvasBackgroundPattern.ledger,
   ];
 
   /// The papers by kind, for the chips above the list.

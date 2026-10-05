@@ -91,6 +91,7 @@ Future<void> appRunner(List<String> args) async {
       isolatesCount: kDebugMode ? 1 : 2,
     ),
     stows.locale.waitUntilRead(),
+    stows.homeDashboard.waitUntilRead(),
     stows.url.waitUntilRead(),
     stows.allowInsecureConnections.waitUntilRead(),
     PencilShader.init(),
@@ -231,8 +232,12 @@ void doBackgroundSync() {
 class const App({super.key}) extends StatefulWidget {
   static final log = Logger('App');
 
+  /// Where the app opens: the home screen, or the notes if it is switched
+  /// off (on a phone the home screen shows the notes too).
   static String initialLocation = pathToFunction(RoutePaths.home)({
-    'subpage': HomePage.browseSubpage,
+    'subpage': stows.homeDashboard.value
+        ? HomePage.dashboardSubpage
+        : HomePage.browseSubpage,
   });
   static final _router = GoRouter(
     initialLocation: initialLocation,
@@ -250,6 +255,7 @@ class const App({super.key}) extends StatefulWidget {
         builder: (context, state) => Editor(
           path: state.uri.queryParameters['path'],
           pdfPath: state.uri.queryParameters['pdfPath'],
+          imagePath: state.uri.queryParameters['imagePath'],
         ),
       ),
       GoRoute(

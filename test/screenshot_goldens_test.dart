@@ -172,6 +172,8 @@ void _screenshot({
         stows.platform.value = device.platform;
         // The store screenshots show the classic editor layout.
         stows.editorGnLayout.value = false;
+        // and the classic home screen
+        stows.homeDashboard.value = false;
         await tester.runAsync(() => LocaleSettings.setLocaleRaw(localeCode));
 
         if (goldenFileName == '4_settings') {

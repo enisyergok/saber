@@ -10,6 +10,7 @@ import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/pages/favorites.dart';
+import 'package:saber/pages/home/new_notebook_wizard.dart';
 import 'package:saber/pages/search.dart';
 import 'package:saber/components/home/export_note_button.dart';
 import 'package:saber/components/home/grid_folders.dart';
@@ -58,6 +59,18 @@ class _BrowsePageState extends State<BrowsePage> {
     selectedFiles.addListener(_setState);
 
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(BrowsePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Another folder was chosen from outside (the sidebar).
+    if (widget.initialPath != oldWidget.initialPath &&
+        widget.initialPath != path) {
+      selectedFiles.value = [];
+      path = widget.initialPath;
+      findChildrenOfPath();
+    }
   }
 
   @override
@@ -117,6 +130,9 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 
   Future<void> createNote() async {
+    if (stows.homeDashboard.value) {
+      return NotebookCreator.start(context, folder: path);
+    }
     final name = await NewNotebookDialog.show(context);
     if (name == null || !mounted) return;
 

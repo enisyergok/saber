@@ -434,6 +434,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.view_agenda_outlined,
                   pref: stows.editorGnLayout,
                 ),
+                SettingsSwitch(
+                  title: DefterStrings.homeDashboard,
+                  subtitle: DefterStrings.homeDashboardSubtitle,
+                  icon: Icons.space_dashboard_outlined,
+                  pref: stows.homeDashboard,
+                ),
                 SettingsSelection(
                   title: t.settings.prefLabels.editorToolbarAlignment,
                   subtitle:
