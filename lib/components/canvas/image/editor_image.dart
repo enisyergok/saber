@@ -16,6 +16,7 @@ import 'package:saber/components/canvas/_asset_cache.dart';
 import 'package:saber/components/canvas/canvas_image.dart';
 import 'package:saber/components/canvas/invert_widget.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
+import 'package:saber/data/pdf/pdf_crop.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/pages/editor/editor.dart';
 

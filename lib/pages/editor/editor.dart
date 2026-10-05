@@ -40,6 +40,7 @@ import 'package:saber/data/editor/editor_exporter.dart';
 import 'package:saber/data/editor/editor_history.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/extensions/change_notifier_extensions.dart';
+import 'package:saber/data/extensions/list_extensions.dart';
 import 'package:saber/data/extensions/matrix4_extensions.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
@@ -52,6 +53,7 @@ import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
+import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
 import 'package:saber/components/toolbar/recordings_dialog.dart';
@@ -1929,12 +1931,6 @@ class EditorState extends State<Editor> {
                           RecordingsDialog(notePath: coreInfo.filePath),
                     ),
                   ),
-                  if (PdfNoteText.hasPdf(coreInfo))
-                    IconButton(
-                      icon: const Icon(Icons.picture_as_pdf_outlined),
-                      tooltip: DefterStrings.pdfTools,
-                      onPressed: showPdfTools,
-                    ),
                   ValueListenableBuilder(
                     valueListenable: _visiblePageIndex,
                     builder: (context, pageIndex, _) {
@@ -2083,6 +2079,12 @@ class EditorState extends State<Editor> {
       pickPhotos: _pickPhotos,
       importPdf: importPdf,
       canRasterPdf: Editor.canRasterPdf,
+      hasPdf: PdfNoteText.hasPdf(coreInfo),
+      currentPageHasPdf:
+          coreInfo.pages.getOrNull(currentPageIndex)?.backgroundImage
+              is PdfEditorImage,
+      showPdfTools: showPdfTools,
+      cropPdfPage: cropPdfPage,
       getIsWatchingServer: () => _watchServerTimer?.isActive ?? false,
       setIsWatchingServer: (bool watch) {
         if (watch) {
@@ -2234,6 +2236,46 @@ class EditorState extends State<Editor> {
             screenWidth: _viewportWidth,
             transformationController: _transformationController,
           );
+        },
+      ),
+    );
+  }
+
+  /// Cuts the edges off the PDF page that is on screen (or off all of the
+  /// pages of the same PDF).
+  void cropPdfPage() {
+    if (coreInfo.readOnly) return;
+    final background = coreInfo.pages
+        .getOrNull(currentPageIndex)
+        ?.backgroundImage;
+    if (background is! PdfEditorImage) return;
+
+    bool samePdf(PdfEditorImage other) {
+      final path = background.pdfFile?.path;
+      if (path != null) return other.pdfFile?.path == path;
+      return identical(other.pdfBytes, background.pdfBytes);
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (_) => PdfCropDialog(
+        initial: background.crop,
+        pageAspect: background.naturalSize.isEmpty
+            ? 0.7
+            : background.naturalSize.width / background.naturalSize.height,
+        onApply: (crop, allPages) {
+          setState(() {
+            for (final page in coreInfo.pages) {
+              final image = page.backgroundImage;
+              if (image is! PdfEditorImage) continue;
+              if (!identical(image, background) &&
+                  !(allPages && samePdf(image))) {
+                continue;
+              }
+              image.crop = crop;
+            }
+          });
+          autosaveAfterDelay();
         },
       ),
     );

@@ -11,11 +11,15 @@ class PdfEditorImage extends EditorImage {
   /// that the pdf will be loaded from.
   final File? pdfFile;
 
+  /// How much of the page's edges is cut away.
+  PdfCrop crop;
+
   final _pdfDocument = ValueNotifier<PdfDocument?>(null);
 
   static final log = Logger('PdfEditorImage');
 
   new({
+    this.crop = PdfCrop.none,
     required super.id,
     required super.assetCache,
     required this.pdfBytes,
@@ -97,6 +101,7 @@ class PdfEditorImage extends EditorImage {
       ),
       naturalSize: Size(json['nw'] ?? 0, json['nh'] ?? 0),
       isThumbnail: isThumbnail,
+      crop: PdfCrop.fromJson(json),
     );
   }
 
@@ -111,6 +116,7 @@ class PdfEditorImage extends EditorImage {
 
     json['a'] = assets.add(pdfFile ?? pdfBytes!);
     json['pdfi'] = pdfPage;
+    crop.writeTo(json);
 
     return json;
   }
@@ -171,13 +177,46 @@ class PdfEditorImage extends EditorImage {
         if (pdfDocument == null) {
           return SizedBox.fromSize(size: srcRect.size);
         }
+        final pageView = PdfPageView(
+          document: pdfDocument,
+          // [PdfPageView.pageNumber] starts at 1 not 0
+          pageNumber: pdfPage + 1,
+          decoration: const BoxDecoration(),
+        );
+        if (crop.isNone) {
+          return InvertWidget(invert: invert, child: pageView);
+        }
         return InvertWidget(
           invert: invert,
-          child: PdfPageView(
-            document: pdfDocument,
-            // [PdfPageView.pageNumber] starts at 1 not 0
-            pageNumber: pdfPage + 1,
-            decoration: const BoxDecoration(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final available = constraints.biggest;
+              if (!available.isFinite || naturalSize.isEmpty) return pageView;
+              final layout = crop.layout(naturalSize, available);
+              // The whole page is drawn at its final size (so it stays
+              // sharp) and only the cropped part of it is let through.
+              return Center(
+                child: SizedBox.fromSize(
+                  size: layout.visible,
+                  child: ClipRect(
+                    child: OverflowBox(
+                      alignment: Alignment.topLeft,
+                      minWidth: layout.full.width,
+                      maxWidth: layout.full.width,
+                      minHeight: layout.full.height,
+                      maxHeight: layout.full.height,
+                      child: Transform.translate(
+                        offset: layout.offset,
+                        child: SizedBox.fromSize(
+                          size: layout.full,
+                          child: pageView,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         );
       },
@@ -203,6 +242,7 @@ class PdfEditorImage extends EditorImage {
     dstRect: dstRect,
     naturalSize: naturalSize,
     isThumbnail: isThumbnail,
+    crop: crop,
   );
 
   @override
