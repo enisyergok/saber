@@ -12,6 +12,9 @@ import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas.dart' as saber;
+import 'package:saber/components/canvas/canvas_background_preview.dart';
+import 'package:saber/data/editor/page.dart';
+import 'package:sbn/canvas_background_pattern.dart';
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/syncing_button.dart';
@@ -116,6 +119,40 @@ void main() {
         NewNotebookDialog.show(tester.element(find.byType(HomePage)));
         await tester.pump();
       },
+    );
+    _shot(
+      theme: theme,
+      name: 'templates',
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (final pattern in CanvasBackgroundPattern.values.where(
+                (p) => p.template,
+              ))
+                SizedBox(
+                  width: 200,
+                  height: 200 * 1.4,
+                  child: FittedBox(
+                    child: CanvasBackgroundPreview(
+                      selected: false,
+                      invert: false,
+                      backgroundColor: null,
+                      backgroundPattern: pattern,
+                      backgroundImage: null,
+                      pageSize: EditorPage.defaultSize,
+                      lineHeight: stows.lastLineHeight.value,
+                      lineThickness: stows.lastLineThickness.value,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
     _shot(
       theme: theme,

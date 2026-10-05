@@ -6,6 +6,12 @@ import 'package:sbn/canvas_background_pattern.dart';
 void main() {
   group('Test canvas background patterns:', () {
     for (final pattern in CanvasBackgroundPattern.values) {
+      if (pattern.template) {
+        _testTemplate(pattern, 10);
+        _testTemplate(pattern, 40);
+        _testTemplate(pattern, 50);
+        continue;
+      }
       _testPatternWithLineHeight(pattern, 10);
       _testPatternWithLineHeight(pattern, 50);
 
@@ -180,5 +186,28 @@ void _testRtlPattern(CanvasBackgroundPattern pattern) {
       true,
       reason: 'Lines should be on the left in ltr and on the right in rtl',
     );
+  });
+}
+
+/// Templates are free-form (labels, boxes, diagonals of dots), so they only
+/// have to stay on the page, leave room at the top and draw something.
+void _testTemplate(CanvasBackgroundPattern pattern, int lineHeight) {
+  test("template '$pattern' with line height $lineHeight", () {
+    const size = Size(1000, 1400);
+    final elements = CanvasBackgroundPainter.getPatternElements(
+      pattern: pattern,
+      size: size,
+      lineHeight: lineHeight,
+    ).toList();
+    expect(elements, isNotEmpty);
+    for (final element in elements) {
+      for (final point in [element.start, element.end]) {
+        expect(point.dx, inInclusiveRange(0, size.width), reason: '$element');
+        expect(point.dy, inInclusiveRange(0, size.height), reason: '$element');
+      }
+      if (element.label != null) {
+        expect(element.label, isNotEmpty);
+      }
+    }
   });
 }

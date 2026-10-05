@@ -204,6 +204,34 @@ abstract class DefterStrings {
       : 'The pressure value is not changing. Try pressing lightly and hard.';
   static String get pressureWorks =>
       _tr ? 'Basınç değişiyor: kalem basıncı bildiriyor.' : 'Pressure varies: the pen reports it.';
+  // Paper templates
+  static String get paperIsometric => _tr ? 'İzometrik' : 'Isometric';
+  static String get paperEngineering => _tr ? 'Mühendislik' : 'Engineering';
+  static String get paperWriting => _tr ? 'El yazısı' : 'Handwriting';
+  static String get paperTodo => _tr ? 'Yapılacaklar' : 'To-do';
+  static String get paperWeekly => _tr ? 'Haftalık plan' : 'Weekly planner';
+  static String get paperDaily => _tr ? 'Günlük plan' : 'Daily planner';
+  static String get paperMonthly => _tr ? 'Aylık takvim' : 'Monthly calendar';
+  static String get paperMeeting => _tr ? 'Toplantı notu' : 'Meeting notes';
+  static String get paperStoryboard => _tr ? 'Storyboard' : 'Storyboard';
+
+  /// Labels printed on the planner templates.
+  static List<String> get weekDays => _tr
+      ? const ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar']
+      : const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  static List<String> get weekDaysShort => _tr
+      ? const ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
+      : const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  static String get labelNotes => _tr ? 'Notlar' : 'Notes';
+  static String get labelDate => _tr ? 'Tarih' : 'Date';
+  static String get labelTitle => _tr ? 'Başlık' : 'Title';
+  static String get labelTodo => _tr ? 'Yapılacaklar' : 'To do';
+  static String get labelSchedule => _tr ? 'Program' : 'Schedule';
+  static String get labelMonth => _tr ? 'Ay' : 'Month';
+  static String get labelAttendees => _tr ? 'Katılımcılar' : 'Attendees';
+  static String get labelAgenda => _tr ? 'Gündem' : 'Agenda';
+  static String get labelActions => _tr ? 'Aksiyonlar' : 'Action items';
+
   static String get tipSharpness => _tr ? 'Uç keskinliği' : 'Tip sharpness';
   static String get pressureSensitivity =>
       _tr ? 'Basınç duyarlılığı' : 'Pressure sensitivity';

@@ -23,6 +23,7 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
   PointerDeviceKind? _lastKind;
 
   // What Flutter is told about the pen's pressure.
+  final _stroke = <double>[];
   double? _pressure, _rangeMin, _rangeMax, _seenLow, _seenHigh;
 
   static const _input = MethodChannel('defter/input');
@@ -102,6 +103,14 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
         event.kind == PointerDeviceKind.stylus ||
         event.kind == PointerDeviceKind.invertedStylus;
     if (!isStylus) return;
+    if (event is PointerDownEvent) _stroke.clear();
+    if (event is PointerDownEvent || event is PointerMoveEvent) {
+      _stroke.add(event.pressure);
+    }
+    if (event is PointerUpEvent && _stroke.length > 3) {
+      _add(_strokeSummary(_stroke, event.pressureMin, event.pressureMax));
+      _stroke.clear();
+    }
     if (event is! PointerHoverEvent) {
       setState(() {
         _pressure = event.pressure;
@@ -123,6 +132,20 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
       'Kalem: tür ${event.kind.name}, düğme değeri ${event.buttons}'
       '${event is PointerHoverEvent ? ' (havada)' : ''}',
     );
+  }
+
+  /// How the pressure was spread over one line: if most of it sits at the
+  /// top of the range, no thickness change can be seen however it is drawn.
+  static String _strokeSummary(List<double> values, double min, double max) {
+    final sorted = [...values]..sort();
+    double at(double f) => sorted[((sorted.length - 1) * f).round()];
+    final range = max - min;
+    String n(double v) =>
+        (range == 0 ? v : (v - min) / range).toStringAsFixed(2);
+    final mean = values.reduce((a, b) => a + b) / values.length;
+    return 'Çizgi (${values.length} nokta): en düşük ${n(sorted.first)}, '
+        'ortanca ${n(at(0.5))}, ortalama ${n(mean)}, '
+        '%90 ${n(at(0.9))}, en yüksek ${n(sorted.last)} (0–1 ölçeğinde)';
   }
 
   Widget _pressureBox(ColorScheme colors) {
