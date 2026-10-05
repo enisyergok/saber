@@ -258,9 +258,14 @@ void main() {
       await tester.tap(find.text(DefterStrings.cancelWord));
       await tester.pumpAndSettle();
 
-      await tester.tap(
-        find.widgetWithText(ActionChip, PaperGroup.engineering.label),
+      // the kinds of templates are at the foot of the page
+      final chip = find.widgetWithText(ActionChip, PaperGroup.engineering.label);
+      await tester.scrollUntilVisible(
+        chip,
+        200,
+        scrollable: find.byType(Scrollable).last,
       );
+      await tester.tap(chip);
       await tester.pumpAndSettle();
       expect(
         tester.widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage)).group,

@@ -164,6 +164,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text(DefterStrings.back));
     await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'x/y');
     // the button comes after the step of the same name at the side
     await tester.tap(find.text(DefterStrings.stepCreate).last);

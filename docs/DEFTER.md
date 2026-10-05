@@ -15,6 +15,9 @@ Defter, Saber Notes'un (Flutter) çatalıdır. Tablet için kalem deneyimi,
 | Düzen | Çöp kutusu, favoriler, ad ve metin araması (Türkçe harf duyarlı), sayfa ızgarası ve yer imleri, sekmeler |
 | PDF | PDF içinde metin arama, içindekiler listesi, sayfa kırpma (Alt menü > PDF), PDF'e dışa aktarma |
 | Kalem | (devamı) Kalem çift dokunuşu eylemi (Ayarlar), kalem sinyali testi, kalem gecikme ölçümü (Ayarlar > Kalem gecikme ölçümü; editörde kayıt düğmesi) |
+| Ana sayfa | Tablette açılış ekranı: kenar çubuğu (Ana Sayfa, Notlarım, Planlayıcılar, Şablonlar, Favoriler, Son Kullanılanlar, Beyaz Tahta, Çöp Kutusu, Ayarlar, klasörler), üstte arama ve eylemler (Yeni Not, Şablondan Oluştur, PDF İçe Aktar, Görüntü Ekle, Klasör Oluştur), son açılan notlar, klasörler ve içlerindeki öğe sayısı, şablon türleri. Ayarlar > "Yeni ana sayfa" ile kapatılır; telefonda eski görünüm kalır. |
+| Yeni defter | Altı adım: şablon (78 kâğıt, türlere göre), kapak (36 kapak, türlere göre, adın yazılı önizlemesi), boyut ve yön (Standart, A4, A5, B5, Letter, Kare; dikey/yatay) ile kâğıt rengi, ad, klasör, özet. Her adımda "Oluştur" ile varsayılanlarla hemen açılabilir. |
+| Şablon galerileri | Planlayıcı, mühendislik ve diyagram şablonları konu başlıklarına göre (yıllık, finans, sağlık…; teknik çizim, elektrik-elektronik, mekanik…; akış, zihin haritası, analiz…). Yeni kâğıtlar: milimetrik, devre şeması, PCB ızgarası, blok diyagram, Gantt, ölçüm tablosu, hiyerarşi, ok şeması, ilişki şeması, akademik/hedef/finans/öğrenci planlayıcı, ruh hali takibi, hesap defteri. |
 | Kalem paneli | Kalem düğmesine ikinci dokunuş. Altı kalem (dolma, tükenmez, fırça, kurşun kalem, marker, kaligrafi), canlı önizleme, kalınlık (mm), opaklık, uç keskinliği, basınç duyarlılığı, çizgi stabilizasyonu, noktaları sürüklenen basınç eğrisi, renkler, hazır ve kendi kalem profillerin. |
 | Teknik araçlar | Kalem panelinde: otomatik düz çizgi, tutmadan şekil tanıma, 15° adımlı açı kılavuzu, cetvel (her çizgi düz), kareli kâğıt, ölçüm (çizerken uzunluk ve açı), ok ve ölçülendirme (çizgiye ok uçları ve mm olarak uzunluğu, daireye çap, dikdörtgene en ve boy; mürekkep olarak yazılır). Şekli otomatik düzeltme: neredeyse kare olan kare, neredeyse daire olan daire olur. |
 | E-mürekkep modu | Ayarlar > E-mürekkep modu. Arayüz ve notlar gri tonlarda, kâğıt gibi görünür (kâğıt sıcaklığı, mürekkep koyuluğu, doku şiddeti ayarlanır). Yalnızca görünümdür; notların renkleri değişmez. Resim ve PDF sayfaları gri tona çevrilir, sayfa değişince hafif yenileme efekti olur (Alt menü > Sayfayı yenile ile tam yenileme), pencere parlaklığı düşürülebilir, dışa aktarma isteğe bağlı gri tonlu olur |
@@ -37,6 +40,12 @@ saklanır (şifrelenmez, eşitlenmez).
 
 ## Bilinen sınırlar
 
+- Ana sayfada örnek görseldeki "Kütüphane", "Paylaşılanlar" ve bildirim zili yok: uygulamada bunların karşılığı olan bir özellik bulunmuyor, boş düğme konmadı.
+- Yeni defterde sayfa numarası seçeneği yok (uygulama sayfalara numara basmıyor).
+- Kâğıt boyutu yalnızca yeni defter oluşturulurken seçilir; var olan bir notun boyutu sonradan değiştirilemez. Sonradan eklenen sayfalar bir önceki sayfanın boyutunu alır (PDF sayfasından sonra eklenenler hariç, onlar standart boyuttadır).
+- Milimetrik kâğıdın en küçük karesi 2 mm'dir (1 mm çizgiler ekranda birbirine karışıyor); PCB ızgarasında noktalar 5,08 mm aralıklıdır.
+- Çizgi aralığı dar/orta/geniş olan kâğıtlar aynı deseni farklı satır yüksekliğiyle kullanır; satır yüksekliği not açıkken alt menüden de değiştirilebilir.
+- Yeni defterin kapağı ilk sayfa olarak eklenir; ana ekrandaki defter kartı notun ilk sayfasını gösterdiği için kapak orada da görünür. Kapak görüntüsü tablette doğrulanmadı (testler gerçek resim çizemiyor).
 - Uzunluklar sayfanın A4 genişliğinde (210 mm) olduğu varsayılarak hesaplanır: 1000 sayfa birimi = 210 mm. Başka boyutta yazdırırsan ölçüler aynı oranda değişir; PDF üzerine çizilen notlarda sayfa genişliği A4 değilse mm değeri gerçek ölçüyü vermez.
 - Ölçülendirme yazısı sıradan mürekkeptir: çizgiyi sonradan taşır ya da uzatırsan yazı kendiliğinden güncellenmez.
 - Fırça ve kaligrafi kalemlerinin çizgileri dosyada dolma kalem çizgisi olarak saklanır (eski sürümler de açabilsin diye); bu yüzden not yeniden açıldığında çizgiler aynı görünür ama hangi kalemle çizildikleri ayırt edilmez.

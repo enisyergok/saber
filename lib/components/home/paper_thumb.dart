@@ -40,6 +40,7 @@ class PaperThumb extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(5),
         child: FittedBox(
+          fit: BoxFit.fill,
           child: CanvasBackgroundPreview(
             selected: false,
             invert: false,
@@ -64,7 +65,15 @@ class PaperThumb extends StatelessWidget {
           padding: const EdgeInsets.all(4),
           child: Column(
             children: [
-              Expanded(child: Center(child: page)),
+              // as large as the space allows, in the shape of the page
+              Expanded(
+                child: Center(
+                  child: AspectRatio(
+                    aspectRatio: pageSize.width / pageSize.height,
+                    child: page,
+                  ),
+                ),
+              ),
               if (showName) ...[
                 const SizedBox(height: 4),
                 ExcludeSemantics(

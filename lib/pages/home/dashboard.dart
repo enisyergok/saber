@@ -642,15 +642,18 @@ class HeroPainter extends CustomPainter {
       final path = Path()..moveTo(size.width * 0.3, size.height);
       for (var x = size.width * 0.3; x <= size.width; x += 6) {
         final u = x / size.width;
-        final y =
+        final crest =
             base -
             rise *
                 (0.55 * math.sin(u * (7 + i * 3) + i * 1.7) +
                         0.45 * math.sin(u * (15 + i * 5) + i))
-                    .abs() *
-                // the hills fade out towards the text on the left
-                ((u - 0.3) / 0.7).clamp(0.0, 1.0);
-        path.lineTo(x, y);
+                    .abs();
+        // The hills rise out of the bottom edge: nothing of them is left
+        // under the text on the left.
+        final fade = Curves.easeOut.transform(
+          ((u - 0.3) / 0.45).clamp(0.0, 1.0),
+        );
+        path.lineTo(x, size.height + (crest - size.height) * fade);
       }
       path
         ..lineTo(size.width, size.height)

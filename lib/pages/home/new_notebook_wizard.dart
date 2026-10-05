@@ -137,11 +137,18 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           child: Row(
             children: [
-              if (_step > 0)
+              if (_step > 0 && wide)
                 TextButton.icon(
                   onPressed: () => _goTo(_step - 1),
                   icon: const Icon(Icons.chevron_left),
                   label: Text(DefterStrings.back),
+                )
+              else if (_step > 0)
+                // no room for the word on a phone
+                IconButton(
+                  tooltip: DefterStrings.back,
+                  onPressed: () => _goTo(_step - 1),
+                  icon: const Icon(Icons.chevron_left),
                 ),
               const Spacer(),
               if (_step < NewNotebookWizard.stepCount - 1) ...[
@@ -556,7 +563,10 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                SegmentedButton<bool>(
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: SegmentedButton<bool>(
                   showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
@@ -573,6 +583,7 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                   selected: {_spec.landscape},
                   onSelectionChanged: (selection) =>
                       setState(() => _spec.landscape = selection.first),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 _heading(context, DefterStrings.paperColour),
