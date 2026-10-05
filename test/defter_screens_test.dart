@@ -15,6 +15,7 @@ import 'package:saber/components/canvas/canvas.dart' as saber;
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/syncing_button.dart';
+import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
@@ -250,8 +251,6 @@ void main() {
     for (final (scene, path) in [
       ('blank', '/e-ink bos not'),
       ('handwriting', '/Metric Spaces Week 1'),
-      ('photo', '/Annotate images and diagrams'),
-      ('pdf', '/Import PDFs'),
     ]) {
       // An empty note never counts as "loaded" (it has nothing in it), so
       // for that scene the editor is given a moment instead.
@@ -271,6 +270,19 @@ void main() {
         child: Editor(path: path),
         afterLoad: (_) async => OpenTabs.reset(),
       );
+    }
+    // Continuous-tone content goes through the same filter the app uses for
+    // photos and PDF pages. (Real notes with pictures never finish loading in
+    // the test zone, so these are drawn from plain widgets.)
+    for (final scene in ['photo', 'pdf']) {
+      for (final on in [false, true]) {
+        _shot(
+          theme: theme,
+          eInk: on ? eInk : null,
+          name: 'cmp_${scene}_${on ? 'eink' : 'normal'}',
+          child: _ToneScene(pdf: scene == 'pdf'),
+        );
+      }
     }
     _shot(
       theme: theme,
@@ -394,4 +406,77 @@ void _shot({
       matchesGoldenFile('defter_shots/$name.png'),
     );
   });
+}
+
+/// A stand-in for a photo (colour gradients and shapes) or a PDF page (text
+/// lines, a grey table and a coloured chart) inside the e-ink image filter.
+class _ToneScene extends StatelessWidget {
+  const new({required this.pdf});
+
+  final bool pdf;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget content = pdf
+        ? Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(48),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < 12; i++)
+                  Container(
+                    height: 10,
+                    width: 900.0 - (i % 4) * 90,
+                    margin: const EdgeInsets.only(bottom: 18),
+                    color: Colors.black87,
+                  ),
+                Container(height: 160, color: Colors.grey.shade300),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    for (final c in [
+                      Colors.red,
+                      Colors.green,
+                      Colors.blue,
+                      Colors.orange,
+                    ])
+                      Container(
+                        width: 120,
+                        height: 200,
+                        margin: const EdgeInsets.only(right: 16),
+                        color: c,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        : Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.indigo, Colors.teal, Colors.amber, Colors.pink],
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Container(
+              width: 420,
+              height: 420,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.orange.shade700,
+                boxShadow: const [BoxShadow(blurRadius: 60, spreadRadius: 10)],
+              ),
+            ),
+          );
+    return Scaffold(
+      body: Center(
+        child: SizedBox(
+          width: 1000,
+          height: 1000,
+          child: EInkImageFilter(child: content),
+        ),
+      ),
+    );
+  }
 }
