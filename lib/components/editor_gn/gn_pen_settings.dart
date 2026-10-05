@@ -956,9 +956,9 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         child: InkWell(
           onTap: onTap,
           child: SizedBox(
-            height: 60,
+            height: 64,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
