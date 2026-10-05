@@ -125,6 +125,14 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// The Goodnotes-style editor: a dark top bar with tabs and tools, and the
+  /// options of the tool in use hanging from it over the page.
+  final editorGnLayout = PlainStow(
+    'editorGnLayout',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   final editorToolbarAlignment = PlainStow(
     'editorToolbarAlignment',
     AxisDirection.up,

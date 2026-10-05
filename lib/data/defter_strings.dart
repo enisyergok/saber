@@ -174,6 +174,17 @@ abstract class DefterStrings {
   static String get modelName => _tr ? 'Model' : 'Model';
   static String get resetDefault => _tr ? 'Varsayılana dön' : 'Reset to default';
 
+  // Goodnotes-style editor layout
+  static String get gnLayout => _tr ? 'Goodnotes tarzı arayüz' : 'Goodnotes-style editor';
+  static String get gnLayoutSubtitle => _tr
+      ? 'Koyu üst bar, sekmeler ve yüzen araç şeridi. Kapatınca eski araç çubuğuna dönülür.'
+      : 'Dark top bar, tabs and a floating tool strip. Turn off to get the old toolbar back.';
+  static String get gnNewTab => _tr ? 'Yeni sekme' : 'New tab';
+  static String get gnMoreTools => _tr ? 'Diğer araçlar' : 'More tools';
+  static String get gnMenu => _tr ? 'Menü' : 'Menu';
+  static String get gnStickers => _tr ? 'Çıkartmalar' : 'Stickers';
+  static String get gnRename => _tr ? 'Yeniden adlandır' : 'Rename';
+
   // Handwriting search
   static String searchPage(int page) => _tr ? 's. $page' : 'p. $page';
   static String get hwSection => _tr ? 'El yazısı araması' : 'Handwriting search';

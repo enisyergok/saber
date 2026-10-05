@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/flavor_config.dart';
+import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
 
@@ -16,6 +17,8 @@ void main() {
     setupMockPrinting();
 
     FlavorConfig.setup();
+    // These tests cover the classic toolbar; the new layout has its own.
+    stows.editorGnLayout.value = false;
     await tester.runAsync(FileManager.init);
 
     await tester.pumpWidget(

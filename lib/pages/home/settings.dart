@@ -428,6 +428,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
 
                 SettingsSubtitle(subtitle: t.settings.prefCategories.editor),
+                SettingsSwitch(
+                  title: DefterStrings.gnLayout,
+                  subtitle: DefterStrings.gnLayoutSubtitle,
+                  icon: Icons.view_agenda_outlined,
+                  pref: stows.editorGnLayout,
+                ),
                 SettingsSelection(
                   title: t.settings.prefLabels.editorToolbarAlignment,
                   subtitle:

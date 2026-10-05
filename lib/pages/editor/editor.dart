@@ -58,7 +58,11 @@ import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
+import 'package:saber/components/editor_gn/gn_bar.dart';
+import 'package:saber/components/editor_gn/gn_controller.dart';
+import 'package:saber/components/editor_gn/gn_overlay.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
+import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/components/toolbar/recordings_dialog.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/tools/select.dart';
@@ -1700,17 +1704,7 @@ class EditorState extends State<Editor> {
           : null,
     );
 
-    final Widget toolbar = Collapsible(
-      axis: isToolbarVertical
-          ? CollapsibleAxis.horizontal
-          : CollapsibleAxis.vertical,
-      collapsed:
-          DynamicMaterialApp.isFullscreen &&
-          !stows.editorToolbarShowInFullscreen.value,
-      maintainState: true,
-      child: SafeArea(
-        bottom: stows.editorToolbarAlignment.value != AxisDirection.up,
-        child: Toolbar(
+    final Toolbar toolbarSpec = Toolbar(
           readOnly: coreInfo.readOnly,
           setTool: (tool) {
             if (tool is Eraser && currentTool is Eraser) {
@@ -1885,12 +1879,37 @@ class EditorState extends State<Editor> {
           exportAsSba: exportAsSba,
           exportAsPdf: exportAsPdf,
           exportAsPng: exportAsPng,
-        ),
+    );
+
+    final Widget toolbar = Collapsible(
+      axis: isToolbarVertical
+          ? CollapsibleAxis.horizontal
+          : CollapsibleAxis.vertical,
+      collapsed:
+          DynamicMaterialApp.isFullscreen &&
+          !stows.editorToolbarShowInFullscreen.value,
+      maintainState: true,
+      child: SafeArea(
+        bottom: stows.editorToolbarAlignment.value != AxisDirection.up,
+        child: toolbarSpec,
       ),
     );
 
+    final useGn = stows.editorGnLayout.value;
+
     final Widget body;
-    if (isToolbarVertical) {
+    if (useGn) {
+      body = GnOverlay(
+        controller: _gn,
+        spec: toolbarSpec,
+        child: Column(
+          children: [
+            Expanded(child: canvas),
+            readonlyBanner,
+          ],
+        ),
+      );
+    } else if (isToolbarVertical) {
       body = Row(
         textDirection: stows.editorToolbarAlignment.value == AxisDirection.left
             ? .ltr
@@ -1946,6 +1965,8 @@ class EditorState extends State<Editor> {
       child: Scaffold(
         appBar: DynamicMaterialApp.isFullscreen
             ? null
+            : useGn
+            ? _gnBar(toolbarSpec)
             : AppBar(
                 toolbarHeight: kToolbarHeight,
                 bottom: _usesTabs && OpenTabs.paths.value.length > 1
@@ -2270,6 +2291,94 @@ class EditorState extends State<Editor> {
 
   /// The whiteboard is a single fixed note, so it doesn't take part in tabs.
   bool get _usesTabs => widget.customTitle == null;
+
+  final _gn = GnController();
+
+  /// The top bar of the Goodnotes-style layout (see [GnEditorBar]).
+  PreferredSizeWidget _gnBar(Toolbar spec) {
+    final top = MediaQuery.paddingOf(context).top;
+    return PreferredSize(
+      preferredSize: Size.fromHeight(GnEditorBar.contentHeight + top),
+      child: GnEditorBar(
+        controller: _gn,
+        spec: spec,
+        paths: _usesTabs ? OpenTabs.paths.value : const [],
+        currentPath: _tabPath,
+        currentName: widget.customTitle ?? coreInfo.fileName,
+        onSelectTab: switchToTab,
+        onCloseTab: closeTab,
+        onNewTab: () => Navigator.of(context).maybePop(),
+        onRename: _showRenameDialog,
+        savingState: savingState,
+        triggerSave: saveToFile,
+        sidebarAvailable:
+            MediaQuery.sizeOf(context).width >= PageSidebar.minScreenWidth,
+        sidebarShown: stows.editorPageSidebar.value,
+        onToggleSidebar: () =>
+            stows.editorPageSidebar.value = !stows.editorPageSidebar.value,
+        onAskNotes: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const AskNotesPage()),
+        ),
+        onAddPage: () => setState(() {
+          final currentPageIndex = this.currentPageIndex;
+          insertPageAfter(currentPageIndex);
+          CanvasGestureDetector.scrollToPage(
+            pageIndex: currentPageIndex + 1,
+            pages: coreInfo.pages,
+            screenWidth: _viewportWidth,
+            transformationController: _transformationController,
+          );
+        }),
+        onRecordings: () => showDialog<void>(
+          context: context,
+          builder: (_) => RecordingsDialog(notePath: coreInfo.filePath),
+        ),
+        onMore: () => showModalBottomSheet(
+          context: context,
+          builder: (context) => bottomSheet(context),
+          isScrollControlled: true,
+          showDragHandle: true,
+          backgroundColor: ColorScheme.of(context).surface,
+          constraints: const BoxConstraints(maxWidth: 500),
+        ),
+        visiblePage: _visiblePageIndex,
+        pageCount: coreInfo.pages.length,
+        onPages: showPageGrid,
+      ),
+    );
+  }
+
+  Future<void> _showRenameDialog() async {
+    final controller = TextEditingController(
+      text: filenameTextEditingController.text,
+    );
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(DefterStrings.gnRename),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          onSubmitted: (value) => Navigator.pop(context, value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (name == null || name.trim().isEmpty) return;
+    filenameTextEditingController.text = name.trim();
+    await _renameFileNow();
+    if (mounted) setState(() {});
+  }
 
   /// This editor's entry in [OpenTabs], once its path is known.
   String? _tabPath;
@@ -2665,6 +2774,7 @@ class EditorState extends State<Editor> {
 
     DynamicMaterialApp.removeFullscreenListener(_setState);
     stows.editorPageSidebar.removeListener(_setState);
+    _gn.dispose();
     stows.penProbe.removeListener(_setState);
     _visiblePageIndex.removeListener(_onVisiblePageChanged);
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
