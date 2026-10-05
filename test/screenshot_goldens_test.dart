@@ -170,6 +170,8 @@ void _screenshot({
       testGoldens('for ${goldenDevice.name} in $localeCode', (tester) async {
         final device = goldenDevice.device;
         stows.platform.value = device.platform;
+        // The store screenshots show the classic editor layout.
+        stows.editorGnLayout.value = false;
         await tester.runAsync(() => LocaleSettings.setLocaleRaw(localeCode));
 
         if (goldenFileName == '4_settings') {

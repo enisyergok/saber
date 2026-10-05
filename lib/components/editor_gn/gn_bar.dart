@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/editor_gn/gn_actions.dart';
@@ -87,7 +88,11 @@ class GnEditorBar extends StatelessWidget {
   Widget _buildBar(BuildContext context, Widget? _) {
     final palette = GnPalette.of(context);
     final actions = GnActions(spec, controller);
-    return IconButtonTheme(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: palette.onHeader == Colors.white
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
+      child: IconButtonTheme(
       data: IconButtonThemeData(
         style: IconButton.styleFrom(foregroundColor: palette.onHeader),
       ),
@@ -111,6 +116,7 @@ class GnEditorBar extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

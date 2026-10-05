@@ -94,7 +94,7 @@ class _GnOverlayState extends State<GnOverlay> {
               link: controller.barLink,
               targetAnchor: Alignment.bottomLeft,
               followerAnchor: Alignment.topLeft,
-              offset: const Offset(12, 8),
+              offset: const Offset(64, 8),
               showWhenUnlinked: false,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
