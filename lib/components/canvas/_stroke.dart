@@ -220,6 +220,15 @@ class Stroke {
     markPolygonNeedsUpdating();
   }
 
+  /// The distance along the line, from its first point to its last.
+  double get pathLength {
+    var length = 0.0;
+    for (var i = 1; i < points.length; i++) {
+      length += sqrt(points[i].distanceSquaredTo(points[i - 1]));
+    }
+    return length;
+  }
+
   void addPoints(List<Offset> points) {
     for (final point in points) {
       addPoint(point);

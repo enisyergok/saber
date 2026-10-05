@@ -8,6 +8,8 @@ import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/highlighter.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/tools/pen_feel.dart';
 import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/pressure_calibration.dart';
 import 'package:saber/data/tools/pencil.dart';
@@ -28,6 +30,7 @@ class Pen extends Tool {
     required this.pressureEnabled,
     required this.color,
     required this.toolId,
+    this.brush = false,
   });
 
   new fountainPen()
@@ -39,7 +42,22 @@ class Pen extends Tool {
       options = stows.lastFountainPenOptions.value,
       pressureEnabled = true,
       color = Color(stows.lastFountainPenColor.value),
-      toolId = .fountainPen;
+      toolId = .fountainPen,
+      brush = false;
+
+  /// A brush pen. Its lines are stored like the fountain pen's (the same
+  /// [toolId]), so notes stay readable by versions without it.
+  new brushPen()
+    : name = DefterStrings.brushPen,
+      sizeMin = 1,
+      sizeMax = 40,
+      sizeStep = 1,
+      icon = brushPenIcon,
+      options = stows.lastBrushPenOptions.value,
+      pressureEnabled = true,
+      color = Color(stows.lastFountainPenColor.value),
+      toolId = .fountainPen,
+      brush = true;
 
   new ballpointPen()
     : name = t.editor.pens.ballpointPen,
@@ -48,9 +66,46 @@ class Pen extends Tool {
       sizeStep = 1,
       icon = ballpointPenIcon,
       options = stows.lastBallpointPenOptions.value,
-      pressureEnabled = false,
+      pressureEnabled = true,
       color = Color(stows.lastBallpointPenColor.value),
-      toolId = .ballpointPen;
+      toolId = .ballpointPen,
+      brush = false;
+
+  /// Whether this is the brush pen (see [Pen.brushPen]).
+  final bool brush;
+
+  /// Which of the pen panel's writing pens this is, if any.
+  PenKind? get kind => switch (toolId) {
+    .fountainPen => brush ? PenKind.brush : PenKind.fountain,
+    .ballpointPen => PenKind.ballpoint,
+    _ => null,
+  };
+
+  /// How pointed the ends of this pen's lines are, 0..1.
+  double get tipSharpness => switch (kind) {
+    PenKind.fountain => stows.fountainTipSharpness.value,
+    PenKind.brush => stows.brushTipSharpness.value,
+    _ => 0,
+  };
+  set tipSharpness(double value) {
+    switch (kind) {
+      case PenKind.fountain:
+        stows.fountainTipSharpness.value = value;
+      case PenKind.brush:
+        stows.brushTipSharpness.value = value;
+      case PenKind.ballpoint:
+      case null:
+        break;
+    }
+  }
+
+  /// The options this pen's lines are drawn with right now.
+  StrokeOptions get strokeOptions {
+    final kind = this.kind;
+    return kind == null
+        ? options.copyWith()
+        : PenFeel.apply(kind, options, sharpness: tipSharpness);
+  }
 
   final String name;
   final double sizeMin, sizeMax, sizeStep;
@@ -63,6 +118,7 @@ class Pen extends Tool {
 
   static const fountainPenIcon = FontAwesomeIcons.penFancy;
   static const ballpointPenIcon = FontAwesomeIcons.pen;
+  static const brushPenIcon = FontAwesomeIcons.paintbrush;
 
   static Stroke? currentStroke;
   Color color;
@@ -89,7 +145,7 @@ class Pen extends Tool {
     currentStroke = Stroke(
       color: color,
       pressureEnabled: pressureEnabled,
-      options: options.copyWith(isComplete: false),
+      options: strokeOptions.copyWith(isComplete: false),
       pageIndex: pageIndex,
       page: page,
       toolId: toolId,
@@ -123,6 +179,9 @@ class Pen extends Tool {
       _rawHigh = math.max(_rawHigh, pressure);
       _rawCount++;
       pressure = _fallback ? null : PressureCalibration.map(pressure);
+    }
+    if (pressure != null && kind != null) {
+      pressure = PenFeel.pressure(pressure);
     }
     currentStroke?.addPoint(position, pressure);
     if (holdsToSnap && stows.shapeHoldToSnap.value) {
@@ -163,10 +222,31 @@ class Pen extends Tool {
       PressureCalibration.addStroke(_rawLow, _rawHigh, _rawCount);
       _rawCount = 0;
     }
+    if (kind != null) _limitTapers(stroke);
     stroke
       ..options.isComplete = true
       ..markPolygonNeedsUpdating();
-    return holdsToSnap ? ShapeSnap.finish(stroke) : stroke;
+    if (!holdsToSnap) return stroke;
+    final result = ShapeSnap.finish(stroke);
+    if (ShapeSnap.lastWasSnapped && kind != null) {
+      // A shape has even ends, whatever the pen's tip sharpness. These end
+      // options were made for this line alone (see [strokeOptions]).
+      result.options.start.taperEnabled = false;
+      result.options.end.taperEnabled = false;
+      result.markPolygonNeedsUpdating();
+    }
+    return result;
+  }
+
+  /// Shortens the pointed ends of a finished line that is itself short.
+  static void _limitTapers(Stroke stroke) {
+    final limit = PenFeel.maxTaper(stroke.pathLength);
+    for (final end in [stroke.options.start, stroke.options.end]) {
+      final taper = end.customTaper;
+      if (end.taperEnabled && taper != null && taper > limit) {
+        end.customTaper = math.max(limit, 0.01);
+      }
+    }
   }
 
   /// The default stroke options.
@@ -178,6 +258,8 @@ class Pen extends Tool {
 
   static StrokeOptions get fountainPenOptions => defaultOptions.copyWith();
   static StrokeOptions get ballpointPenOptions => defaultOptions.copyWith();
+  static StrokeOptions get brushPenOptions =>
+      defaultOptions.copyWith(size: 12, thinning: 0.5);
   static StrokeOptions get shapePenOptions =>
       defaultOptions.copyWith(smoothing: 0, streamline: 0);
   static StrokeOptions get highlighterOptions =>

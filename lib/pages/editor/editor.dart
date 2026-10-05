@@ -149,8 +149,11 @@ class EditorState extends State<Editor> {
   late Tool _currentTool = () {
     switch (stows.lastTool.value) {
       case .fountainPen:
-        if (Pen.currentPen.toolId != stows.lastTool.value) {
-          Pen.currentPen = Pen.fountainPen();
+        if (Pen.currentPen.toolId != stows.lastTool.value ||
+            Pen.currentPen.brush != stows.lastPenWasBrush.value) {
+          Pen.currentPen = stows.lastPenWasBrush.value
+              ? Pen.brushPen()
+              : Pen.fountainPen();
         }
         return Pen.currentPen;
       case .ballpointPen:
@@ -183,6 +186,9 @@ class EditorState extends State<Editor> {
     _currentTool = tool;
     if (tool is! Eraser) _lastNonEraserTool = tool;
     stows.lastTool.value = tool.toolId;
+    if (tool is Pen && tool.toolId == .fountainPen) {
+      stows.lastPenWasBrush.value = tool.brush;
+    }
   }
 
   ValueNotifier<SavingState> savingState = ValueNotifier(SavingState.saved);
@@ -2840,6 +2846,7 @@ class EditorState extends State<Editor> {
     stows.lastHighlighterOptions.notifyListeners();
     stows.lastPencilOptions.notifyListeners();
     stows.lastShapePenOptions.notifyListeners();
+    stows.lastBrushPenOptions.notifyListeners();
 
     super.dispose();
   }

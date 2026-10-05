@@ -17,10 +17,10 @@ void main() {
   });
 
   test('a narrow range is stretched over 0..1', () {
-    learn(0.5, 0.9);
-    expect(PressureCalibration.map(0.5), 0);
-    expect(PressureCalibration.map(0.9), 1);
-    expect(PressureCalibration.map(0.7), closeTo(0.5, 1e-9));
+    learn(0.6, 0.9);
+    expect(PressureCalibration.map(0.6), 0);
+    expect(PressureCalibration.map(0.9), closeTo(1, 1e-9));
+    expect(PressureCalibration.map(0.75), closeTo(0.5, 1e-9));
     expect(PressureCalibration.map(1.0), 1);
     expect(PressureCalibration.map(0.1), 0);
   });
@@ -28,7 +28,10 @@ void main() {
   test('a full range pen is left alone', () {
     learn(0.0, 1.0);
     expect(PressureCalibration.map(0.3), 0.3);
-    learn(0.1, 0.9);
+    // The tablet this was tuned on: light strokes reach 0.45.
+    PressureCalibration.reset();
+    learn(0.02, 0.45);
+    expect(PressureCalibration.map(0.3), 0.3);
     expect(PressureCalibration.isFlat, isFalse);
   });
 

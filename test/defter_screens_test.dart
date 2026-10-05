@@ -5,6 +5,8 @@
 @Tags(['screens'])
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +28,8 @@ import 'package:saber/data/benchmark/synthetic_notes.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/eink/eink_style.dart';
 import 'package:saber/data/eink/eink_texture.dart';
+import 'package:saber/components/editor_gn/gn_pen_settings.dart';
+import 'package:saber/data/tools/pen_feel.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
@@ -149,6 +153,35 @@ void main() {
                     ),
                   ),
                 ),
+            ],
+          ),
+        ),
+      ),
+    );
+    _shot(
+      theme: theme,
+      name: 'pen_panel',
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Wrap(
+            children: [
+              for (final pen in [
+                Pen.fountainPen(),
+                Pen.ballpointPen(),
+                Pen.brushPen(),
+              ])
+                Card(
+                  margin: const EdgeInsets.all(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: GnPenSettings(getTool: () => pen, setTool: (_) {}),
+                  ),
+                ),
+              const SizedBox(
+                width: 720,
+                height: 420,
+                child: CustomPaint(painter: _PenLinesPainter()),
+              ),
             ],
           ),
         ),
@@ -525,4 +558,51 @@ class _ToneScene extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// Lines as the pens draw them for the pressures measured on the tablet:
+/// per pen, four even lines (raw pressure 0.1, 0.29, 0.45, 0.94) and one
+/// that goes from light to firm and back.
+class _PenLinesPainter extends CustomPainter {
+  const _PenLinesPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.black;
+    var y = 20.0;
+    for (final pen in [Pen.fountainPen(), Pen.ballpointPen(), Pen.brushPen()]) {
+      pen.options.size = pen.brush ? 12 : 5;
+      final options = pen.strokeOptions.copyWith(
+        isComplete: true,
+        simulatePressure: false,
+        streamline: 0,
+      );
+      final lines = <List<PointVector>>[
+        for (final raw in [0.1, 0.29, 0.45, 0.94])
+          [
+            for (var x = 20.0; x <= 330; x += 4)
+              PointVector(x, y + 18 * [0.1, 0.29, 0.45, 0.94].indexOf(raw),
+                  PenFeel.pressure(raw)),
+          ],
+        [
+          for (var i = 0; i <= 80; i++)
+            PointVector(
+              380 + i * 4.0,
+              y + 30 + 22 * math.sin(i / 80 * math.pi * 2),
+              PenFeel.pressure(0.05 + 0.9 * math.sin(i / 80 * math.pi)),
+            ),
+        ],
+      ];
+      for (final points in lines) {
+        final polygon = getStroke(points, options: options);
+        if (polygon.length < 3) continue;
+        canvas.drawPath(Path()..addPolygon(polygon, true), paint);
+      }
+      y += 130;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PenLinesPainter old) => false;
 }

@@ -433,7 +433,33 @@ class Stows {
         Pen.shapePenOptions,
         fromJson: _strokeOptionsFromJson,
         volatile: !_isOnMainIsolate,
+      ),
+      lastBrushPenOptions = PlainStow.json(
+        'lastBrushPenProperties',
+        Pen.brushPenOptions,
+        fromJson: _strokeOptionsFromJson,
+        volatile: !_isOnMainIsolate,
       );
+
+  /// How pointed the ends of the fountain and brush pens' lines are, 0..1.
+  final fountainTipSharpness = PlainStow(
+        'fountainTipSharpness',
+        0.75,
+        volatile: !_isOnMainIsolate,
+      ),
+      brushTipSharpness = PlainStow(
+        'brushTipSharpness',
+        0.75,
+        volatile: !_isOnMainIsolate,
+      );
+
+  /// Whether the pen last used was the brush pen, which shares the
+  /// fountain pen's [ToolId].
+  final lastPenWasBrush = PlainStow(
+    'lastPenWasBrush',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
   final lastFountainPenColor = PlainStow(
         'lastFountainPenColor',
         Colors.black.toARGB32(),

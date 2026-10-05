@@ -2,13 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/_tool.dart';
-import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen.dart';
-import 'package:saber/data/tools/pencil.dart';
+import 'package:saber/data/tools/pen_feel.dart';
 import 'package:saber/data/tools/shape_pen.dart';
+import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/i18n/strings.g.dart';
 
 /// The pen settings popover: a live preview of the line, the pen type and
@@ -31,18 +32,19 @@ class GnPenSettings extends StatefulWidget {
 }
 
 class _GnPenSettingsState extends State<GnPenSettings> {
-  /// Tip sharpness is stored as the taper of both line ends. 0 is a blunt
-  /// end; the taper length is a multiple of the pen size.
-  static double sharpnessOf(StrokeOptions o) =>
-      o.end.taperEnabled ? 1 : 0;
-
   void _save() {
     // Pen options are changed in place, so listeners are told by hand.
     stows.lastFountainPenOptions.notifyListeners();
     stows.lastBallpointPenOptions.notifyListeners();
+    stows.lastBrushPenOptions.notifyListeners();
     stows.lastHighlighterOptions.notifyListeners();
     stows.lastPencilOptions.notifyListeners();
   }
+
+  Future<void> _showGestures() => showDialog<void>(
+    context: context,
+    builder: (context) => const _PenGesturesDialog(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +52,12 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     if (tool is! Pen) return const SizedBox.shrink();
     final colors = ColorScheme.of(context);
     final options = tool.options;
-    final canChangeType = tool is! Highlighter && tool is! Pencil;
+    final kind = tool.kind;
     final isShapePen = tool is ShapePen;
+    final sectionStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: colors.onSurfaceVariant,
+      letterSpacing: 0.5,
+    );
 
     return SizedBox(
       width: GnPenSettings.width,
@@ -66,66 +72,52 @@ class _GnPenSettingsState extends State<GnPenSettings> {
             width: double.infinity,
             child: CustomPaint(
               painter: PenPreviewPainter(
-                options: options,
+                options: tool.strokeOptions,
                 color: tool.color,
                 pressure: tool.pressureEnabled,
               ),
             ),
           ),
-          if (canChangeType) ...[
+          if (kind != null) ...[
             const SizedBox(height: 4),
             Row(
               children: [
                 _typeButton(
                   context,
-                  label: t.editor.pens.fountainPen,
-                  selected: tool.icon == Pen.fountainPenIcon,
+                  icon: Pen.fountainPenIcon,
+                  label: DefterStrings.fountainPenName,
+                  selected: kind == PenKind.fountain,
                   onTap: () => setState(() => widget.setTool(Pen.fountainPen())),
                 ),
                 _typeButton(
                   context,
-                  label: t.editor.pens.ballpointPen,
-                  selected: tool.icon == Pen.ballpointPenIcon,
+                  icon: Pen.ballpointPenIcon,
+                  label: DefterStrings.ballpointPenName,
+                  selected: kind == PenKind.ballpoint,
                   onTap: () =>
                       setState(() => widget.setTool(Pen.ballpointPen())),
                 ),
                 _typeButton(
                   context,
-                  label: t.editor.pens.shapePen,
-                  selected: isShapePen,
-                  onTap: () => setState(() => widget.setTool(ShapePen())),
+                  icon: Pen.brushPenIcon,
+                  label: DefterStrings.brushPen,
+                  selected: kind == PenKind.brush,
+                  onTap: () => setState(() => widget.setTool(Pen.brushPen())),
                 ),
               ],
             ),
           ],
           const Divider(height: 20),
-          _slider(
-            context,
-            label: t.editor.penOptions.size,
-            valueText: options.size.round().toString(),
-            value: options.size.clamp(tool.sizeMin, tool.sizeMax),
-            min: tool.sizeMin,
-            max: tool.sizeMax,
-            divisions: tool.sizeStepsBetweenMinAndMax,
-            onChanged: (v) => setState(() => options.size = v),
-          ),
-          if (!isShapePen && tool.toolId != .highlighter)
+          if (kind == PenKind.fountain || kind == PenKind.brush)
             _slider(
               context,
               label: DefterStrings.tipSharpness,
-              valueText: '${(sharpnessOf(options) * 100).round()}%',
-              value: sharpnessOf(options),
+              valueText: '${(tool.tipSharpness * 100).round()}%',
+              value: tool.tipSharpness.clamp(0, 1),
               min: 0,
               max: 1,
-              divisions: 1,
-              onChanged: (v) => setState(() {
-                final on = v > 0.5;
-                // The taper length follows the pen size, so a thick pen
-                // gets a longer point.
-                options.start.taperEnabled = false;
-                options.end.taperEnabled = on;
-                if (on) options.end.customTaper = options.size * 4;
-              }),
+              divisions: 4,
+              onChanged: (v) => setState(() => tool.tipSharpness = v),
             ),
           if (tool.pressureEnabled && !isShapePen)
             _slider(
@@ -135,7 +127,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
               value: options.thinning.clamp(0, 1),
               min: 0,
               max: 1,
-              divisions: 20,
+              divisions: 4,
               onChanged: (v) => setState(() => options.thinning = v),
             ),
           if (!isShapePen)
@@ -149,24 +141,20 @@ class _GnPenSettingsState extends State<GnPenSettings> {
               divisions: 20,
               onChanged: (v) => setState(() => options.streamline = v),
             ),
-          if (tool.pressureEnabled && !isShapePen)
-            ValueListenableBuilder<bool>(
-              valueListenable: stows.pressureAuto,
-              builder: (context, on, _) => SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: Text(DefterStrings.pressureAuto),
-                subtitle: Text(DefterStrings.pressureAutoHint),
-                value: on,
-                onChanged: (v) => stows.pressureAuto.value = v,
-              ),
-            ),
+          _slider(
+            context,
+            label: t.editor.penOptions.size,
+            valueText: options.size.round().toString(),
+            value: options.size.clamp(tool.sizeMin, tool.sizeMax),
+            min: tool.sizeMin,
+            max: tool.sizeMax,
+            divisions: tool.sizeStepsBetweenMinAndMax,
+            onChanged: (v) => setState(() => options.size = v),
+          ),
           const Divider(height: 20),
           Text(
-            DefterStrings.penSettingsSection,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
+            DefterStrings.penSettingsSection.toUpperCase(),
+            style: sectionStyle,
           ),
           ValueListenableBuilder<bool>(
             valueListenable: stows.shapeHoldToSnap,
@@ -178,6 +166,13 @@ class _GnPenSettingsState extends State<GnPenSettings> {
               onChanged: (v) => stows.shapeHoldToSnap.value = v,
             ),
           ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text(DefterStrings.penGestures),
+            trailing: const Icon(Icons.chevron_right, size: 20),
+            onTap: _showGestures,
+          ),
         ],
       ),
     );
@@ -185,6 +180,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
 
   Widget _typeButton(
     BuildContext context, {
+    required Object icon,
     required String label,
     required bool selected,
     required VoidCallback onTap,
@@ -203,17 +199,26 @@ class _GnPenSettingsState extends State<GnPenSettings> {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Center(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w600 : null,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  UniIcon(
+                    icon,
+                    size: 18,
                     color: selected ? colors.secondary : colors.onSurface,
                   ),
-                ),
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: selected ? FontWeight.w600 : null,
+                      color: selected ? colors.secondary : colors.onSurface,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -264,8 +269,42 @@ class _GnPenSettingsState extends State<GnPenSettings> {
   }
 }
 
-/// A short wavy line drawn with the pen's own options, with a little
-/// deterministic jitter so that line stabilization can be seen working.
+/// What the pen's double tap (or side button) does.
+class _PenGesturesDialog extends StatelessWidget {
+  const _PenGesturesDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final names = {
+      StylusAction.none: DefterStrings.stylusNone,
+      StylusAction.toggleEraser: DefterStrings.stylusToggleEraser,
+      StylusAction.previousTool: DefterStrings.stylusPreviousTool,
+      StylusAction.lasso: DefterStrings.stylusLasso,
+      StylusAction.highlighter: DefterStrings.stylusHighlighter,
+      StylusAction.undo: DefterStrings.stylusUndo,
+      StylusAction.redo: DefterStrings.stylusRedo,
+    };
+    return ValueListenableBuilder<int>(
+      valueListenable: stows.stylusAction,
+      builder: (context, current, _) => SimpleDialog(
+        title: Text(DefterStrings.stylusAction),
+        children: [
+          for (final action in StylusAction.values)
+            ListTile(
+              title: Text(names[action]!),
+              trailing: action.index == current
+                  ? Icon(Icons.check, color: ColorScheme.of(context).primary)
+                  : null,
+              onTap: () => stows.stylusAction.value = action.index,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A short wavy line drawn with the pen's own options, pressed lightly at
+/// the ends and firmly in the middle.
 class PenPreviewPainter extends CustomPainter {
   const PenPreviewPainter({
     required this.options,
@@ -285,9 +324,7 @@ class PenPreviewPainter extends CustomPainter {
     for (var i = 0; i < n; i++) {
       final u = i / (n - 1);
       final x = size.width * (0.08 + 0.84 * u);
-      final y =
-          size.height * (0.5 + 0.28 * math.sin(u * math.pi * 1.6 - 0.9)) +
-          math.sin(i * 2.7) * 1.2;
+      final y = size.height * (0.5 + 0.3 * math.sin(u * math.pi * 1.9 + 0.5));
       final p = pressure ? 0.25 + 0.7 * math.sin(u * math.pi) : null;
       points.add(PointVector(x, y, p));
     }

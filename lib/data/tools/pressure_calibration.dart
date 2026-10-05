@@ -22,7 +22,7 @@ abstract class PressureCalibration {
   static const flatRange = 0.12;
 
   /// At or above this range the pen is left alone.
-  static const healthyRange = 0.7;
+  static const healthyRange = 0.35;
 
   static final List<double> _lows = [];
   static final List<double> _highs = [];
