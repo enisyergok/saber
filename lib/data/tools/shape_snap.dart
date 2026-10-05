@@ -34,6 +34,9 @@ abstract class ShapeBuilder {
         );
       }
     }
+    // A shape has even ends, whatever the pen's tip sharpness.
+    raw.options.start.taperEnabled = false;
+    raw.options.end.taperEnabled = false;
     switch (guess.kind) {
       case ShapeKind.line:
         raw.convertToLine();
