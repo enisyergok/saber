@@ -24,6 +24,7 @@ class EditorBottomSheet extends StatefulWidget {
     required this.coreInfo,
     required this.currentPageIndex,
     required this.setBackgroundPattern,
+    required this.setBackgroundColor,
     required this.setLineHeight,
     required this.setLineThickness,
     required this.removeBackgroundImage,
@@ -46,6 +47,7 @@ class EditorBottomSheet extends StatefulWidget {
   final EditorCoreInfo coreInfo;
   final int? currentPageIndex;
   final void Function(CanvasBackgroundPattern) setBackgroundPattern;
+  final void Function(Color?) setBackgroundColor;
   final void Function(int) setLineHeight;
   final void Function(int) setLineThickness;
   final VoidCallback removeBackgroundImage;
@@ -203,6 +205,46 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
               ),
               const SizedBox(height: 16),
             ],
+            Text(
+              DefterStrings.paperColor,
+              style: TextTheme.of(context).titleMedium,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 44,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _paperColors.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final color = _paperColors[index];
+                  final selected =
+                      widget.coreInfo.backgroundColor?.toARGB32() ==
+                      color?.toARGB32();
+                  return InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => setState(() {
+                      widget.setBackgroundColor(color);
+                    }),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: color ?? InnerCanvas.defaultBackgroundColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: selected
+                              ? ColorScheme.of(context).primary
+                              : ColorScheme.of(context).outlineVariant,
+                          width: selected ? 3 : 1,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
               t.editor.menu.backgroundPattern,
               style: TextTheme.of(context).titleMedium,
@@ -466,6 +508,22 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
     );
   }
 }
+
+/// The paper colours on offer; null is the default white.
+const _paperColors = <Color?>[
+  null,
+  Color(0xFFFFF8E7), // cream
+  Color(0xFFF7F1E3), // ivory
+  Color(0xFFE5E5E5), // grey
+  Color(0xFF1E1E1E), // black
+  Color(0xFFFDE2E4), // pink
+  Color(0xFFDCEBFA), // blue
+  Color(0xFFDDF2E0), // green
+  Color(0xFFE8E0F7), // lilac
+  Color(0xFFFFF4B8), // yellow
+  Color(0xFFFFE5D0), // peach
+  Color(0xFFD8F5EC), // mint
+];
 
 class _PermanentTooltip extends StatelessWidget {
   const new({required this.text});

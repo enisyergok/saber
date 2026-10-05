@@ -2184,6 +2184,11 @@ class EditorState extends State<Editor> {
         );
         autosaveAfterDelay();
       }),
+      setBackgroundColor: (color) => setState(() {
+        if (coreInfo.readOnly) return;
+        coreInfo.backgroundColor = color;
+        autosaveAfterDelay();
+      }),
       setLineHeight: (lineHeight) => setState(() {
         if (coreInfo.readOnly) return;
         coreInfo.lineHeight = lineHeight;

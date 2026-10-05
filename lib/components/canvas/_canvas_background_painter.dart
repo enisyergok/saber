@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -73,6 +74,11 @@ class CanvasBackgroundPainter extends CustomPainter {
     }
 
     final lineAlpha = preview ? 0.5 : (eInk ? 0.38 : 0.2);
+    // On dark paper the guide lines are light, or they would not be seen.
+    // (When the page is inverted for dark mode the usual colours stay.)
+    final dark = !invert && backgroundColor.computeLuminance() < 0.25;
+    final primaryColor = dark ? Colors.white : this.primaryColor;
+    final secondaryColor = dark ? Colors.white70 : this.secondaryColor;
     for (final element in getPatternElements(
       pattern: backgroundPattern,
       size: size,
@@ -222,6 +228,20 @@ class CanvasBackgroundPainter extends CustomPainter {
       case .monthly:
       case .meeting:
       case .storyboard:
+      case .table:
+      case .twoColumns:
+      case .threeColumns:
+      case .fourColumns:
+      case .sideSplit:
+      case .topBottom:
+      case .verticalSplit:
+      case .squareSplit:
+      case .titled:
+      case .bullets:
+      case .numbered:
+      case .legal:
+      case .hexagon:
+      case .diamond:
         yield* _templateElements(pattern, size, lineHeight.toDouble());
       case .cornell:
         // half-width line for name field
@@ -442,6 +462,147 @@ Iterable<PatternElement> _templateElements(
           yield hLine(x, x + frameW, y + frameH + l * 2.2);
         }
       }
+      }
+    case .table:
+      {
+        const cols = 4;
+        final rowH = l * 2;
+        final colW = (right - left) / cols;
+        final rowsEnd = top + ((bottom - top) / rowH).floor() * rowH;
+        for (var y = top; y <= rowsEnd; y += rowH) {
+          yield hLine(left, right, y, strong: y == top || y == top + rowH);
+        }
+        for (var c = 0; c <= cols; c++) {
+          yield vLine(left + c * colW, top, rowsEnd);
+        }
+      }
+    case .twoColumns:
+    case .threeColumns:
+    case .fourColumns:
+      {
+        final n = pattern == .twoColumns ? 2 : (pattern == .threeColumns ? 3 : 4);
+        final colW = (right - left) / n;
+        for (var c = 0; c < n; c++) {
+          final x1 = left + c * colW + (c == 0 ? 0 : l * 0.3);
+          final x2 = left + (c + 1) * colW - (c == n - 1 ? 0 : l * 0.3);
+          for (var y = top; y <= bottom; y += l) {
+            yield hLine(x1, x2, y);
+          }
+        }
+        for (var c = 1; c < n; c++) {
+          yield vLine(left + c * colW, top, bottom, strong: true);
+        }
+      }
+    case .sideSplit:
+      {
+        final x = w * 0.3;
+        yield vLine(x, top, bottom, strong: true);
+        for (var y = top; y <= bottom; y += l) {
+          yield hLine(x + l * 0.5, right, y);
+        }
+      }
+    case .topBottom:
+      {
+        final mid = (top + bottom) / 2;
+        yield* box(left, top, right, mid - l * 0.5);
+        yield* box(left, mid + l * 0.5, right, bottom);
+      }
+    case .verticalSplit:
+      {
+        final mid = w / 2;
+        for (var y = top; y <= bottom; y += l) {
+          yield hLine(left, mid - l * 0.4, y);
+          yield hLine(mid + l * 0.4, right, y);
+        }
+        yield vLine(mid, top, bottom, strong: true);
+      }
+    case .squareSplit:
+      {
+        final gap = l * 0.8;
+        final mx = w / 2;
+        final my = (top + bottom) / 2;
+        yield* box(left, top, mx - gap / 2, my - gap / 2);
+        yield* box(mx + gap / 2, top, right, my - gap / 2);
+        yield* box(left, my + gap / 2, mx - gap / 2, bottom);
+        yield* box(mx + gap / 2, my + gap / 2, right, bottom);
+      }
+    case .titled:
+      {
+        yield* box(left, top, right, top + l * 2.5);
+        for (var y = top + l * 4.5; y <= bottom; y += l) {
+          yield hLine(left, right, y);
+        }
+      }
+    case .bullets:
+      {
+        for (var y = top + l; y <= bottom; y += l * 1.8) {
+          yield PatternElement(
+            Offset(left + l * 0.5, y - l * 0.35),
+            Offset(left + l * 0.5, y - l * 0.35),
+            isLine: false,
+          );
+          yield hLine(left + l * 1.2, right, y);
+        }
+      }
+    case .numbered:
+      {
+        var n = 1;
+        for (var y = top + l; y <= bottom; y += l * 1.8, n++) {
+          yield text('$n.', left, y - l * 0.95, width: l * 2);
+          yield hLine(left + l * 2, right, y);
+        }
+      }
+    case .legal:
+      {
+        for (var y = top; y <= bottom; y += l) {
+          yield hLine(0, w, y);
+        }
+        yield vLine(l * 3, 0, h, strong: true);
+        yield vLine(l * 3.25, 0, h, strong: true);
+      }
+    case .hexagon:
+      {
+        final s = l * 0.9;
+        final dx = s * 0.8660254;
+        var j = 0;
+        for (var y = top; y + 1.5 * s <= h; y += 1.5 * s, j++) {
+          final phase = j % 2;
+          final n = (w / dx).floor();
+          for (var i = 0; i < n; i++) {
+            final y1 = y + ((i + phase) % 2 == 0 ? 0 : s / 2);
+            final y2 = y + ((i + 1 + phase) % 2 == 0 ? 0 : s / 2);
+            yield PatternElement(Offset(i * dx, y1), Offset((i + 1) * dx, y2));
+          }
+          for (var i = 0; i <= n; i++) {
+            if ((i + phase) % 2 == 1) {
+              yield vLine(i * dx, y + s / 2, y + 1.5 * s);
+            }
+          }
+        }
+      }
+    case .diamond:
+      {
+        final pitch = l * 1.4;
+        // lines going down to the right: y = top + (x - c)
+        for (var c = -(h - top); c <= w; c += pitch) {
+          final x1 = math.max(0.0, c);
+          final x2 = math.min(w, c + (h - top));
+          if (x2 <= x1) continue;
+          yield PatternElement(
+            Offset(x1, top + (x1 - c)),
+            Offset(x2, top + (x2 - c)),
+          );
+        }
+        // lines going up to the right: y = h - (x - c)
+        for (var c = -(h - top); c <= w; c += pitch) {
+          final x1 = math.max(0.0, c);
+          final x2 = math.min(w, c + (h - top));
+          if (x2 <= x1) continue;
+          yield PatternElement(
+            Offset(x1, h - (x1 - c)),
+            Offset(x2, h - (x2 - c)),
+          );
+        }
       }
     default:
       return;

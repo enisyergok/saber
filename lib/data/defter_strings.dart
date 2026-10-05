@@ -204,6 +204,8 @@ abstract class DefterStrings {
       : 'The pressure value is not changing. Try pressing lightly and hard.';
   static String get pressureWorks =>
       _tr ? 'Basınç değişiyor: kalem basıncı bildiriyor.' : 'Pressure varies: the pen reports it.';
+  static String get paperColor => _tr ? 'Kâğıt rengi' : 'Paper colour';
+
   // Paper templates
   static String get paperIsometric => _tr ? 'İzometrik' : 'Isometric';
   static String get paperEngineering => _tr ? 'Mühendislik' : 'Engineering';
@@ -214,6 +216,20 @@ abstract class DefterStrings {
   static String get paperMonthly => _tr ? 'Aylık takvim' : 'Monthly calendar';
   static String get paperMeeting => _tr ? 'Toplantı notu' : 'Meeting notes';
   static String get paperStoryboard => _tr ? 'Storyboard' : 'Storyboard';
+  static String get paperTable => _tr ? 'Tablo' : 'Table';
+  static String get paperTwoColumns => _tr ? 'İki sütun' : 'Two columns';
+  static String get paperThreeColumns => _tr ? 'Üç sütun' : 'Three columns';
+  static String get paperFourColumns => _tr ? 'Dört sütun' : 'Four columns';
+  static String get paperSideSplit => _tr ? 'Yan bölmeli' : 'Cue column';
+  static String get paperTopBottom => _tr ? 'Üst-alt bölmeli' : 'Top and bottom';
+  static String get paperVerticalSplit => _tr ? 'Dikey bölmeli' : 'Side by side';
+  static String get paperSquareSplit => _tr ? 'Kare bölmeli' : 'Four boxes';
+  static String get paperTitled => _tr ? 'Başlıklı' : 'With title';
+  static String get paperBullets => _tr ? 'Madde işaretli' : 'Bullets';
+  static String get paperNumbered => _tr ? 'Numaralı liste' : 'Numbered list';
+  static String get paperLegal => _tr ? 'Legal' : 'Legal pad';
+  static String get paperHexagon => _tr ? 'Petek' : 'Honeycomb';
+  static String get paperDiamond => _tr ? 'Elmas' : 'Diamond';
 
   /// Labels printed on the planner templates.
   static List<String> get weekDays => _tr

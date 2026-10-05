@@ -70,7 +70,45 @@ enum CanvasBackgroundPattern(
   meeting('meeting', template: true),
 
   /// Storyboard: six frames with caption lines
-  storyboard('storyboard', template: true);
+  storyboard('storyboard', template: true),
+
+  /// Table with a header row
+  table('table', template: true),
+
+  /// Two, three or four columns
+  twoColumns('columns2', template: true),
+  threeColumns('columns3', template: true),
+  fourColumns('columns4', template: true),
+
+  /// Narrow cue column on the left, lined notes on the right
+  sideSplit('side-split', template: true),
+
+  /// Two boxes, one above the other
+  topBottom('top-bottom', template: true),
+
+  /// Two lined halves side by side
+  verticalSplit('vertical-split', template: true),
+
+  /// Four boxes
+  squareSplit('square-split', template: true),
+
+  /// A title box and lined paper below it
+  titled('titled', template: true),
+
+  /// Bullet points with lines
+  bullets('bullets', template: true),
+
+  /// Numbered lines
+  numbered('numbered', template: true),
+
+  /// Legal pad: lines and a double margin line
+  legal('legal', template: true),
+
+  /// Honeycomb (hexagons)
+  hexagon('hexagon', requiresClipping: true, template: true),
+
+  /// Diamond grid (diagonal lines)
+  diamond('diamond', requiresClipping: true, template: true);
 
   static CanvasBackgroundPattern fromName(String? name) {
     return values.firstWhere(
