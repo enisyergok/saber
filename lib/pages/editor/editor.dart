@@ -45,6 +45,7 @@ import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/extensions/list_extensions.dart';
 import 'package:saber/data/extensions/matrix4_extensions.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
+import 'package:saber/data/notebooks/notebook_spec.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
 import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
@@ -81,7 +82,13 @@ import 'package:super_clipboard/super_clipboard.dart';
 typedef _PhotoInfo = ({Uint8List bytes, String extension});
 
 class Editor extends StatefulWidget {
-  new({super.key, String? path, this.customTitle, this.pdfPath})
+  new({
+    super.key,
+    String? path,
+    this.customTitle,
+    this.pdfPath,
+    this.imagePath,
+  })
     : initialPath = path != null
           ? Future.value(path)
           : FileManager.newFilePath('/'),
@@ -92,6 +99,10 @@ class Editor extends StatefulWidget {
 
   final String? customTitle;
   final String? pdfPath;
+
+  /// An image file to put on the note once it is open (a note started
+  /// from a picture).
+  final String? imagePath;
 
   /// The file extension used by the app.
   /// Files with this extension are
@@ -275,8 +286,58 @@ class EditorState extends State<Editor> {
     // Opening a note scrolls to its page: that is not a page turn.
     _eInkPageTurnsFrom = DateTime.now().add(const Duration(milliseconds: 1500));
 
+    // A notebook that was just made in the new notebook screen.
+    final spec = PendingNotebook.take(filePath);
+    if (spec != null) await applyNotebookSpec(spec);
+
     if (widget.pdfPath != null) {
       await importPdfFromFilePath(widget.pdfPath!);
+    }
+    if (widget.imagePath != null) {
+      await _addImageFromPath(widget.imagePath!);
+    }
+  }
+
+  /// Gives a new, still empty note the paper, size, colour and cover that
+  /// were chosen for it. A note that already has something on it is left
+  /// as it is.
+  Future<void> applyNotebookSpec(NotebookSpec spec) async {
+    if (coreInfo.readOnly || !mounted) return;
+    if (coreInfo.pages.any((page) => !page.isEmpty)) return;
+
+    final size = spec.pageSize;
+    for (final page in coreInfo.pages) {
+      page.dispose();
+    }
+    coreInfo.pages.clear();
+    final page = EditorPage(size: size);
+    coreInfo.pages.add(page);
+    listenToQuillChanges(page.quill, 0);
+    coreInfo
+      ..backgroundPattern = spec.template.pattern
+      ..lineHeight = spec.template.lineHeight
+      ..backgroundColor = spec.paperColor;
+    // New notes start on the paper that was last chosen.
+    stows.lastBackgroundPattern.value = spec.template.pattern;
+    stows.lastLineHeight.value = spec.template.lineHeight;
+
+    final cover = spec.cover;
+    if (cover != null) {
+      // A notebook without a name of its own gets a cover without one.
+      await insertCover(cover, title: spec.name.trim());
+    } else if (mounted) {
+      setState(() {});
+      autosaveAfterDelay();
+    }
+  }
+
+  Future<void> _addImageFromPath(String imagePath) async {
+    try {
+      final bytes = await File(imagePath).readAsBytes();
+      if (!mounted) return;
+      await _pickPhotos([(bytes: bytes, extension: p.extension(imagePath))]);
+    } on FileSystemException catch (e) {
+      log.warning('Could not read the image at $imagePath', e);
     }
   }
 
@@ -425,10 +486,22 @@ class EditorState extends State<Editor> {
   /// plus an extra blank page
   void createPage(int pageIndex) {
     while (pageIndex >= coreInfo.pages.length - 1) {
-      final page = EditorPage();
+      final page = EditorPage(size: _sizeForPageAfter(coreInfo.pages.length - 1));
       coreInfo.pages.add(page);
       listenToQuillChanges(page.quill, coreInfo.pages.length - 1);
     }
+  }
+
+  /// The size of a page added after the page at [index]: the same as that
+  /// page, so a notebook keeps the format it was made in. Pages of an
+  /// imported PDF have sizes of their own, so the page after one of those
+  /// (and the first page of a note) gets the usual size.
+  Size _sizeForPageAfter(int index) {
+    final before = coreInfo.pages.getOrNull(index);
+    if (before == null || before.backgroundImage is PdfEditorImage) {
+      return EditorPage.defaultSize;
+    }
+    return before.size;
   }
 
   void removeExcessPages() {
@@ -2667,7 +2740,7 @@ class EditorState extends State<Editor> {
 
   void insertPageAfter(int pageIndex) => setState(() {
     if (coreInfo.readOnly) return;
-    final page = EditorPage();
+    final page = EditorPage(size: _sizeForPageAfter(pageIndex));
     coreInfo.pages.insert(pageIndex + 1, page);
     listenToQuillChanges(page.quill, pageIndex + 1);
     history.recordChange(
@@ -2710,10 +2783,19 @@ class EditorState extends State<Editor> {
   });
 
   /// Inserts [design] as a new first page, with the note's name as title.
-  Future<void> insertCover(CoverDesign design) async {
+  ///
+  /// [title] is what is written on the cover instead (nothing, if empty).
+  Future<void> insertCover(CoverDesign design, {String? title}) async {
     if (coreInfo.readOnly) return;
-    final size = Size(EditorPage.defaultWidth, EditorPage.defaultHeight);
-    final bytes = await design.renderPng(size, title: coreInfo.fileName);
+    // As big as the notebook's own pages.
+    final first = coreInfo.pages.firstOrNull;
+    final size = first == null || first.backgroundImage is PdfEditorImage
+        ? EditorPage.defaultSize
+        : first.size;
+    final bytes = await design.renderPng(
+      size,
+      title: title ?? coreInfo.fileName,
+    );
     if (!mounted) return;
     setState(() {
       final page = EditorPage(

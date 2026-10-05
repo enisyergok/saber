@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:saber/components/home/sentry_consent_dialog.dart';
+import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/navbar/responsive_navbar.dart';
 import 'package:saber/components/settings/update_manager.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
+import 'package:saber/data/prefs.dart';
 import 'package:saber/pages/home/browse.dart';
+import 'package:saber/pages/home/dashboard.dart';
 import 'package:saber/pages/home/recent_notes.dart';
 import 'package:saber/pages/home/settings.dart';
 import 'package:saber/pages/home/whiteboard.dart';
@@ -22,6 +25,10 @@ class HomePage extends StatefulWidget {
   static const browseSubpage = 'browse';
   static const whiteboardSubpage = 'whiteboard';
   static const settingsSubpage = 'settings';
+
+  /// The home screen proper (see [DashboardPage]). It is not one of the
+  /// tabs of the classic navigation bar.
+  static const dashboardSubpage = 'dashboard';
   static const List<String> subpages = [
     browseSubpage,
     recentSubpage,
@@ -34,6 +41,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
+    stows.homeDashboard.addListener(_setState);
     super.initState();
     _showDialogs();
   }
@@ -49,6 +57,16 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
+  /// Whether the home screen with the sidebar is in use: it is switched
+  /// on, and the screen is wide enough for a sidebar.
+  bool get _showsDashboard =>
+      stows.homeDashboard.value &&
+      switch (stows.layoutSize.value) {
+        .auto => MediaQuery.sizeOf(context).width >= 600,
+        .phone => false,
+        .tablet => true,
+      };
+
   Widget get body {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -59,6 +77,11 @@ class _HomePageState extends State<HomePage> {
           HomePage.whiteboardSubpage => const Whiteboard(),
           HomePage.settingsSubpage => const SettingsPage(),
           HomePage.recentSubpage => const RecentPage(),
+          // On a phone there is no room for it: the notes are the home.
+          HomePage.dashboardSubpage =>
+            _showsDashboard
+                ? const DashboardPage()
+                : BrowsePage(path: widget.path),
           _ => BrowsePage(path: widget.path),
         },
       ),
@@ -73,8 +96,14 @@ class _HomePageState extends State<HomePage> {
       return body;
     }
 
+    final index = HomePage.subpages.indexOf(widget.subpage);
     return ResponsiveNavbar(
-      selectedIndex: HomePage.subpages.indexOf(widget.subpage),
+      // the home screen is not a tab: the notes are marked for it
+      selectedIndex: index < 0 ? 0 : index,
+      sidebarBuilder: _showsDashboard
+          ? (go) =>
+                HomeSidebar(subpage: widget.subpage, path: widget.path, go: go)
+          : null,
       body: body,
     );
   }
@@ -82,6 +111,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     DynamicMaterialApp.removeFullscreenListener(_setState);
+    stows.homeDashboard.removeListener(_setState);
 
     super.dispose();
   }

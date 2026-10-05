@@ -459,6 +459,14 @@ class Stows {
         volatile: !_isOnMainIsolate,
       );
 
+  /// The home screen with a sidebar, recent notes, folders and templates,
+  /// shown first on tablets instead of the plain list of notes.
+  final homeDashboard = PlainStow(
+    'homeDashboard',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// Which of the pens that share the fountain pen's [ToolId] was last
   /// used: an index into `PenVariant.values`.
   final lastPenVariant = PlainStow(

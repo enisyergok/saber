@@ -34,6 +34,13 @@ import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
+import 'package:saber/data/covers/cover_designs.dart';
+import 'package:saber/data/notebooks/notebook_spec.dart';
+import 'package:saber/data/notebooks/paper_templates.dart';
+import 'package:saber/components/navbar/home_sidebar.dart';
+import 'package:saber/pages/home/dashboard.dart';
+import 'package:saber/pages/home/new_notebook_wizard.dart';
+import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/select.dart';
@@ -90,6 +97,32 @@ void main() {
       await FileManager.createFolder('/Toplantılar');
       await FileManager.createFolder('/Projeler');
     });
+
+    // Real directory listings don't complete inside the test zone.
+    DashboardPage.overrideData = const DashboardData(
+      recent: [
+        '/Metric Spaces Week 1',
+        '/Golden ratio',
+        '/Import PDFs',
+        '/Annotate images and diagrams',
+        '/You can type notes too!',
+        '/Coding review 1',
+      ],
+      folders: {
+        'Dersler': 12,
+        'Planlayıcılar': 8,
+        'Projeler': 15,
+        'Kişisel': 22,
+        'Arşiv': 40,
+      },
+    );
+    HomeSidebar.overrideFolders = const {
+      'Üniversite': ['Dersler', 'Projeler'],
+      'Kişisel': [],
+      'Planlar': [],
+      'Araştırma': [],
+      'Arşiv': [],
+    };
 
     final theme = SaberTheme.createThemeFromSeed(
       YaruColors.blue,
@@ -159,6 +192,57 @@ void main() {
         ),
       ),
     );
+    _shot(
+      theme: theme,
+      name: 'home',
+      child: const HomePage(subpage: HomePage.dashboardSubpage, path: null),
+    );
+    for (final (step, name) in [
+      (0, 'template'),
+      (1, 'cover'),
+      (2, 'size'),
+      (4, 'folder'),
+      (5, 'summary'),
+    ])
+      _shot(
+        theme: theme,
+        name: 'wizard_$name',
+        child: const HomePage(subpage: HomePage.dashboardSubpage, path: null),
+        afterLoad: (tester) async {
+          showDialog<void>(
+            context: tester.element(find.byType(HomePage)),
+            builder: (context) => NewNotebookWizard(
+              startAt: step,
+              initial: NotebookSpec(
+                name: 'Mühendislik Notları',
+                folder: '/Projeler',
+                template: PaperTemplates.byId('engineering'),
+                cover: CoverDesigns.byId('c-navy'),
+                format: PaperFormat.a5,
+                paperColor: const Color(0xFFFFF8E7),
+              ),
+              loadFolders: () async => const [
+                '/Dersler',
+                '/Dersler/Fizik',
+                '/Projeler',
+                '/Arşiv',
+              ],
+            ),
+          );
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 400));
+        },
+      );
+    for (final group in [
+      PaperGroup.planner,
+      PaperGroup.engineering,
+      PaperGroup.diagram,
+    ])
+      _shot(
+        theme: theme,
+        name: 'gallery_${group.name}',
+        child: TemplateGalleryPage(group: group),
+      );
     _shot(
       theme: theme,
       name: 'pen_panel',

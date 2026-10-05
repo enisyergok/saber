@@ -11,23 +11,36 @@ import 'package:saber/pages/home/whiteboard.dart';
 import 'package:stow_codecs/stow_codecs.dart';
 
 class ResponsiveNavbar extends HookWidget {
-  const new({super.key, required this.body, this.selectedIndex = 0});
+  const new({
+    super.key,
+    required this.body,
+    this.selectedIndex = 0,
+    this.sidebarBuilder,
+  });
 
   final Widget body;
   final int selectedIndex;
+
+  /// Builds the sidebar shown on a large screen instead of the navigation
+  /// rail; it is given the way to go to another part of the home screen.
+  final Widget Function(void Function(String route) go)? sidebarBuilder;
 
   static var isLargeScreen = true;
 
   void onDestinationSelected(BuildContext context, int index) {
     if (index == selectedIndex) return;
-    final routes = HomeRoutes.routes;
+    goTo(context, HomeRoutes.routes[index].path);
+  }
 
+  /// Goes to [route], unless the whiteboard is open and still has to be
+  /// saved (it is then saved first, and the tap has to be repeated).
+  void goTo(BuildContext context, String route) {
     // if leaving whiteboard, check if saved
     final whiteboardPath = pathToFunction(RoutePaths.home)({
       'subpage': HomePage.whiteboardSubpage,
     });
-    final prevRoute = HomeRoutes.routes[selectedIndex];
-    if (prevRoute.path == whiteboardPath) {
+    final location = GoRouterState.of(context).uri.path;
+    if (location == whiteboardPath) {
       switch (Whiteboard.savingState) {
         case null:
         case .saved:
@@ -40,8 +53,7 @@ class ResponsiveNavbar extends HookWidget {
       }
     }
 
-    final route = routes[index];
-    context.go(route.path);
+    context.go(route);
   }
 
   @override
@@ -63,10 +75,13 @@ class ResponsiveNavbar extends HookWidget {
         body: Row(
           crossAxisAlignment: .stretch,
           children: [
-            VerticalNavbar(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (i) => onDestinationSelected(context, i),
-            ),
+            if (sidebarBuilder != null)
+              sidebarBuilder!((route) => goTo(context, route))
+            else
+              VerticalNavbar(
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (i) => onDestinationSelected(context, i),
+              ),
             Expanded(child: body),
           ],
         ),
