@@ -251,22 +251,29 @@ void main() {
     testWidgets('new note opens the wizard, a template chip its gallery', (
       tester,
     ) async {
-      await pumpHome(tester);
+      // tall enough that nothing has to be scrolled to
+      await pumpHome(tester, screen: const Size(1280, 1800));
+      expect(find.text(DefterStrings.actionNewNote), findsOneWidget);
       await tester.tap(find.text(DefterStrings.actionNewNote));
       await tester.pumpAndSettle();
       expect(find.byType(NewNotebookWizard), findsOneWidget);
+      expect(
+        find.text(DefterStrings.cancelWord),
+        findsOneWidget,
+        reason: 'the wizard can be left',
+      );
       await tester.tap(find.text(DefterStrings.cancelWord));
       await tester.pumpAndSettle();
+      expect(find.byType(NewNotebookWizard), findsNothing);
 
-      // the kinds of templates are at the foot of the page
-      final chip = find.widgetWithText(ActionChip, PaperGroup.engineering.label);
-      await tester.scrollUntilVisible(
-        chip,
-        200,
-        scrollable: find.byType(Scrollable).last,
+      final chip = find.widgetWithText(
+        ActionChip,
+        PaperGroup.engineering.label,
       );
+      expect(chip, findsOneWidget, reason: 'the kinds of templates are listed');
       await tester.tap(chip);
       await tester.pumpAndSettle();
+      expect(find.byType(TemplateGalleryPage), findsOneWidget);
       expect(
         tester.widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage)).group,
         PaperGroup.engineering,
