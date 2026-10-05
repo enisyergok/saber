@@ -15,6 +15,7 @@ Defter, Saber Notes'un (Flutter) çatalıdır. Tablet için kalem deneyimi,
 | Düzen | Çöp kutusu, favoriler, ad ve metin araması (Türkçe harf duyarlı), sayfa ızgarası ve yer imleri, sekmeler |
 | PDF | PDF içinde metin arama, içindekiler listesi, sayfa kırpma (Alt menü > PDF), PDF'e dışa aktarma |
 | Kalem | (devamı) Kalem çift dokunuşu eylemi (Ayarlar), kalem sinyali testi, kalem gecikme ölçümü (Ayarlar > Kalem gecikme ölçümü; editörde kayıt düğmesi) |
+| Kalem paneli | Kalem düğmesine ikinci dokunuş: dolma, tükenmez ve fırça uçlu kalem; uç keskinliği ve basınç duyarlılığı (5 kademe), çizgi stabilizasyonu, kalınlık, çiz ve tut, kalem hareketleri. Basınç, tablette ölçülen değerlere göre (hafif yazı 0,1–0,45, sert 0,94) çizgi kalınlığına yayılır. Fırça kalemin çizgileri dosyada dolma kalem olarak saklanır. |
 | E-mürekkep modu | Ayarlar > E-mürekkep modu. Arayüz ve notlar gri tonlarda, kâğıt gibi görünür (kâğıt sıcaklığı, mürekkep koyuluğu, doku şiddeti ayarlanır). Yalnızca görünümdür; notların renkleri değişmez. Resim ve PDF sayfaları gri tona çevrilir, sayfa değişince hafif yenileme efekti olur (Alt menü > Sayfayı yenile ile tam yenileme), pencere parlaklığı düşürülebilir, dışa aktarma isteğe bağlı gri tonlu olur |
 | Ses | Nota bağlı ses kaydı (cihazda saklanır) |
 | Bağlantılar | Metinden başka nota bağlantı |

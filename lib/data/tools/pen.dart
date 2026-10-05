@@ -226,18 +226,21 @@ class Pen extends Tool {
     stroke
       ..options.isComplete = true
       ..markPolygonNeedsUpdating();
-    return holdsToSnap ? ShapeSnap.finish(stroke) : stroke;
+    if (!holdsToSnap) return stroke;
+    final result = ShapeSnap.finish(stroke);
+    if (ShapeSnap.lastWasSnapped && kind != null) {
+      // A shape has even ends, whatever the pen's tip sharpness. These end
+      // options were made for this line alone (see [strokeOptions]).
+      result.options.start.taperEnabled = false;
+      result.options.end.taperEnabled = false;
+      result.markPolygonNeedsUpdating();
+    }
+    return result;
   }
 
   /// Shortens the pointed ends of a finished line that is itself short.
   static void _limitTapers(Stroke stroke) {
-    var length = 0.0;
-    for (var i = 1; i < stroke.points.length; i++) {
-      length += math.sqrt(
-        stroke.points[i].distanceSquaredTo(stroke.points[i - 1]),
-      );
-    }
-    final limit = PenFeel.maxTaper(length);
+    final limit = PenFeel.maxTaper(stroke.pathLength);
     for (final end in [stroke.options.start, stroke.options.end]) {
       final taper = end.customTaper;
       if (end.taperEnabled && taper != null && taper > limit) {
