@@ -4,9 +4,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.Surface
 import android.view.SurfaceView
 import android.view.View
+import android.view.WindowManager
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -18,6 +20,10 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 class MainActivity: FlutterActivity() {
     /// What the last refresh rate request did, for the pen latency report.
     private var requestNote = "no request yet"
+
+    /// The window brightness the app asked for (0-1), or
+    /// BRIGHTNESS_OVERRIDE_NONE to follow the system.
+    private var desiredBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (intent.getIntExtra("org.chromium.chrome.extra.TASK_ID", -1) == this.taskId) {
@@ -35,8 +41,15 @@ class MainActivity: FlutterActivity() {
         requestHighestRefreshRate()
     }
 
+    override fun onPause() {
+        // Leave the screen as the user set it for every other app.
+        setWindowBrightness(WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE)
+        super.onPause()
+    }
+
     override fun onResume() {
         super.onResume()
+        setWindowBrightness(desiredBrightness)
         // Some devices drop back to a slower mode when the app comes back.
         requestHighestRefreshRate()
         // The drawing surface may not exist yet right after starting.
@@ -52,12 +65,37 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/display")
             .setMethodCallHandler { call, result ->
-                if (call.method == "modes") {
-                    result.success(describeDisplayModes())
-                } else {
-                    result.notImplemented()
+                when (call.method) {
+                    "modes" -> result.success(describeDisplayModes())
+                    "setBrightness" -> {
+                        desiredBrightness =
+                            (call.argument<Double>("value") ?: -1.0).toFloat()
+                        setWindowBrightness(desiredBrightness)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
                 }
             }
+    }
+
+    /// Sets this window's brightness only (never the system setting). It
+    /// can only dim: a value above the system brightness is capped to it,
+    /// so the app is never brighter than the person chose.
+    private fun setWindowBrightness(value: Float) {
+        try {
+            val params = window.attributes
+            params.screenBrightness = if (value < 0f) {
+                WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            } else {
+                val system = Settings.System.getInt(
+                    contentResolver, Settings.System.SCREEN_BRIGHTNESS, 255
+                ) / 255f
+                minOf(value, system).coerceAtLeast(0.02f)
+            }
+            window.attributes = params
+        } catch (e: Exception) {
+            // Keep the system's brightness if it can't be set.
+        }
     }
 
     private fun currentDisplay(): android.view.Display? =

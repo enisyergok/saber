@@ -265,4 +265,37 @@ abstract class DefterStrings {
   static String get penPredictionSubtitle => _tr
       ? 'Hızlı yazarken çizginin kalemin ucundan geri kalmasını azaltır'
       : 'Reduces the line trailing behind the pen tip when writing fast';
+
+  // E-ink mode
+  static String get eInkSection => _tr ? 'E-mürekkep modu' : 'E-ink mode';
+  static String get eInkMode => _tr ? 'E-mürekkep modu' : 'E-ink mode';
+  static String get eInkModeSubtitle => _tr
+      ? 'Uygulamayı ve notları gri tonlarda, kâğıt gibi gösterir. Yalnızca görünümdür; notların renkleri değişmez.'
+      : 'Shows the app and notes in greys on paper. Only the view changes; the notes keep their colours.';
+  static String get eInkPaperWarmth =>
+      _tr ? 'Kâğıt sıcaklığı' : 'Paper warmth';
+  static String get eInkInkDarkness =>
+      _tr ? 'Mürekkep koyuluğu' : 'Ink darkness';
+  static String get eInkTexture => _tr ? 'Kâğıt dokusu' : 'Paper texture';
+  static String get eInkRefresh =>
+      _tr ? 'Yenileme efekti' : 'Refresh effect';
+  static String get eInkRefreshSubtitle => _tr
+      ? 'Sayfa değişince hafif bir yenileme. Yazarken hiç çalışmaz; "hareketi azalt" açıksa kapalıdır.'
+      : 'A light refresh when turning pages. Never while writing; off when "reduce motion" is on.';
+  static String get eInkRefreshPage =>
+      _tr ? 'Sayfayı yenile' : 'Refresh page';
+  static String get eInkBrightness =>
+      _tr ? 'Uygulama parlaklığı' : 'App brightness';
+  static String get eInkBrightnessSubtitle => _tr
+      ? 'Yalnızca bu uygulamanın penceresi için. Uygulamadan çıkınca veya mod kapanınca sistem parlaklığına döner.'
+      : 'For this app\'s window only. Goes back to the system brightness when you leave the app or turn the mode off.';
+  static String get eInkBrightnessSystem => _tr ? 'Sistem' : 'System';
+  static String get eInkExport =>
+      _tr ? 'Dışa aktarmada e-mürekkep görünümü' : 'Export in e-ink look';
+  static String get eInkExportSubtitle => _tr
+      ? 'PDF ve PNG çıktısı gri tonlu olur. Kapalıysa çıktı notun kendi renkleriyle alınır.'
+      : 'PDF and PNG exports are grey. When off, exports use the note\'s own colours.';
+  static String get eInkLimits => _tr
+      ? 'Gerçek e-mürekkep ekran ışığı yansıtır, görüntüyü güç harcamadan tutar ve fiziksel olarak yenilenir. Bunlar yazılımla yapılamaz; bu mod yalnızca görünümü taklit eder.'
+      : 'A real e-ink screen reflects light, holds an image without power and refreshes physically. Software cannot do those; this mode only imitates the look.';
 }

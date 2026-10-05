@@ -3,6 +3,7 @@ import 'package:one_dollar_unistroke_recognizer/one_dollar_unistroke_recognizer.
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
+import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/tools/_tool.dart';
@@ -67,20 +68,29 @@ class Canvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final eInk = EInkScope.maybeOf(context);
     return Center(
       child: FittedBox(
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(
-                  alpha: 0.1,
-                ), // dark regardless of theme
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
+          decoration: eInk != null
+              // E-ink: a thin edge instead of a soft shadow.
+              ? BoxDecoration(
+                  border: Border.all(
+                    color: eInk.ink.withValues(alpha: 0.6),
+                    width: 1.5,
+                  ),
+                )
+              : BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(
+                        alpha: 0.1,
+                      ), // dark regardless of theme
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
           child: !placeholder
               ? SizedBox(
                   width: page.size.width,

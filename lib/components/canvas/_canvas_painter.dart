@@ -10,6 +10,7 @@ import 'package:saber/components/canvas/_circle_stroke.dart';
 import 'package:saber/components/canvas/_rectangle_stroke.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/editor/page.dart';
+import 'package:saber/data/eink/eink_style.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/shape_analysis.dart';
@@ -39,6 +40,7 @@ class CanvasPainter extends CustomPainter {
     super.repaint,
     required this.layer,
     this.invert = false,
+    this.eInk,
     required this.strokes,
     required this.laserStrokes,
     required this.currentStroke,
@@ -54,6 +56,10 @@ class CanvasPainter extends CustomPainter {
 
   final InkLayer layer;
   final bool invert;
+
+  /// The e-ink look, or null when e-ink mode is off. Pen colours are shown
+  /// as greys (the strokes themselves keep their colour).
+  final EInkStyle? eInk;
   final List<Stroke> strokes;
   final List<LaserStroke> laserStrokes;
   final Stroke? currentStroke;
@@ -65,6 +71,15 @@ class CanvasPainter extends CustomPainter {
   final int totalPages;
   final double currentScale;
   final TextStyle defaultTextStyle;
+
+  /// A pen colour as shown: inverted in dark mode, or grey in e-ink mode.
+  Color _ink(Color color) =>
+      eInk != null ? eInk!.mapInk(color) : color.withInversion(invert);
+
+  /// The colour of the current stroke, or black when there is none.
+  Color _currentInk() => currentStroke != null
+      ? _ink(currentStroke!.color)
+      : (eInk?.ink ?? Colors.black);
 
   /// Called at the start of every [paint], so tests can count repaints.
   @visibleForTesting
@@ -100,6 +115,7 @@ class CanvasPainter extends CustomPainter {
       // the current stroke starting/ending.
       return currentStroke != oldDelegate.currentStroke ||
           invert != oldDelegate.invert ||
+          eInk != oldDelegate.eInk ||
           strokes.length != oldDelegate.strokes.length ||
           currentSelection != oldDelegate.currentSelection ||
           primaryColor != oldDelegate.primaryColor ||
@@ -117,6 +133,7 @@ class CanvasPainter extends CustomPainter {
         (laserStrokes.isNotEmpty || oldDelegate.laserStrokes.isNotEmpty) ||
         // Check for any other changes
         invert != oldDelegate.invert ||
+        eInk != oldDelegate.eInk ||
         currentSelection != oldDelegate.currentSelection ||
         primaryColor != oldDelegate.primaryColor ||
         page != oldDelegate.page ||
@@ -133,7 +150,7 @@ class CanvasPainter extends CustomPainter {
     for (final stroke in strokes) {
       if (stroke.toolId != .highlighter) continue;
 
-      final color = stroke.color.withValues(alpha: 1).withInversion(invert);
+      final color = _ink(stroke.color.withValues(alpha: 1));
 
       if (color != lastColor) {
         // new layer for each color
@@ -156,7 +173,7 @@ class CanvasPainter extends CustomPainter {
     for (final stroke in strokes) {
       if (stroke.toolId == .highlighter) continue;
 
-      var color = stroke.color.withInversion(invert);
+      var color = _ink(stroke.color);
       if (currentSelection?.strokes.contains(stroke) ?? false) {
         color = Color.lerp(color, primaryColor, 0.5)!;
       }
@@ -174,7 +191,8 @@ class CanvasPainter extends CustomPainter {
           paint.maskFilter = _getPencilMaskFilter(stroke.options.size);
         } else {
           // Fast imitation of pencil when zoomed out
-          final background = invert ? Colors.black : Colors.white;
+          final background =
+              eInk?.paper ?? (invert ? Colors.black : Colors.white);
           paint.color = Color.lerp(background, color, 0.6)!;
         }
       }
@@ -205,7 +223,7 @@ class CanvasPainter extends CustomPainter {
       return _drawLaserStroke(canvas, currentStroke as LaserStroke);
     }
 
-    final color = currentStroke!.color.withInversion(invert);
+    final color = _ink(currentStroke!.color);
     final paint = Paint();
 
     paint.color = color;
@@ -243,7 +261,7 @@ class CanvasPainter extends CustomPainter {
     canvas.drawPath(
       _selectPath(stroke),
       Paint()
-        ..color = stroke.color.withInversion(invert)
+        ..color = _ink(stroke.color)
         ..maskFilter = MaskFilter.blur(
           BlurStyle.solid,
           stroke.options.size * 0.4,
@@ -260,7 +278,7 @@ class CanvasPainter extends CustomPainter {
   }
 
   void _drawGuess(Canvas canvas, ShapeGuess guess) {
-    final color = currentStroke?.color.withInversion(invert) ?? Colors.black;
+    final color = _currentInk();
     final paint = Paint()
       ..color = Color.lerp(color, primaryColor, 0.5)!.withValues(alpha: 0.7)
       ..style = .stroke
@@ -282,7 +300,7 @@ class CanvasPainter extends CustomPainter {
     final shape = ShapePen.detectedShape;
     if (shape == null) return;
 
-    final color = currentStroke?.color.withInversion(invert) ?? Colors.black;
+    final color = _currentInk();
     final shapePaint = Paint()
       ..color = Color.lerp(color, primaryColor, 0.5)!.withValues(alpha: 0.7)
       ..style = .stroke
@@ -395,7 +413,7 @@ class CanvasPainter extends CustomPainter {
     final builder = ui.ParagraphBuilder(style)
       ..pushStyle(
         ui.TextStyle(
-          color: Colors.black.withInversion(invert).withValues(alpha: 0.5),
+          color: _ink(Colors.black).withValues(alpha: 0.5),
           fontSize: _pageIndicatorFontSize,
           fontFamily: defaultTextStyle.fontFamily,
           fontFamilyFallback: defaultTextStyle.fontFamilyFallback,

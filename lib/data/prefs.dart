@@ -224,6 +224,57 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// E-ink mode: shows notes and the app on imitation paper in greys. It is
+  /// only how things are displayed; notes keep their own colours.
+  final eInkMode = PlainStow(
+    'eInkMode',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// 0 = neutral paper, 1 = warm paper.
+  final eInkPaperWarmth = PlainStow(
+    'eInkPaperWarmth',
+    0.4,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// 0 = soft dark grey ink, 1 = near-black ink.
+  final eInkInkDarkness = PlainStow(
+    'eInkInkDarkness',
+    0.8,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Strength of the paper grain, 0 to 1.
+  final eInkTexture = PlainStow(
+    'eInkTexture',
+    0.3,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// The short refresh on page turns and "refresh page".
+  final eInkRefreshEffect = PlainStow(
+    'eInkRefreshEffect',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// How bright the app's window is while e-ink mode is on:
+  /// 0 = leave it to the system, 1 = 70%, 2 = 50%, 3 = 35%.
+  final eInkBrightness = PlainStow(
+    'eInkBrightness',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Whether exports (PDF, PNG) use the e-ink look while e-ink mode is on.
+  final eInkExport = PlainStow(
+    'eInkExport',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// Shows the pen latency recording button in the editor.
   final penProbe = PlainStow(
     'penProbe',

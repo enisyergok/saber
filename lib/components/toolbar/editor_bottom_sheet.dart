@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
+import 'package:saber/components/eink/eink_refresh.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
@@ -355,6 +356,30 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                         widget.cropPdfPage();
                       },
                     ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+            if (stows.eInkMode.value && stows.eInkRefreshEffect.value) ...[
+              Text(
+                DefterStrings.eInkSection,
+                style: TextTheme.of(context).titleMedium,
+              ),
+              Wrap(
+                spacing: 8,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: Text(DefterStrings.eInkRefreshPage),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // once the sheet has gone, so the whole page flashes
+                      Future.delayed(
+                        const Duration(milliseconds: 250),
+                        EInkRefresh.instance.full,
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 16),

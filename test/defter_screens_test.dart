@@ -15,9 +15,14 @@ import 'package:saber/components/canvas/canvas.dart' as saber;
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/syncing_button.dart';
+import 'package:saber/components/eink/eink_image_filter.dart';
+import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/benchmark/synthetic_notes.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/eink/eink_style.dart';
+import 'package:saber/data/eink/eink_texture.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
@@ -238,13 +243,105 @@ void main() {
         await tester.pump();
       },
     );
+
+    // E-ink mode next to the normal look, on the same notes: an empty page
+    // with the interface, a dense handwritten page, a page with a photo and
+    // a PDF page.
+    const eInk = EInkStyle();
+    for (final (scene, path) in [
+      ('blank', '/e-ink bos not'),
+      ('handwriting', '/Metric Spaces Week 1'),
+    ]) {
+      // An empty note never counts as "loaded" (it has nothing in it), so
+      // for that scene the editor is given a moment instead.
+      final waitForEditor = scene != 'blank';
+      _shot(
+        theme: theme,
+        name: 'cmp_${scene}_normal',
+        waitForEditor: waitForEditor,
+        child: Editor(path: path),
+        afterLoad: (_) async => OpenTabs.reset(),
+      );
+      _shot(
+        theme: theme,
+        eInk: eInk,
+        name: 'cmp_${scene}_eink',
+        waitForEditor: waitForEditor,
+        child: Editor(path: path),
+        afterLoad: (_) async => OpenTabs.reset(),
+      );
+    }
+    // Continuous-tone content goes through the same filter the app uses for
+    // photos and PDF pages. (Real notes with pictures never finish loading in
+    // the test zone, so these are drawn from plain widgets.)
+    for (final scene in ['photo', 'pdf']) {
+      for (final on in [false, true]) {
+        _shot(
+          theme: theme,
+          eInk: on ? eInk : null,
+          name: 'cmp_${scene}_${on ? 'eink' : 'normal'}',
+          child: _ToneScene(pdf: scene == 'pdf'),
+        );
+      }
+    }
+    _shot(
+      theme: theme,
+      eInk: eInk,
+      name: 'eink_library',
+      children: DirectoryChildren(
+        ['Projeler', 'Toplantılar'],
+        [
+          'Annotate images and diagrams',
+          'Golden ratio',
+          'Import PDFs',
+          'Metric Spaces Week 1',
+          'You can type notes too!',
+          'Coding review 1',
+          'HG Week 6',
+          'Topology week 1',
+        ],
+      ),
+      child: const HomePage(subpage: HomePage.browseSubpage, path: null),
+    );
+    _shot(
+      theme: theme,
+      eInk: eInk,
+      name: 'eink_settings',
+      child: const HomePage(subpage: HomePage.settingsSubpage, path: null),
+      afterLoad: (tester) async {
+        // the e-ink section is far down the list
+        try {
+          await tester.scrollUntilVisible(
+            find.text(DefterStrings.eInkSection),
+            400,
+            scrollable: find.byType(Scrollable).first,
+            maxScrolls: 60,
+          );
+        } catch (_) {
+          // still take the picture of whatever is on screen
+        }
+        await tester.pump();
+      },
+    );
+    _shot(
+      theme: theme,
+      eInk: eInk,
+      name: 'eink_new_notebook',
+      child: const HomePage(subpage: HomePage.recentSubpage, path: null),
+      afterLoad: (tester) async {
+        NewNotebookDialog.show(tester.element(find.byType(HomePage)));
+        await tester.pump();
+      },
+    );
   });
 }
 
 void _shot({
   required ThemeData theme,
+  EInkStyle? eInk,
   required String name,
   required Widget child,
+  bool waitForEditor = true,
   DirectoryChildren? children,
   Future<void> Function(WidgetTester tester)? afterLoad,
 }) {
@@ -254,11 +351,31 @@ void _shot({
     stows.platform.value = _tablet.platform;
     await tester.runAsync(() => LocaleSettings.setLocaleRaw('tr'));
 
+    if (eInk != null) {
+      stows.eInkMode.value = true;
+      addTearDown(() => stows.eInkMode.value = false);
+      // The paper grain is made before the page is drawn, as it is in the app.
+      if (eInk.textureStep > 0) {
+        await tester.runAsync(
+          () => EInkTexture.load(
+            eInk.textureStep,
+            maxAlpha: EInkStyle.maxGrainAlpha,
+          ),
+        );
+      }
+    }
+
     final widget = ScreenshotApp.withConditionalTitlebar(
-      theme: theme,
+      theme: eInk == null
+          ? theme
+          : SaberTheme.createEInkTheme(eInk, _tablet.platform),
       device: _tablet,
       title: 'Defter',
-      home: TranslationProvider(child: child),
+      home: TranslationProvider(
+        child: eInk == null
+            ? child
+            : EInkScope(style: eInk, child: child),
+      ),
     );
     await tester.pumpWidget(widget);
     await tester.pump();
@@ -267,10 +384,13 @@ void _shot({
       find.byType(Editor),
     )) {
       // Wait for the editor to load
+      var waited = 0;
       while (editorState.coreInfo.isEmpty) {
         await tester.runAsync(
           () => Future.delayed(const Duration(milliseconds: 100)),
         );
+        // never wait for ever: a note with nothing in it looks unloaded
+        if (++waited >= (waitForEditor ? 100 : 15)) break;
       }
       await tester.pump();
     }
@@ -284,11 +404,88 @@ void _shot({
     await afterLoad?.call(tester);
 
     await tester.loadAssets();
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 100),
+      EnginePhase.sendSemanticsUpdate,
+      const Duration(seconds: 20),
+    );
 
     await expectLater(
       find.byType(MaterialApp),
       matchesGoldenFile('defter_shots/$name.png'),
     );
   });
+}
+
+/// A stand-in for a photo (colour gradients and shapes) or a PDF page (text
+/// lines, a grey table and a coloured chart) inside the e-ink image filter.
+class _ToneScene extends StatelessWidget {
+  const new({required this.pdf});
+
+  final bool pdf;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget content = pdf
+        ? Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(48),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < 12; i++)
+                  Container(
+                    height: 10,
+                    width: 900.0 - (i % 4) * 90,
+                    margin: const EdgeInsets.only(bottom: 18),
+                    color: Colors.black87,
+                  ),
+                Container(height: 160, color: Colors.grey.shade300),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    for (final c in [
+                      Colors.red,
+                      Colors.green,
+                      Colors.blue,
+                      Colors.orange,
+                    ])
+                      Container(
+                        width: 120,
+                        height: 200,
+                        margin: const EdgeInsets.only(right: 16),
+                        color: c,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        : Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.indigo, Colors.teal, Colors.amber, Colors.pink],
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Container(
+              width: 420,
+              height: 420,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.orange.shade700,
+                boxShadow: const [BoxShadow(blurRadius: 60, spreadRadius: 10)],
+              ),
+            ),
+          );
+    return Scaffold(
+      body: Center(
+        child: SizedBox(
+          width: 1000,
+          height: 1000,
+          child: EInkImageFilter(child: content),
+        ),
+      ),
+    );
+  }
 }

@@ -14,6 +14,7 @@ import 'package:saber/components/settings/settings_color.dart';
 import 'package:saber/components/settings/settings_directory_selector.dart';
 import 'package:saber/components/settings/settings_dropdown.dart';
 import 'package:saber/components/settings/settings_selection.dart';
+import 'package:saber/components/settings/settings_slider.dart';
 import 'package:saber/components/settings/settings_sentry.dart';
 import 'package:saber/components/settings/settings_subtitle.dart';
 import 'package:saber/components/settings/settings_switch.dart';
@@ -505,6 +506,68 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.numbers,
                   pref: stows.printPageIndicators,
                 ),
+                SettingsSubtitle(subtitle: DefterStrings.eInkSection),
+                SettingsSwitch(
+                  title: DefterStrings.eInkMode,
+                  subtitle: DefterStrings.eInkModeSubtitle,
+                  icon: Icons.menu_book_outlined,
+                  pref: stows.eInkMode,
+                  afterChange: (_) => setState(() {}),
+                ),
+                if (stows.eInkMode.value) ...[
+                  SettingsSlider(
+                    title: DefterStrings.eInkPaperWarmth,
+                    icon: Icons.wb_sunny_outlined,
+                    pref: stows.eInkPaperWarmth,
+                  ),
+                  SettingsSlider(
+                    title: DefterStrings.eInkInkDarkness,
+                    icon: Icons.edit_outlined,
+                    pref: stows.eInkInkDarkness,
+                  ),
+                  SettingsSlider(
+                    title: DefterStrings.eInkTexture,
+                    icon: Icons.grain,
+                    pref: stows.eInkTexture,
+                  ),
+                  SettingsSwitch(
+                    title: DefterStrings.eInkRefresh,
+                    subtitle: DefterStrings.eInkRefreshSubtitle,
+                    icon: Icons.refresh,
+                    pref: stows.eInkRefreshEffect,
+                  ),
+                  SettingsSelection(
+                    title: DefterStrings.eInkBrightness,
+                    subtitle: DefterStrings.eInkBrightnessSubtitle,
+                    icon: Icons.brightness_6_outlined,
+                    pref: stows.eInkBrightness,
+                    options: [
+                      ToggleButtonsOption(
+                        0,
+                        Text(DefterStrings.eInkBrightnessSystem),
+                      ),
+                      const ToggleButtonsOption(1, Text('70%')),
+                      const ToggleButtonsOption(2, Text('50%')),
+                      const ToggleButtonsOption(3, Text('35%')),
+                    ],
+                  ),
+                  SettingsSwitch(
+                    title: DefterStrings.eInkExport,
+                    subtitle: DefterStrings.eInkExportSubtitle,
+                    icon: Icons.ios_share,
+                    pref: stows.eInkExport,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      DefterStrings.eInkLimits,
+                      style: TextTheme.of(context).bodySmall,
+                    ),
+                  ),
+                ],
                 SettingsSubtitle(
                   subtitle: t.settings.prefCategories.performance,
                 ),
