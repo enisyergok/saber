@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+
 /// What a stylus button press (such as the double tap of some pens) does
 /// in the editor.
 enum StylusAction {
@@ -34,6 +38,30 @@ abstract class StylusKeys {
     final code = keyId & 0xFFFFFFFF;
     return code >= firstKeyCode && code <= lastKeyCode;
   }
+}
+
+/// The pen double tap of HONOR/HUAWEI tablets: Android sends key code 718,
+/// which Flutter has no key for, so the Android side passes it on through the
+/// `defter/input` channel.
+abstract class NativeStylusPress {
+  static const _channel = MethodChannel('defter/input');
+  static final _presses = StreamController<void>.broadcast();
+  static bool _ready = false;
+
+  /// Starts listening to the Android side (once).
+  static void init() {
+    if (_ready) return;
+    _ready = true;
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'stylusKey') _presses.add(null);
+    });
+  }
+
+  static Stream<void> get presses => _presses.stream;
+
+  /// A double tap can arrive as one press or as two quick ones; presses closer
+  /// together than this are one double tap.
+  static const mergeMs = 600;
 }
 
 /// Counts presses that follow each other quickly, so that a double press can
