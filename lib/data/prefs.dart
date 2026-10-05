@@ -224,6 +224,22 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// What a stylus button press (the pen's double tap, for example) does.
+  /// An index into `StylusAction.values`.
+  final stylusAction = PlainStow(
+    'stylusAction',
+    1, // StylusAction.toggleEraser
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// How many quick presses of the stylus button make one trigger (1 or 2).
+  /// Some pens already send one event for their double tap.
+  final stylusTapsNeeded = PlainStow(
+    'stylusTapsNeeded',
+    1,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// Whether the editor shows the page thumbnails beside the page, on wide
   /// screens.
   final editorPageSidebar = PlainStow(

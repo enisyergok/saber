@@ -80,6 +80,34 @@ abstract class DefterStrings {
   // Tools
   static String get eraserSize => _tr ? 'Silgi boyutu' : 'Eraser size';
 
+  // Stylus button
+  static String get stylusAction => _tr ? 'Kalem çift dokunuşu' : 'Pen double tap';
+  static String get stylusActionSubtitle => _tr
+      ? 'Kalemin yan tuşuna ya da çift dokunuşuna basınca yapılacak iş'
+      : 'What happens when the pen\'s side button or double tap is used';
+  static String get stylusTaps => _tr ? 'Gereken dokunuş' : 'Taps needed';
+  static String get stylusTapsSubtitle => _tr
+      ? 'Kalem çift dokunuşu tek olay olarak gönderiyorsa 1, iki ayrı basış olarak gönderiyorsa 2'
+      : '1 if the pen sends its double tap as one event, 2 if as two separate presses';
+  static String get stylusTest => _tr ? 'Kalem testi' : 'Pen test';
+  static String get stylusTestSubtitle => _tr
+      ? 'Kalemin gönderdiği sinyalleri canlı gör'
+      : 'See the signals the pen sends, live';
+  static String get stylusTestHint => _tr
+      ? 'Kalemi aşağıdaki alana tutun ve çift dokunuşu ya da yan tuşu deneyin. Gelen her sinyal listelenir.'
+      : 'Hold the pen over the area below and try the double tap or the side button. Every signal is listed.';
+  static String get stylusTestNothing => _tr ? 'Henüz sinyal yok' : 'No signals yet';
+  static String get stylusTestDetected =>
+      _tr ? 'Bu bir kalem tuşu sinyali' : 'This is a pen button signal';
+  static String get stylusTestClear => _tr ? 'Temizle' : 'Clear';
+  static String get stylusNone => _tr ? 'Hiçbir şey' : 'Nothing';
+  static String get stylusToggleEraser => _tr ? 'Silgi' : 'Eraser';
+  static String get stylusPreviousTool => _tr ? 'Önceki araç' : 'Previous tool';
+  static String get stylusLasso => _tr ? 'Kement' : 'Lasso';
+  static String get stylusHighlighter => _tr ? 'Fosforlu' : 'Highlighter';
+  static String get stylusUndo => _tr ? 'Geri al' : 'Undo';
+  static String get stylusRedo => _tr ? 'Yinele' : 'Redo';
+
   // PDF
   static String get pdfTools => _tr ? 'PDF: ara ve içindekiler' : 'PDF: search and contents';
   static String get pdfSearchHint => _tr ? 'PDF içinde ara' : 'Search in the PDF';
