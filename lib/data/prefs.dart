@@ -224,6 +224,13 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Shows the pen latency recording button in the editor.
+  final penProbe = PlainStow(
+    'penProbe',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// What a stylus button press (the pen's double tap, for example) does.
   /// An index into `StylusAction.values`.
   final stylusAction = PlainStow(

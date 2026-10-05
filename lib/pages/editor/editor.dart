@@ -34,6 +34,7 @@ import 'package:saber/components/toolbar/editor_bottom_sheet.dart';
 import 'package:saber/components/toolbar/editor_page_grid.dart';
 import 'package:saber/components/toolbar/editor_page_manager.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
+import 'package:saber/data/benchmark/pen_latency_probe.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/editor_exporter.dart';
@@ -53,6 +54,7 @@ import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
+import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
@@ -209,6 +211,7 @@ class EditorState extends State<Editor> {
     _transformationController.addListener(_scheduleVisiblePageUpdate);
     OpenTabs.paths.addListener(_setState);
     stows.editorPageSidebar.addListener(_setState);
+    stows.penProbe.addListener(_setState);
 
     _initAsync();
     _assignKeybindings();
@@ -1992,6 +1995,24 @@ class EditorState extends State<Editor> {
                       );
                     }),
                   ),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: PenLatencyProbe.instance.recording,
+                    builder: (context, recording, _) {
+                      if (!stows.penProbe.value && !recording) {
+                        return const SizedBox.shrink();
+                      }
+                      return IconButton(
+                        icon: Icon(
+                          recording ? Icons.stop_circle : Icons.speed,
+                          color: recording ? Colors.red : null,
+                        ),
+                        tooltip: recording
+                            ? DefterStrings.penProbeStop
+                            : DefterStrings.penProbeStart,
+                        onPressed: _togglePenProbe,
+                      );
+                    },
+                  ),
                   IconButton(
                     icon: const Icon(Icons.mic_none),
                     tooltip: DefterStrings.recordings,
@@ -2311,6 +2332,21 @@ class EditorState extends State<Editor> {
     );
   }
 
+  /// Starts a pen latency recording, or stops it and shows the result.
+  void _togglePenProbe() {
+    final probe = PenLatencyProbe.instance;
+    if (!probe.recording.value) {
+      probe.start();
+      return;
+    }
+    final report = probe.stop();
+    if (report == null || !mounted) return;
+    showDialog<void>(
+      context: context,
+      builder: (_) => PenLatencyDialog(text: report.toText()),
+    );
+  }
+
   /// Cuts the edges off the PDF page that is on screen (or off all of the
   /// pages of the same PDF).
   void cropPdfPage() {
@@ -2592,6 +2628,7 @@ class EditorState extends State<Editor> {
 
     DynamicMaterialApp.removeFullscreenListener(_setState);
     stows.editorPageSidebar.removeListener(_setState);
+    stows.penProbe.removeListener(_setState);
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
     OpenTabs.paths.removeListener(_setState);
 
@@ -2601,6 +2638,7 @@ class EditorState extends State<Editor> {
 
     _removeKeybindings();
     HardwareKeyboard.instance.removeHandler(_handleStylusKey);
+    PenLatencyProbe.instance.stop();
 
     // manually save pen properties since the listeners don't fire if a property is changed
     stows.lastFountainPenOptions.notifyListeners();

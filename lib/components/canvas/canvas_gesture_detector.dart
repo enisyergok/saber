@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keybinder/keybinder.dart';
+import 'package:saber/data/benchmark/pen_latency_probe.dart';
 import 'package:saber/components/canvas/hud/canvas_hud.dart';
 import 'package:saber/components/canvas/interactive_canvas.dart';
 import 'package:saber/components/canvas/palm_rejection.dart';
@@ -455,6 +456,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
   }
 
   void _listenerPointerEvent(PointerEvent event) {
+    PenLatencyProbe.instance.onPointer(event);
     palmRejection.handleEvent(event);
     if (_isPalmEvent(event)) return;
     final isStylus =
