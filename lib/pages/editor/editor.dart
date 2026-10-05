@@ -2333,13 +2333,13 @@ class EditorState extends State<Editor> {
   }
 
   /// Starts a pen latency recording, or stops it and shows the result.
-  void _togglePenProbe() {
+  Future<void> _togglePenProbe() async {
     final probe = PenLatencyProbe.instance;
     if (!probe.recording.value) {
       probe.start();
       return;
     }
-    final report = probe.stop();
+    final report = await probe.stop();
     if (report == null || !mounted) return;
     showDialog<void>(
       context: context,
@@ -2638,7 +2638,7 @@ class EditorState extends State<Editor> {
 
     _removeKeybindings();
     HardwareKeyboard.instance.removeHandler(_handleStylusKey);
-    PenLatencyProbe.instance.stop();
+    unawaited(PenLatencyProbe.instance.stop());
 
     // manually save pen properties since the listeners don't fire if a property is changed
     stows.lastFountainPenOptions.notifyListeners();

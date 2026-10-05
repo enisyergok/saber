@@ -75,6 +75,7 @@ class PenLatencyRecorder {
   PenLatencyReport finish({
     required bool prediction,
     double? displayHz,
+    String? displayModes,
   }) {
     // Time between consecutive pen events (ignoring pauses between strokes).
     final intervals = <double>[];
@@ -100,7 +101,20 @@ class PenLatencyRecorder {
         ? 0
         : frameIntervals.where((dt) => dt > frameMedian * 1.5).length;
 
+    // Some devices stamp pen events with a different clock than the one the
+    // frames use (the two can be days apart). The offset is constant, so the
+    // ages are then measured from the newest one that was seen right before
+    // a frame, which cannot be negative in reality.
+    final rawAgesMs = _ageUs.map((e) => e / 1000).toList();
+    final medianAge = _percentile(rawAgesMs, 50);
+    final clocksDiffer = rawAgesMs.isNotEmpty &&
+        (medianAge < -50 || medianAge > 1000);
+    final shiftMs = clocksDiffer ? rawAgesMs.reduce(math.min) : 0.0;
+    final agesMs = rawAgesMs.map((e) => e - shiftMs);
+
     return PenLatencyReport(
+      clocksDiffer: clocksDiffer,
+      displayModes: displayModes,
       seconds: (_endedAtUs - _startedAtUs) / 1e6,
       events: _eventUs.length,
       kinds: _kinds.toList()..sort(),
@@ -114,7 +128,7 @@ class PenLatencyRecorder {
           ? 0
           : slowFrames / frameIntervals.length,
       eventsPerFrame: _percentile(_batchSizes.map((e) => e.toDouble()), 50),
-      ageMs: LatencyStat.of(_ageUs.map((e) => e / 1000)),
+      ageMs: LatencyStat.of(agesMs),
       spanMs: LatencyStat.of(_spanUs.map((e) => e / 1000)),
       buildMs: LatencyStat.of(_buildUs.map((e) => e / 1000)),
       rasterMs: LatencyStat.of(_rasterUs.map((e) => e / 1000)),
@@ -157,6 +171,8 @@ class LatencyStat {
 /// The result of a pen latency recording.
 class PenLatencyReport {
   const PenLatencyReport({
+    required this.clocksDiffer,
+    required this.displayModes,
     required this.seconds,
     required this.events,
     required this.kinds,
@@ -175,6 +191,13 @@ class PenLatencyReport {
     required this.medianSpeed,
     required this.fastSpeed,
   });
+
+  /// Pen events and frames use different clocks on this device, so the
+  /// event ages are relative to the freshest event seen.
+  final bool clocksDiffer;
+
+  /// The display modes the device offers and the one in use, if known.
+  final String? displayModes;
 
   final double seconds;
   final int events;
@@ -213,9 +236,17 @@ class PenLatencyReport {
   /// Same, for the slower frames (95th percentile of each part).
   double get softwareLatencyWorstMs => ageMs.p95 + spanMs.p95;
 
+  /// The time one frame takes at the measured rate, in milliseconds. A
+  /// finished frame waits for the next screen refresh, so roughly this much
+  /// comes on top of [softwareLatencyMs].
+  double get frameIntervalMs => measuredHz <= 0 ? 0 : 1000 / measuredHz;
+
+  /// [softwareLatencyMs] plus one frame interval for the screen refresh.
+  double get totalLatencyMs => softwareLatencyMs + frameIntervalMs;
+
   /// How far (logical pixels) the ink end trails the pen tip during a fast
-  /// stroke because of [softwareLatencyMs].
-  double get trailPx => fastSpeed * softwareLatencyMs / 1000;
+  /// stroke because of [totalLatencyMs].
+  double get trailPx => fastSpeed * totalLatencyMs / 1000;
 
   /// How many frames at the measured rate [softwareLatencyMs] is.
   double get latencyInFrames =>
@@ -238,12 +269,22 @@ class PenLatencyReport {
       'Ekran: ${displayHz == null ? '?' : displayHz!.toStringAsFixed(0)} Hz '
       'bildirildi, ${measuredHz.toStringAsFixed(0)} Hz ölçüldü',
     );
+    if (displayModes != null && displayModes!.isNotEmpty) {
+      b.writeln('Ekran modları: $displayModes');
+    }
     b.writeln('');
     b.writeln(
       'Kalem olay aralığı: ${ms(eventIntervalMs)} ms '
       '(${eventIntervalMs <= 0 ? '?' : (1000 / eventIntervalMs).toStringAsFixed(0)} Hz), '
       'kare başına ${eventsPerFrame.toStringAsFixed(0)} olay',
     );
+    if (clocksDiffer) {
+      b.writeln(
+        'Bu cihazda kalem olayları ile kareler farklı saat kullanıyor; '
+        'olay yaşları en taze olaya göre ölçüldü (gerçek değer biraz '
+        'daha yüksek olabilir).',
+      );
+    }
     b.writeln(
       'Olay yaşı (karenin başlangıcında): ortanca ${ms(ageMs.p50)} ms, '
       '%95 ${ms(ageMs.p95)} ms, en çok ${ms(ageMs.max)} ms',
@@ -264,9 +305,13 @@ class PenLatencyReport {
     );
     b.writeln('');
     b.writeln(
-      'Tahmini yazılım gecikmesi: ${ms(softwareLatencyMs)} ms '
+      'Yazılım gecikmesi (olay yaşı + kare): ${ms(softwareLatencyMs)} ms '
       '(${latencyInFrames.toStringAsFixed(1)} kare), kötü anda '
       '${ms(softwareLatencyWorstMs)} ms',
+    );
+    b.writeln(
+      'Ekrana yansıma dahil tahmin (+1 kare = ${ms(frameIntervalMs)} ms): '
+      '${ms(totalLatencyMs)} ms',
     );
     b.writeln(
       'Hızlı çizgide kalem hızı ${fastSpeed.toStringAsFixed(0)} px/sn → '
