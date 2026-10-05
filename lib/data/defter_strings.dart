@@ -7,6 +7,10 @@ import 'package:saber/i18n/strings.g.dart';
 /// provided; other locales fall back to English.
 abstract class DefterStrings {
   static bool get _tr => LocaleSettings.currentLocale.languageCode == 'tr';
+  static bool get isTr => _tr;
+
+  static String get coverTitle => _tr ? 'Kapak ekle' : 'Add cover';
+  static String get coverAdded => _tr ? 'Kapak eklendi' : 'Cover added';
 
   static String get pages => _tr ? 'Sayfalar' : 'Pages';
   static String get allPages => _tr ? 'Tümü' : 'All';

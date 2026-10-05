@@ -4,6 +4,7 @@ import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
+import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
@@ -25,6 +26,7 @@ class EditorBottomSheet extends StatefulWidget {
     required this.currentPageIndex,
     required this.setBackgroundPattern,
     required this.setBackgroundColor,
+    required this.insertCover,
     required this.setLineHeight,
     required this.setLineThickness,
     required this.removeBackgroundImage,
@@ -48,6 +50,7 @@ class EditorBottomSheet extends StatefulWidget {
   final int? currentPageIndex;
   final void Function(CanvasBackgroundPattern) setBackgroundPattern;
   final void Function(Color?) setBackgroundColor;
+  final void Function(CoverDesign) insertCover;
   final void Function(int) setLineHeight;
   final void Function(int) setLineThickness;
   final VoidCallback removeBackgroundImage;
@@ -237,6 +240,40 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                               ? ColorScheme.of(context).primary
                               : ColorScheme.of(context).outlineVariant,
                           width: selected ? 3 : 1,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              DefterStrings.coverTitle,
+              style: TextTheme.of(context).titleMedium,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 96,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: CoverDesigns.all.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final design = CoverDesigns.all[index];
+                  return Tooltip(
+                    message: design.name,
+                    child: InkWell(
+                      onTap: () => widget.insertCover(design),
+                      child: AspectRatio(
+                        aspectRatio: 1000 / 1400,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: ColorScheme.of(context).outlineVariant,
+                            ),
+                          ),
+                          child: CustomPaint(painter: _CoverPainter(design)),
                         ),
                       ),
                     ),
@@ -549,4 +586,21 @@ class _PermanentTooltip extends StatelessWidget {
       ),
     );
   }
+}
+
+class _CoverPainter extends CustomPainter {
+  const _CoverPainter(this.design);
+  final CoverDesign design;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // draw at page size, scaled down
+    canvas.save();
+    canvas.scale(size.width / 1000);
+    design.draw(canvas, Size(1000, size.height * 1000 / size.width));
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_CoverPainter old) => old.design != design;
 }
