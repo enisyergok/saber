@@ -108,7 +108,82 @@ enum CanvasBackgroundPattern(
   hexagon('hexagon', requiresClipping: true, template: true),
 
   /// Diamond grid (diagonal lines)
-  diamond('diamond', requiresClipping: true, template: true);
+  diamond('diamond', requiresClipping: true, template: true),
+
+  /// Yearly planner
+  yearly('yearly', template: true),
+
+  /// Class schedule
+  classSchedule('class-schedule', template: true),
+
+  /// Habit tracker
+  habits('habits', template: true),
+
+  /// Budget planner
+  budget('budget', template: true),
+
+  /// Meal planner
+  meals('meals', template: true),
+
+  /// Travel planner
+  travel('travel', template: true),
+
+  /// Project planner
+  project('project', template: true),
+
+  /// Water tracker
+  water('water', template: true),
+
+  /// Reading log
+  reading('reading', template: true),
+
+  /// Shopping list
+  shopping('shopping', template: true),
+
+  /// Mind map
+  mindMap('mind-map', template: true),
+
+  /// Concept map
+  conceptMap('concept-map', template: true),
+
+  /// Flowchart
+  flowchart('flowchart', template: true),
+
+  /// Decision tree
+  decisionTree('decision-tree', template: true),
+
+  /// Venn diagram
+  venn('venn', template: true),
+
+  /// Cycle
+  cycle('cycle', template: true),
+
+  /// Pyramid
+  pyramid('pyramid', template: true),
+
+  /// Fishbone
+  fishbone('fishbone', template: true),
+
+  /// SWOT
+  swot('swot', template: true),
+
+  /// Timeline
+  timeline('timeline', template: true),
+
+  /// Rings
+  rings('rings', template: true),
+
+  /// Wheel
+  wheel('wheel', template: true),
+
+  /// Wireframe
+  wireframe('wireframe', template: true),
+
+  /// Coordinate plane
+  math('math', template: true),
+
+  /// Recipe
+  recipe('recipe', template: true);
 
   static CanvasBackgroundPattern fromName(String? name) {
     return values.firstWhere(
