@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:sbn/canvas_background_pattern.dart';
 
@@ -83,7 +84,23 @@ class CanvasBackgroundPainter extends CustomPainter {
         paint.color = primaryColor.withValues(alpha: lineAlpha);
       }
 
-      if (element.isLine) {
+      if (element.label != null) {
+        final painter = TextPainter(
+          text: TextSpan(
+            text: element.label,
+            style: TextStyle(
+              color: primaryColor.withValues(alpha: lineAlpha * 2.2),
+              fontSize: lineHeight * 0.55,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+          maxLines: 1,
+          ellipsis: '…',
+        )..layout(maxWidth: element.labelWidth ?? size.width);
+        painter.paint(canvas, element.start);
+        painter.dispose();
+      } else if (element.isLine) {
         canvas.drawLine(element.start, element.end, paint);
       } else {
         canvas.drawCircle(element.start, paint.strokeWidth * 4 / 3, paint);
@@ -196,6 +213,16 @@ class CanvasBackgroundPainter extends CustomPainter {
             isLine: true,
           );
         }
+      case .isometric:
+      case .engineering:
+      case .writing:
+      case .todo:
+      case .weekly:
+      case .daily:
+      case .monthly:
+      case .meeting:
+      case .storyboard:
+        yield* _templateElements(pattern, size, lineHeight.toDouble());
       case .cornell:
         // half-width line for name field
         yield PatternElement(
@@ -230,6 +257,197 @@ class CanvasBackgroundPainter extends CustomPainter {
   }
 }
 
+
+/// Elements of the structured templates (planners, forms, special papers).
+/// Everything stays inside [size] and leaves two line heights at the top.
+Iterable<PatternElement> _templateElements(
+  CanvasBackgroundPattern pattern,
+  Size size,
+  double l,
+) sync* {
+  final w = size.width;
+  final h = size.height;
+  final left = l;
+  final right = w - l;
+  final top = l * 2;
+  final bottom = h - l;
+
+  PatternElement hLine(double x1, double x2, double y, {bool strong = false}) =>
+      PatternElement(Offset(x1, y), Offset(x2, y), secondaryColor: strong);
+  PatternElement vLine(double x, double y1, double y2, {bool strong = false}) =>
+      PatternElement(Offset(x, y1), Offset(x, y2), secondaryColor: strong);
+  PatternElement text(String label, double x, double y, {double? width}) =>
+      PatternElement(
+        Offset(x, y),
+        Offset(x, y),
+        isLine: false,
+        label: label,
+        labelWidth: width,
+      );
+  Iterable<PatternElement> box(double x1, double y1, double x2, double y2) sync* {
+    yield hLine(x1, x2, y1);
+    yield hLine(x1, x2, y2);
+    yield vLine(x1, y1, y2);
+    yield vLine(x2, y1, y2);
+  }
+
+  switch (pattern) {
+    case .isometric:
+      {
+      final dy = l * 0.866;
+      var row = 0;
+      for (var y = top; y <= h; y += dy, row++) {
+        final shift = row.isOdd ? l / 2 : 0.0;
+        for (var x = shift; x <= w; x += l) {
+          yield PatternElement(Offset(x, y), Offset(x, y), isLine: false);
+        }
+      }
+      }
+    case .engineering:
+      {
+      var i = 0;
+      for (var y = top; y <= h; y += l, i++) {
+        yield hLine(0, w, y, strong: i % 5 == 0);
+      }
+      i = 0;
+      for (var x = 0.0; x <= w; x += l, i++) {
+        yield vLine(x, top, h, strong: i % 5 == 0);
+      }
+      }
+    case .writing:
+      {
+      // three guide lines per group: top, middle (stronger), base
+      for (var y = top; y + 2 * l < bottom; y += 4 * l) {
+        yield hLine(left, right, y);
+        yield hLine(left, right, y + l, strong: true);
+        yield hLine(left, right, y + 2 * l);
+      }
+      }
+    case .todo:
+      {
+      yield text(DefterStrings.labelTodo, left, top - l * 0.9, width: w / 2);
+      yield hLine(left, right, top);
+      final pitch = l * 1.5;
+      final side = l * 0.8;
+      for (var y = top + pitch; y <= bottom; y += pitch) {
+        yield* box(left, y - side - l * 0.1, left + side, y - l * 0.1);
+        yield hLine(left + side + l * 0.5, right, y);
+      }
+      }
+    case .weekly:
+      {
+      final days = DefterStrings.weekDays;
+      final midX = w / 2;
+      final rows = 4;
+      final cellH = (bottom - top) / rows;
+      for (var r = 0; r <= rows; r++) {
+        yield hLine(left, right, top + r * cellH);
+      }
+      yield vLine(left, top, bottom);
+      yield vLine(midX, top, bottom);
+      yield vLine(right, top, bottom);
+      for (var i = 0; i < 8; i++) {
+        final col = i < 4 ? 0 : 1;
+        final r = i % 4;
+        final x = col == 0 ? left : midX;
+        final y = top + r * cellH;
+        final label = i < 7 ? days[i] : DefterStrings.labelNotes;
+        yield text(label, x + l * 0.4, y + l * 0.3, width: midX - left - l);
+        // writing lines inside the cell
+        for (var ly = y + l * 2; ly < y + cellH - l * 0.4; ly += l) {
+          yield hLine(x + l * 0.4, (col == 0 ? midX : right) - l * 0.4, ly);
+        }
+      }
+      }
+    case .daily:
+      {
+      yield text(DefterStrings.labelDate, left, top - l * 1.1, width: w / 2);
+      yield hLine(left, right, top);
+      final mid = w * 0.58;
+      const hours = 17; // 06:00 to 22:00
+      final rowH = (bottom - top - l) / hours;
+      yield text(DefterStrings.labelSchedule, left, top + l * 0.2, width: mid);
+      yield text(DefterStrings.labelTodo, mid + l, top + l * 0.2, width: right - mid);
+      final start = top + l * 1.5;
+      for (var i = 0; i < hours; i++) {
+        final y = start + i * rowH;
+        yield text('${(6 + i).toString().padLeft(2, '0')}:00', left, y + rowH * 0.15, width: l * 3);
+        yield hLine(left, mid, y + rowH);
+      }
+      yield vLine(mid + l * 0.5, top, bottom);
+      final side = l * 0.7;
+      for (var y = start + l; y < bottom - l; y += l * 1.6) {
+        yield* box(mid + l, y, mid + l + side, y + side);
+        yield hLine(mid + l * 2.2, right, y + side);
+      }
+      }
+    case .monthly:
+      {
+      yield text(DefterStrings.labelMonth, left, top - l * 1.1, width: w / 2);
+      yield hLine(left * 3, right, top - l * 0.2);
+      final gridTop = top + l * 1.2;
+      final cellW = (right - left) / 7;
+      final cellH = (bottom - gridTop) / 6;
+      final short = DefterStrings.weekDaysShort;
+      for (var c = 0; c < 7; c++) {
+        yield text(short[c], left + c * cellW + l * 0.3, top + l * 0.3, width: cellW);
+      }
+      for (var r = 0; r <= 6; r++) {
+        yield hLine(left, right, gridTop + r * cellH);
+      }
+      for (var c = 0; c <= 7; c++) {
+        yield vLine(left + c * cellW, gridTop, gridTop + 6 * cellH);
+      }
+      }
+    case .meeting:
+      {
+      yield text(DefterStrings.labelTitle, left, top - l * 0.9, width: w / 2);
+      yield hLine(left, right, top);
+      yield text(DefterStrings.labelDate, left, top + l * 0.4, width: w / 2);
+      yield hLine(left, w * 0.5 - l / 2, top + l * 2);
+      yield text(DefterStrings.labelAttendees, w * 0.5 + l / 2, top + l * 0.4, width: w / 2);
+      yield hLine(w * 0.5 + l / 2, right, top + l * 2);
+      yield hLine(w * 0.5 + l / 2, right, top + l * 3);
+      var y = top + l * 4.5;
+      yield text(DefterStrings.labelAgenda, left, y, width: w / 2);
+      for (var i = 1; i <= 4; i++) {
+        yield hLine(left, right, y + l * 1.6 * i);
+      }
+      y = y + l * 8;
+      yield text(DefterStrings.labelNotes, left, y, width: w / 2);
+      final notesEnd = h * 0.78;
+      for (var ly = y + l * 2; ly < notesEnd; ly += l) {
+        yield hLine(left, right, ly);
+      }
+      yield text(DefterStrings.labelActions, left, notesEnd + l * 0.5, width: w / 2);
+      final side = l * 0.7;
+      for (var ay = notesEnd + l * 2.4; ay < bottom; ay += l * 1.5) {
+        yield* box(left, ay - side, left + side, ay);
+        yield hLine(left + side + l * 0.5, right, ay);
+      }
+      }
+    case .storyboard:
+      {
+      final gap = l;
+      final frameW = (right - left - gap) / 2;
+      final rows = 3;
+      final blockH = (bottom - top - gap * (rows - 1)) / rows;
+      final frameH = blockH - l * 2.6;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < 2; c++) {
+          final x = left + c * (frameW + gap);
+          final y = top + r * (blockH + gap);
+          yield* box(x, y, x + frameW, y + frameH);
+          yield hLine(x, x + frameW, y + frameH + l * 1.2);
+          yield hLine(x, x + frameW, y + frameH + l * 2.2);
+        }
+      }
+      }
+    default:
+      return;
+  }
+}
+
 class PatternElement {
   final Offset start, end;
 
@@ -239,10 +457,18 @@ class PatternElement {
   /// Whether this should use a secondary color
   final bool secondaryColor;
 
+  /// Text to draw at [start] instead of a line or a dot (templates only).
+  final String? label;
+
+  /// The widest the [label] may be before it is cut.
+  final double? labelWidth;
+
   const new(
     this.start,
     this.end, {
     this.isLine = true,
     this.secondaryColor = false,
+    this.label,
+    this.labelWidth,
   });
 }

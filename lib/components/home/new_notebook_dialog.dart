@@ -32,6 +32,15 @@ class NewNotebookDialog extends StatefulWidget {
     CanvasBackgroundPattern.grid,
     CanvasBackgroundPattern.dots,
     CanvasBackgroundPattern.cornell,
+    CanvasBackgroundPattern.isometric,
+    CanvasBackgroundPattern.engineering,
+    CanvasBackgroundPattern.writing,
+    CanvasBackgroundPattern.todo,
+    CanvasBackgroundPattern.weekly,
+    CanvasBackgroundPattern.daily,
+    CanvasBackgroundPattern.monthly,
+    CanvasBackgroundPattern.meeting,
+    CanvasBackgroundPattern.storyboard,
   ];
 
   @override
