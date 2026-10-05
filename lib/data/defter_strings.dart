@@ -91,6 +91,19 @@ abstract class DefterStrings {
   static String get pdfContents => _tr ? 'İçindekiler' : 'Contents';
   static String get pdfSearch => _tr ? 'Ara' : 'Search';
   static String pdfPageLabel(int page) => _tr ? 'Sayfa $page' : 'Page $page';
+  static String get pdfSection => 'PDF';
+  static String get pdfCrop => _tr ? 'PDF sayfasını kırp' : 'Crop PDF page';
+  static String get pdfCropHint => _tr
+      ? 'Kırpılan bölüm sayfaya sığacak şekilde büyür. Çizimler yerinde kalır, bu yüzden yazmadan önce kırpmak en iyisi.'
+      : 'The cropped part is enlarged to fit the page. Strokes stay where they are, so crop before writing.';
+  static String get pdfCropLeft => _tr ? 'Sol' : 'Left';
+  static String get pdfCropTop => _tr ? 'Üst' : 'Top';
+  static String get pdfCropRight => _tr ? 'Sağ' : 'Right';
+  static String get pdfCropBottom => _tr ? 'Alt' : 'Bottom';
+  static String get pdfCropAllPages =>
+      _tr ? 'Aynı PDF\'in tüm sayfalarına uygula' : 'Apply to all pages of this PDF';
+  static String get pdfCropApply => _tr ? 'Uygula' : 'Apply';
+  static String get pdfCropReset => _tr ? 'Sıfırla' : 'Reset';
 
   // Handwriting recognition
   static String get recognize => _tr ? 'Yazıyı metne çevir' : 'Convert handwriting to text';

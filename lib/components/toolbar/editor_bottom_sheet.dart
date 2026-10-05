@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
+import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/extensions/list_extensions.dart';
@@ -29,6 +30,10 @@ class EditorBottomSheet extends StatefulWidget {
     required this.pickPhotos,
     required this.importPdf,
     required this.canRasterPdf,
+    required this.hasPdf,
+    required this.currentPageHasPdf,
+    required this.showPdfTools,
+    required this.cropPdfPage,
     required this.getIsWatchingServer,
     required this.setIsWatchingServer,
   });
@@ -47,6 +52,14 @@ class EditorBottomSheet extends StatefulWidget {
   final Future<int> Function() pickPhotos;
   final Future<bool> Function() importPdf;
   final bool canRasterPdf;
+
+  /// Whether the note has any PDF pages.
+  final bool hasPdf;
+
+  /// Whether the current page is a PDF page (so it can be cropped).
+  final bool currentPageHasPdf;
+  final VoidCallback showPdfTools;
+  final VoidCallback cropPdfPage;
   final bool Function() getIsWatchingServer;
   final void Function(bool) setIsWatchingServer;
 
@@ -317,6 +330,35 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
               ],
             ),
             const SizedBox(height: 16),
+            if (widget.hasPdf) ...[
+              Text(
+                DefterStrings.pdfSection,
+                style: TextTheme.of(context).titleMedium,
+              ),
+              Wrap(
+                spacing: 8,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.manage_search),
+                    label: Text(DefterStrings.pdfTools),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.showPdfTools();
+                    },
+                  ),
+                  if (widget.currentPageHasPdf && !widget.coreInfo.readOnly)
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.crop),
+                      label: Text(DefterStrings.pdfCrop),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        widget.cropPdfPage();
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             if (stows.loggedIn) ...[
               StatefulBuilder(
                 builder: (context, setState) {

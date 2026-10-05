@@ -12,8 +12,10 @@ import 'package:saber/components/canvas/_circle_stroke.dart';
 import 'package:saber/components/canvas/_rectangle_stroke.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
+import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
+import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/is_this_a_test.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -27,6 +29,14 @@ abstract class EditorExporter {
   static bool shouldRasterizeStroke(Stroke stroke) {
     return stroke.toolId == .highlighter || stroke.toolId == .pencil;
   }
+
+  /// Resolution of a page's screenshot in the exported PDF. Pen strokes are
+  /// vector and don't depend on it, but an imported PDF page is part of the
+  /// screenshot, so those pages get more pixels to stay sharp when zoomed.
+  static double pixelRatioFor(EditorPage page) =>
+      page.backgroundImage is PdfEditorImage ? pdfPagePixelRatio : 2;
+
+  static const pdfPagePixelRatio = 3.0;
 
   static Future<pw.Document> generatePdf(
     EditorCoreInfo coreInfo,
@@ -50,6 +60,7 @@ abstract class EditorExporter {
           final uiImage = await screenshotPage(
             coreInfo: coreInfo,
             pageIndex: pageIndex,
+            pixelRatio: pixelRatioFor(coreInfo.pages[pageIndex]),
           );
           final byteData = await uiImage.toByteData(
             format: ui.ImageByteFormat.rawRgba,
