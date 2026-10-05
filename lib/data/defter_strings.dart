@@ -206,7 +206,80 @@ abstract class DefterStrings {
       _tr ? 'Basınç değişiyor: kalem basıncı bildiriyor.' : 'Pressure varies: the pen reports it.';
   static String get paperColor => _tr ? 'Kâğıt rengi' : 'Paper colour';
 
+  static String paperCategory(String? key) => switch (key) {
+    null => _tr ? 'Tümü' : 'All',
+    'plain' => _tr ? 'Düz / çizgili' : 'Plain / ruled',
+    'columns' => _tr ? 'Sütunlar ve bölmeler' : 'Columns and splits',
+    'planners' => _tr ? 'Planlayıcılar' : 'Planners',
+    'diagrams' => _tr ? 'Diyagramlar' : 'Diagrams',
+    _ => _tr ? 'Özel amaçlı' : 'Special',
+  };
+
   // Paper templates
+  static String get paperYearly => _tr ? 'Yıllık planlayıcı' : 'Yearly planner';
+  static String get paperClassSchedule => _tr ? 'Ders programı' : 'Class schedule';
+  static String get paperHabits => _tr ? 'Alışkanlık takibi' : 'Habit tracker';
+  static String get paperBudget => _tr ? 'Bütçe planlayıcı' : 'Budget planner';
+  static String get paperMeals => _tr ? 'Yemek planlayıcı' : 'Meal planner';
+  static String get paperTravel => _tr ? 'Seyahat planlayıcı' : 'Travel planner';
+  static String get paperProject => _tr ? 'Proje planlayıcı' : 'Project planner';
+  static String get paperWater => _tr ? 'Su takibi' : 'Water tracker';
+  static String get paperReading => _tr ? 'Kitap okuma takibi' : 'Reading log';
+  static String get paperShopping => _tr ? 'Alışveriş listesi' : 'Shopping list';
+  static String get paperMindMap => _tr ? 'Zihin haritası' : 'Mind map';
+  static String get paperConceptMap => _tr ? 'Kavram haritası' : 'Concept map';
+  static String get paperFlowchart => _tr ? 'Akış şeması' : 'Flowchart';
+  static String get paperDecisionTree => _tr ? 'Karar ağacı' : 'Decision tree';
+  static String get paperVenn => _tr ? 'Venn şeması' : 'Venn diagram';
+  static String get paperCycle => _tr ? 'Döngü' : 'Cycle';
+  static String get paperPyramid => _tr ? 'Piramit' : 'Pyramid';
+  static String get paperFishbone => _tr ? 'Balık kılçığı' : 'Fishbone';
+  static String get paperSwot => _tr ? 'SWOT' : 'SWOT';
+  static String get paperTimeline => _tr ? 'Zaman çizelgesi' : 'Timeline';
+  static String get paperRings => _tr ? 'Çember' : 'Rings';
+  static String get paperWheel => _tr ? 'Pusula gülü' : 'Wheel';
+  static String get paperWireframe => _tr ? 'Wireframe' : 'Wireframe';
+  static String get paperMath => _tr ? 'Koordinat düzlemi' : 'Coordinate plane';
+  static String get paperRecipe => _tr ? 'Tarif defteri' : 'Recipe';
+
+  static List<String> get months => _tr
+      ? const ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
+      : const ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  static String get labelYear => _tr ? 'Yıl' : 'Year';
+  static String get labelHabit => _tr ? 'Alışkanlık' : 'Habit';
+  static String get labelIncome => _tr ? 'Gelir' : 'Income';
+  static String get labelExpenses => _tr ? 'Gider' : 'Expenses';
+  static String get labelTotal => _tr ? 'Toplam' : 'Total';
+  static String get labelAmount => _tr ? 'Tutar' : 'Amount';
+  static List<String> get meals3 => _tr
+      ? const ['Kahvaltı', 'Öğle', 'Akşam']
+      : const ['Breakfast', 'Lunch', 'Dinner'];
+  static String get labelTask => _tr ? 'Görev' : 'Task';
+  static String get labelOwner => _tr ? 'Sorumlu' : 'Owner';
+  static String get labelDue => _tr ? 'Tarih' : 'Due';
+  static String get labelStatus => _tr ? 'Durum' : 'Status';
+  static String get labelDestination => _tr ? 'Gidilecek yer' : 'Destination';
+  static String get labelDates => _tr ? 'Tarihler' : 'Dates';
+  static String get labelStay => _tr ? 'Konaklama' : 'Stay';
+  static String get labelTransport => _tr ? 'Ulaşım' : 'Transport';
+  static String get labelPacking => _tr ? 'Bavul listesi' : 'Packing list';
+  static String get labelBook => _tr ? 'Kitap' : 'Book';
+  static String get labelAuthor => _tr ? 'Yazar' : 'Author';
+  static String get labelRating => _tr ? 'Puan' : 'Rating';
+  static String get labelSummary => _tr ? 'Özet' : 'Summary';
+  static String get labelQuotes => _tr ? 'Alıntılar' : 'Quotes';
+  static String get labelShopping => _tr ? 'Alışveriş listesi' : 'Shopping list';
+  static String get labelWater => _tr ? 'Su (bardak)' : 'Water (glasses)';
+  static String get labelRecipe => _tr ? 'Tarif' : 'Recipe';
+  static String get labelIngredients => _tr ? 'Malzemeler' : 'Ingredients';
+  static String get labelSteps => _tr ? 'Yapılışı' : 'Steps';
+  static String get labelTime => _tr ? 'Süre' : 'Time';
+  static String get labelServings => _tr ? 'Porsiyon' : 'Servings';
+  static List<String> get swotNames => _tr
+      ? const ['Güçlü yönler', 'Zayıf yönler', 'Fırsatlar', 'Tehditler']
+      : const ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'];
+  static String get labelGoal => _tr ? 'Hedef' : 'Goal';
+  static String get labelTopic => _tr ? 'Konu' : 'Topic';
   static String get paperIsometric => _tr ? 'İzometrik' : 'Isometric';
   static String get paperEngineering => _tr ? 'Mühendislik' : 'Engineering';
   static String get paperWriting => _tr ? 'El yazısı' : 'Handwriting';
