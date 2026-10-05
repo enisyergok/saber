@@ -592,6 +592,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 SettingsSwitch(
+                  title: DefterStrings.penProbe,
+                  subtitle: DefterStrings.penProbeSubtitle,
+                  icon: Icons.speed,
+                  pref: stows.penProbe,
+                ),
+                SettingsSwitch(
                   title: DefterStrings.holdToSnap,
                   subtitle: DefterStrings.holdToSnapSubtitle,
                   icon: Icons.gesture,

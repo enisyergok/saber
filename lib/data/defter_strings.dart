@@ -80,6 +80,17 @@ abstract class DefterStrings {
   // Tools
   static String get eraserSize => _tr ? 'Silgi boyutu' : 'Eraser size';
 
+  // Pen latency probe
+  static String get penProbe => _tr ? 'Kalem gecikme ölçümü' : 'Pen latency measurement';
+  static String get penProbeSubtitle => _tr
+      ? 'Editörde bir ölçüm düğmesi gösterir: kaydı başlat, kalemle yaz, durdur'
+      : 'Shows a measure button in the editor: start, write with the pen, stop';
+  static String get penProbeStart => _tr ? 'Ölçümü başlat' : 'Start measuring';
+  static String get penProbeStop => _tr ? 'Ölçümü bitir' : 'Stop measuring';
+  static String get penProbeResult => _tr ? 'Gecikme ölçümü' : 'Latency measurement';
+  static String get penProbeCopy => _tr ? 'Kopyala' : 'Copy';
+  static String get penProbeCopied => _tr ? 'Kopyalandı' : 'Copied';
+
   // Stylus button
   static String get stylusAction => _tr ? 'Kalem çift dokunuşu' : 'Pen double tap';
   static String get stylusActionSubtitle => _tr
