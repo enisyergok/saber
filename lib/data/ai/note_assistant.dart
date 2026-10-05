@@ -84,7 +84,7 @@ abstract class NoteAssistant {
     final scored = <(double, NoteSearchEntry)>[];
     for (final entry in index.entries) {
       final name = NoteSearchIndex.fold(entry.name);
-      final text = NoteSearchIndex.fold(entry.text);
+      final text = NoteSearchIndex.fold(entry.fullText);
       var score = 0.0;
       var matchedTerms = 0;
       for (final term in terms) {
@@ -106,7 +106,7 @@ abstract class NoteAssistant {
         NoteExcerpt(
           path: entry.path,
           name: entry.name,
-          text: _excerpt(entry.text, terms),
+          text: _excerpt(entry.fullText, terms),
         ),
     ];
   }

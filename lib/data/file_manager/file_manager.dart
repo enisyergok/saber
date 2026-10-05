@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:saber/components/home/sort_button.dart';
 import 'package:saber/data/audio/note_recordings.dart';
+import 'package:saber/data/search/handwriting_text.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -558,6 +559,7 @@ class FileManager {
     if (fromPath.endsWith(Editor.extension) &&
         toPath.endsWith(Editor.extension)) {
       await NoteRecordings.move(fromPath, toPath);
+      await HandwritingTexts.move(fromPath, toPath);
     }
 
     syncer.uploader.enqueueRel(fromPath);
@@ -611,6 +613,7 @@ class FileManager {
     if (filePath.endsWith(Editor.extension)) {
       await _deleteIfExists(getFile('$filePath.bak'));
       await NoteRecordings.deleteAll(filePath);
+      await HandwritingTexts.remove(filePath);
     }
 
     if (alsoUpload) syncer.uploader.enqueueRel(filePath);

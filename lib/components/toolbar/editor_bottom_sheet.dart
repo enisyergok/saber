@@ -9,6 +9,9 @@ import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/extensions/list_extensions.dart';
 import 'package:saber/data/prefs.dart';
+import 'package:saber/data/search/handwriting_text.dart';
+import 'package:saber/data/search/note_search.dart';
+import 'package:saber/components/toolbar/handwriting_index_dialog.dart';
 import 'package:saber/i18n/extensions/box_fit_localized.dart';
 import 'package:saber/i18n/extensions/canvas_background_pattern_localized.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -360,6 +363,61 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
               ),
               const SizedBox(height: 16),
             ],
+            Text(
+              DefterStrings.hwSection,
+              style: TextTheme.of(context).titleMedium,
+            ),
+            FutureBuilder<void>(
+              future: HandwritingTexts.load(),
+              builder: (context, _) {
+                final text = HandwritingTexts.of(widget.coreInfo.filePath);
+                final outdated =
+                    text != null &&
+                    HandwritingIndexer.isOutdated(
+                      text,
+                      NoteSearchIndex.modifiedMsOf(widget.coreInfo.filePath),
+                    );
+                final status = text == null
+                    ? DefterStrings.hwNone
+                    : outdated
+                    ? DefterStrings.hwOutdated
+                    : DefterStrings.hwIndexedOn(
+                        MaterialLocalizations.of(context).formatShortDate(
+                          DateTime.fromMillisecondsSinceEpoch(text.recognizedMs),
+                        ),
+                      );
+                return Wrap(
+                  spacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.manage_search),
+                      label: Text(
+                        text == null ? DefterStrings.hwAdd : DefterStrings.hwRefresh,
+                      ),
+                      onPressed: () {
+                        final navigator = Navigator.of(context);
+                        final messenger = ScaffoldMessenger.maybeOf(context);
+                        navigator.pop();
+                        Future.delayed(const Duration(milliseconds: 200), () async {
+                          final added = await HandwritingIndexDialog.show(
+                            navigator.context,
+                            widget.coreInfo,
+                          );
+                          if (added == true) {
+                            messenger?.showSnackBar(
+                              SnackBar(content: Text(DefterStrings.hwDone)),
+                            );
+                          }
+                        });
+                      },
+                    ),
+                    Text(status),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 16),
             if (stows.eInkMode.value && stows.eInkRefreshEffect.value) ...[
               Text(
                 DefterStrings.eInkSection,

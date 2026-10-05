@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
+import 'package:saber/data/search/handwriting_text.dart';
 
 /// One note's searchable text.
 class NoteSearchEntry {
@@ -11,6 +12,7 @@ class NoteSearchEntry {
     required this.path,
     required this.modifiedMs,
     required this.text,
+    this.handwriting = const [],
   });
 
   /// Without extension, like everywhere else in the library.
@@ -19,6 +21,24 @@ class NoteSearchEntry {
 
   /// The typed text of all pages, as written (not folded).
   final String text;
+
+  /// Text read from the handwriting, one per page (see [HandwritingTexts]).
+  /// Not saved with the index; it is filled in from its own file.
+  final List<String> handwriting;
+
+  /// Everything searchable in the note: typed text, then handwriting.
+  String get fullText {
+    final written = handwriting.where((t) => t.trim().isNotEmpty).join('\n');
+    if (written.isEmpty) return text;
+    return text.isEmpty ? written : '$text\n$written';
+  }
+
+  NoteSearchEntry withHandwriting(List<String> pages) => NoteSearchEntry(
+    path: path,
+    modifiedMs: modifiedMs,
+    text: text,
+    handwriting: pages,
+  );
 
   Map<String, dynamic> toJson() => {'p': path, 'm': modifiedMs, 't': text};
 
@@ -37,6 +57,7 @@ class NoteSearchResult {
     required this.path,
     required this.nameMatches,
     this.snippet,
+    this.page,
   });
 
   final String path;
@@ -46,6 +67,10 @@ class NoteSearchResult {
 
   /// Text around the first match in the note's content, if it matched there.
   final String? snippet;
+
+  /// The page (counting from 1) whose handwriting matched, when the match is
+  /// in handwriting and not in typed text.
+  final int? page;
 }
 
 /// Finds notes by name and by the text typed in them.
@@ -104,8 +129,28 @@ class NoteSearchIndex {
 
   /// Loads the index saved by an earlier run, if there is one.
   Future<void> load() async {
+    await HandwritingTexts.load();
     final file = storageFile;
-    if (file == null || !file.existsSync()) return;
+    if (file != null && file.existsSync()) await _loadEntries(file);
+    _applyHandwriting();
+  }
+
+  /// Gives every entry the handwriting text kept for its note.
+  void _applyHandwriting() {
+    for (final path in _entries.keys.toList()) {
+      final pages = HandwritingTexts.of(path)?.pages ?? const <String>[];
+      final entry = _entries[path]!;
+      if (entry.handwriting != pages) _entries[path] = entry.withHandwriting(pages);
+    }
+  }
+
+  /// A note's handwriting was read (or forgotten): search it at once.
+  void setHandwriting(String path, List<String> pages) {
+    final entry = _entries[path];
+    if (entry != null) _entries[path] = entry.withHandwriting(pages);
+  }
+
+  Future<void> _loadEntries(File file) async {
     try {
       final json = jsonDecode(await file.readAsString()) as List<dynamic>;
       for (final item in json) {
@@ -130,6 +175,7 @@ class NoteSearchIndex {
   /// Brings the index up to date with the notes on disk: reads notes that are
   /// new or changed, forgets deleted ones. Calls [onProgress] after each note.
   Future<void> refresh({void Function(int done, int total)? onProgress}) async {
+    await HandwritingTexts.load();
     final notes = await FileManager.getAllFiles();
     final present = notes.toSet();
     _entries.removeWhere((path, _) => !present.contains(path));
@@ -155,8 +201,13 @@ class NoteSearchIndex {
       // Let the interface breathe between notes.
       await Future<void>.delayed(Duration.zero);
     }
+    _applyHandwriting();
     await save();
   }
+
+  /// When the note was last saved, for telling whether its handwriting text
+  /// is out of date.
+  static int modifiedMsOf(String path) => _modifiedMs(path);
 
   static int _modifiedMs(String path) {
     for (final extension in ['.sbn2', '.sbn']) {
@@ -188,23 +239,35 @@ class NoteSearchIndex {
     for (final entry in _entries.values) {
       final foldedName = fold(entry.name);
       final foldedText = fold(entry.text);
+      final foldedPages = [for (final page in entry.handwriting) fold(page)];
+      final foldedAll = [foldedText, ...foldedPages].join('\n');
       final matchesName = terms.every(foldedName.contains);
       final matchesAll = terms.every(
-        (t) => foldedName.contains(t) || foldedText.contains(t),
+        (t) => foldedName.contains(t) || foldedAll.contains(t),
       );
       if (!matchesAll) continue;
 
-      final firstTermInText = terms.firstWhere(
-        foldedText.contains,
-        orElse: () => '',
-      );
-      final snippet = firstTermInText.isEmpty
-          ? null
-          : _snippet(entry.text, foldedText.indexOf(firstTermInText));
+      String? snippet;
+      int? page;
+      final inText = terms.firstWhere(foldedText.contains, orElse: () => '');
+      if (inText.isNotEmpty) {
+        snippet = _snippet(entry.text, foldedText.indexOf(inText));
+      } else {
+        for (var i = 0; i < foldedPages.length && snippet == null; i++) {
+          final term = terms.firstWhere(
+            foldedPages[i].contains,
+            orElse: () => '',
+          );
+          if (term.isEmpty) continue;
+          snippet = _snippet(entry.handwriting[i], foldedPages[i].indexOf(term));
+          page = i + 1;
+        }
+      }
       final result = NoteSearchResult(
         path: entry.path,
         nameMatches: matchesName,
         snippet: snippet,
+        page: page,
       );
       (matchesName ? byName : byContent).add(result);
     }
