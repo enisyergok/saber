@@ -220,6 +220,17 @@ class Stroke {
     markPolygonNeedsUpdating();
   }
 
+  /// Makes this a straight line of even width from [a] to [b]: what the
+  /// ruler draws while the pen is still down.
+  void setLine(Offset a, Offset b) {
+    points
+      ..clear()
+      ..add(PointVector(a.dx, a.dy, 0.5))
+      ..add(PointVector(b.dx, b.dy, 0.5));
+    options.simulatePressure = false;
+    markPolygonNeedsUpdating();
+  }
+
   /// The distance along the line, from its first point to its last.
   double get pathLength {
     var length = 0.0;

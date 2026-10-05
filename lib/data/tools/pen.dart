@@ -9,13 +9,18 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pen_feel.dart';
 import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/pressure_calibration.dart';
+import 'package:saber/data/tools/pressure_curve.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/tool_id.dart';
+
+/// The pens that are stored as fountain pen lines.
+enum PenVariant { plain, brush, calligraphy }
 
 class Pen extends Tool {
   @protected
@@ -30,7 +35,7 @@ class Pen extends Tool {
     required this.pressureEnabled,
     required this.color,
     required this.toolId,
-    this.brush = false,
+    this.variant = PenVariant.plain,
   });
 
   new fountainPen()
@@ -43,7 +48,7 @@ class Pen extends Tool {
       pressureEnabled = true,
       color = Color(stows.lastFountainPenColor.value),
       toolId = .fountainPen,
-      brush = false;
+      variant = PenVariant.plain;
 
   /// A brush pen. Its lines are stored like the fountain pen's (the same
   /// [toolId]), so notes stay readable by versions without it.
@@ -57,7 +62,21 @@ class Pen extends Tool {
       pressureEnabled = true,
       color = Color(stows.lastFountainPenColor.value),
       toolId = .fountainPen,
-      brush = true;
+      variant = PenVariant.brush;
+
+  /// A calligraphy pen with a flat nib: how thick it draws depends on the
+  /// direction of the line. Stored like the fountain pen's lines too.
+  new calligraphyPen()
+    : name = DefterStrings.calligraphyPen,
+      sizeMin = 2,
+      sizeMax = 40,
+      sizeStep = 1,
+      icon = calligraphyPenIcon,
+      options = stows.lastCalligraphyPenOptions.value,
+      pressureEnabled = true,
+      color = Color(stows.lastFountainPenColor.value),
+      toolId = .fountainPen,
+      variant = PenVariant.calligraphy;
 
   new ballpointPen()
     : name = t.editor.pens.ballpointPen,
@@ -69,14 +88,21 @@ class Pen extends Tool {
       pressureEnabled = true,
       color = Color(stows.lastBallpointPenColor.value),
       toolId = .ballpointPen,
-      brush = false;
+      variant = PenVariant.plain;
+
+  /// Which pen this is among those that share a [toolId].
+  final PenVariant variant;
 
   /// Whether this is the brush pen (see [Pen.brushPen]).
-  final bool brush;
+  bool get brush => variant == PenVariant.brush;
 
   /// Which of the pen panel's writing pens this is, if any.
   PenKind? get kind => switch (toolId) {
-    .fountainPen => brush ? PenKind.brush : PenKind.fountain,
+    .fountainPen => switch (variant) {
+      PenVariant.plain => PenKind.fountain,
+      PenVariant.brush => PenKind.brush,
+      PenVariant.calligraphy => PenKind.calligraphy,
+    },
     .ballpointPen => PenKind.ballpoint,
     _ => null,
   };
@@ -94,6 +120,7 @@ class Pen extends Tool {
       case PenKind.brush:
         stows.brushTipSharpness.value = value;
       case PenKind.ballpoint:
+      case PenKind.calligraphy:
       case null:
         break;
     }
@@ -119,6 +146,7 @@ class Pen extends Tool {
   static const fountainPenIcon = FontAwesomeIcons.penFancy;
   static const ballpointPenIcon = FontAwesomeIcons.pen;
   static const brushPenIcon = FontAwesomeIcons.paintbrush;
+  static const calligraphyPenIcon = FontAwesomeIcons.penNib;
 
   static Stroke? currentStroke;
   Color color;
@@ -142,15 +170,35 @@ class Pen extends Tool {
     int pageIndex,
     double? pressure,
   ) {
+    PenFeel.curve = PressureCurve.parse(stows.pressureCurve.value);
+    _ruler = usesAssists && stows.rulerMode.value;
+    _start = position;
+    _pathLength = 0;
+    _nibAt = position;
+    _nibPressure = 0.5;
+    _nibMoved = false;
     currentStroke = Stroke(
       color: color,
       pressureEnabled: pressureEnabled,
-      options: strokeOptions.copyWith(isComplete: false),
+      options: _ruler
+          // A ruled line is even from end to end.
+          ? strokeOptions.copyWith(
+              isComplete: false,
+              simulatePressure: false,
+              start: StrokeEndOptions.start(taperEnabled: false),
+              end: StrokeEndOptions.end(taperEnabled: false),
+            )
+          : strokeOptions.copyWith(isComplete: false),
       pageIndex: pageIndex,
       page: page,
       toolId: toolId,
     );
     PenPrediction.reset();
+    if (_ruler) {
+      ShapeSnap.reset();
+      onDragUpdate(position, pressure);
+      return;
+    }
     _rawLow = double.infinity;
     _rawHigh = double.negativeInfinity;
     _rawCount = 0;
@@ -164,16 +212,50 @@ class Pen extends Tool {
         currentStroke!,
         position,
         hold: Duration(milliseconds: stows.shapeHoldDelay.value),
+        tidy: stows.shapeAutoCorrect.value,
       );
     }
     onDragUpdate(position, pressure);
   }
 
+  /// Whether the technical helpers of the pen panel (ruler, angle guide,
+  /// measuring) work with this pen: every pen but the shape pen, which
+  /// makes shapes on its own.
+  bool get usesAssists => toolId != .shapePen;
+
+  bool _ruler = false;
+  Offset _start = Offset.zero;
+  double _pathLength = 0;
+  Offset _nibAt = Offset.zero;
+  double _nibPressure = 0.5;
+  bool _nibMoved = false;
+  double _nibDirection = 0;
+
+  /// The end of the ruled line being drawn towards [position].
+  Offset _ruledEnd(Offset position) => stows.angleGuide.value
+      ? PenAssist.snapAngle(_start, position)
+      : position;
+
   double _rawLow = double.infinity, _rawHigh = double.negativeInfinity;
   int _rawCount = 0;
   bool _fallback = false;
+  Offset _measuredAt = Offset.zero;
 
   void onDragUpdate(Offset position, double? pressure) {
+    final stroke = currentStroke;
+    if (_ruler && stroke != null) {
+      final end = _ruledEnd(position);
+      stroke.setLine(_start, end);
+      if (stows.measureMode.value) {
+        PenAssist.showReadout(PenAssist.describeLine(_start, end));
+      }
+      return;
+    }
+    if (usesAssists && stows.measureMode.value && stroke != null) {
+      if (stroke.length > 0) _pathLength += (position - _measuredAt).distance;
+      _measuredAt = position;
+      PenAssist.showReadout(PenAssist.formatLength(_pathLength));
+    }
     if (pressureEnabled && pressure != null && stows.pressureAuto.value) {
       _rawLow = math.min(_rawLow, pressure);
       _rawHigh = math.max(_rawHigh, pressure);
@@ -182,6 +264,22 @@ class Pen extends Tool {
     }
     if (pressure != null && kind != null) {
       pressure = PenFeel.pressure(pressure);
+    }
+    if (kind == PenKind.calligraphy) {
+      // The flat nib: thick or thin by the direction the pen moves in,
+      // and a little by how hard it is pressed.
+      final moved = position - _nibAt;
+      if (moved.distance >= 1.5) {
+        _nibDirection = moved.direction;
+        _nibAt = position;
+        _nibMoved = true;
+      }
+      if (_nibMoved) {
+        final target = PenFeel.nibPressure(_nibDirection);
+        _nibPressure += (target - _nibPressure) * 0.45;
+      }
+      pressure = (_nibPressure * (pressure == null ? 1 : 0.7 + 0.3 * pressure))
+          .clamp(0.0, 1.0);
     }
     currentStroke?.addPoint(position, pressure);
     if (holdsToSnap && stows.shapeHoldToSnap.value) {
@@ -218,6 +316,24 @@ class Pen extends Tool {
       return null;
     }
 
+    if (_ruler) {
+      _ruler = false;
+      ShapeSnap.reset();
+      final ends = stroke.pointOffsets;
+      // A tap with the ruler draws nothing.
+      if (ends.length < 2 || (ends.last - ends.first).distance < 2) {
+        if (stows.measureMode.value) PenAssist.showReadout(null);
+        return null;
+      }
+      stroke
+        ..setVertexHandles([ends.first, ends.last])
+        ..options.isComplete = true
+        ..markPolygonNeedsUpdating();
+      // Already a straight line: nothing further to recognise.
+      ShapeSnap.lastWasSnapped = true;
+      return stroke;
+    }
+
     if (_rawCount > 0) {
       PressureCalibration.addStroke(_rawLow, _rawHigh, _rawCount);
       _rawCount = 0;
@@ -226,7 +342,10 @@ class Pen extends Tool {
     stroke
       ..options.isComplete = true
       ..markPolygonNeedsUpdating();
-    if (!holdsToSnap) return stroke;
+    if (!holdsToSnap) {
+      ShapeSnap.lastWasSnapped = false;
+      return stroke;
+    }
     final result = ShapeSnap.finish(stroke);
     if (ShapeSnap.lastWasSnapped && kind != null) {
       // A shape has even ends, whatever the pen's tip sharpness. These end
@@ -260,6 +379,8 @@ class Pen extends Tool {
   static StrokeOptions get ballpointPenOptions => defaultOptions.copyWith();
   static StrokeOptions get brushPenOptions =>
       defaultOptions.copyWith(size: 12, thinning: 0.5);
+  static StrokeOptions get calligraphyPenOptions =>
+      defaultOptions.copyWith(size: 10, thinning: 0.5);
   static StrokeOptions get shapePenOptions =>
       defaultOptions.copyWith(smoothing: 0, streamline: 0);
   static StrokeOptions get highlighterOptions =>

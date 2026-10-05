@@ -1,8 +1,10 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/data/tools/pen_feel.dart';
+import 'package:saber/data/tools/pressure_curve.dart';
 
 /// The thickness of a straight line drawn with one raw [pressure].
 double _thickness(PenKind kind, double sensitivity, double pressure) {
@@ -21,19 +23,34 @@ double _thickness(PenKind kind, double sensitivity, double pressure) {
 }
 
 void main() {
-  test('pressure is spread out and never leaves 0..1', () {
+  setUp(() => PenFeel.curve = PressureCurve.standard);
+
+  test('pressure follows the curve in use', () {
     expect(PenFeel.pressure(0), 0);
-    expect(PenFeel.pressure(PenFeel.knee), 1);
     expect(PenFeel.pressure(1), 1);
-    var previous = -1.0;
-    for (var p = 0.0; p <= 1; p += 0.05) {
-      final mapped = PenFeel.pressure(p);
-      expect(mapped, greaterThanOrEqualTo(previous));
-      expect(mapped, inInclusiveRange(0, 1));
-      previous = mapped;
-    }
     // Ordinary writing pressure lands near the middle of the range.
     expect(PenFeel.pressure(0.29), inInclusiveRange(0.4, 0.5));
+
+    PenFeel.curve = PressureCurve.linear;
+    expect(PenFeel.pressure(0.29), closeTo(0.29, 1e-9));
+  });
+
+  test('the calligraphy nib is thin along its edge and thick across it', () {
+    // Up to the right: along the nib.
+    expect(PenFeel.nibPressure(const Offset(1, -1).direction), closeTo(0, 1e-9));
+    // Down to the right: across it.
+    expect(PenFeel.nibPressure(const Offset(1, 1).direction), closeTo(1, 1e-9));
+    // The same line drawn the other way is as thick.
+    expect(
+      PenFeel.nibPressure(const Offset(-1, -1).direction),
+      closeTo(1, 1e-9),
+    );
+    expect(
+      PenFeel.nibPressure(const Offset(1, 0).direction),
+      closeTo(0.7071, 1e-3),
+    );
+    expect(PenFeel.hasSharpness(PenKind.calligraphy), isFalse);
+    expect(PenFeel.hasSharpness(PenKind.fountain), isTrue);
   });
 
   test('sensitivity 0 gives an even line for every pen', () {

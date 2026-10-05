@@ -58,6 +58,8 @@ class Toolbar extends StatefulWidget {
     required this.exportAsSba,
     required this.exportAsPdf,
     required this.exportAsPng,
+    this.toggleGrid,
+    this.gridOn = false,
   });
 
   final bool readOnly;
@@ -91,6 +93,13 @@ class Toolbar extends StatefulWidget {
   final Future Function(BuildContext)? exportAsSba;
   final Future Function(BuildContext)? exportAsPdf;
   final Future Function(BuildContext)? exportAsPng;
+
+  /// Switches the page's squared paper on and off (the grid of the pen
+  /// panel), if the note can be changed.
+  final VoidCallback? toggleGrid;
+
+  /// Whether the page is on squared paper.
+  final bool gridOn;
 
   @override
   State<Toolbar> createState() => _ToolbarState();

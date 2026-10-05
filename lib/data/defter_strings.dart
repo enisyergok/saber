@@ -12,6 +12,84 @@ abstract class DefterStrings {
   static String get fountainPenName => _tr ? 'Dolma Kalem' : 'Fountain Pen';
   static String get ballpointPenName =>
       _tr ? 'Tükenmez Kalem' : 'Ballpoint Pen';
+  // -- pen settings panel --------------------------------------------------
+  static String get penSettingsTitle => _tr ? 'Kalem Ayarları' : 'Pen Settings';
+  static String get calligraphyPen => _tr ? 'Kaligrafi Kalemi' : 'Calligraphy Pen';
+  static String get styleFountain => _tr ? 'Dolma Kalem' : 'Fountain';
+  static String get styleBallpoint => _tr ? 'Tükenmez' : 'Ballpoint';
+  static String get styleBrush => _tr ? 'Fırça' : 'Brush';
+  static String get stylePencil => _tr ? 'Kurşun Kalem' : 'Pencil';
+  static String get styleMarker => _tr ? 'Marker' : 'Marker';
+  static String get styleCalligraphy => _tr ? 'Kaligrafi' : 'Calligraphy';
+  static String get preview => _tr ? 'Önizleme' : 'Preview';
+  static String get basicSettings => _tr ? 'Temel Ayarlar' : 'Basic Settings';
+  static String get reset => _tr ? 'Sıfırla' : 'Reset';
+  static String get opacityLabel => _tr ? 'Opaklık' : 'Opacity';
+  static String get tipSharpnessLabel => _tr ? 'Uç Keskinliği' : 'Tip Sharpness';
+  static String get pressureSensitivityLabel =>
+      _tr ? 'Basınç Duyarlılığı' : 'Pressure Sensitivity';
+  static String get lineStabilizationLabel =>
+      _tr ? 'Çizgi Stabilizasyonu' : 'Line Stabilization';
+  static String get pressureCurve => _tr ? 'Basınç Eğrisi' : 'Pressure Curve';
+  static String get pressureLight => _tr ? 'Hafif Basınç' : 'Light Pressure';
+  static String get pressureMedium => _tr ? 'Orta Basınç' : 'Medium Pressure';
+  static String get pressureFirm => _tr ? 'Sert Basınç' : 'Firm Pressure';
+  static String get colorAndStyle => _tr ? 'Renk ve Stil' : 'Color and Style';
+  static String get moreColors => _tr ? 'Diğer renkler' : 'More colors';
+  static String get colorPicker => _tr ? 'Renk seçici' : 'Color picker';
+  static String get engineeringTools =>
+      _tr ? 'Mühendislik ve Teknik Araçlar' : 'Engineering and Technical Tools';
+  static String get toolStraightLine => _tr ? 'Düz Çizgi' : 'Straight Line';
+  static String get toolStraightLineHint => _tr ? 'Otomatik' : 'Automatic';
+  static String get toolShapes => _tr ? 'Şekil Tanıma' : 'Shape Recognition';
+  static String get toolShapesHint =>
+      _tr ? '(Daire, Kare, Üçgen)' : '(Circle, Square, Triangle)';
+  static String get toolAngle => _tr ? 'Açı Kılavuzu' : 'Angle Guide';
+  static String get toolAngleHint => '(15° 30° 45° 90°)';
+  static String get toolRuler => _tr ? 'Cetvel' : 'Ruler';
+  static String get toolGrid => _tr ? 'Izgara' : 'Grid';
+  static String get toolMeasure => _tr ? 'Ölçüm' : 'Measure';
+  static String get toolDimension =>
+      _tr ? 'Ok & Ölçülendirme' : 'Arrows & Dimensions';
+  static String get advancedBehaviours =>
+      _tr ? 'Gelişmiş Davranışlar' : 'Advanced Behaviours';
+  static String get shapeAutoCorrect =>
+      _tr ? 'Şekli otomatik düzeltme' : 'Tidy shapes automatically';
+  static String get joinShapes => _tr ? 'Birleştirme' : 'Join';
+  static String get penProfiles =>
+      _tr ? 'Hazır Kalem Profilleri' : 'Pen Profiles';
+  static String get addProfile => _tr ? 'Profil ekle' : 'Add profile';
+  static String get profileName => _tr ? 'Profil adı' : 'Profile name';
+  static String get profileUpdate =>
+      _tr ? 'Şimdiki ayarlarla güncelle' : 'Update with current settings';
+  static String get profileRename => _tr ? 'Yeniden adlandır' : 'Rename';
+  static String get profileDelete => _tr ? 'Sil' : 'Delete';
+  static String get profilesRestore =>
+      _tr ? 'Hazır profilleri geri yükle' : 'Restore the built-in profiles';
+  static String get resetPen =>
+      _tr ? 'Bu kalemi sıfırla' : 'Reset this pen';
+  static String get cancelWord => _tr ? 'Vazgeç' : 'Cancel';
+  static String get myProfile => _tr ? 'Profilim' : 'My profile';
+  static String get customProfileHint => _tr ? 'Kendi ayarım' : 'My own settings';
+  static String get profileNotes => _tr ? 'Not Alma' : 'Note Taking';
+  static String get profileNotesHint =>
+      _tr ? 'Günlük kullanım için' : 'For everyday use';
+  static String get profileHeading => _tr ? 'Başlık' : 'Heading';
+  static String get profileHeadingHint =>
+      _tr ? 'Kalın ve belirgin' : 'Thick and clear';
+  static String get profileSketch => _tr ? 'Çizim' : 'Sketching';
+  static String get profileSketchHint =>
+      _tr ? 'Yumuşak ve akıcı' : 'Soft and flowing';
+  static String get profileTechnical => _tr ? 'Teknik Çizim' : 'Technical Drawing';
+  static String get profileTechnicalHint =>
+      _tr ? 'Hassas ve stabil' : 'Precise and steady';
+  static String get profileEngineering => _tr ? 'Mühendislik' : 'Engineering';
+  static String get profileEngineeringHint =>
+      _tr ? 'Düzgün ve net' : 'Clean and crisp';
+  static String get profileMarker => _tr ? 'Marker' : 'Marker';
+  static String get profileMarkerHint =>
+      _tr ? 'Vurgulama için' : 'For highlighting';
+
   static String get brushPen => _tr ? 'Fırça Uçlu Kalem' : 'Brush Pen';
   static String get penGestures => _tr ? 'Kalem hareketleri' : 'Pen gestures';
 

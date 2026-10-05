@@ -439,6 +439,12 @@ class Stows {
         Pen.brushPenOptions,
         fromJson: _strokeOptionsFromJson,
         volatile: !_isOnMainIsolate,
+      ),
+      lastCalligraphyPenOptions = PlainStow.json(
+        'lastCalligraphyPenProperties',
+        Pen.calligraphyPenOptions,
+        fromJson: _strokeOptionsFromJson,
+        volatile: !_isOnMainIsolate,
       );
 
   /// How pointed the ends of the fountain and brush pens' lines are, 0..1.
@@ -453,10 +459,73 @@ class Stows {
         volatile: !_isOnMainIsolate,
       );
 
-  /// Whether the pen last used was the brush pen, which shares the
-  /// fountain pen's [ToolId].
-  final lastPenWasBrush = PlainStow(
-    'lastPenWasBrush',
+  /// Which of the pens that share the fountain pen's [ToolId] was last
+  /// used: an index into `PenVariant.values`.
+  final lastPenVariant = PlainStow(
+    'lastPenVariant',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// The pressure curve of the pen panel (see `PressureCurve.encode`);
+  /// empty for the standard one.
+  final pressureCurve = PlainStow<String>(
+    'pressureCurve',
+    '',
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// The pen profiles of the pen panel as JSON; empty for the ones that
+  /// come with the app.
+  final penProfiles = PlainStow<String>(
+    'penProfiles',
+    '',
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Ruler: every line is drawn straight from where the pen went down.
+  final rulerMode = PlainStow('rulerMode', false, volatile: !_isOnMainIsolate);
+
+  /// Angle guide: straight lines turn to the nearest 15 degrees.
+  final angleGuide = PlainStow(
+    'angleGuide',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Measuring: the length of what is being drawn is shown over the page.
+  final measureMode = PlainStow(
+    'measureMode',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Dimensions: straight lines, circles and rectangles get their size
+  /// written next to them.
+  final dimensionMode = PlainStow(
+    'dimensionMode',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Circles, rectangles and polygons are recognised when the pen is
+  /// lifted, without holding it still first.
+  final autoShapes = PlainStow(
+    'autoShapes',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Nearly regular shapes are made regular when they are recognised.
+  final shapeAutoCorrect = PlainStow(
+    'shapeAutoCorrect',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Whether the line preview of the pen panel is folded away.
+  final penPreviewCollapsed = PlainStow(
+    'penPreviewCollapsed',
     false,
     volatile: !_isOnMainIsolate,
   );
