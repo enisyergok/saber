@@ -35,6 +35,7 @@ import 'package:saber/components/toolbar/editor_page_grid.dart';
 import 'package:saber/components/toolbar/editor_page_manager.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
 import 'package:saber/data/benchmark/pen_latency_probe.dart';
+import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/editor_exporter.dart';
@@ -2184,6 +2185,7 @@ class EditorState extends State<Editor> {
         );
         autosaveAfterDelay();
       }),
+      insertCover: insertCover,
       setBackgroundColor: (color) => setState(() {
         if (coreInfo.readOnly) return;
         coreInfo.backgroundColor = color;
@@ -2649,6 +2651,44 @@ class EditorState extends State<Editor> {
     );
     autosaveAfterDelay();
   });
+
+  /// Inserts [design] as a new first page, with the note's name as title.
+  Future<void> insertCover(CoverDesign design) async {
+    if (coreInfo.readOnly) return;
+    final size = Size(EditorPage.defaultWidth, EditorPage.defaultHeight);
+    final bytes = await design.renderPng(size, title: coreInfo.fileName);
+    if (!mounted) return;
+    setState(() {
+      final page = EditorPage(
+        size: size,
+        backgroundImage: PngEditorImage(
+          id: coreInfo.nextImageId++,
+          extension: '.png',
+          imageProvider: MemoryImage(bytes),
+          pageIndex: 0,
+          pageSize: size,
+          invertible: false,
+          onMoveImage: onMoveImage,
+          onDeleteImage: onDeleteImage,
+          onMiscChange: autosaveAfterDelay,
+          onLoad: () => setState(() {}),
+          assetCache: coreInfo.assetCache,
+        ),
+      );
+      coreInfo.pages.insert(0, page);
+      listenToQuillChanges(page.quill, 0);
+      history.recordChange(
+        EditorHistoryItem(
+          type: .insertPage,
+          pageIndex: 0,
+          strokes: const [],
+          images: const [],
+          page: page,
+        ),
+      );
+      autosaveAfterDelay();
+    });
+  }
 
   void clearPage(int pageIndex) {
     if (coreInfo.readOnly) return;
