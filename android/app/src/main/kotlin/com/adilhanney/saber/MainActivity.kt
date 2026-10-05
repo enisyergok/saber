@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
+import android.view.InputDevice
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.Surface
 import android.view.SurfaceView
 import android.view.View
@@ -41,6 +44,65 @@ class MainActivity: FlutterActivity() {
         requestHighestRefreshRate()
     }
 
+    /// The last raw input signals Android handed to this window (keys,
+    /// pen buttons, hovering), newest first, for the "Pen test" screen. They
+    /// are only recorded, never changed or consumed.
+    private val rawInput = ArrayList<String>()
+    private var lastButtons = -1
+
+    private fun recordInput(text: String) {
+        synchronized(rawInput) {
+            rawInput.add(0, text)
+            while (rawInput.size > 60) rawInput.removeAt(rawInput.size - 1)
+        }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        recordInput(
+            "KEY ${KeyEvent.keyCodeToString(event.keyCode)} (${event.keyCode}) " +
+                "action=${event.action} source=0x${Integer.toHexString(event.source)} " +
+                "device=${event.deviceId}"
+        )
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun recordMotion(kind: String, event: MotionEvent) {
+        val tool = event.getToolType(0)
+        val action = event.actionMasked
+        val plain = action == MotionEvent.ACTION_HOVER_MOVE ||
+            action == MotionEvent.ACTION_MOVE
+        val buttonsChanged = event.buttonState != lastButtons
+        if (plain && !buttonsChanged) return
+        lastButtons = event.buttonState
+        recordInput(
+            "$kind ${MotionEvent.actionToString(action)} tool=$tool " +
+                "buttons=${event.buttonState} device=${event.deviceId}"
+        )
+    }
+
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        recordMotion("HOVER", event)
+        return super.dispatchGenericMotionEvent(event)
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        recordMotion("TOUCH", event)
+        return super.dispatchTouchEvent(event)
+    }
+
+    /// Names and kinds of the input devices, to see whether the pen shows
+    /// up as a device of its own.
+    private fun describeInputDevices(): String {
+        return try {
+            InputDevice.getDeviceIds().joinToString("\n") { id ->
+                val d = InputDevice.getDevice(id)
+                "#$id ${d?.name} src=0x${Integer.toHexString(d?.sources ?: 0)}"
+            }
+        } catch (_: Exception) {
+            ""
+        }
+    }
+
     override fun onPause() {
         // Leave the screen as the user set it for every other app.
         setWindowBrightness(WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE)
@@ -71,6 +133,18 @@ class MainActivity: FlutterActivity() {
                         desiredBrightness =
                             (call.argument<Double>("value") ?: -1.0).toFloat()
                         setWindowBrightness(desiredBrightness)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/input")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "events" -> synchronized(rawInput) { result.success(ArrayList(rawInput)) }
+                    "devices" -> result.success(describeInputDevices())
+                    "clear" -> {
+                        synchronized(rawInput) { rawInput.clear() }
                         result.success(null)
                     }
                     else -> result.notImplemented()

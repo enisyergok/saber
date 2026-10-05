@@ -110,6 +110,9 @@ abstract class DefterStrings {
   static String get stylusTestNothing => _tr ? 'Henüz sinyal yok' : 'No signals yet';
   static String get stylusTestDetected =>
       _tr ? 'Bu bir kalem tuşu sinyali' : 'This is a pen button signal';
+  static String get stylusTestNative => _tr
+      ? 'Android\'in doğrudan aldığı sinyaller (altta cihaz listesi)'
+      : 'Signals Android receives directly (device list below)';
   static String get stylusTestClear => _tr ? 'Temizle' : 'Clear';
   static String get stylusNone => _tr ? 'Hiçbir şey' : 'Nothing';
   static String get stylusToggleEraser => _tr ? 'Silgi' : 'Eraser';

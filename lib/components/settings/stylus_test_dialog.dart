@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,16 +22,52 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
   int _lastButtons = -1;
   PointerDeviceKind? _lastKind;
 
+  static const _input = MethodChannel('defter/input');
+
+  /// What Android itself reports to the window (before Flutter sees it).
+  List<String> _native = const [];
+  String _devices = '';
+  Timer? _poll;
+
   @override
   void initState() {
     HardwareKeyboard.instance.addHandler(_onKey);
     super.initState();
+    unawaited(_loadDevices());
+    _poll = Timer.periodic(
+      const Duration(milliseconds: 400),
+      (_) => unawaited(_loadNative()),
+    );
   }
 
   @override
   void dispose() {
+    _poll?.cancel();
     HardwareKeyboard.instance.removeHandler(_onKey);
     super.dispose();
+  }
+
+  Future<void> _loadDevices() async {
+    try {
+      final devices = await _input.invokeMethod<String>('devices');
+      if (mounted) setState(() => _devices = devices ?? '');
+    } on MissingPluginException {
+      // not Android
+    }
+  }
+
+  Future<void> _loadNative() async {
+    try {
+      final events = await _input.invokeListMethod<String>('events');
+      if (!mounted || events == null) return;
+      if (events.length == _native.length &&
+          (events.isEmpty || events.first == _native.first)) {
+        return;
+      }
+      setState(() => _native = events);
+    } on MissingPluginException {
+      _poll?.cancel();
+    }
   }
 
   void _add(String text, {bool penKey = false}) {
@@ -78,7 +116,7 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
       title: Text(DefterStrings.stylusTest),
       content: SizedBox(
         width: 460,
-        height: 420,
+        height: 640,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -117,12 +155,41 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              DefterStrings.stylusTestNative,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: 4),
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(color: colors.outline),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListView(
+                  padding: const EdgeInsets.all(8),
+                  children: [
+                    for (final line in _native)
+                      Text(line, style: _mono),
+                    if (_devices.isNotEmpty) ...[
+                      const Divider(),
+                      Text(_devices, style: _mono),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
       actions: [
         TextButton(
-          onPressed: () => setState(_events.clear),
+          onPressed: () {
+            setState(_events.clear);
+            unawaited(_input.invokeMethod<void>('clear').catchError((_) {}));
+            setState(() => _native = const []);
+          },
           child: Text(DefterStrings.stylusTestClear),
         ),
         TextButton(
@@ -133,6 +200,8 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
     );
   }
 }
+
+const _mono = TextStyle(fontFamily: 'monospace', fontSize: 12);
 
 class _Signal {
   const _Signal(this.text, this.penKey);
