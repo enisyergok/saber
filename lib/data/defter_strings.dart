@@ -175,6 +175,7 @@ abstract class DefterStrings {
   static String get resetDefault => _tr ? 'Varsayılana dön' : 'Reset to default';
 
   // Handwriting search
+  static String searchPage(int page) => _tr ? 's. $page' : 'p. $page';
   static String get hwSection => _tr ? 'El yazısı araması' : 'Handwriting search';
   static String get hwAdd => _tr ? 'Aramaya ekle' : 'Add to search';
   static String get hwRefresh => _tr ? 'Aramayı yenile' : 'Refresh search text';

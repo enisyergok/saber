@@ -20,6 +20,7 @@ Defter, Saber Notes'un (Flutter) çatalıdır. Tablet için kalem deneyimi,
 | Bağlantılar | Metinden başka nota bağlantı |
 | Eşitleme | Nextcloud; senkron durumu sayfası |
 | OpenRouter | El yazısını metne çevirme, Notlarıma sor |
+| El yazısı araması | Alt menü > El yazısı araması > Aramaya ekle: notun el yazısı bölümler halinde okunur, metin cihazda ayrı dosyada tutulur (not değişmez, eşitlenmez). Ana ekran araması ve Notlarıma sor bu metni de tarar; sonuçta sayfa numarası görünür |
 
 ## Neler internete gider
 
@@ -34,7 +35,7 @@ saklanır (şifrelenmez, eşitlenmez).
 
 ## Bilinen sınırlar
 
-- Notlarıma sor yalnızca **yazıyla girilen** metni tarar. El yazısı önce metne çevrilmeli.
+- Notlarıma sor, yazıyla girilen metni ve "Aramaya ekle" ile okunmuş el yazısını tarar. Aramaya eklenmemiş notların el yazısı taranmaz; not sonradan değişirse metin eski kalır (menü uyarır, yenilemek için dokun). Aramaya ekleme internet ve OpenRouter anahtarı ister; eklendikten sonra arama çevrimdışıdır. Uzun not en çok 60 parça okunur.
 - Ses kayıtları eşitlenmez. Not yeniden adlandırılırsa, taşınırsa veya çöpe atılırsa kayıtlar notla birlikte gider; klasör olarak taşınırsa kayıtlar yerinde kalır.
 - Notlar arası bağlantılar yolu içerir; hedef not yeniden adlandırılırsa bağlantı eski adı gösterir.
 - Resim ve dikdörtgen içeren seçimler döndürülemez.

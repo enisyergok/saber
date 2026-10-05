@@ -126,7 +126,8 @@ class _SearchPageState extends State<SearchPage> {
                   subtitle: Text(
                     [
                       if (folder.isNotEmpty) folder,
-                      if (result.snippet != null) result.snippet!,
+                      if (result.snippet != null)
+                        '${result.page == null ? '' : '${DefterStrings.searchPage(result.page!)}: '}${result.snippet!}',
                     ].join('\n'),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
