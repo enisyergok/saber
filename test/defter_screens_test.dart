@@ -1,11 +1,11 @@
-import 'dart:math' as math;
-
 // Renders the main screens on a tablet-sized surface so that UI work can be
 // reviewed from CI without a device. Run with
 // `--tags screens --update-goldens`; the images land in test/defter_shots/
 // and are not committed.
 @Tags(['screens'])
 library;
+
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
