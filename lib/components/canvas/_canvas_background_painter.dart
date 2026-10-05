@@ -75,7 +75,8 @@ class CanvasBackgroundPainter extends CustomPainter {
 
     final lineAlpha = preview ? 0.5 : (eInk ? 0.38 : 0.2);
     // On dark paper the guide lines are light, or they would not be seen.
-    final dark = backgroundColor.withInversion(invert).computeLuminance() < 0.25;
+    // (When the page is inverted for dark mode the usual colours stay.)
+    final dark = !invert && backgroundColor.computeLuminance() < 0.25;
     final primaryColor = dark ? Colors.white : this.primaryColor;
     final secondaryColor = dark ? Colors.white70 : this.secondaryColor;
     for (final element in getPatternElements(
