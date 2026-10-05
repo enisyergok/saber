@@ -436,7 +436,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.only(left: 14, right: 4),
-        height: collapsed ? 38 : 66,
+        height: collapsed ? 38 : 60,
         child: Row(
           children: [
             Expanded(
@@ -956,7 +956,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         child: InkWell(
           onTap: onTap,
           child: SizedBox(
-            height: 66,
+            height: 60,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
               child: Column(
@@ -966,7 +966,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                     data: IconThemeData(size: 22, color: foreground),
                     child: icon,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     title,
                     maxLines: 1,
@@ -1023,11 +1023,47 @@ class _GnPenSettingsState extends State<GnPenSettings> {
       );
     }
 
+    final gestures = Material(
+      color: ColorScheme.of(context).surface,
+      borderRadius: BorderRadius.circular(10),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => showDialog<void>(
+          context: context,
+          builder: (context) => const PenGesturesDialog(),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                DefterStrings.penGestures,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.chevron_right, size: 18),
+            ],
+          ),
+        ),
+      ),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(DefterStrings.advancedBehaviours, style: _sectionStyle(context)),
-        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                DefterStrings.advancedBehaviours,
+                style: _sectionStyle(context),
+              ),
+            ),
+            gestures,
+          ],
+        ),
+        const SizedBox(height: 4),
         Wrap(
           spacing: 10,
           runSpacing: 4,
@@ -1047,34 +1083,6 @@ class _GnPenSettingsState extends State<GnPenSettings> {
               stows.shapeSnapEndpoints,
               Icons.join_inner,
               DefterStrings.joinShapes,
-            ),
-            Material(
-              color: ColorScheme.of(context).surface,
-              borderRadius: BorderRadius.circular(10),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: () => showDialog<void>(
-                  context: context,
-                  builder: (context) => const PenGesturesDialog(),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        DefterStrings.penGestures,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(Icons.chevron_right, size: 18),
-                    ],
-                  ),
-                ),
-              ),
             ),
           ],
         ),

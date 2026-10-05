@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:saber/components/editor_gn/gn_actions.dart';
+import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
 import 'package:saber/components/theming/uni_icon.dart';
@@ -279,11 +280,14 @@ class _GnOverlayState extends State<GnOverlay> {
               openColorPicker: () => controller.toggle(GnPanel.color),
               toggleGrid: spec.toggleGrid,
               gridOn: spec.gridOn,
+              // From under the bar (the panel hangs 8 below it) to just
+              // above the bottom of the screen.
               maxHeight: math.max(
                 280.0,
                 MediaQuery.sizeOf(context).height -
                     MediaQuery.viewPaddingOf(context).vertical -
-                    150,
+                    GnEditorBar.contentHeight -
+                    20,
               ),
             ),
           ),
