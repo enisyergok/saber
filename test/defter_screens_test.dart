@@ -35,6 +35,7 @@ import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/pen.dart';
+import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/shape_analysis.dart';
 import 'package:saber/data/tools/shape_snap.dart';
@@ -162,29 +163,29 @@ void main() {
       theme: theme,
       name: 'pen_panel',
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Wrap(
-            children: [
-              for (final pen in [
-                Pen.fountainPen(),
-                Pen.ballpointPen(),
-                Pen.brushPen(),
-              ])
-                Card(
-                  margin: const EdgeInsets.all(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: GnPenSettings(getTool: () => pen, setTool: (_) {}),
-                  ),
-                ),
-              const SizedBox(
-                width: 720,
-                height: 420,
-                child: CustomPaint(painter: _PenLinesPainter()),
-              ),
-            ],
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: FittedBox(
+            alignment: Alignment.topLeft,
+            fit: BoxFit.scaleDown,
+            child: GnPenSettings(
+              getTool: Pen.fountainPen,
+              setTool: (_) {},
+              setColor: (_) {},
+              onClose: () {},
+              openColorPicker: () {},
+              toggleGrid: () {},
+              maxHeight: 1400,
+            ),
           ),
         ),
+      ),
+    );
+    _shot(
+      theme: theme,
+      name: 'pen_lines',
+      child: const Scaffold(
+        body: SizedBox.expand(child: CustomPaint(painter: _PenLinesPainter())),
       ),
     );
     _shot(
@@ -563,43 +564,89 @@ class _ToneScene extends StatelessWidget {
 
 /// Lines as the pens draw them for the pressures measured on the tablet:
 /// per pen, four even lines (raw pressure 0.1, 0.29, 0.45, 0.94) and one
-/// that goes from light to firm and back.
+/// that goes from light to firm and back; for the calligraphy pen the
+/// thickness comes from the direction of the line. Then a dimensioned
+/// line, as the dimension tool writes it.
 class _PenLinesPainter extends CustomPainter {
   const _PenLinesPainter();
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.black;
-    var y = 20.0;
-    for (final pen in [Pen.fountainPen(), Pen.ballpointPen(), Pen.brushPen()]) {
-      pen.options.size = pen.brush ? 12 : 5;
+    void fill(List<PointVector> points, StrokeOptions options) {
+      final polygon = getStroke(points, options: options);
+      if (polygon.length < 3) return;
+      canvas.drawPath(Path()..addPolygon(polygon, true), paint);
+    }
+
+    var y = 24.0;
+    for (final pen in [
+      Pen.fountainPen(),
+      Pen.ballpointPen(),
+      Pen.brushPen(),
+      Pen.calligraphyPen(),
+    ]) {
+      final nib = pen.kind == PenKind.calligraphy;
       final options = pen.strokeOptions.copyWith(
+        size: pen.brush || nib ? 12 : 5,
         isComplete: true,
         simulatePressure: false,
         streamline: 0,
       );
-      final lines = <List<PointVector>>[
-        for (final raw in [0.1, 0.29, 0.45, 0.94])
-          [
-            for (var x = 20.0; x <= 330; x += 4)
-              PointVector(x, y + 18 * [0.1, 0.29, 0.45, 0.94].indexOf(raw),
-                  PenFeel.pressure(raw)),
-          ],
-        [
-          for (var i = 0; i <= 80; i++)
-            PointVector(
-              380 + i * 4.0,
-              y + 30 + 22 * math.sin(i / 80 * math.pi * 2),
-              PenFeel.pressure(0.05 + 0.9 * math.sin(i / 80 * math.pi)),
-            ),
-        ],
-      ];
-      for (final points in lines) {
-        final polygon = getStroke(points, options: options);
-        if (polygon.length < 3) continue;
-        canvas.drawPath(Path()..addPolygon(polygon, true), paint);
+      const raws = [0.1, 0.29, 0.45, 0.94];
+      for (var i = 0; i < raws.length; i++) {
+        fill([
+          for (var x = 20.0; x <= 330; x += 4)
+            PointVector(x, y + 20 * i, nib ? 0.7 : PenFeel.pressure(raws[i])),
+        ], options);
       }
-      y += 130;
+      Offset wave(int i) => Offset(
+        380 + i * 4.0,
+        y + 30 + 26 * math.sin(i / 80 * math.pi * 2),
+      );
+      fill([
+        for (var i = 0; i <= 80; i++)
+          PointVector(
+            wave(i).dx,
+            wave(i).dy,
+            nib
+                ? PenFeel.nibPressure(
+                    (wave(math.min(i + 1, 80)) - wave(math.max(i - 1, 0)))
+                        .direction,
+                  )
+                : PenFeel.pressure(0.05 + 0.9 * math.sin(i / 80 * math.pi)),
+          ),
+      ], options);
+      y += 120;
+    }
+
+    final thin = StrokeOptions(
+      size: 2,
+      thinning: 0,
+      smoothing: 0,
+      streamline: 0,
+      simulatePressure: false,
+      isComplete: true,
+    );
+    const a = Offset(60, 560), b = Offset(345.7, 560);
+    fill([PointVector(a.dx, a.dy, 0.5), PointVector(b.dx, b.dy, 0.5)], thin);
+    for (final line in PenAssist.lineDimension(a, b)) {
+      fill([for (final p in line) PointVector(p.dx, p.dy, 0.5)], thin);
+    }
+    const c = Offset(520, 640), d = Offset(700, 520);
+    fill([PointVector(c.dx, c.dy, 0.5), PointVector(d.dx, d.dy, 0.5)], thin);
+    for (final line in PenAssist.lineDimension(c, d)) {
+      fill([for (final p in line) PointVector(p.dx, p.dy, 0.5)], thin);
+    }
+    final text = PenAssist.textLines(
+      '0123456789 Ø 12,5 mm',
+      origin: const Offset(60, 680),
+      along: const Offset(1, 0),
+      up: const Offset(0, -1),
+      height: 28,
+    );
+    for (final line in text) {
+      fill([for (final p in line) PointVector(p.dx, p.dy, 0.5)], thin);
     }
   }
 

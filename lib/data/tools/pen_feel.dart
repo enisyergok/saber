@@ -1,27 +1,30 @@
 import 'dart:math' as math;
 
 import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:saber/data/tools/pressure_curve.dart';
 
 /// The writing pens whose line follows the settings of the pen panel.
-enum PenKind { fountain, ballpoint, brush }
+enum PenKind { fountain, ballpoint, brush, calligraphy }
 
-/// How the pen panel's settings (pressure sensitivity, tip sharpness) and
-/// the stylus' pressure become the shape of a line.
-///
-/// The numbers come from measurements on the tablet: ordinary writing
-/// presses at about 0.1 to 0.5 of the pen's range and a firm press reaches
-/// 0.95. Used as they are, such values barely change the width of a line,
-/// so they are spread out first.
+/// How the pen panel's settings (pressure sensitivity, tip sharpness, the
+/// pressure curve) and the stylus' pressure become the shape of a line.
 abstract class PenFeel {
-  /// Raw pressure at and above which the line is at its thickest.
-  static const knee = 0.85;
-
-  /// Below 1 this lifts light pressure, where most writing happens.
-  static const gamma = 0.75;
+  /// The pressure curve in use. Set from the settings when a line is begun
+  /// and by the pen panel while it is being edited.
+  static PressureCurve curve = PressureCurve.standard;
 
   /// Spreads a raw stylus pressure (0..1) over the whole width range.
-  static double pressure(double raw) =>
-      math.pow((raw / knee).clamp(0.0, 1.0), gamma).toDouble();
+  static double pressure(double raw) => curve.map(raw);
+
+  /// The angle the calligraphy pen's flat nib is held at: 45 degrees, so
+  /// lines going up to the right are thin and those going down to the
+  /// right are thick.
+  static const nibAngle = -math.pi / 4;
+
+  /// How thick (0..1) the calligraphy pen draws when moving in
+  /// [direction] (radians, as [Offset.direction] gives it).
+  static double nibPressure(double direction) =>
+      math.sin(direction - nibAngle).abs();
 
   /// How strongly the width follows pressure, for a [sensitivity] of 0..1
   /// as set in the pen panel. 0 always gives a line of even width.
@@ -35,6 +38,8 @@ abstract class PenFeel {
       PenKind.ballpoint => 0.45 * s,
       // A brush is never even, unless turned off.
       PenKind.brush => s == 0 ? 0 : 0.6 + 0.4 * s,
+      // Here it is the contrast between thin and thick strokes.
+      PenKind.calligraphy => s == 0 ? 0 : 0.5 + 0.5 * s,
     };
   }
 
@@ -50,8 +55,13 @@ abstract class PenFeel {
       PenKind.fountain => (size * 3 * s, size * 7 * s),
       PenKind.ballpoint => (0, 0),
       PenKind.brush => (size * 3 * s, size * 6 * s),
+      PenKind.calligraphy => (0, 0),
     };
   }
+
+  /// Whether the pen panel offers tip sharpness for [kind].
+  static bool hasSharpness(PenKind kind) =>
+      kind == PenKind.fountain || kind == PenKind.brush;
 
   /// The longest a taper may be on a finished line of [length], so that
   /// short lines (dots, small letters) do not turn into hairlines.

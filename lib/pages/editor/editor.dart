@@ -54,6 +54,7 @@ import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
+import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
@@ -73,6 +74,7 @@ import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/home/whiteboard.dart';
+import 'package:sbn/canvas_background_pattern.dart';
 import 'package:sbn/change.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
@@ -150,10 +152,12 @@ class EditorState extends State<Editor> {
     switch (stows.lastTool.value) {
       case .fountainPen:
         if (Pen.currentPen.toolId != stows.lastTool.value ||
-            Pen.currentPen.brush != stows.lastPenWasBrush.value) {
-          Pen.currentPen = stows.lastPenWasBrush.value
-              ? Pen.brushPen()
-              : Pen.fountainPen();
+            Pen.currentPen.variant.index != stows.lastPenVariant.value) {
+          Pen.currentPen = switch (stows.lastPenVariant.value) {
+            1 => Pen.brushPen(),
+            2 => Pen.calligraphyPen(),
+            _ => Pen.fountainPen(),
+          };
         }
         return Pen.currentPen;
       case .ballpointPen:
@@ -187,7 +191,7 @@ class EditorState extends State<Editor> {
     if (tool is! Eraser) _lastNonEraserTool = tool;
     stows.lastTool.value = tool.toolId;
     if (tool is Pen && tool.toolId == .fountainPen) {
-      stows.lastPenWasBrush.value = tool.brush;
+      stows.lastPenVariant.value = tool.variant.index;
     }
   }
 
@@ -878,27 +882,45 @@ class EditorState extends State<Editor> {
     bool shouldSave = true;
     setState(() {
       if (currentTool is Pen) {
-        final newStroke = (currentTool as Pen).onDragEnd();
+        final pen = currentTool as Pen;
+        var newStroke = pen.onDragEnd();
         if (newStroke == null) return;
         if (newStroke.isEmpty) return;
 
+        final recognise = pen.usesAssists && !ShapeSnap.lastWasSnapped;
         if (stows.autoStraightenLines.value &&
-            currentTool is! ShapePen &&
-            !ShapeSnap.lastWasSnapped &&
+            recognise &&
             newStroke.isStraightLine()) {
           newStroke.convertToLine();
+        } else if (stows.autoShapes.value && recognise) {
+          newStroke = PenAssist.autoShape(
+            newStroke,
+            tidy: stows.shapeAutoCorrect.value,
+          );
         }
+        // The angle guide, measuring and dimensions of the pen panel.
+        final extras = pen.usesAssists
+            ? PenAssist.finish(
+                newStroke,
+                angleGuide: stows.angleGuide.value,
+                dimensions: stows.dimensionMode.value,
+                measure: stows.measureMode.value,
+              )
+            : const <Stroke>[];
         if (stows.shapeSnapEndpoints.value) {
           ShapeSnap.snapToEndpoints(newStroke, page.strokes);
         }
 
         createPage(newStroke.pageIndex);
         page.insertStroke(newStroke);
+        for (final extra in extras) {
+          page.insertStroke(extra);
+        }
         history.recordChange(
           EditorHistoryItem(
             type: .draw,
             pageIndex: dragPageIndex!,
-            strokes: [newStroke],
+            strokes: [newStroke, ...extras],
             images: [],
           ),
         );
@@ -1886,6 +1908,8 @@ class EditorState extends State<Editor> {
           exportAsSba: exportAsSba,
           exportAsPdf: exportAsPdf,
           exportAsPng: exportAsPng,
+          toggleGrid: coreInfo.readOnly ? null : toggleGrid,
+          gridOn: coreInfo.backgroundPattern == CanvasBackgroundPattern.grid,
     );
 
     final Widget toolbar = Collapsible(
@@ -2658,6 +2682,33 @@ class EditorState extends State<Editor> {
     autosaveAfterDelay();
   });
 
+  CanvasBackgroundPattern? _patternBeforeGrid;
+
+  /// The grid of the pen panel: puts the note on squared paper, or back on
+  /// the paper it had before.
+  void toggleGrid() => setState(() {
+    if (coreInfo.readOnly) return;
+    final previous = coreInfo.backgroundPattern;
+    final CanvasBackgroundPattern next;
+    if (previous == CanvasBackgroundPattern.grid) {
+      next = _patternBeforeGrid ?? CanvasBackgroundPattern.none;
+    } else {
+      _patternBeforeGrid = previous;
+      next = CanvasBackgroundPattern.grid;
+    }
+    coreInfo.backgroundPattern = next;
+    history.recordChange(
+      EditorHistoryItem(
+        type: .backgroundPattern,
+        pageIndex: currentPageIndex,
+        backgroundPatternChange: Change(previous: previous, current: next),
+        strokes: [],
+        images: [],
+      ),
+    );
+    autosaveAfterDelay();
+  });
+
   /// Inserts [design] as a new first page, with the note's name as title.
   Future<void> insertCover(CoverDesign design) async {
     if (coreInfo.readOnly) return;
@@ -2847,6 +2898,7 @@ class EditorState extends State<Editor> {
     stows.lastPencilOptions.notifyListeners();
     stows.lastShapePenOptions.notifyListeners();
     stows.lastBrushPenOptions.notifyListeners();
+    stows.lastCalligraphyPenOptions.notifyListeners();
 
     super.dispose();
   }

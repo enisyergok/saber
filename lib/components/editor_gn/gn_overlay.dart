@@ -1,4 +1,6 @@
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,6 +22,7 @@ import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen.dart';
+import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/shape_pen.dart';
@@ -111,6 +114,19 @@ class _GnOverlayState extends State<GnOverlay> {
                   ],
                 ),
               ),
+            ),
+          ),
+          // What the measuring tool of the pen panel reads.
+          Positioned(
+            top: 0,
+            left: 0,
+            child: CompositedTransformFollower(
+              link: controller.barLink,
+              targetAnchor: Alignment.bottomCenter,
+              followerAnchor: Alignment.topCenter,
+              offset: const Offset(0, 64),
+              showWhenUnlinked: false,
+              child: const IgnorePointer(child: MeasureReadout()),
             ),
           ),
           if (panel != GnPanel.none) _panelAt(context, panel, actions),
@@ -244,9 +260,33 @@ class _GnOverlayState extends State<GnOverlay> {
     final Widget body;
     switch (panel) {
       case GnPanel.penSettings:
-        body = GnPenSettings(
-          getTool: () => spec.currentTool,
-          setTool: spec.setTool,
+        // The pen panel hangs from the left of the bar and brings its own
+        // cards (the settings, and the profiles next to them).
+        return Positioned(
+          top: 0,
+          left: 0,
+          child: CompositedTransformFollower(
+            link: controller.barLink,
+            targetAnchor: Alignment.bottomLeft,
+            followerAnchor: Alignment.topLeft,
+            offset: const Offset(12, 8),
+            showWhenUnlinked: false,
+            child: GnPenSettings(
+              getTool: () => spec.currentTool,
+              setTool: spec.setTool,
+              setColor: spec.setColor,
+              onClose: controller.close,
+              openColorPicker: () => controller.toggle(GnPanel.color),
+              toggleGrid: spec.toggleGrid,
+              gridOn: spec.gridOn,
+              maxHeight: math.max(
+                280.0,
+                MediaQuery.sizeOf(context).height -
+                    MediaQuery.viewPaddingOf(context).vertical -
+                    150,
+              ),
+            ),
+          ),
         );
       case GnPanel.color:
         final tool = spec.currentTool;
@@ -417,6 +457,40 @@ class _MoreTools extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+
+/// The length (and angle) being measured, shown over the page while the
+/// measuring tool of the pen panel is on.
+class MeasureReadout extends StatelessWidget {
+  const MeasureReadout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = ColorScheme.of(context);
+    return ValueListenableBuilder<String?>(
+      valueListenable: PenAssist.readout,
+      builder: (context, text, _) {
+        if (text == null) return const SizedBox.shrink();
+        return Material(
+          color: colors.inverseSurface,
+          elevation: 4,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: colors.onInverseSurface,
+                fontWeight: FontWeight.w600,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_circle_stroke.dart';
 import 'package:saber/components/canvas/_rectangle_stroke.dart';
 import 'package:saber/components/canvas/_stroke.dart';
+import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/shape_analysis.dart';
 import 'package:sbn/tool_id.dart';
 
@@ -117,6 +118,10 @@ class ShapeSnap {
 
   static final Stopwatch _clock = Stopwatch()..start();
   static Stroke? _stroke;
+
+  /// Whether nearly regular shapes are made regular (see
+  /// [PenAssist.regularize]).
+  static bool _tidy = false;
   static Timer? _timer;
   static Offset _anchor = Offset.zero;
   static int _lastMoveMs = 0;
@@ -128,9 +133,11 @@ class ShapeSnap {
     Stroke stroke,
     Offset position, {
     required Duration hold,
+    bool tidy = false,
   }) {
     _cancel();
     _hold = hold;
+    _tidy = tidy;
     _stroke = stroke;
     _anchor = position;
     _previous = position;
@@ -182,7 +189,7 @@ class ShapeSnap {
 
     final guess = ShapeAnalysis.analyze(stroke.pointOffsets);
     if (guess == null) return;
-    preview = _withSnappedLine(guess);
+    preview = _withSnappedLine(_tidy ? PenAssist.regularize(guess) : guess);
     redraw?.call();
   }
 
