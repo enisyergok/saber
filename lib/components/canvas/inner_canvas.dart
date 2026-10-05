@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -8,6 +10,9 @@ import 'package:saber/components/canvas/_canvas_painter.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas_image.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
+import 'package:saber/components/eink/eink_scope.dart';
+import 'package:saber/data/eink/eink_style.dart';
+import 'package:saber/data/eink/eink_texture.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/links/note_link.dart';
 import 'package:saber/data/routes.dart';
@@ -66,14 +71,34 @@ class InnerCanvas extends StatefulWidget {
 }
 
 class _InnerCanvasState extends State<InnerCanvas> {
+  int _loadingGrainStep = 0;
+
+  /// The paper grain for e-ink mode, once its tile has been made.
+  ui.Image? _grainFor(EInkStyle? eInk) {
+    final step = eInk?.textureStep ?? 0;
+    if (step == 0) return null;
+    final ready = EInkTexture.readyImage(step);
+    if (ready != null) return ready;
+    if (_loadingGrainStep != step) {
+      _loadingGrainStep = step;
+      EInkTexture.load(step, maxAlpha: EInkStyle.maxGrainAlpha).then((_) {
+        if (mounted) setState(() {});
+      });
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final brightness = theme.brightness;
-    final invert = stows.editorAutoInvert.value && brightness == .dark;
+    final eInk = EInkScope.maybeOf(context);
+    final invert =
+        stows.editorAutoInvert.value && brightness == .dark && eInk == null;
     final Color backgroundColor =
         widget.coreInfo.backgroundColor ?? InnerCanvas.defaultBackgroundColor;
+    final grain = _grainFor(eInk);
 
     if (widget.coreInfo.pages.isEmpty) {
       return SizedBox(width: widget.width, height: widget.height);
@@ -125,12 +150,13 @@ class _InnerCanvasState extends State<InnerCanvas> {
       child: CustomPaint(
         painter: CanvasBackgroundPainter(
           invert: invert,
+          eInk: eInk != null,
+          grain: grain,
           backgroundColor: () {
-            if (page.backgroundImage != null) {
-              return Colors.white;
-            } else {
-              return backgroundColor;
-            }
+            final Color color = page.backgroundImage != null
+                ? Colors.white
+                : backgroundColor;
+            return eInk?.mapPaper(color) ?? color;
           }(),
           backgroundPattern: () {
             if (page.backgroundImage != null) {
@@ -148,6 +174,7 @@ class _InnerCanvasState extends State<InnerCanvas> {
           layer: .dry,
           repaint: widget.redrawPageListenable,
           invert: invert,
+          eInk: eInk,
           strokes: page.strokes,
           laserStrokes: page.laserStrokes,
           currentStroke: widget.currentStroke,
@@ -224,6 +251,7 @@ class _InnerCanvasState extends State<InnerCanvas> {
                   repaint:
                       widget.liveInkListenable ?? widget.redrawPageListenable,
                   invert: invert,
+                  eInk: eInk,
                   strokes: page.strokes,
                   laserStrokes: page.laserStrokes,
                   currentStroke: widget.currentStroke,

@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
@@ -13,6 +15,8 @@ class CanvasBackgroundPainter extends CustomPainter {
     this.primaryColor = Colors.blue,
     this.secondaryColor = Colors.red,
     this.preview = false,
+    this.eInk = false,
+    this.grain,
   });
 
   final bool invert;
@@ -29,6 +33,14 @@ class CanvasBackgroundPainter extends CustomPainter {
   /// Whether to draw the background pattern in a preview mode (more opaque).
   final bool preview;
 
+  /// Whether e-ink mode is on: [backgroundColor] is already the paper
+  /// colour, and the pattern is drawn a little stronger to stay sharp.
+  final bool eInk;
+
+  /// The tile of paper grain drawn over the paper, if any. Fixed noise, so
+  /// the grain never moves.
+  final ui.Image? grain;
+
   @override
   void paint(Canvas canvas, Size size) {
     final canvasRect = Offset.zero & size;
@@ -37,6 +49,21 @@ class CanvasBackgroundPainter extends CustomPainter {
     paint.color = backgroundColor.withInversion(invert);
     canvas.drawRect(canvasRect, paint);
 
+    final grain = this.grain;
+    if (grain != null) {
+      canvas.drawRect(
+        canvasRect,
+        Paint()
+          ..shader = ui.ImageShader(
+            grain,
+            TileMode.repeated,
+            TileMode.repeated,
+            Matrix4.identity().storage,
+            filterQuality: FilterQuality.low,
+          ),
+      );
+    }
+
     paint.strokeWidth = lineThickness.toDouble();
 
     if (backgroundPattern.requiresClipping) {
@@ -44,15 +71,16 @@ class CanvasBackgroundPainter extends CustomPainter {
       canvas.clipRect(canvasRect);
     }
 
+    final lineAlpha = preview ? 0.5 : (eInk ? 0.38 : 0.2);
     for (final element in getPatternElements(
       pattern: backgroundPattern,
       size: size,
       lineHeight: lineHeight,
     )) {
       if (element.secondaryColor) {
-        paint.color = secondaryColor.withValues(alpha: preview ? 0.5 : 0.2);
+        paint.color = secondaryColor.withValues(alpha: lineAlpha);
       } else {
-        paint.color = primaryColor.withValues(alpha: preview ? 0.5 : 0.2);
+        paint.color = primaryColor.withValues(alpha: lineAlpha);
       }
 
       if (element.isLine) {
@@ -75,7 +103,9 @@ class CanvasBackgroundPainter extends CustomPainter {
       oldDelegate.backgroundPattern != backgroundPattern ||
       oldDelegate.lineHeight != lineHeight ||
       oldDelegate.primaryColor != primaryColor ||
-      oldDelegate.secondaryColor != secondaryColor;
+      oldDelegate.secondaryColor != secondaryColor ||
+      oldDelegate.eInk != eInk ||
+      oldDelegate.grain != grain;
 
   static Iterable<PatternElement> getPatternElements({
     required CanvasBackgroundPattern pattern,

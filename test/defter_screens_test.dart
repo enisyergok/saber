@@ -15,9 +15,13 @@ import 'package:saber/components/canvas/canvas.dart' as saber;
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
 import 'package:saber/components/home/syncing_button.dart';
+import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/benchmark/synthetic_notes.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/eink/eink_style.dart';
+import 'package:saber/data/eink/eink_texture.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
@@ -238,11 +242,77 @@ void main() {
         await tester.pump();
       },
     );
+
+    // E-ink mode next to the normal look, on the same notes: an empty page
+    // with the interface, a dense handwritten page, a page with a photo and
+    // a PDF page.
+    const eInk = EInkStyle();
+    for (final (scene, path) in [
+      ('blank', '/e-ink bos not'),
+      ('handwriting', '/Metric Spaces Week 1'),
+      ('photo', '/Annotate images and diagrams'),
+      ('pdf', '/Import PDFs'),
+    ]) {
+      _shot(
+        theme: theme,
+        name: 'cmp_${scene}_normal',
+        child: Editor(path: path),
+        afterLoad: (_) async => OpenTabs.reset(),
+      );
+      _shot(
+        theme: theme,
+        eInk: eInk,
+        name: 'cmp_${scene}_eink',
+        child: Editor(path: path),
+        afterLoad: (_) async => OpenTabs.reset(),
+      );
+    }
+    _shot(
+      theme: theme,
+      eInk: eInk,
+      name: 'eink_library',
+      children: DirectoryChildren(
+        ['Projeler', 'Toplantılar'],
+        [
+          'Annotate images and diagrams',
+          'Golden ratio',
+          'Import PDFs',
+          'Metric Spaces Week 1',
+          'You can type notes too!',
+          'Coding review 1',
+          'HG Week 6',
+          'Topology week 1',
+        ],
+      ),
+      child: const HomePage(subpage: HomePage.browseSubpage, path: null),
+    );
+    _shot(
+      theme: theme,
+      eInk: eInk,
+      name: 'eink_settings',
+      child: const HomePage(subpage: HomePage.settingsSubpage, path: null),
+      afterLoad: (tester) async {
+        // the e-ink section is far down the list
+        await tester.ensureVisible(find.text(DefterStrings.eInkSection).first);
+        await tester.pump();
+      },
+    );
+    _shot(
+      theme: theme,
+      eInk: eInk,
+      name: 'eink_new_notebook',
+      child: const HomePage(subpage: HomePage.recentSubpage, path: null),
+      afterLoad: (tester) async {
+        NewNotebookDialog.show(tester.element(find.byType(HomePage)));
+        await tester.pump();
+      },
+    );
   });
 }
 
 void _shot({
   required ThemeData theme,
+  EInkStyle? eInk,
   required String name,
   required Widget child,
   DirectoryChildren? children,
@@ -254,11 +324,31 @@ void _shot({
     stows.platform.value = _tablet.platform;
     await tester.runAsync(() => LocaleSettings.setLocaleRaw('tr'));
 
+    if (eInk != null) {
+      stows.eInkMode.value = true;
+      addTearDown(() => stows.eInkMode.value = false);
+      // The paper grain is made before the page is drawn, as it is in the app.
+      if (eInk.textureStep > 0) {
+        await tester.runAsync(
+          () => EInkTexture.load(
+            eInk.textureStep,
+            maxAlpha: EInkStyle.maxGrainAlpha,
+          ),
+        );
+      }
+    }
+
     final widget = ScreenshotApp.withConditionalTitlebar(
-      theme: theme,
+      theme: eInk == null
+          ? theme
+          : SaberTheme.createEInkTheme(eInk, _tablet.platform),
       device: _tablet,
       title: 'Defter',
-      home: TranslationProvider(child: child),
+      home: TranslationProvider(
+        child: eInk == null
+            ? child
+            : EInkScope(style: eInk, child: child),
+      ),
     );
     await tester.pumpWidget(widget);
     await tester.pump();

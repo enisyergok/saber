@@ -14,9 +14,14 @@ import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
+import 'package:saber/components/eink/eink_scope.dart';
+import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/page.dart';
+import 'package:saber/data/eink/eink_style.dart';
+import 'package:saber/data/eink/eink_texture.dart';
 import 'package:saber/data/is_this_a_test.dart';
+import 'package:saber/data/prefs.dart';
 import 'package:screenshot/screenshot.dart';
 
 abstract class EditorExporter {
@@ -38,10 +43,23 @@ abstract class EditorExporter {
 
   static const pdfPagePixelRatio = 3.0;
 
+  /// The e-ink look to export with, or null for the notes' own colours.
+  /// Exports only use it when e-ink mode is on and the person turned on
+  /// "export in e-ink look"; the saved note is never changed.
+  static EInkStyle? eInkStyleForExport() {
+    if (!stows.eInkMode.value || !stows.eInkExport.value) return null;
+    return EInkStyle(
+      paperWarmth: stows.eInkPaperWarmth.value,
+      inkDarkness: stows.eInkInkDarkness.value,
+      texture: stows.eInkTexture.value,
+    );
+  }
+
   static Future<pw.Document> generatePdf(
     EditorCoreInfo coreInfo,
-    BuildContext context,
-  ) async {
+    BuildContext context, {
+    EInkStyle? eInk,
+  }) async {
     if (coreInfo.pages.isNotEmpty && coreInfo.pages.last.isEmpty) {
       // don't export the empty last page
       coreInfo = coreInfo.copyWith(
@@ -61,6 +79,7 @@ abstract class EditorExporter {
             coreInfo: coreInfo,
             pageIndex: pageIndex,
             pixelRatio: pixelRatioFor(coreInfo.pages[pageIndex]),
+            eInk: eInk,
           );
           final byteData = await uiImage.toByteData(
             format: ui.ImageByteFormat.rawRgba,
@@ -93,9 +112,11 @@ abstract class EditorExporter {
               height: pageSize.height,
               child: pw.CustomPaint(
                 foregroundPainter: (PdfGraphics pdfGraphics, PdfPoint size) {
+                  final pageColor =
+                      coreInfo.backgroundColor ??
+                      InnerCanvas.defaultBackgroundColor;
                   final backgroundColor = PdfColor.fromInt(
-                    coreInfo.backgroundColor?.toARGB32() ??
-                        InnerCanvas.defaultBackgroundColor.toARGB32(),
+                    (eInk?.mapPaper(pageColor) ?? pageColor).toARGB32(),
                   ).flatten();
 
                   final strokes = page.strokes.where(
@@ -103,7 +124,7 @@ abstract class EditorExporter {
                   );
                   for (final stroke in strokes) {
                     final strokeColor = PdfColor.fromInt(
-                      stroke.color.toARGB32(),
+                      (eInk?.mapInk(stroke.color) ?? stroke.color).toARGB32(),
                     ).flatten(background: backgroundColor);
 
                     /// Whether we need to fill the shape, or draw its stroke
@@ -175,7 +196,15 @@ abstract class EditorExporter {
     Size? targetSize,
     double? cropHeight,
     double pixelRatio = 2,
+    EInkStyle? eInk,
   }) async {
+    if (eInk != null && eInk.textureStep > 0) {
+      await EInkTexture.load(
+        eInk.textureStep,
+        maxAlpha: EInkStyle.maxGrainAlpha,
+      );
+    }
+
     final page = coreInfo.pages[pageIndex].cloneForRasterization(
       rasterizeAllStrokes: rasterizeAllStrokes,
     );
@@ -195,6 +224,7 @@ abstract class EditorExporter {
       return await ScreenshotController.widgetToUiImage(
         EditorExporterTheme(
           targetSize: targetSize,
+          eInk: eInk,
           child: CanvasPreview(
             pageIndex: pageIndex,
             height: cropHeight,
@@ -215,9 +245,17 @@ abstract class EditorExporter {
 /// Applies a consistent theme to its [child] so that exports
 /// look the same regardless of the user's current theme or device.
 class EditorExporterTheme extends StatelessWidget {
-  const new({super.key, required this.targetSize, required this.child});
+  const new({
+    super.key,
+    required this.targetSize,
+    this.eInk,
+    required this.child,
+  });
 
   final Size targetSize;
+
+  /// Export in the e-ink look instead of the notes' own colours.
+  final EInkStyle? eInk;
   final Widget child;
 
   static final theme = ThemeData(
@@ -230,6 +268,9 @@ class EditorExporterTheme extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = eInk == null
+        ? EditorExporterTheme.theme
+        : SaberTheme.createEInkTheme(eInk!, TargetPlatform.android);
     return MediaQuery(
       data: MediaQueryData(size: targetSize),
       child: Localizations(
@@ -238,15 +279,18 @@ class EditorExporterTheme extends StatelessWidget {
         delegates: GlobalMaterialLocalizations.delegates,
         child: Theme(
           data: theme,
-          child: DefaultTextStyle(
-            style: theme.textTheme.bodyMedium!,
-            child: SizedBox(
-              width: targetSize.width,
-              height: targetSize.height,
-              child: FittedBox(
-                fit: BoxFit.cover,
-                alignment: Alignment.topLeft,
-                child: child,
+          child: EInkScope(
+            style: eInk,
+            child: DefaultTextStyle(
+              style: theme.textTheme.bodyMedium!,
+              child: SizedBox(
+                width: targetSize.width,
+                height: targetSize.height,
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topLeft,
+                  child: child,
+                ),
               ),
             ),
           ),

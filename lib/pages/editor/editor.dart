@@ -55,6 +55,7 @@ import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
+import 'package:saber/components/eink/eink_refresh.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
@@ -212,6 +213,8 @@ class EditorState extends State<Editor> {
     OpenTabs.paths.addListener(_setState);
     stows.editorPageSidebar.addListener(_setState);
     stows.penProbe.addListener(_setState);
+    _visiblePageIndex.addListener(_onVisiblePageChanged);
+    EInkRefresh.isWriting = () => Pen.currentStroke != null;
 
     _initAsync();
     _assignKeybindings();
@@ -237,6 +240,8 @@ class EditorState extends State<Editor> {
     }
 
     await _loadCoreInfo(filePath);
+    // Opening a note scrolls to its page: that is not a page turn.
+    _eInkPageTurnsFrom = DateTime.now().add(const Duration(milliseconds: 1500));
 
     if (widget.pdfPath != null) {
       await importPdfFromFilePath(widget.pdfPath!);
@@ -1565,7 +1570,11 @@ class EditorState extends State<Editor> {
   }
 
   Future exportAsPdf(BuildContext context) async {
-    final pdf = await EditorExporter.generatePdf(coreInfo, context);
+    final pdf = await EditorExporter.generatePdf(
+      coreInfo,
+      context,
+      eInk: EditorExporter.eInkStyleForExport(),
+    );
     final bytes = await pdf.save();
     if (!context.mounted) return;
     await FileManager.exportFile(
@@ -1605,6 +1614,7 @@ class EditorState extends State<Editor> {
         pageIndex: currentPageIndex,
         rasterizeAllStrokes: true,
         pixelRatio: targetPixelRatio,
+        eInk: EditorExporter.eInkStyleForExport(),
       );
       final pngBytes = await image.toByteData(format: .png);
       image.dispose();
@@ -2290,6 +2300,16 @@ class EditorState extends State<Editor> {
   final _visiblePageIndex = ValueNotifier<int>(0);
   var _visiblePageUpdateScheduled = false;
 
+  /// E-ink mode shows its page-turn refresh only after this time.
+  DateTime? _eInkPageTurnsFrom;
+
+  void _onVisiblePageChanged() {
+    if (!stows.eInkMode.value) return;
+    final from = _eInkPageTurnsFrom;
+    if (from == null || DateTime.now().isBefore(from)) return;
+    EInkRefresh.instance.pageTurn();
+  }
+
   /// The transform can change while the widget tree is building,
   /// so [_visiblePageIndex] is only updated after the frame.
   void _scheduleVisiblePageUpdate() {
@@ -2629,6 +2649,7 @@ class EditorState extends State<Editor> {
     DynamicMaterialApp.removeFullscreenListener(_setState);
     stows.editorPageSidebar.removeListener(_setState);
     stows.penProbe.removeListener(_setState);
+    _visiblePageIndex.removeListener(_onVisiblePageChanged);
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
     OpenTabs.paths.removeListener(_setState);
 

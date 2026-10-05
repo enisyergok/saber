@@ -8,8 +8,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:go_router/go_router.dart';
+import 'package:saber/components/eink/eink_refresh_overlay.dart';
+import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/components/theming/yaru_builder.dart';
+import 'package:saber/data/eink/eink_service.dart';
+import 'package:saber/data/eink/eink_style.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/extensions/redirecting_localization_delegate.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -61,6 +65,7 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
   void initState() {
     windowManager.addListener(this);
     SystemChrome.setSystemUIChangeCallback(_onFullscreenChange);
+    EInkService.init();
 
     super.initState();
   }
@@ -90,6 +95,29 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
     if ((chosenAccentColor?.a ?? 0) < double.minPositive)
       chosenAccentColor = null; // discard transparent accent color
     useListenable(stows.hyperlegibleFont);
+
+    final eInkMode = useValueListenable(stows.eInkMode);
+    final eInkStyle = EInkStyle(
+      paperWarmth: useValueListenable(stows.eInkPaperWarmth),
+      inkDarkness: useValueListenable(stows.eInkInkDarkness),
+      texture: useValueListenable(stows.eInkTexture),
+      refreshEffect: useValueListenable(stows.eInkRefreshEffect),
+    );
+
+    // E-ink mode: one grey paper theme whatever the system theme and accent
+    if (eInkMode) {
+      final eInkTheme = SaberTheme.createEInkTheme(eInkStyle, platform);
+      return ExplicitlyThemedApp(
+        title: widget.title,
+        router: widget.router,
+        themeMode: ThemeMode.light,
+        theme: eInkTheme,
+        darkTheme: eInkTheme,
+        highContrastTheme: eInkTheme,
+        highContrastDarkTheme: eInkTheme,
+        eInk: eInkStyle,
+      );
+    }
 
     // Use Yaru theme, with or without [chosenAccentColor]
     if (platform == .linux) {
@@ -176,6 +204,7 @@ class ExplicitlyThemedApp extends StatelessWidget {
     required this.darkTheme,
     this.highContrastTheme,
     this.highContrastDarkTheme,
+    this.eInk,
   });
 
   final String title;
@@ -183,6 +212,9 @@ class ExplicitlyThemedApp extends StatelessWidget {
   final ThemeMode themeMode;
   final ThemeData theme;
   final ThemeData? darkTheme, highContrastTheme, highContrastDarkTheme;
+
+  /// The e-ink look, or null when e-ink mode is off.
+  final EInkStyle? eInk;
 
   static final _materialAppKey = GlobalKey<State<MaterialApp>>();
 
@@ -225,6 +257,10 @@ class ExplicitlyThemedApp extends StatelessWidget {
       highContrastTheme: highContrastTheme,
       highContrastDarkTheme: highContrastDarkTheme,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => EInkScope(
+        style: eInk,
+        child: EInkRefreshOverlay(child: child),
+      ),
     );
   }
 }

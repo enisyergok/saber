@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
+import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/prefs.dart';
@@ -193,11 +194,13 @@ class _CanvasImageState extends State<CanvasImage> {
                       size: widget.image.srcRect.size,
                       child: Transform.translate(
                         offset: -widget.image.srcRect.topLeft,
-                        child: widget.image.buildImageWidget(
-                          context: context,
-                          overrideBoxFit: widget.overrideBoxFit,
-                          isBackground: widget.isBackground,
-                          invert: imageBrightness == .dark,
+                        child: EInkImageFilter(
+                          child: widget.image.buildImageWidget(
+                            context: context,
+                            overrideBoxFit: widget.overrideBoxFit,
+                            isBackground: widget.isBackground,
+                            invert: imageBrightness == .dark,
+                          ),
                         ),
                       ),
                     ),

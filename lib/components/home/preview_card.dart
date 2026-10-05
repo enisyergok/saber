@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
 import 'package:saber/components/canvas/invert_widget.dart';
+import 'package:saber/components/eink/eink_image_filter.dart';
+import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/sync_indicator.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
@@ -112,7 +114,9 @@ class _PreviewCardState extends State<PreviewCard> {
     final transitionDuration = Duration(
       milliseconds: disableAnimations ? 0 : 300,
     );
-    final invert = theme.brightness == .dark && stows.editorAutoInvert.value;
+    final eInk = EInkScope.maybeOf(context);
+    final invert =
+        theme.brightness == .dark && stows.editorAutoInvert.value && eInk == null;
     final coverRadius = kNotebookCoverRadius.resolve(
       Directionality.of(context),
     );
@@ -128,7 +132,9 @@ class _PreviewCardState extends State<PreviewCard> {
           fit: StackFit.expand,
           children: [
             ColoredBox(
-              color: InnerCanvas.defaultBackgroundColor.withInversion(invert),
+              color:
+                  eInk?.paper ??
+                  InnerCanvas.defaultBackgroundColor.withInversion(invert),
             ),
             ListenableBuilder(
               listenable: thumbnail,
@@ -136,15 +142,17 @@ class _PreviewCardState extends State<PreviewCard> {
                 duration: const Duration(milliseconds: 300),
                 child: SizedBox.expand(
                   key: ValueKey(thumbnail.updateCount),
-                  child: InvertWidget(
-                    invert: invert,
-                    child: thumbnail.doesImageExist
-                        ? Image(
-                            image: thumbnail.image!,
-                            alignment: .topCenter,
-                            fit: .cover,
-                          )
-                        : const _FallbackThumbnail(),
+                  child: EInkImageFilter(
+                    child: InvertWidget(
+                      invert: invert,
+                      child: thumbnail.doesImageExist
+                          ? Image(
+                              image: thumbnail.image!,
+                              alignment: .topCenter,
+                              fit: .cover,
+                            )
+                          : const _FallbackThumbnail(),
+                    ),
                   ),
                 ),
               ),
