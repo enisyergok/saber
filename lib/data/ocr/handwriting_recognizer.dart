@@ -186,4 +186,40 @@ abstract class HandwritingRecognizer {
       image.dispose();
     }
   }
+
+  /// What the connection test writes in its picture.
+  static const testPhrase = 'Enis Yergök 2026';
+
+  /// A picture of [testPhrase] in black on white, for testing the key and
+  /// the model without needing a note.
+  static Future<Uint8List> renderTestImage() async {
+    final painter = TextPainter(
+      text: const TextSpan(
+        text: testPhrase,
+        style: TextStyle(
+          color: Color(0xFF000000),
+          fontSize: 72,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    const pad = 30.0;
+    final w = (painter.width + pad * 2).ceil();
+    final h = (painter.height + pad * 2).ceil();
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()),
+      Paint()..color = const Color(0xFFFFFFFF),
+    );
+    painter.paint(canvas, const Offset(pad, pad));
+    final image = await recorder.endRecording().toImage(w, h);
+    try {
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      return data!.buffer.asUint8List();
+    } finally {
+      image.dispose();
+    }
+  }
 }

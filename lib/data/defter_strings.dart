@@ -164,6 +164,13 @@ abstract class DefterStrings {
   static String get copy => _tr ? 'Kopyala' : 'Copy';
   static String get copied => _tr ? 'Kopyalandı' : 'Copied';
   static String get close => _tr ? 'Kapat' : 'Close';
+  static String get testConnection =>
+      _tr ? 'Bağlantıyı dene' : 'Test connection';
+  static String testRead(String wrote, String read) => _tr
+      ? 'Bağlantı çalışıyor. Resimde "$wrote" yazıyordu, model şunu okudu: '
+            '"$read"'
+      : 'Connection works. The picture said "$wrote", the model read: '
+            '"$read"';
   static String get save => _tr ? 'Kaydet' : 'Save';
   static String get handwritingSettings =>
       _tr ? 'El yazısı tanıma' : 'Handwriting recognition';
