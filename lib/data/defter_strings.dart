@@ -174,6 +174,37 @@ abstract class DefterStrings {
   static String get modelName => _tr ? 'Model' : 'Model';
   static String get resetDefault => _tr ? 'Varsayılana dön' : 'Reset to default';
 
+  // Handwriting search
+  static String get hwSection => _tr ? 'El yazısı araması' : 'Handwriting search';
+  static String get hwAdd => _tr ? 'Aramaya ekle' : 'Add to search';
+  static String get hwRefresh => _tr ? 'Aramayı yenile' : 'Refresh search text';
+  static String get hwNone =>
+      _tr ? 'El yazısı henüz aramaya eklenmedi' : 'Handwriting is not in search yet';
+  static String get hwDone => _tr ? 'Aramaya eklendi' : 'Added to search';
+  static String get hwOutdated => _tr
+      ? 'Not o zamandan beri değişti; yenilemek için dokun'
+      : 'The note changed since; tap to refresh';
+  static String get hwNoWriting =>
+      _tr ? 'Notta kalemle yazılmış bir şey yok' : 'There is no pen writing in this note';
+  static String get hwConfirmTitle =>
+      _tr ? 'El yazısı aramaya eklensin mi?' : 'Add handwriting to search?';
+  static String hwConfirmBody(int pictures) => _tr
+      ? 'Bu notun el yazısı $pictures parça halinde resim olarak OpenRouter\'a '
+          'gönderilir ve okunan metin yalnızca bu cihazda saklanır. Notun '
+          'kendisi değişmez. Eklendikten sonra arama çevrimdışı çalışır.'
+      : 'The handwriting of this note is sent to OpenRouter as $pictures '
+          'pictures and the text that comes back is kept only on this device. '
+          'The note itself is not changed. Searching works offline once added.';
+  static String hwCapped(int max) => _tr
+      ? 'Not çok uzun: yalnızca ilk $max parça okunur.'
+      : 'This note is very long: only the first $max pieces are read.';
+  static String get hwStart => _tr ? 'Başla' : 'Start';
+  static String get hwCancel => _tr ? 'Vazgeç' : 'Cancel';
+  static String hwProgress(int done, int total) =>
+      _tr ? 'Okunuyor: $done / $total' : 'Reading: $done / $total';
+  static String hwIndexedOn(String when) =>
+      _tr ? 'Aramaya eklendi ($when)' : 'In search since $when';
+
   // Ask my notes
   static String get askNotes => _tr ? 'Notlarıma sor' : 'Ask my notes';
   static String get askHint =>
@@ -183,8 +214,8 @@ abstract class DefterStrings {
       : 'I found nothing about this in your notes';
   static String get askSources => _tr ? 'Kullanılan notlar' : 'Notes used';
   static String get askTypedOnly => _tr
-      ? 'Yalnızca yazıyla girilen metin taranır; el yazısını önce metne çevir.'
-      : 'Only typed text is searched; convert handwriting to text first.';
+      ? 'Yazıyla girilen metin ve "Aramaya ekle" ile okunan el yazısı taranır.'
+      : 'Typed text and handwriting added with "Add to search" are searched.';
   static String get askSending => _tr
       ? 'Sorunla ilgili not parçaları OpenRouter\'a gönderilir.'
       : 'Relevant note excerpts are sent to OpenRouter with your question.';
