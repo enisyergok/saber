@@ -2052,7 +2052,7 @@ class EditorState extends State<Editor> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+            child: Text(DefterStrings.close),
           ),
         ],
       ),

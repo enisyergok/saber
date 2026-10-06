@@ -84,7 +84,7 @@ class PdfRemoveDialog extends StatelessWidget {
         TextButton(
           key: const Key('pdfRemoveCancel'),
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          child: Text(DefterStrings.cancel),
         ),
       ],
     );
