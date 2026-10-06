@@ -220,6 +220,21 @@ void main() {
       name: 'home',
       child: const HomePage(subpage: HomePage.dashboardSubpage, path: null),
     );
+    // The same page with an accent chosen in the settings: a light one
+    // (yellow, which can only be read as an olive) and one with no colour.
+    for (final (name, accent) in const [
+      ('home_accent_yellow', Color(0xFFFFD32E)),
+      ('home_accent_black', Color(0xFF000000)),
+    ])
+      _shot(
+        theme: SaberTheme.createThemeFromSeed(
+          accent,
+          Brightness.light,
+          TargetPlatform.android,
+        ),
+        name: name,
+        child: const HomePage(subpage: HomePage.dashboardSubpage, path: null),
+      );
     for (final (step, name) in [
       (0, 'template'),
       (1, 'cover'),

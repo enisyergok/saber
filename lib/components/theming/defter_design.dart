@@ -30,9 +30,20 @@ abstract class DefterDesign {
     final primary = accent == null && light ? ink : seeded.primary;
     // What is tinted (a selected row, a chosen chip) is a wash of the
     // accent over the paper, whatever the accent: never a second colour.
+    // In the light it is a wash of the colour that was chosen, not of the
+    // darker shade that text needs (a yellow accent gives a pale yellow
+    // row, not a khaki one), and as much of it as it takes to be seen: a
+    // light colour needs more of itself than a deep one.
     final paper = light ? Colors.white : const Color(0xFF111216);
-    final wash = Color.lerp(paper, primary, light ? 0.14 : 0.28)!;
-    final faintWash = Color.lerp(paper, primary, light ? 0.10 : 0.20)!;
+    final Color wash, faintWash;
+    if (light) {
+      final source = accent ?? primary;
+      wash = _washOf(source, paper, visible: 1.22);
+      faintWash = _washOf(source, paper, visible: 1.15);
+    } else {
+      wash = Color.lerp(paper, primary, 0.28)!;
+      faintWash = Color.lerp(paper, primary, 0.20)!;
+    }
     // And what is written on a wash is the accent itself, taken as far
     // towards ink (or towards paper, at night) as reading needs.
     final onWash = readableOn(primary, wash);
@@ -46,6 +57,39 @@ abstract class DefterDesign {
         onSecondaryContainer: onWash,
       ),
     );
+  }
+
+  /// [paper] with just enough of [color] over it to stand [visible]:1
+  /// against the bare paper (at least a tenth of it, at most two fifths).
+  static Color _washOf(Color color, Color paper, {required double visible}) {
+    final paperLuminance = paper.computeLuminance();
+    var wash = paper;
+    for (var fiftieths = 5; fiftieths <= 20; fiftieths++) {
+      wash = Color.lerp(paper, color, fiftieths / 50)!;
+      final luminance = wash.computeLuminance();
+      final ratio =
+          (math.max(luminance, paperLuminance) + 0.05) /
+          (math.min(luminance, paperLuminance) + 0.05);
+      if (ratio >= visible) break;
+    }
+    return wash;
+  }
+
+  /// The colour pictures are painted in (the sky and the hills of the
+  /// home page): the accent as a colour to look at, not one to read.
+  ///
+  /// A deep accent is taken as it is. One that had to be darkened to be
+  /// readable (the olive that stands for a yellow) is lifted back towards
+  /// its own colour, and one with no colour of its own (a grey, a black)
+  /// leaves the picture in Marj's ink: a sky is never grey.
+  static Color pictureTint(ColorScheme scheme) {
+    final dark = scheme.brightness == Brightness.dark;
+    final hsl = HSLColor.fromColor(scheme.primary);
+    if (hsl.saturation < 0.18) {
+      return dark ? HSLColor.fromColor(ink).withLightness(0.8).toColor() : ink;
+    }
+    if (dark || hsl.lightness >= 0.36) return scheme.primary;
+    return hsl.withLightness(0.46).toColor();
   }
 
   /// [color], darkened (on a light [background]) or lightened (on a dark
