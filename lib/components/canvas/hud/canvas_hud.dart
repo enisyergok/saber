@@ -63,7 +63,7 @@ class CanvasHud extends HookWidget {
               child: CanvasGestureLockBtn(
                 lock: zoomLock,
                 setLock: setZoomLock,
-                icon: zoomLock ? Icons.lock : Icons.lock_open,
+                icon: zoomLock ? Icons.lock_rounded : Symbols.lock_open_rounded,
                 tooltip: zoomLock
                     ? t.editor.hud.unlockZoom
                     : t.editor.hud.lockZoom,
@@ -75,7 +75,7 @@ class CanvasHud extends HookWidget {
               child: CanvasGestureLockBtn(
                 lock: singleFingerPanLock,
                 setLock: setSingleFingerPanLock,
-                icon: singleFingerPanLock ? Icons.pinch : Icons.swipe_up,
+                icon: singleFingerPanLock ? Symbols.pinch_rounded : Symbols.swipe_up_rounded,
                 tooltip: singleFingerPanLock
                     ? t.editor.hud.unlockSingleFingerPan
                     : t.editor.hud.lockSingleFingerPan,

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -157,29 +156,15 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
       );
     }
 
-    // Try and use device's accent color, or fall back to defaultSwatch
-    return DynamicColorBuilder(
-      builder: (ColorScheme? lightColorScheme, ColorScheme? darkColorScheme) {
-        return ExplicitlyThemedApp(
-          title: widget.title,
-          router: widget.router,
-          themeMode: themeMode,
-          theme: (platform == .android && lightColorScheme != null)
-              ? SaberTheme.createTheme(lightColorScheme, platform)
-              : SaberTheme.createThemeFromSeed(
-                  lightColorScheme?.primary ?? widget.defaultSwatch,
-                  .light,
-                  platform,
-                ),
-          darkTheme: (platform == .android && darkColorScheme != null)
-              ? SaberTheme.createTheme(darkColorScheme, platform)
-              : SaberTheme.createThemeFromSeed(
-                  darkColorScheme?.primary ?? widget.defaultSwatch,
-                  .dark,
-                  platform,
-                ),
-        );
-      },
+    // No accent colour was chosen: Defter's own colours. (Not the colours
+    // of the device's wallpaper: the app looks the same on every device,
+    // and its parts always go together.)
+    return ExplicitlyThemedApp(
+      title: widget.title,
+      router: widget.router,
+      themeMode: themeMode,
+      theme: SaberTheme.createDefaultTheme(.light, platform),
+      darkTheme: SaberTheme.createDefaultTheme(.dark, platform),
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
 import 'package:saber/data/prefs.dart';
@@ -86,7 +87,7 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
               labelText: DefterStrings.apiKey,
               border: const OutlineInputBorder(),
               suffixIcon: IconButton(
-                icon: Icon(_hideKey ? Icons.visibility : Icons.visibility_off),
+                icon: Icon(_hideKey ? Symbols.visibility_rounded : Symbols.visibility_off_rounded),
                 onPressed: () => setState(() => _hideKey = !_hideKey),
               ),
             ),
@@ -101,7 +102,7 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
               border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 tooltip: DefterStrings.resetDefault,
-                icon: const Icon(Icons.restart_alt),
+                icon: const Icon(Symbols.restart_alt_rounded),
                 onPressed: () =>
                     _model.text = HandwritingRecognizer.defaultModel,
               ),
@@ -115,7 +116,7 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
                     dimension: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.wifi_tethering),
+                : const Icon(Symbols.wifi_tethering_rounded),
             label: Text(DefterStrings.testConnection),
           ),
           if (_testResult != null) ...[

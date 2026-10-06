@@ -65,7 +65,7 @@ class DoneLoginStep extends StatelessWidget {
               if (stows.url.value.isEmpty)
                 SvgPicture.asset('assets/icon/icon.svg', width: 32, height: 32)
               else
-                const Icon(Icons.account_circle, size: 32)
+                const Icon(Icons.account_circle_rounded, size: 32)
             else
               Image.memory(stows.pfp.value!, width: 32, height: 32),
             const SizedBox(width: 16),

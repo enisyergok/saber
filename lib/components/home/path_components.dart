@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class PathComponents extends StatelessWidget {
   new(String? path, {super.key, required this.onPathComponentTap})
@@ -33,7 +34,7 @@ class PathComponents extends StatelessWidget {
                 child: const Text('/'),
               ),
             for (var i = 0; i < components.length; i++) ...[
-              const Icon(Icons.chevron_right, size: 16),
+              const Icon(Symbols.chevron_right_rounded, size: 16),
               ElevatedButton(
                 onPressed: () {
                   final path = '/${components.sublist(0, i + 1).join('/')}';

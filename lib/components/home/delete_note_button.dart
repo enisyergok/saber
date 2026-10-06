@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -29,7 +30,7 @@ class DeleteNoteButton extends StatelessWidget {
           ),
         );
       },
-      icon: const Icon(Icons.delete_forever),
+      icon: const Icon(Symbols.delete_forever_rounded),
     );
   }
 }

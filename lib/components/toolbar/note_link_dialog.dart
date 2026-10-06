@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/search/note_search.dart';
@@ -53,7 +54,7 @@ class _NoteLinkDialogState extends State<NoteLinkDialog> {
             TextField(
               autofocus: true,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Symbols.search_rounded),
                 hintText: DefterStrings.search,
                 border: const OutlineInputBorder(),
               ),
@@ -66,7 +67,7 @@ class _NoteLinkDialogState extends State<NoteLinkDialog> {
                   : ListView.builder(
                       itemCount: notes.length,
                       itemBuilder: (context, i) => ListTile(
-                        leading: const Icon(Icons.description_outlined),
+                        leading: const Icon(Symbols.description_rounded),
                         title: Text(
                           notes[i].substring(notes[i].lastIndexOf('/') + 1),
                         ),

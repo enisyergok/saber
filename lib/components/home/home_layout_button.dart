@@ -73,7 +73,7 @@ class _HomeLayoutDialogOption extends StatelessWidget {
         .masonryGrid => t.home.layout.masonryGrid,
         .simpleGrid => t.home.layout.simpleGrid,
       }),
-      trailing: selected ? const Icon(Icons.check) : null,
+      trailing: selected ? const Icon(Symbols.check_rounded) : null,
       selected: selected,
       selectedTileColor: Colors.transparent,
     );
@@ -91,6 +91,6 @@ enum HomeLayout({
 
   Widget get icon => switch (this) {
     .masonryGrid => const Icon(Symbols.browse),
-    .simpleGrid => const Icon(Icons.grid_view),
+    .simpleGrid => const Icon(Symbols.grid_view_rounded),
   };
 }

@@ -100,7 +100,7 @@ class PageSidebar extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(left: 2),
                               child: Icon(
-                                Icons.bookmark,
+                                Icons.bookmark_rounded,
                                 size: 14,
                                 color: colorScheme.primary,
                               ),

@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/editor_gn/gn_pen_profiles.dart';
 import 'package:saber/components/settings/stylus_test_dialog.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/prefs.dart';
@@ -288,11 +290,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     required double width,
     required Widget child,
   }) {
-    return Material(
-      color: ColorScheme.of(context).surfaceContainerHigh,
-      elevation: 8,
-      borderRadius: BorderRadius.circular(18),
-      clipBehavior: Clip.antiAlias,
+    return FloatingPanel(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: widget.maxHeight),
         child: SizedBox(
@@ -325,7 +323,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         ),
         PopupMenuButton<int>(
           tooltip: '',
-          icon: const Icon(Icons.more_horiz),
+          icon: const Icon(Symbols.more_horiz_rounded),
           onSelected: (value) {
             switch (value) {
               case 0:
@@ -352,7 +350,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         if (widget.onClose != null)
           IconButton(
             tooltip: DefterStrings.close,
-            icon: const Icon(Icons.close),
+            icon: const Icon(Symbols.close_rounded),
             onPressed: widget.onClose,
           ),
       ],
@@ -395,7 +393,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                       children: [
                         UniIcon(
                           PenStyles.icon(style),
-                          size: 20,
+                          size: 26,
                           color: style == current
                               ? colors.primary
                               : colors.onSurface,
@@ -457,7 +455,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
             ),
             IconButton(
               tooltip: DefterStrings.preview,
-              icon: Icon(collapsed ? Icons.expand_more : Icons.expand_less),
+              icon: Icon(collapsed ? Symbols.expand_more_rounded : Symbols.expand_less_rounded),
               onPressed: () => stows.penPreviewCollapsed.value = !collapsed,
             ),
           ],
@@ -499,7 +497,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         ),
         _slider(
           context,
-          icon: Icons.edit,
+          icon: Symbols.edit_rounded,
           label: DefterStrings.thickness,
           valueText: _mm(options.size),
           value: options.size.clamp(tool.sizeMin, tool.sizeMax),
@@ -511,7 +509,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         if (style != null && PenStyles.hasOpacity(style))
           _slider(
             context,
-            icon: Icons.opacity,
+            icon: Symbols.opacity_rounded,
             label: DefterStrings.opacityLabel,
             valueText: _percent(tool.color.a),
             value: tool.color.a.clamp(0.1, 1),
@@ -525,7 +523,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         if (style != null && PenStyles.hasSharpness(style))
           _slider(
             context,
-            icon: Icons.change_history,
+            icon: Symbols.change_history_rounded,
             label: DefterStrings.tipSharpnessLabel,
             valueText: _percent(tool.tipSharpness),
             value: tool.tipSharpness.clamp(0, 1),
@@ -538,7 +536,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
             (style == null || PenStyles.hasPressure(style)))
           _slider(
             context,
-            icon: Icons.compress,
+            icon: Symbols.compress_rounded,
             label: DefterStrings.pressureSensitivityLabel,
             valueText: _percent(options.thinning),
             value: options.thinning.clamp(0, 1),
@@ -549,7 +547,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
           ),
         _slider(
           context,
-          icon: Icons.gesture,
+          icon: Symbols.gesture_rounded,
           label: DefterStrings.lineStabilizationLabel,
           valueText: _percent(options.streamline),
           value: options.streamline.clamp(0, 1),
@@ -752,7 +750,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                       tooltip: DefterStrings.moreColors,
                       visualDensity: VisualDensity.compact,
                       icon: Icon(
-                        _moreColors ? Icons.expand_less : Icons.expand_more,
+                        _moreColors ? Symbols.expand_less_rounded : Symbols.expand_more_rounded,
                       ),
                       onPressed: () =>
                           setState(() => _moreColors = !_moreColors),
@@ -811,7 +809,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      const Icon(Icons.expand_more, size: 20),
+                      const Icon(Symbols.expand_more_rounded, size: 20),
                     ],
                   ),
                 ),
@@ -830,41 +828,41 @@ class _GnPenSettingsState extends State<GnPenSettings> {
       _prefTile(
         context,
         pref: stows.autoStraightenLines,
-        icon: const Icon(Icons.horizontal_rule),
+        icon: const Icon(Symbols.horizontal_rule_rounded),
         title: DefterStrings.toolStraightLine,
         hint: DefterStrings.toolStraightLineHint,
       ),
       _prefTile(
         context,
         pref: stows.autoShapes,
-        icon: const Icon(Icons.category_outlined),
+        icon: const Icon(Symbols.category_rounded),
         title: DefterStrings.toolShapes,
         hint: DefterStrings.toolShapesHint,
       ),
       _prefTile(
         context,
         pref: stows.angleGuide,
-        icon: const Icon(Icons.square_foot),
+        icon: const Icon(Symbols.square_foot_rounded),
         title: DefterStrings.toolAngle,
         hint: DefterStrings.toolAngleHint,
       ),
       _prefTile(
         context,
         pref: stows.rulerMode,
-        icon: const Icon(Icons.straighten),
+        icon: const Icon(Symbols.straighten_rounded),
         title: DefterStrings.toolRuler,
       ),
       _tile(
         context,
         on: widget.gridOn,
         onTap: widget.toggleGrid,
-        icon: const Icon(Icons.grid_on),
+        icon: const Icon(Symbols.grid_on_rounded),
         title: DefterStrings.toolGrid,
       ),
       _prefTile(
         context,
         pref: stows.measureMode,
-        icon: const RotatedBox(quarterTurns: 1, child: Icon(Icons.height)),
+        icon: const RotatedBox(quarterTurns: 1, child: Icon(Symbols.height_rounded)),
         title: DefterStrings.toolMeasure,
         onChanged: (on) {
           if (!on) PenAssist.showReadout(null);
@@ -873,7 +871,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
       _prefTile(
         context,
         pref: stows.dimensionMode,
-        icon: const Icon(Icons.sync_alt),
+        icon: const Icon(Symbols.sync_alt_rounded),
         title: DefterStrings.toolDimension,
       ),
     ];
@@ -1042,7 +1040,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.chevron_right, size: 18),
+              const Icon(Symbols.chevron_right_rounded, size: 18),
             ],
           ),
         ),
@@ -1071,17 +1069,17 @@ class _GnPenSettingsState extends State<GnPenSettings> {
           children: [
             toggle(
               stows.shapeHoldToSnap,
-              Icons.touch_app_outlined,
+              Symbols.touch_app_rounded,
               DefterStrings.drawAndHold,
             ),
             toggle(
               stows.shapeAutoCorrect,
-              Icons.auto_fix_high,
+              Symbols.auto_fix_high_rounded,
               DefterStrings.shapeAutoCorrect,
             ),
             toggle(
               stows.shapeSnapEndpoints,
-              Icons.join_inner,
+              Symbols.join_inner_rounded,
               DefterStrings.joinShapes,
             ),
           ],
@@ -1115,7 +1113,7 @@ class PenGesturesDialog extends StatelessWidget {
             ListTile(
               title: Text(names[action]!),
               trailing: action.index == current
-                  ? Icon(Icons.check, color: ColorScheme.of(context).primary)
+                  ? Icon(Symbols.check_rounded, color: ColorScheme.of(context).primary)
                   : null,
               onTap: () => stows.stylusAction.value = action.index,
             ),

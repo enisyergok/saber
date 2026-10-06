@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
@@ -64,7 +65,7 @@ class _PdfToolsDialogState extends State<PdfToolsDialog> {
                 autofocus: true,
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: const Icon(Symbols.search_rounded),
                   hintText: DefterStrings.pdfSearchHint,
                   border: const OutlineInputBorder(),
                 ),

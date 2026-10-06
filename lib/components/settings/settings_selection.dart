@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/settings/settings_dropdown.dart';
 import 'package:saber/components/theming/adaptive_toggle_buttons.dart';
 import 'package:saber/components/theming/uni_icon.dart';
@@ -85,7 +86,7 @@ class _SettingsSelectionState<T extends num>
 
     var icon = widget.icon;
     icon ??= widget.iconBuilder?.call(widget.pref.value);
-    icon ??= Icons.settings;
+    icon ??= Symbols.settings_rounded;
 
     return ListTile(
       onTap: () {

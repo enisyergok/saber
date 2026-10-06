@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/data/search/note_search.dart';
@@ -121,7 +122,7 @@ class _SearchPageState extends State<SearchPage> {
                 final folder = result.path.substring(0, slash);
                 final name = result.path.substring(slash + 1);
                 return ListTile(
-                  leading: const Icon(Icons.description_outlined),
+                  leading: const Icon(Symbols.description_rounded),
                   title: Text(name),
                   subtitle: Text(
                     [

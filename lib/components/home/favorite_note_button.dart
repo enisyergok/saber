@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/pages/editor/editor.dart';
@@ -45,7 +46,7 @@ class FavoriteNoteButton extends StatelessWidget {
           tooltip: allFavorite
               ? DefterStrings.removeFromFavorites
               : DefterStrings.addToFavorites,
-          icon: Icon(allFavorite ? Icons.star : Icons.star_outline),
+          icon: Icon(allFavorite ? Icons.star_rounded : Symbols.star_rounded),
           onPressed: () {
             toggle(selectedFiles);
             unselectNotes();

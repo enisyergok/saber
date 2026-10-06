@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 /// The row of open notebooks shown under the editor's app bar.
 class EditorTabStrip extends StatelessWidget implements PreferredSizeWidget {
@@ -79,7 +80,7 @@ class EditorTabStrip extends StatelessWidget implements PreferredSizeWidget {
                         context,
                       ).closeButtonTooltip,
                       onPressed: () => onClose(path),
-                      icon: const Icon(Icons.close),
+                      icon: const Icon(Symbols.close_rounded),
                     ),
                   ],
                 ),

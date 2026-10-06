@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/prefs.dart';
@@ -433,30 +435,26 @@ class _CanvasImageActions extends StatelessWidget {
       height: barHeight,
       child: DeferPointer(
         paintOnTop: true,
-        child: Material(
+        child: FloatingPanel.pill(
           key: const Key('imageActions'),
-          color: colorScheme.surfaceContainerHigh,
-          elevation: 3,
-          shape: const StadiumBorder(),
-          clipBehavior: Clip.antiAlias,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               action(
                 const Key('imageRotate'),
-                Icons.rotate_90_degrees_cw_outlined,
+                Symbols.rotate_90_degrees_cw_rounded,
                 DefterStrings.imageRotate,
                 onRotate,
               ),
               action(
                 const Key('imageDelete'),
-                Icons.delete_outline,
+                Symbols.delete_rounded,
                 t.editor.imageOptions.delete,
                 onDelete,
               ),
               action(
                 const Key('imageMore'),
-                Icons.more_horiz,
+                Symbols.more_horiz_rounded,
                 DefterStrings.imageMore,
                 onMore,
               ),

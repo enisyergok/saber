@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/pdf/pdf_removal.dart';
@@ -58,7 +59,7 @@ class PdfRemoveDialog extends StatelessWidget {
             if (page.isNotEmpty)
               choice(
                 .page,
-                Icons.insert_drive_file_outlined,
+                Symbols.insert_drive_file_rounded,
                 DefterStrings.pdfRemoveThisPage,
                 page,
               ),
@@ -66,14 +67,14 @@ class PdfRemoveDialog extends StatelessWidget {
             if (document.length > page.length)
               choice(
                 .document,
-                Icons.picture_as_pdf_outlined,
+                Symbols.picture_as_pdf_rounded,
                 DefterStrings.pdfRemoveThisPdf,
                 document,
               ),
             if (all.length > document.length)
               choice(
                 .all,
-                Icons.layers_clear_outlined,
+                Symbols.layers_clear_rounded,
                 DefterStrings.pdfRemoveAll,
                 all,
               ),

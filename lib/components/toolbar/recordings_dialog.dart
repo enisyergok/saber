@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:record/record.dart';
 import 'package:saber/data/audio/note_recordings.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -126,7 +127,7 @@ class _RecordingsDialogState extends State<RecordingsDialog> {
                       )
                     : null,
                 onPressed: _toggleRecording,
-                icon: Icon(_recording ? Icons.stop : Icons.mic),
+                icon: Icon(_recording ? Icons.stop_rounded : Symbols.mic_rounded),
                 label: Text(
                   _recording
                       ? '${DefterStrings.stopRecording}  ${_format(_elapsed)}'
@@ -161,8 +162,8 @@ class _RecordingsDialogState extends State<RecordingsDialog> {
                                   : DefterStrings.play,
                               icon: Icon(
                                 _playingPath == recording.file.path
-                                    ? Icons.pause_circle
-                                    : Icons.play_circle,
+                                    ? Icons.pause_circle_rounded
+                                    : Icons.play_circle_rounded,
                               ),
                               onPressed: _recording
                                   ? null
@@ -170,7 +171,7 @@ class _RecordingsDialogState extends State<RecordingsDialog> {
                             ),
                             trailing: IconButton(
                               tooltip: DefterStrings.delete,
-                              icon: const Icon(Icons.delete_outline),
+                              icon: const Icon(Symbols.delete_rounded),
                               onPressed: () async {
                                 if (_playingPath == recording.file.path) {
                                   await _player.stop();

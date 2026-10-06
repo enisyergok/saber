@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saber/components/eink/eink_scope.dart';
+import 'package:saber/components/theming/defter_design.dart';
 
 /// The colours of the editor's top bar: dark blue like the notebook apps it
 /// follows, or plain grey in e-ink mode.
@@ -30,11 +31,14 @@ class GnPalette {
         selectedTool: colors.onSurface.withValues(alpha: 0.14),
       );
     }
-    return const GnPalette(
-      header: Color(0xFF1D2F5C),
+    // The accent, deep enough to carry white icons: the same ink as the
+    // main buttons, a few shades down.
+    final header = DefterDesign.headerOf(colors);
+    return GnPalette(
+      header: header,
       onHeader: Colors.white,
-      activeTab: Color(0xFF2C4680),
-      selectedTool: Color(0x33FFFFFF),
+      activeTab: Color.lerp(header, Colors.white, 0.14)!,
+      selectedTool: const Color(0x33FFFFFF),
     );
   }
 }

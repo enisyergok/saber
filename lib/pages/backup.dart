@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/backup/note_backup.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/nextcloud/readable_bytes.dart';
@@ -208,7 +209,7 @@ class _BackupPageState extends State<BackupPage> {
       context: context,
       builder: (context) => AlertDialog(
         key: const ValueKey('backupReady'),
-        icon: const Icon(Icons.verified_outlined),
+        icon: const Icon(Symbols.verified_rounded),
         title: Text(DefterStrings.backupReady),
         content: SingleChildScrollView(
           child: Column(
@@ -450,13 +451,13 @@ class _BackupPageState extends State<BackupPage> {
                     FilledButton.icon(
                       key: const ValueKey('createBackup'),
                       onPressed: _busy ? null : _create,
-                      icon: const Icon(Icons.archive_outlined),
+                      icon: const Icon(Symbols.archive_rounded),
                       label: Text(DefterStrings.backupCreate),
                     ),
                     OutlinedButton.icon(
                       key: const ValueKey('restoreBackup'),
                       onPressed: _busy ? null : _restore,
-                      icon: const Icon(Icons.unarchive_outlined),
+                      icon: const Icon(Symbols.unarchive_rounded),
                       label: Text(DefterStrings.backupRestore),
                     ),
                   ],
@@ -492,13 +493,13 @@ class _BackupPageState extends State<BackupPage> {
                         children: [
                           TextButton.icon(
                             onPressed: () => _share(latestFile),
-                            icon: const Icon(Icons.ios_share),
+                            icon: const Icon(Symbols.ios_share_rounded),
                             label: Text(DefterStrings.backupShare),
                           ),
                           if (last.zipBytes <= BackupPage.maxSaveBytes)
                             TextButton.icon(
                               onPressed: () => _save(latestFile),
-                              icon: const Icon(Icons.save_alt),
+                              icon: const Icon(Symbols.save_alt_rounded),
                               label: Text(DefterStrings.backupSave),
                             ),
                         ],
@@ -529,7 +530,7 @@ class _BackupPageState extends State<BackupPage> {
                   onPressed: versionsSize == null || versionsSize == 0
                       ? null
                       : _clearVersions,
-                  icon: const Icon(Icons.delete_sweep_outlined),
+                  icon: const Icon(Symbols.delete_sweep_rounded),
                   label: Text(DefterStrings.versionsClear),
                 ),
               ]),

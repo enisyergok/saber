@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/flavor_config.dart';
@@ -51,7 +52,7 @@ void main() {
       );
 
       // undo the drawing
-      await tester.tap(find.byIcon(Icons.undo));
+      await tester.tap(find.byIcon(Symbols.undo_rounded));
       await tester.pumpAndSettle();
       expect(
         getSavingState(),
@@ -94,7 +95,7 @@ void main() {
         reason: 'Saving state should be "saved" after saving the file',
       );
 
-      await tester.tap(find.byIcon(Icons.undo));
+      await tester.tap(find.byIcon(Symbols.undo_rounded));
       await tester.pumpAndSettle();
       expect(
         getSavingState(),

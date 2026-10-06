@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/delete_folder_button.dart';
 import 'package:saber/components/home/new_folder_dialog.dart';
 import 'package:saber/components/home/rename_folder_button.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/extensions/list_extensions.dart';
 import 'package:saber/i18n/strings.g.dart';
 
@@ -108,7 +110,8 @@ class _GridFolderState extends State<_GridFolder> {
       colorScheme.primary.withValues(alpha: 0.05),
       colorScheme.surface,
     );
-    return MouseRegion(
+    return PressScale(
+      child: MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
@@ -157,9 +160,9 @@ class _GridFolderState extends State<_GridFolder> {
                           child: AdaptiveIcon(
                             color: colorScheme.primary,
                             icon: switch (widget.cardType) {
-                              .backFolder => Icons.folder_open,
-                              .newFolder => Icons.create_new_folder,
-                              .realFolder => Icons.folder,
+                              .backFolder => Icons.folder_open_rounded,
+                              .newFolder => Icons.create_new_folder_rounded,
+                              .realFolder => Icons.folder_rounded,
                             },
                             cupertinoIcon: switch (widget.cardType) {
                               .backFolder => CupertinoIcons.folder_open,
@@ -232,7 +235,7 @@ class _GridFolderState extends State<_GridFolder> {
                 ),
                 const SizedBox(height: 8),
                 switch (widget.cardType) {
-                  .backFolder => const Icon(Icons.arrow_back),
+                  .backFolder => const Icon(Symbols.arrow_back_rounded),
                   .newFolder => Text(t.home.newFolder.newFolder),
                   .realFolder => Text(
                     widget.folderName!,
@@ -245,6 +248,7 @@ class _GridFolderState extends State<_GridFolder> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

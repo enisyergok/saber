@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui' show FrameTiming;
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/ci_build.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -338,7 +339,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
           if (!_running && _lines.isNotEmpty)
             IconButton(
               tooltip: DefterStrings.benchmarkCopy,
-              icon: const Icon(Icons.copy),
+              icon: const Icon(Symbols.content_copy_rounded),
               onPressed: _copy,
             ),
         ],
@@ -348,7 +349,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
           ? null
           : FloatingActionButton.extended(
               onPressed: _run,
-              icon: const Icon(Icons.speed),
+              icon: const Icon(Symbols.speed_rounded),
               label: Text(DefterStrings.benchmarkStart),
             ),
     );

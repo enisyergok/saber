@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
@@ -40,7 +41,7 @@ void main() {
           ),
         );
 
-        await tester.tap(find.byIcon(Icons.settings));
+        await tester.tap(find.byIcon(Symbols.settings_rounded));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 150));
 

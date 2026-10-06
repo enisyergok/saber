@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 /// Width divided by height of a notebook cover in the library grid.
 const kNotebookCoverAspectRatio = 0.74;
@@ -132,7 +133,7 @@ class NewNotebookTile extends StatelessWidget {
                   radius: radius,
                 ),
                 child: Center(
-                  child: Icon(Icons.add, size: 44, color: colorScheme.primary),
+                  child: Icon(Symbols.add_rounded, size: 44, color: colorScheme.primary),
                 ),
               ),
             ),

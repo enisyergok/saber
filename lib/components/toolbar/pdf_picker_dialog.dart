@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/pdf/pdf_pick.dart';
@@ -378,7 +379,7 @@ class PdfPickerDialogState extends State<PdfPickerDialog> {
     padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
     child: Row(
       children: [
-        const Icon(Icons.picture_as_pdf_outlined),
+        const Icon(Symbols.picture_as_pdf_rounded),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
@@ -395,13 +396,13 @@ class PdfPickerDialogState extends State<PdfPickerDialog> {
           segments: [
             ButtonSegment(
               value: PdfPickTool.rectangle,
-              icon: const Icon(Icons.crop_din),
+              icon: const Icon(Symbols.crop_din_rounded),
               label: wide ? Text(DefterStrings.pdfPickRectangle) : null,
               tooltip: DefterStrings.pdfPickRectangle,
             ),
             ButtonSegment(
               value: PdfPickTool.lasso,
-              icon: const Icon(Icons.gesture),
+              icon: const Icon(Symbols.gesture_rounded),
               label: wide ? Text(DefterStrings.pdfPickLasso) : null,
               tooltip: DefterStrings.pdfPickLasso,
             ),
@@ -413,7 +414,7 @@ class PdfPickerDialogState extends State<PdfPickerDialog> {
         IconButton(
           key: const Key('pdfPickClose'),
           tooltip: DefterStrings.close,
-          icon: const Icon(Icons.close),
+          icon: const Icon(Symbols.close_rounded),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ],
@@ -592,7 +593,7 @@ class PdfPickerDialogState extends State<PdfPickerDialog> {
         IconButton(
           key: const Key('pdfPickPrevious'),
           tooltip: DefterStrings.pdfPickPrevious,
-          icon: const Icon(Icons.chevron_left),
+          icon: const Icon(Symbols.chevron_left_rounded),
           onPressed: _page > 0 ? () => _goTo(_page - 1) : null,
         ),
         Text(
@@ -603,7 +604,7 @@ class PdfPickerDialogState extends State<PdfPickerDialog> {
         IconButton(
           key: const Key('pdfPickNext'),
           tooltip: DefterStrings.pdfPickNext,
-          icon: const Icon(Icons.chevron_right),
+          icon: const Icon(Symbols.chevron_right_rounded),
           onPressed: _page < _pageCount - 1 ? () => _goTo(_page + 1) : null,
         ),
         const SizedBox(width: 4),
@@ -635,18 +636,18 @@ class PdfPickerDialogState extends State<PdfPickerDialog> {
         IconButton(
           key: const Key('pdfPickCopyText'),
           tooltip: DefterStrings.pdfPickCopy,
-          icon: const Icon(Icons.copy),
+          icon: const Icon(Symbols.content_copy_rounded),
           onPressed: hasText && !_busy ? _copyText : null,
         ),
         FilledButton.tonalIcon(
           key: const Key('pdfPickAsText'),
-          icon: const Icon(Icons.text_fields),
+          icon: const Icon(Symbols.text_fields_rounded),
           label: Text(DefterStrings.pdfPickAsText),
           onPressed: hasText && !_busy ? _takeText : null,
         ),
         FilledButton.icon(
           key: const Key('pdfPickAsImage'),
-          icon: const Icon(Icons.image_outlined),
+          icon: const Icon(Symbols.image_rounded),
           label: Text(DefterStrings.pdfPickAsImage),
           onPressed: _busy ? null : _takeImage,
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/sentry_consent_dialog.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/sentry/sentry_init.dart';
@@ -29,7 +30,7 @@ class const SettingsSentryConsent({super.key}) extends StatelessWidget {
         final subtitle = _getSubtitle();
         return ListTile(
           contentPadding: const .symmetric(vertical: 4, horizontal: 16),
-          leading: const Icon(Icons.bug_report),
+          leading: const Icon(Symbols.bug_report_rounded),
           title: Text(
             title,
             style: TextStyle(

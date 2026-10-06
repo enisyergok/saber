@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -55,14 +56,14 @@ class _NewNoteButtonState extends State<NewNoteButton> {
                         borderRadius: materialBorderRadius,
                       ),
               ),
-              icon: const Center(child: Icon(Icons.add)),
+              icon: const Center(child: Icon(Symbols.add_rounded)),
             ),
           ),
         );
       },
       children: [
         SpeedDialChild(
-          child: const Icon(Icons.create),
+          child: const Icon(Symbols.create_rounded),
           label: t.home.create.newNote,
           onTap: () async {
             if (widget.path == null) {
@@ -77,7 +78,7 @@ class _NewNoteButtonState extends State<NewNoteButton> {
           },
         ),
         SpeedDialChild(
-          child: const Icon(Icons.note_add),
+          child: const Icon(Symbols.note_add_rounded),
           label: t.home.create.importNote,
           onTap: () async {
             final file = await FilePicker.pickFile(type: FileType.any);

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
@@ -132,7 +133,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                       : null,
                   child: Wrap(
                     children: [
-                      const Icon(Icons.cleaning_services),
+                      const Icon(Symbols.cleaning_services_rounded),
                       const SizedBox(width: 8),
                       Text(
                         t.editor.menu.clearPage(
@@ -154,7 +155,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                       : null,
                   child: Wrap(
                     children: [
-                      const Icon(Icons.cleaning_services),
+                      const Icon(Symbols.cleaning_services_rounded),
                       const SizedBox(width: 8),
                       Text(t.editor.menu.clearAllPages),
                     ],
@@ -169,7 +170,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                     },
                     child: Wrap(
                       children: [
-                        const Icon(Icons.history),
+                        const Icon(Symbols.history_rounded),
                         const SizedBox(width: 8),
                         Text(DefterStrings.versionHistory),
                       ],
@@ -461,7 +462,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                     widget.reopenPdf != null)
                   ElevatedButton.icon(
                     key: const Key('reopenPdf'),
-                    icon: const Icon(Icons.picture_as_pdf_outlined),
+                    icon: const Icon(Symbols.picture_as_pdf_rounded),
                     label: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 260),
                       child: Text(
@@ -490,7 +491,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                 spacing: 8,
                 children: [
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.manage_search),
+                    icon: const Icon(Symbols.manage_search_rounded),
                     label: Text(DefterStrings.pdfTools),
                     onPressed: () {
                       Navigator.pop(context);
@@ -499,7 +500,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                   ),
                   if (widget.currentPageHasPdf && !widget.coreInfo.readOnly)
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.crop),
+                      icon: const Icon(Symbols.crop_rounded),
                       label: Text(DefterStrings.pdfCrop),
                       onPressed: () {
                         Navigator.pop(context);
@@ -509,7 +510,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                   if (!widget.coreInfo.readOnly)
                     ElevatedButton.icon(
                       key: const Key('removePdf'),
-                      icon: const Icon(Icons.delete_outline),
+                      icon: const Icon(Symbols.delete_rounded),
                       label: Text(DefterStrings.pdfRemove),
                       onPressed: () {
                         Navigator.pop(context);
@@ -548,7 +549,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.manage_search),
+                      icon: const Icon(Symbols.manage_search_rounded),
                       label: Text(
                         text == null ? DefterStrings.hwAdd : DefterStrings.hwRefresh,
                       ),
@@ -584,7 +585,7 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                 spacing: 8,
                 children: [
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.refresh),
+                    icon: const Icon(Symbols.refresh_rounded),
                     label: Text(DefterStrings.eInkRefreshPage),
                     onPressed: () {
                       Navigator.pop(context);

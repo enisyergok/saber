@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/prefs.dart';
@@ -102,7 +103,7 @@ class QuickStyleBar extends StatelessWidget {
                 '${DefterStrings.opacity}: ${(currentColor!.a * 100).round()}%',
             visualDensity: VisualDensity.compact,
             icon: Icon(
-              Icons.opacity,
+              Symbols.opacity_rounded,
               size: 20,
               color: colorScheme.onSurface.withValues(
                 alpha: 0.35 + 0.65 * currentColor!.a,

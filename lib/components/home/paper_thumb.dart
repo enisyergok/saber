@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/editor/page.dart';
@@ -148,7 +149,7 @@ class CoverThumb extends StatelessWidget {
                         color: colors.surface,
                         child: Center(
                           child: Icon(
-                            Icons.block,
+                            Symbols.block_rounded,
                             color: colors.outline,
                             size: 20,
                           ),

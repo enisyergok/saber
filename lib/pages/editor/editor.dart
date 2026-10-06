@@ -14,6 +14,7 @@ import 'package:flutter_quill/flutter_quill.dart' as flutter_quill;
 import 'package:go_router/go_router.dart';
 import 'package:keybinder/keybinder.dart';
 import 'package:logging/logging.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
 import 'package:saber/components/canvas/_asset_cache.dart';
@@ -2802,8 +2803,8 @@ class EditorState extends State<Editor> {
                     ValueListenableBuilder(
                       valueListenable: stows.editorPageSidebar,
                       builder: (context, shown, _) => IconButton(
-                        icon: const Icon(Icons.view_sidebar_outlined),
-                        selectedIcon: const Icon(Icons.view_sidebar),
+                        icon: const Icon(Symbols.view_sidebar_rounded),
+                        selectedIcon: const Icon(Icons.view_sidebar_rounded),
                         isSelected: shown,
                         tooltip: DefterStrings.pageSidebar,
                         onPressed: () =>
@@ -2828,7 +2829,7 @@ class EditorState extends State<Editor> {
                   ),
                   IconButton(
                     icon: const AdaptiveIcon(
-                      icon: Icons.insert_page_break,
+                      icon: Symbols.insert_page_break_rounded,
                       cupertinoIcon: CupertinoIcons.add,
                     ),
                     tooltip: t.editor.menu.insertPage,
@@ -2851,7 +2852,7 @@ class EditorState extends State<Editor> {
                       }
                       return IconButton(
                         icon: Icon(
-                          recording ? Icons.stop_circle : Icons.speed,
+                          recording ? Icons.stop_circle_rounded : Symbols.speed_rounded,
                           color: recording ? Colors.red : null,
                         ),
                         tooltip: recording
@@ -2862,7 +2863,7 @@ class EditorState extends State<Editor> {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.mic_none),
+                    icon: const Icon(Symbols.mic_rounded),
                     tooltip: DefterStrings.recordings,
                     onPressed: () => showDialog<void>(
                       context: context,
@@ -2879,7 +2880,7 @@ class EditorState extends State<Editor> {
                           coreInfo.pages[pageIndex].bookmarked;
                       return IconButton(
                         icon: Icon(
-                          bookmarked ? Icons.bookmark : Icons.bookmark_border,
+                          bookmarked ? Icons.bookmark_rounded : Symbols.bookmark_rounded,
                         ),
                         tooltip: DefterStrings.bookmark,
                         onPressed: coreInfo.readOnly
@@ -2890,7 +2891,7 @@ class EditorState extends State<Editor> {
                   ),
                   IconButton(
                     icon: const AdaptiveIcon(
-                      icon: Icons.more_vert,
+                      icon: Symbols.more_vert_rounded,
                       cupertinoIcon: CupertinoIcons.ellipsis_vertical,
                     ),
                     onPressed: () {
@@ -2942,7 +2943,7 @@ class EditorState extends State<Editor> {
                 onPressed: () {
                   DynamicMaterialApp.setFullscreen(false, updateSystem: true);
                 },
-                child: const Icon(Icons.fullscreen_exit),
+                child: const Icon(Symbols.fullscreen_exit_rounded),
               )
             : null,
       ),

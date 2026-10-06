@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
 import 'package:saber/data/nextcloud/sync_status.dart';
@@ -26,7 +27,7 @@ class SyncStatusPage extends HookWidget {
       body: ListView(
         children: [
           ListTile(
-            leading: Icon(loggedIn ? Icons.cloud_done : Icons.cloud_off),
+            leading: Icon(loggedIn ? Icons.cloud_done_rounded : Symbols.cloud_off_rounded),
             title: Text(
               loggedIn
                   ? DefterStrings.syncOn(stows.username.value)
@@ -36,17 +37,17 @@ class SyncStatusPage extends HookWidget {
           ),
           if (loggedIn) ...[
             ListTile(
-              leading: const Icon(Icons.file_download_outlined),
+              leading: const Icon(Symbols.file_download_rounded),
               title: Text(DefterStrings.syncWaitingDownloads),
               trailing: Text('${syncer.downloader.numPending}'),
             ),
             ListTile(
-              leading: const Icon(Icons.file_upload_outlined),
+              leading: const Icon(Symbols.file_upload_rounded),
               title: Text(DefterStrings.syncWaitingUploads),
               trailing: Text('${syncer.uploader.numPending}'),
             ),
             ListTile(
-              leading: const Icon(Icons.schedule),
+              leading: const Icon(Symbols.schedule_rounded),
               title: Text(DefterStrings.syncLastTransfer),
               trailing: Text(
                 last == null
@@ -60,7 +61,7 @@ class SyncStatusPage extends HookWidget {
                 onPressed: syncer.downloader.isRefreshing
                     ? null
                     : syncer.downloader.refresh,
-                icon: const Icon(Icons.sync),
+                icon: const Icon(Symbols.sync_rounded),
                 label: Text(DefterStrings.syncNow),
               ),
             ),

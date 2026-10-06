@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/inner_canvas.dart';
 import 'package:saber/components/canvas/invert_widget.dart';
@@ -9,6 +10,7 @@ import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/eink/eink_scope.dart';
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/sync_indicator.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/is_this_a_test.dart';
@@ -122,7 +124,8 @@ class _PreviewCardState extends State<PreviewCard> {
     );
     final modified = _modified;
 
-    final Widget cover = MouseRegion(
+    final Widget cover = PressScale(
+      child: MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.isAnythingSelected ? _toggleCardSelection : null,
@@ -169,7 +172,7 @@ class _PreviewCardState extends State<PreviewCard> {
                         widget.filePath + Editor.extension,
                       )
                       ? const Icon(
-                          Icons.star,
+                          Icons.star_rounded,
                           color: Colors.amber,
                           size: 22,
                           shadows: [
@@ -203,7 +206,7 @@ class _PreviewCardState extends State<PreviewCard> {
                         child: Padding(
                           padding: const .all(3),
                           child: Icon(
-                            Icons.check,
+                            Symbols.check_rounded,
                             size: 18,
                             color: colorScheme.onPrimary,
                           ),
@@ -217,6 +220,7 @@ class _PreviewCardState extends State<PreviewCard> {
             SyncIndicator(filePath: widget.filePath),
           ],
         ),
+      ),
       ),
     );
 

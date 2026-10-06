@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/ai/note_assistant.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
@@ -76,7 +77,7 @@ class _AskNotesPageState extends State<AskNotesPage> {
               border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 tooltip: DefterStrings.ask,
-                icon: const Icon(Icons.send),
+                icon: const Icon(Icons.send_rounded),
                 onPressed: _ask,
               ),
             ),
@@ -107,7 +108,7 @@ class _AskNotesPageState extends State<AskNotesPage> {
             for (final source in answer.sources)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.description_outlined),
+                leading: const Icon(Symbols.description_rounded),
                 title: Text(source.name),
                 onTap: () =>
                     context.push(RoutePaths.editFilePath(source.path)),

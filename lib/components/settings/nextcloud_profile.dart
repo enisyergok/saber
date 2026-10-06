@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:nextcloud/provisioning_api.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/components/theming/adaptive_linear_progress_indicator.dart';
@@ -63,7 +64,7 @@ class const NextcloudProfile({super.key}) extends HookWidget {
                 _QuotaSummary(quota: quota),
                 IconButton(
                   icon: const AdaptiveIcon(
-                    icon: Icons.cloud_upload,
+                    icon: Symbols.cloud_upload_rounded,
                     cupertinoIcon: CupertinoIcons.cloud_upload,
                   ),
                   tooltip: t.settings.resyncEverything,
@@ -110,7 +111,7 @@ class _UnknownPfp extends StatelessWidget {
       child: ColoredBox(
         color: colorScheme.primaryContainer,
         child: Icon(
-          Icons.person,
+          Icons.person_rounded,
           color: colorScheme.onPrimaryContainer,
           size: size * 0.7,
         ),

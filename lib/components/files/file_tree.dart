@@ -44,7 +44,7 @@ class const _FileTreeDir({required final String? path}) extends HookWidget {
             child: Row(
               children: [
                 Icon(
-                  areChildrenVisible.value ? Icons.folder_open : Icons.folder,
+                  areChildrenVisible.value ? Icons.folder_open_rounded : Icons.folder_rounded,
                   color: colorScheme.primary,
                   size: 25,
                 ),
@@ -105,7 +105,7 @@ class const _FileTreeFile({required final String path}) extends HookWidget {
           },
           child: Row(
             children: [
-              const Icon(Icons.insert_drive_file, size: 25),
+              const Icon(Icons.insert_drive_file_rounded, size: 25),
               const SizedBox(width: 5),
               Expanded(
                 child: Text(

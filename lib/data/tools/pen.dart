@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/editor/page.dart';
@@ -143,10 +143,10 @@ class Pen extends Tool {
   @override
   final ToolId toolId;
 
-  static const fountainPenIcon = FontAwesomeIcons.penFancy;
-  static const ballpointPenIcon = FontAwesomeIcons.pen;
-  static const brushPenIcon = FontAwesomeIcons.paintbrush;
-  static const calligraphyPenIcon = FontAwesomeIcons.penNib;
+  static const fountainPenIcon = Symbols.stylus_fountain_pen_rounded;
+  static const ballpointPenIcon = Symbols.stylus_pen_rounded;
+  static const brushPenIcon = Symbols.stylus_brush_rounded;
+  static const calligraphyPenIcon = Symbols.ink_pen_rounded;
 
   static Stroke? currentStroke;
   Color color;

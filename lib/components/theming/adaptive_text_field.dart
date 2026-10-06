@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 
 class AdaptiveTextField extends StatefulWidget {
@@ -35,7 +36,7 @@ class _AdaptiveTextFieldState extends State<AdaptiveTextField> {
   Widget? get suffixIcon {
     if (!widget.isPassword) return null;
     return IconButton(
-      icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility),
+      icon: Icon(obscureText ? Symbols.visibility_off_rounded : Symbols.visibility_rounded),
       iconSize: 18,
       onPressed: () {
         setState(() {

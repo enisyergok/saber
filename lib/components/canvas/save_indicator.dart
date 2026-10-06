@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_circular_progress_indicator.dart';
 import 'package:saber/data/is_this_a_test.dart';
 import 'package:saber/data/routes.dart';
@@ -26,9 +27,9 @@ class SaveIndicator extends StatelessWidget {
             key: ValueKey(savingState.value),
             onPressed: () => _onPressed(context),
             icon: switch (savingState.value) {
-              .waitingToSave => const Icon(Icons.save),
+              .waitingToSave => const Icon(Symbols.save_rounded),
               .saving => const AdaptiveCircularProgressIndicator(),
-              .saved => const Icon(Icons.arrow_back),
+              .saved => const Icon(Symbols.arrow_back_rounded),
             },
           ),
         );
