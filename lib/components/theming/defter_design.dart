@@ -19,20 +19,33 @@ abstract class DefterDesign {
   /// (the ink blue if none is given). The surfaces are the same neutral
   /// paper whatever the accent: only what is tinted changes.
   static ColorScheme colorScheme(Brightness brightness, {Color? accent}) {
+    final light = brightness == Brightness.light;
     final seeded = ColorScheme.fromSeed(
       seedColor: accent ?? ink,
       brightness: brightness,
       dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
+    final primary = accent == null && light ? ink : seeded.primary;
+    final hsl = HSLColor.fromColor(primary);
+    // What is tinted (a selected row, a chosen chip) is a wash of the
+    // accent over the paper, whatever the accent: never a second colour.
     return withPaper(
-      accent == null && brightness == Brightness.light
-          ? seeded.copyWith(
-              primary: ink,
-              onPrimary: Colors.white,
-              primaryContainer: const Color(0xFFE2E8FB),
-              onPrimaryContainer: const Color(0xFF14275F),
-            )
-          : seeded,
+      seeded.copyWith(
+        primary: primary,
+        onPrimary: accent == null && light ? Colors.white : null,
+        primaryContainer: light
+            ? Color.lerp(Colors.white, primary, 0.14)
+            : Color.lerp(const Color(0xFF111216), primary, 0.28),
+        onPrimaryContainer: light
+            ? hsl.withLightness(0.24).toColor()
+            : Color.lerp(Colors.white, primary, 0.25),
+        secondaryContainer: light
+            ? Color.lerp(Colors.white, primary, 0.10)
+            : Color.lerp(const Color(0xFF111216), primary, 0.20),
+        onSecondaryContainer: light
+            ? hsl.withLightness(0.24).toColor()
+            : Color.lerp(Colors.white, primary, 0.25),
+      ),
     );
   }
 
