@@ -120,8 +120,9 @@ sealed class EditorImage extends ChangeNotifier {
     required AssetCache assetCache,
   }) {
     final extension = json['e'] as String?;
+    final EditorImage image;
     if (extension == '.svg') {
-      return SvgEditorImage.fromJson(
+      image = SvgEditorImage.fromJson(
         json,
         inlineAssets: inlineAssets,
         isThumbnail: isThumbnail,
@@ -129,7 +130,7 @@ sealed class EditorImage extends ChangeNotifier {
         assetCache: assetCache,
       );
     } else if (extension == '.pdf') {
-      return PdfEditorImage.fromJson(
+      image = PdfEditorImage.fromJson(
         json,
         inlineAssets: inlineAssets,
         isThumbnail: isThumbnail,
@@ -137,7 +138,7 @@ sealed class EditorImage extends ChangeNotifier {
         assetCache: assetCache,
       );
     } else {
-      return PngEditorImage.fromJson(
+      image = PngEditorImage.fromJson(
         json,
         inlineAssets: inlineAssets,
         isThumbnail: isThumbnail,
@@ -145,6 +146,9 @@ sealed class EditorImage extends ChangeNotifier {
         assetCache: assetCache,
       );
     }
+    final turns = json['r'];
+    if (turns is int) image._quarterTurns = turns % 4;
+    return image;
   }
 
   @mustBeOverridden
@@ -165,7 +169,49 @@ sealed class EditorImage extends ChangeNotifier {
     if (srcRect.height != 0) 'sh': srcRect.height,
     if (naturalSize.width != 0) 'nw': naturalSize.width,
     if (naturalSize.height != 0) 'nh': naturalSize.height,
+    if (quarterTurns != 0) 'r': quarterTurns,
   };
+
+  /// How many quarter turns clockwise the picture is shown turned (0 to
+  /// 3). [dstRect] is the box of the picture as it is shown, turned.
+  int get quarterTurns => _quarterTurns;
+  int _quarterTurns = 0;
+  set quarterTurns(int turns) {
+    final normal = turns % 4;
+    if (normal == _quarterTurns) return;
+    _quarterTurns = normal;
+    notifyListeners();
+  }
+
+  /// Quarter turns made with [rotateQuarter] that the history has not
+  /// been told about yet.
+  int _unreportedTurns = 0;
+
+  /// Turns the picture [turns] quarter turns clockwise about its middle.
+  /// For an odd number of turns its box becomes as wide as it was high.
+  void rotateQuarter([int turns = 1]) {
+    if (turns % 4 == 0) return;
+    _quarterTurns = (_quarterTurns + turns) % 4;
+    _unreportedTurns += turns;
+    if (turns.isOdd) {
+      // Also tells who listens.
+      dstRect = Rect.fromCenter(
+        center: dstRect.center,
+        width: dstRect.height,
+        height: dstRect.width,
+      );
+    } else {
+      notifyListeners();
+    }
+  }
+
+  /// The quarter turns made since this was last asked, for the history
+  /// item of the change that is being recorded.
+  int takeUnreportedTurns() {
+    final turns = _unreportedTurns;
+    _unreportedTurns = 0;
+    return turns;
+  }
 
   /// The file on disk this picture is read from, or null if it is held in
   /// memory (a picture that was just added).

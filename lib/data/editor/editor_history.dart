@@ -168,6 +168,7 @@ class EditorHistoryItem {
     this.reshapeChange,
     this.replacements,
     this.pdfRemoval,
+    this.imageTurns,
   }) : assert(
          (type != .removePdf && type != .removePdfRedone) ||
              pdfRemoval != null,
@@ -240,6 +241,10 @@ class EditorHistoryItem {
   /// and the pages that lost the PDF behind their writing.
   final PdfRemoval? pdfRemoval;
 
+  /// For [EditorHistoryItemType.move] of pictures: the quarter turns
+  /// clockwise they were turned by as well (undoing turns them back).
+  final int? imageTurns;
+
   EditorHistoryItem copyWith({
     EditorHistoryItemType? type,
     int? pageIndex,
@@ -254,6 +259,7 @@ class EditorHistoryItem {
     Map<Stroke, Change<List<Offset>>>? reshapeChange,
     List<StrokeReplacement>? replacements,
     PdfRemoval? pdfRemoval,
+    int? imageTurns,
   }) {
     return EditorHistoryItem(
       type: type ?? this.type,
@@ -270,6 +276,7 @@ class EditorHistoryItem {
       reshapeChange: reshapeChange ?? this.reshapeChange,
       replacements: replacements ?? this.replacements,
       pdfRemoval: pdfRemoval ?? this.pdfRemoval,
+      imageTurns: imageTurns ?? this.imageTurns,
     );
   }
 }

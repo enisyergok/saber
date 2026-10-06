@@ -7,6 +7,7 @@ import 'package:saber/components/canvas/canvas_image_dialog.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
+import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -35,6 +36,14 @@ class CanvasImage extends StatefulHookWidget {
 
   /// When notified, all [CanvasImages] will have their [active] property set to false.
   static var activeListener = ChangeNotifier();
+
+  /// Set to a picture to make it the active one (with its frame, handles
+  /// and action buttons), as a tap on it does.
+  static final requestActive = ValueNotifier<EditorImage?>(null);
+
+  /// The size on screen of one of the small buttons that an active picture
+  /// shows (delete, turn, more), in logical pixels.
+  static const actionButtonSize = 40.0;
 
   /// The minimum size of the interactive area for the image.
   static double minInteractiveSize = 50;
@@ -86,12 +95,62 @@ class _CanvasImageState extends State<CanvasImage> {
     }
 
     CanvasImage.activeListener.addListener(disableActive);
+    CanvasImage.requestActive.addListener(_onRequestActive);
+
+    // How large the page is shown is only known once it has been laid
+    // out: the action buttons of a picture that starts out active are
+    // sized again then.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _active) setState(() {});
+    });
 
     super.initState();
   }
 
   void disableActive() {
     active = false;
+  }
+
+  void _onRequestActive() {
+    if (!identical(CanvasImage.requestActive.value, widget.image)) return;
+    CanvasImage.requestActive.value = null;
+    active = true;
+  }
+
+  /// How many pixels on screen one unit of the page is right now (the
+  /// page is fitted to the screen and can be zoomed), so that the action
+  /// buttons keep the size of a fingertip whatever the zoom.
+  double _unitsToPixels() {
+    final box = context.findRenderObject();
+    if (box is! RenderBox || !box.attached || !box.hasSize) return 1;
+    try {
+      final scale = box.getTransformTo(null).getMaxScaleOnAxis();
+      return scale.isFinite && scale > 0 ? scale : 1;
+    } catch (_) {
+      return 1;
+    }
+  }
+
+  /// Turns the picture a quarter turn and tells the editor, which records
+  /// it so that it can be undone.
+  void _rotate() {
+    final image = widget.image;
+    final before = image.dstRect;
+    setState(() => image.rotateQuarter());
+    final after = image.dstRect;
+    image.onMoveImage?.call(
+      image,
+      .fromLTRB(
+        after.left - before.left,
+        after.top - before.top,
+        after.right - before.right,
+        after.bottom - before.bottom,
+      ),
+    );
+  }
+
+  void _delete() {
+    widget.image.onDeleteImage?.call(widget.image);
   }
 
   @override
@@ -190,16 +249,22 @@ class _CanvasImageState extends State<CanvasImage> {
                             widget.image.dstRect.height,
                             CanvasImage.minImageSize,
                           ),
-                    child: SizedOverflowBox(
-                      size: widget.image.srcRect.size,
-                      child: Transform.translate(
-                        offset: -widget.image.srcRect.topLeft,
-                        child: EInkImageFilter(
-                          child: widget.image.buildImageWidget(
-                            context: context,
-                            overrideBoxFit: widget.overrideBoxFit,
-                            isBackground: widget.isBackground,
-                            invert: imageBrightness == .dark,
+                    child: RotatedBox(
+                      // A picture that is a page's background is not turned.
+                      quarterTurns: widget.isBackground
+                          ? 0
+                          : widget.image.quarterTurns,
+                      child: SizedOverflowBox(
+                        size: widget.image.srcRect.size,
+                        child: Transform.translate(
+                          offset: -widget.image.srcRect.topLeft,
+                          child: EInkImageFilter(
+                            child: widget.image.buildImageWidget(
+                              context: context,
+                              overrideBoxFit: widget.overrideBoxFit,
+                              isBackground: widget.isBackground,
+                              invert: imageBrightness == .dark,
+                            ),
                           ),
                         ),
                       ),
@@ -222,6 +287,14 @@ class _CanvasImageState extends State<CanvasImage> {
                     parent: this,
                     afterDrag: () => setState(() {}),
                   ),
+          if (active && !widget.readOnly && !widget.isBackground)
+            _CanvasImageActions(
+              image: widget.image,
+              unitsToPixels: _unitsToPixels(),
+              onRotate: _rotate,
+              onDelete: _delete,
+              onMore: showModal,
+            ),
         ],
       ),
     );
@@ -257,6 +330,7 @@ class _CanvasImageState extends State<CanvasImage> {
   void dispose() {
     widget.image.loadOut();
     CanvasImage.activeListener.removeListener(disableActive);
+    CanvasImage.requestActive.removeListener(_onRequestActive);
     super.dispose();
   }
 
@@ -278,6 +352,105 @@ class _CanvasImageState extends State<CanvasImage> {
           actions: const [],
         );
       },
+    );
+  }
+}
+
+/// The small buttons of the active picture: turn it, delete it, more. They
+/// sit just above the picture (below it when there is no room above) and
+/// keep the same size on screen however far the page is zoomed.
+class _CanvasImageActions extends StatelessWidget {
+  const new({
+    required this.image,
+    required this.unitsToPixels,
+    required this.onRotate,
+    required this.onDelete,
+    required this.onMore,
+  });
+
+  final EditorImage image;
+
+  /// Pixels on screen for one unit of the page.
+  final double unitsToPixels;
+  final VoidCallback onRotate;
+  final VoidCallback onDelete;
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
+    // Everything here is measured in units of the page.
+    final unit = 1 / unitsToPixels;
+    final button = (CanvasImage.actionButtonSize * unit)
+        .clamp(16.0, 160.0)
+        .toDouble();
+    final gap = button * 0.3;
+    const count = 3;
+    final barWidth = button * count + gap * 0.5 * (count + 1);
+    final barHeight = button + gap * 0.5;
+
+    final boxWidth = max(image.dstRect.width, CanvasImage.minInteractiveSize);
+    final boxHeight = max(image.dstRect.height, CanvasImage.minInteractiveSize);
+    // Above the picture, unless that is off the top of the page.
+    final above = image.dstRect.top >= barHeight + gap;
+
+    Widget action(Key key, IconData icon, String label, VoidCallback onTap) =>
+        Semantics(
+          button: true,
+          label: label,
+          child: InkResponse(
+            key: key,
+            onTap: onTap,
+            radius: button * 0.5,
+            child: SizedBox.square(
+              dimension: button,
+              child: Icon(
+                icon,
+                size: button * 0.55,
+                color: colorScheme.onSurface,
+              ),
+            ),
+          ),
+        );
+
+    return Positioned(
+      left: (boxWidth - barWidth) / 2,
+      top: above ? -(barHeight + gap) : boxHeight + gap,
+      width: barWidth,
+      height: barHeight,
+      child: DeferPointer(
+        paintOnTop: true,
+        child: Material(
+          key: const Key('imageActions'),
+          color: colorScheme.surfaceContainerHigh,
+          elevation: 3,
+          shape: const StadiumBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              action(
+                const Key('imageRotate'),
+                Icons.rotate_90_degrees_cw_outlined,
+                DefterStrings.imageRotate,
+                onRotate,
+              ),
+              action(
+                const Key('imageDelete'),
+                Icons.delete_outline,
+                t.editor.imageOptions.delete,
+                onDelete,
+              ),
+              action(
+                const Key('imageMore'),
+                Icons.more_horiz,
+                DefterStrings.imageMore,
+                onMore,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -536,6 +536,8 @@ abstract class DefterStrings {
   static String itemCount(int count) => _tr ? '$count öğe' : '$count items';
   static String templatesOf(String group) =>
       _tr ? '$group Şablonları' : '$group Templates';
+  static String get imageRotate => _tr ? 'Döndür' : 'Rotate';
+  static String get imageMore => _tr ? 'Diğer' : 'More';
   static String get camera => _tr ? 'Kamera' : 'Camera';
   static String get takePhoto => _tr ? 'Fotoğraf çek' : 'Take a photo';
   static String cameraFailed(String failure) => switch (failure) {

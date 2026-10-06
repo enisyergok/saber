@@ -595,6 +595,36 @@ void main() {
       },
     );
 
+    // A picture that was tapped: its frame, its handles and the small
+    // buttons to turn it, delete it and for more.
+    _shot(
+      theme: theme,
+      name: 'image_actions',
+      child: Editor(path: '/Resimli sayfa'),
+      afterLoad: (tester) async {
+        final editor = tester.state<EditorState>(find.byType(Editor));
+        addTearDown(editor.cancelAutosaveAndMarkSaved);
+        final png = File('test/demo_notes/Import PDFs.sbn2.0').readAsBytesSync();
+        await tester.runAsync(
+          () => editor.applyPdfPick(
+            'unused',
+            PdfPickImage(
+              png: png,
+              pixelSize: const Size(595, 841),
+              fractionOfPage: const Size(0.28, 0.28),
+            ),
+          ),
+        );
+        editor.cancelAutosaveAndMarkSaved();
+        for (var i = 0; i < 6; i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 100)),
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+      },
+    );
+
     // The window a PDF opens in before any of it is put into the note: a
     // real PDF, a page ticked and a part of the open page marked.
     _shot(

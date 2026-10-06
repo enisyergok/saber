@@ -210,6 +210,7 @@ class EditorState extends State<Editor> {
   }();
   Tool get currentTool => _currentTool;
   set currentTool(Tool tool) {
+    _toolBeforeImageTap = null;
     if (!identical(tool, _currentTool)) _previousTool = _currentTool;
     _currentTool = tool;
     if (tool is! Eraser) _lastNonEraserTool = tool;
@@ -647,6 +648,8 @@ class EditorState extends State<Editor> {
             );
           }
           for (final image in item.images) {
+            final turns = item.imageTurns;
+            if (turns != null) image.quarterTurns -= turns;
             image.dstRect = .fromLTRB(
               image.dstRect.left - item.offset!.left,
               image.dstRect.top - item.offset!.top,
@@ -766,6 +769,7 @@ class EditorState extends State<Editor> {
               -item.offset!.right,
               -item.offset!.bottom,
             ),
+            imageTurns: item.imageTurns == null ? null : -item.imageTurns!,
           ),
         );
       case .transform:
@@ -852,11 +856,63 @@ class EditorState extends State<Editor> {
   int? dragPageIndex;
   PointerDeviceKind? currentPointerKind;
   double? currentPressure;
+  /// The tool that was in use when a picture was tapped with a finger
+  /// (which switches to the Select tool so that the picture can be moved
+  /// and its buttons used). It is taken up again as soon as anything else
+  /// is done on the page, so that the pen writes as before.
+  Tool? _toolBeforeImageTap;
+
+  /// A finger that just went down where it does not draw: if it comes up
+  /// again at once without having moved the page, it was a tap.
+  ({Offset at, Stopwatch since, Matrix4 view})? _fingerDown;
+
+  /// How long a finger may stay down for a tap.
+  static const _tapTime = Duration(milliseconds: 350);
+
+  /// The picture at [globalPosition], the topmost if several overlap.
+  EditorImage? imageAt(Offset globalPosition) {
+    final pageIndex = onWhichPageIsFocalPoint(globalPosition);
+    if (pageIndex == null) return null;
+    final page = coreInfo.pages[pageIndex];
+    final position = page.renderBox!.globalToLocal(globalPosition);
+    for (final image in page.images.reversed) {
+      if (image.dstRect.contains(position)) return image;
+    }
+    return null;
+  }
+
+  /// A finger tapped the page while a tool other than Select was in use:
+  /// if it tapped a picture, that picture becomes the active one.
+  void _onFingerTap(Offset globalPosition) {
+    if (coreInfo.readOnly || !mounted) return;
+    final image = imageAt(globalPosition);
+    if (image == null) return;
+    final before = currentTool;
+    setState(() {
+      currentTool = Select.currentSelect;
+      _toolBeforeImageTap = before;
+    });
+    // Once the picture has been built for the Select tool.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) CanvasImage.requestActive.value = image;
+    });
+  }
+
   bool isDrawGesture(ScaleStartDetails details) {
     if (coreInfo.readOnly) return false;
 
     CanvasImage.activeListener
         .notifyListenersPlease(); // un-select active image
+
+    _fingerDown = null;
+    // The picture that was tapped is let go: back to the tool from before.
+    final toolBefore = _toolBeforeImageTap;
+    if (toolBefore != null) {
+      _toolBeforeImageTap = null;
+      if (currentTool is Select && !Select.currentSelect.doneSelecting) {
+        setState(() => currentTool = toolBefore);
+      }
+    }
 
     _lastSeenPointerCountTimer?.cancel();
     if (lastSeenPointerCount >= 2) {
@@ -890,6 +946,14 @@ class EditorState extends State<Editor> {
       return true;
     } else {
       log.fine('Non-stylus found, rejected stroke');
+      // A finger that does not draw may be tapping a picture.
+      if (details.pointerCount == 1 && currentTool is! Select) {
+        _fingerDown = (
+          at: details.focalPoint,
+          since: Stopwatch()..start(),
+          view: _transformationController.value.clone(),
+        );
+      }
       return false;
     }
   }
@@ -1248,6 +1312,17 @@ class EditorState extends State<Editor> {
   }
 
   void onInteractionEnd(ScaleEndDetails details) {
+    final finger = _fingerDown;
+    _fingerDown = null;
+    if (finger != null && finger.since.elapsed <= _tapTime) {
+      final now = _transformationController.value;
+      final moved =
+          (now.getTranslation() - finger.view.getTranslation()).length;
+      final zoomed =
+          (now.getMaxScaleOnAxis() - finger.view.getMaxScaleOnAxis()).abs();
+      if (moved < 6 && zoomed < 0.001) _onFingerTap(finger.at);
+    }
+
     // reset after 1ms to keep track of the same gesture only
     _lastSeenPointerCountTimer?.cancel();
     _lastSeenPointerCountTimer = Timer(const Duration(milliseconds: 10), () {
@@ -1288,6 +1363,8 @@ class EditorState extends State<Editor> {
   }
 
   void onMoveImage(EditorImage image, Rect offset) {
+    // A picture that was turned was given a new box as well.
+    final turns = image.takeUnreportedTurns();
     history.recordChange(
       EditorHistoryItem(
         type: .move,
@@ -1295,6 +1372,7 @@ class EditorState extends State<Editor> {
         strokes: [],
         images: [image],
         offset: offset,
+        imageTurns: turns == 0 ? null : turns,
       ),
     );
     // setState to update undo button
