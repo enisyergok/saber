@@ -435,6 +435,8 @@ void main() {
         return;
       }
       setupMockPrinting();
+      // Leaving the editor ends full screen, through the window's channel.
+      setupMockWindowManager();
       stows.editorGnLayout.value = false;
       EditorImage.shouldLoadOutImmediately = true;
       addTearDown(() => EditorImage.shouldLoadOutImmediately = false);
