@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart' show CupertinoPageTransition;
 import 'package:flutter/material.dart';
 import 'package:saber/components/eink/eink_scope.dart';
@@ -26,27 +28,45 @@ abstract class DefterDesign {
       dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
     final primary = accent == null && light ? ink : seeded.primary;
-    final hsl = HSLColor.fromColor(primary);
     // What is tinted (a selected row, a chosen chip) is a wash of the
     // accent over the paper, whatever the accent: never a second colour.
+    final paper = light ? Colors.white : const Color(0xFF111216);
+    final wash = Color.lerp(paper, primary, light ? 0.14 : 0.28)!;
+    final faintWash = Color.lerp(paper, primary, light ? 0.10 : 0.20)!;
+    // And what is written on a wash is the accent itself, taken as far
+    // towards ink (or towards paper, at night) as reading needs.
+    final onWash = readableOn(primary, wash);
     return withPaper(
       seeded.copyWith(
         primary: primary,
         onPrimary: accent == null && light ? Colors.white : null,
-        primaryContainer: light
-            ? Color.lerp(Colors.white, primary, 0.14)
-            : Color.lerp(const Color(0xFF111216), primary, 0.28),
-        onPrimaryContainer: light
-            ? hsl.withLightness(0.24).toColor()
-            : Color.lerp(Colors.white, primary, 0.25),
-        secondaryContainer: light
-            ? Color.lerp(Colors.white, primary, 0.10)
-            : Color.lerp(const Color(0xFF111216), primary, 0.20),
-        onSecondaryContainer: light
-            ? hsl.withLightness(0.24).toColor()
-            : Color.lerp(Colors.white, primary, 0.25),
+        primaryContainer: wash,
+        onPrimaryContainer: onWash,
+        secondaryContainer: faintWash,
+        onSecondaryContainer: onWash,
       ),
     );
+  }
+
+  /// [color], darkened (on a light [background]) or lightened (on a dark
+  /// one) just as far as it takes to reach [contrast] against it.
+  static Color readableOn(
+    Color color,
+    Color background, {
+    double contrast = 7,
+  }) {
+    final backgroundLuminance = background.computeLuminance();
+    final towards = backgroundLuminance > 0.4 ? Colors.black : Colors.white;
+    double ratio(Color c) {
+      final a = c.computeLuminance(), b = backgroundLuminance;
+      return (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05);
+    }
+
+    for (var step = 0; step <= 20; step++) {
+      final candidate = Color.lerp(color, towards, step / 20)!;
+      if (ratio(candidate) >= contrast) return candidate;
+    }
+    return towards;
   }
 
   /// [scheme] with Defter's neutral surfaces, lines and shadows in place
@@ -98,10 +118,29 @@ abstract class DefterDesign {
   static Color headerOf(ColorScheme scheme) {
     final hsl = HSLColor.fromColor(scheme.primary);
     final dark = scheme.brightness == Brightness.dark;
-    return hsl
+    final header = hsl
         .withSaturation((hsl.saturation * 0.85).clamp(0.0, 0.62).toDouble())
         .withLightness(dark ? 0.15 : 0.24)
         .toColor();
+    // Some hues (yellows, greens) are bright even when they are dark:
+    // those go a little deeper, until white reads well on them.
+    return Color.lerp(
+      header,
+      Colors.black,
+      _stepsUntil((t) {
+        final luminance = Color.lerp(header, Colors.black, t)!
+            .computeLuminance();
+        return 1.05 / (luminance + 0.05) >= 7.5;
+      }),
+    )!;
+  }
+
+  /// The first of 0, 0.05, 0.1, ... 1 for which [enough] holds (1 if none).
+  static double _stepsUntil(bool Function(double t) enough) {
+    for (var step = 0; step <= 20; step++) {
+      if (enough(step / 20)) return step / 20;
+    }
+    return 1;
   }
 
   // -- shape ----------------------------------------------------------------
