@@ -272,6 +272,46 @@ abstract class DefterStrings {
   static String get pdfSearch => _tr ? 'Ara' : 'Search';
   static String pdfPageLabel(int page) => _tr ? 'Sayfa $page' : 'Page $page';
   static String get pdfSection => 'PDF';
+  // -- the window that shows a PDF before it is put into the note -----------
+  static String get pdfPickRectangle => _tr ? 'Dikdörtgen' : 'Rectangle';
+  static String get pdfPickLasso => _tr ? 'Serbest' : 'Freehand';
+  static String get pdfPickPrevious => _tr ? 'Önceki sayfa' : 'Previous page';
+  static String get pdfPickNext => _tr ? 'Sonraki sayfa' : 'Next page';
+  static String get pdfPickThisPage =>
+      _tr ? 'Bu sayfayı seç' : 'Choose this page';
+  static String get pdfPickHint => _tr
+      ? 'Sayfaları işaretleyip nota sayfa olarak alın, ya da kalemle sayfanın bir yerini çevreleyip yalnızca orayı resim veya metin olarak alın. İki parmakla yakınlaştırılır.'
+      : 'Tick pages to take them as pages of the note, or mark a part of the page with the pen to take only that as a picture or as text. Two fingers zoom.';
+  static String get pdfPickReadingText =>
+      _tr ? 'Seçilen yerdeki metin okunuyor…' : 'Reading the text in the marked part…';
+  static String pdfPickTextFound(String text) =>
+      _tr ? 'Metin: $text' : 'Text: $text';
+  static String get pdfPickNoText => _tr
+      ? 'Seçilen yerde alınabilir metin yok (sayfa taranmış bir görüntü olabilir). Resim olarak alınabilir.'
+      : 'There is no text to take in the marked part (the page may be a scan). It can be taken as a picture.';
+  static String get pdfPickClear => _tr ? 'Seçimi kaldır' : 'Clear the mark';
+  static String get pdfPickCopy => _tr ? 'Metni kopyala' : 'Copy the text';
+  static String get pdfPickCopied =>
+      _tr ? 'Metin panoya kopyalandı' : 'Text copied to the clipboard';
+  static String get pdfPickAsText => _tr ? 'Metin olarak al' : 'Take as text';
+  static String get pdfPickAsImage =>
+      _tr ? 'Resim olarak al' : 'Take as a picture';
+  static String get pdfPickClearPages =>
+      _tr ? 'Sayfa seçimini temizle' : 'Clear the pages';
+  static String pdfPickAllPages(int count) =>
+      _tr ? 'Tümünü al ($count sayfa)' : 'Take all ($count pages)';
+  static String pdfPickChosenPages(int count) => count == 0
+      ? (_tr ? 'Seçili sayfaları al' : 'Take the chosen pages')
+      : (_tr
+            ? 'Seçili $count sayfayı al'
+            : 'Take the $count chosen ${count == 1 ? 'page' : 'pages'}');
+  static String get pdfPickImageFailed => _tr
+      ? 'Seçilen yer resim olarak alınamadı.'
+      : 'The marked part could not be taken as a picture.';
+  static String get pdfPickTextAdded =>
+      _tr ? 'Metin sayfaya eklendi' : 'The text was added to the page';
+  static String pdfPickAgain(String name) =>
+      _tr ? 'PDF penceresi: $name' : 'PDF window: $name';
   static String get pdfRemove => _tr ? 'PDF\'i kaldır' : 'Remove PDF';
   static String get pdfRemoveTitle =>
       _tr ? 'PDF\'i nottan kaldır' : 'Remove the PDF from the note';
