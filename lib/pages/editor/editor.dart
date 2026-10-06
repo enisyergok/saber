@@ -53,6 +53,7 @@ import 'package:saber/data/routes.dart';
 import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/data/tools/eraser.dart';
+import 'package:saber/data/tools/ink_eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
@@ -60,6 +61,7 @@ import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
+import 'package:saber/components/canvas/eraser_cursor.dart';
 import 'package:saber/components/canvas/measure_readout.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/note_versions_dialog.dart';
@@ -671,6 +673,36 @@ class EditorState extends State<Editor> {
 
         case .backgroundPattern:
           coreInfo.backgroundPattern = item.backgroundPatternChange!.previous;
+
+        case .replace:
+          // Last to first: each stroke goes back in front of the one that
+          // followed it, which is back already.
+          for (final change in item.replacements!.reversed) {
+            createPage(change.before.pageIndex);
+            final page = coreInfo.pages[change.before.pageIndex];
+            final strokes = page.strokes;
+            change.after.forEach(strokes.remove);
+            final next = change.next;
+            final at = next == null ? -1 : strokes.indexOf(next);
+            if (at >= 0) {
+              strokes.insert(at, change.before);
+            } else if (next == null) {
+              strokes.add(change.before);
+            } else {
+              page.insertStroke(change.before);
+            }
+          }
+
+        case .replaceRedone:
+          for (final change in item.replacements!) {
+            final strokes = coreInfo.pages[change.before.pageIndex].strokes;
+            final at = strokes.indexOf(change.before);
+            if (at < 0) continue;
+            strokes
+              ..removeAt(at)
+              ..insertAll(at, change.after);
+          }
+          removeExcessPages();
       }
 
       if (item.type != .move && item.type != .transform) {
@@ -737,7 +769,28 @@ class EditorState extends State<Editor> {
             backgroundPatternChange: item.backgroundPatternChange!.reverse(),
           ),
         );
+      case .replace:
+        undo(item.copyWith(type: .replaceRedone));
+      case .replaceRedone: // this will never happen
+        throw Exception('history should not contain replaceRedone items');
     }
+  }
+
+  /// Whether the eraser drag under way rubs out only what it passes over.
+  /// Decided when the drag begins, so that changing the setting half way
+  /// through doesn't leave it half done.
+  bool _erasingPrecisely = false;
+
+  /// Shows the eraser's footprint where it is on screen.
+  void _showEraserAt(Offset focalPoint, Eraser eraser, EditorPage page) {
+    final box = page.renderBox;
+    if (box == null) return;
+    // How large the eraser is on screen: its size is in page units.
+    final radius =
+        (box.localToGlobal(Offset(eraser.size, 0)) -
+                box.localToGlobal(Offset.zero))
+            .distance;
+    EraserCursor.at.value = (centre: focalPoint, radius: radius);
   }
 
   int? onWhichPageIsFocalPoint(Offset focalPoint) {
@@ -821,11 +874,21 @@ class EditorState extends State<Editor> {
         currentPressure,
       );
     } else if (currentTool is Eraser) {
-      for (final stroke in (currentTool as Eraser).checkForOverlappingStrokes(
-        position,
-        page.strokes,
-      )) {
-        page.strokes.remove(stroke);
+      final eraser = currentTool as Eraser;
+      _showEraserAt(details.focalPoint, eraser, page);
+      if (Eraser.precise) {
+        _erasingPrecisely = true;
+        eraser
+          ..beginPrecise(page.strokes)
+          ..erasePrecise(position, page.strokes);
+      } else {
+        _erasingPrecisely = false;
+        for (final stroke in eraser.checkForOverlappingStrokes(
+          position,
+          page.strokes,
+        )) {
+          page.strokes.remove(stroke);
+        }
       }
       removeExcessPages();
     } else if (currentTool is Select) {
@@ -901,11 +964,17 @@ class EditorState extends State<Editor> {
       (currentTool as Pen).onDragUpdate(position, currentPressure);
       page.redrawLiveInk();
     } else if (currentTool is Eraser) {
-      for (final stroke in (currentTool as Eraser).checkForOverlappingStrokes(
-        position,
-        page.strokes,
-      )) {
-        page.strokes.remove(stroke);
+      final eraser = currentTool as Eraser;
+      _showEraserAt(details.focalPoint, eraser, page);
+      if (_erasingPrecisely) {
+        eraser.erasePrecise(position, page.strokes);
+      } else {
+        for (final stroke in eraser.checkForOverlappingStrokes(
+          position,
+          page.strokes,
+        )) {
+          page.strokes.remove(stroke);
+        }
       }
       page.redrawStrokes();
       removeExcessPages();
@@ -963,6 +1032,7 @@ class EditorState extends State<Editor> {
   void onDrawEnd(ScaleEndDetails details) {
     final page = coreInfo.pages[dragPageIndex!];
     bool shouldSave = true;
+    EraserCursor.at.value = null;
     setState(() {
       if (currentTool is Pen) {
         final pen = currentTool as Pen;
@@ -1018,11 +1088,31 @@ class EditorState extends State<Editor> {
           ),
         );
       } else if (currentTool is Eraser) {
-        final erased = (currentTool as Eraser).onDragEnd();
+        final eraser = currentTool as Eraser;
+        final erased = eraser.onDragEnd();
+        final replaced = _erasingPrecisely
+            ? eraser.endPrecise()
+            : const <StrokeReplacement>[];
+        _erasingPrecisely = false;
+        EraserCursor.at.value = null;
         if (stylusButtonWasPressed || stows.disableEraserAfterUse.value) {
           // restore previous tool
           stylusButtonWasPressed = false;
           currentTool = _lastNonEraserTool;
+        }
+        if (replaced.isNotEmpty) {
+          // What the eraser passed over is gone; what is left of each
+          // stroke took the stroke's place.
+          history.recordChange(
+            EditorHistoryItem(
+              type: .replace,
+              pageIndex: dragPageIndex!,
+              strokes: [for (final change in replaced) change.before],
+              images: [],
+              replacements: replaced,
+            ),
+          );
+          return;
         }
         if (erased.isEmpty) return;
         history.recordChange(
@@ -1897,6 +1987,7 @@ class EditorState extends State<Editor> {
     final Widget canvas = Stack(
       children: [
         Positioned.fill(child: pageArea),
+        const Positioned.fill(child: IgnorePointer(child: EraserCursor())),
         const Positioned.fill(child: IgnorePointer(child: MeasureReadout())),
       ],
     );

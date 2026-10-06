@@ -151,6 +151,14 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Whether the eraser rubs out only what it passes over (true) or takes
+  /// away every stroke it touches as a whole (false).
+  final eraserPrecise = PlainStow(
+    'eraserPrecise',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// The OpenRouter key used for handwriting recognition. Empty if not set.
   final openRouterApiKey = PlainStow<String>(
     'openRouterApiKey',

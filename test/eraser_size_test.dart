@@ -25,12 +25,10 @@ void main() {
     });
 
     test('presets are increasing and include the default', () {
-      expect(Eraser.sizePresets, hasLength(3));
-      expect(
-        Eraser.sizePresets[0] < Eraser.sizePresets[1] &&
-            Eraser.sizePresets[1] < Eraser.sizePresets[2],
-        isTrue,
-      );
+      expect(Eraser.sizePresets, hasLength(4));
+      for (var i = 1; i < Eraser.sizePresets.length; i++) {
+        expect(Eraser.sizePresets[i], greaterThan(Eraser.sizePresets[i - 1]));
+      }
       expect(Eraser.sizePresets, contains(10.0));
     });
 

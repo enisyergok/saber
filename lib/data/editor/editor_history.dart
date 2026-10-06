@@ -3,6 +3,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/data/editor/page.dart';
+import 'package:saber/data/tools/ink_eraser.dart';
 import 'package:sbn/canvas_background_pattern.dart';
 import 'package:sbn/change.dart';
 
@@ -151,6 +152,7 @@ class EditorHistoryItem {
     this.backgroundPatternChange,
     this.transform,
     this.reshapeChange,
+    this.replacements,
   }) : assert(
          type != .move || offset != null,
          'Offset must be provided for move',
@@ -186,6 +188,10 @@ class EditorHistoryItem {
        assert(
          type != .backgroundPattern || backgroundPatternChange != null,
          'Background pattern change must be provided for backgroundPattern',
+       ),
+       assert(
+         (type != .replace && type != .replaceRedone) || replacements != null,
+         'Replacements must be provided for replace',
        );
 
   final EditorHistoryItemType type;
@@ -206,6 +212,10 @@ class EditorHistoryItem {
   /// and after one of its corners was dragged.
   final Map<Stroke, Change<List<Offset>>>? reshapeChange;
 
+  /// For [EditorHistoryItemType.replace]: what became of each stroke the
+  /// precise eraser went over, in the order the strokes were on the page.
+  final List<StrokeReplacement>? replacements;
+
   EditorHistoryItem copyWith({
     EditorHistoryItemType? type,
     int? pageIndex,
@@ -218,6 +228,7 @@ class EditorHistoryItem {
     Change<CanvasBackgroundPattern>? backgroundPatternChange,
     Matrix4? transform,
     Map<Stroke, Change<List<Offset>>>? reshapeChange,
+    List<StrokeReplacement>? replacements,
   }) {
     return EditorHistoryItem(
       type: type ?? this.type,
@@ -232,6 +243,7 @@ class EditorHistoryItem {
           backgroundPatternChange ?? this.backgroundPatternChange,
       transform: transform ?? this.transform,
       reshapeChange: reshapeChange ?? this.reshapeChange,
+      replacements: replacements ?? this.replacements,
     );
   }
 }
@@ -248,4 +260,11 @@ enum EditorHistoryItemType {
   quillUndoneChange,
   changeColor,
   backgroundPattern,
+
+  /// Strokes made way for what the precise eraser left of them. Undoing
+  /// puts the strokes back as they were.
+  replace,
+
+  /// The opposite of [replace], for redoing; never kept in the history.
+  replaceRedone,
 }

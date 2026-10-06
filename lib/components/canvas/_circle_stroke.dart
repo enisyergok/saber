@@ -149,6 +149,29 @@ class CircleStroke extends Stroke {
   bool isStraightLine([int minLength = 0]) => false;
 
   @override
+  bool get inkLineIsClosed => true;
+
+  /// Round the circle once, from three o'clock and back to it.
+  @override
+  List<InkPoint> inkLine() {
+    if (radius <= 0) return const [];
+    final size = options.size;
+    final steps = (2 * pi * radius / Stroke.inkLineSpacing(size))
+        .ceil()
+        .clamp(48, 720)
+        .toInt();
+    final first = center + Offset(radius, 0);
+    return [
+      for (var i = 0; i < steps; i++)
+        (
+          at: center + Offset.fromDirection(2 * pi * i / steps, radius),
+          radius: size / 2,
+        ),
+      (at: first, radius: size / 2),
+    ];
+  }
+
+  @override
   CircleStroke copy() => CircleStroke(
     color: color,
     pressureEnabled: pressureEnabled,

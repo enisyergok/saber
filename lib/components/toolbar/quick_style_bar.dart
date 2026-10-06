@@ -128,7 +128,8 @@ class QuickStyleBar extends StatelessWidget {
   }
 }
 
-/// Three eraser sizes, shown next to the tools while the eraser is selected.
+/// How the eraser erases and how large it is, shown next to the tools while
+/// the eraser is selected.
 class EraserSizeBar extends StatelessWidget {
   const EraserSizeBar({
     super.key,
@@ -139,8 +140,8 @@ class EraserSizeBar extends StatelessWidget {
   final Eraser eraser;
   final VoidCallback onSizeChanged;
 
-  /// The diameters used to draw the three size presets.
-  static const _sizeDotDiameters = <double>[7, 12, 18];
+  /// The diameters used to draw the size presets.
+  static const _sizeDotDiameters = <double>[5, 9, 13, 18];
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +155,36 @@ class EraserSizeBar extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 10),
           color: colorScheme.outlineVariant,
         ),
+        // What the eraser takes away: what it passes over, or whole lines.
+        ValueListenableBuilder(
+          valueListenable: stows.eraserPrecise,
+          builder: (context, precise, _) => SegmentedButton<bool>(
+            key: const ValueKey('eraserMode'),
+            showSelectedIcon: false,
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            segments: [
+              ButtonSegment(
+                value: true,
+                label: Text(DefterStrings.eraserPrecise),
+                tooltip: DefterStrings.eraserPreciseHint,
+              ),
+              ButtonSegment(
+                value: false,
+                label: Text(DefterStrings.eraserWhole),
+                tooltip: DefterStrings.eraserWholeHint,
+              ),
+            ],
+            selected: {precise},
+            onSelectionChanged: (selection) {
+              stows.eraserPrecise.value = selection.first;
+              onSizeChanged();
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
         for (var i = 0; i < Eraser.sizePresets.length; i++)
           _SizeDot(
             diameter: _sizeDotDiameters[i],

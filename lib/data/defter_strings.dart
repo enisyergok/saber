@@ -777,6 +777,16 @@ abstract class DefterStrings {
       ? 'Gerçek e-mürekkep ekran ışığı yansıtır, görüntüyü güç harcamadan tutar ve fiziksel olarak yenilenir. Bunlar yazılımla yapılamaz; bu mod yalnızca görünümü taklit eder.'
       : 'A real e-ink screen reflects light, holds an image without power and refreshes physically. Software cannot do those; this mode only imitates the look.';
 
+  // -- eraser ----------------------------------------------------------------
+  static String get eraserPrecise => _tr ? 'Hassas' : 'Precise';
+  static String get eraserWhole => _tr ? 'Çizgi' : 'Stroke';
+  static String get eraserPreciseHint => _tr
+      ? 'Yalnızca silginin üzerinden geçtiği yeri siler'
+      : 'Erases only what the eraser passes over';
+  static String get eraserWholeHint => _tr
+      ? 'Dokunduğu çizgiyi bütünüyle siler'
+      : 'Erases every stroke it touches as a whole';
+
   // -- version history -----------------------------------------------------
   static String get versionHistory => _tr ? 'Sürüm geçmişi' : 'Version history';
   static String get versionHistoryAbout => _tr

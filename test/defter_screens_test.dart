@@ -13,7 +13,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:saber/components/canvas/_circle_stroke.dart';
+import 'package:saber/components/canvas/_rectangle_stroke.dart';
 import 'package:saber/components/canvas/_stroke.dart';
+import 'package:saber/data/tools/ink_eraser.dart';
+import 'package:sbn/has_size.dart';
+import 'package:sbn/tool_id.dart';
 import 'package:saber/components/canvas/canvas.dart' as saber;
 import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/data/editor/page.dart';
@@ -493,6 +498,18 @@ void main() {
       },
     );
 
+    // The precise eraser: what was there is drawn in red underneath, what
+    // is left in black on top, and the eraser's circles in blue. Red must
+    // show only inside the circles: the rest of the ink has not moved.
+    _shot(
+      theme: theme,
+      name: 'eraser_cuts',
+      waitForEditor: false,
+      child: const Scaffold(
+        body: SizedBox.expand(child: CustomPaint(painter: _EraserCutsPainter())),
+      ),
+    );
+
     // Backup and version history. The numbers shown are made up for the
     // picture; the page itself reads them from the device.
     _shot(
@@ -542,6 +559,222 @@ void main() {
       },
     );
   });
+}
+
+class _EraserCutsPainter extends CustomPainter {
+  const _EraserCutsPainter();
+
+  static const _page = HasSize(Size(1000, 1400));
+
+  static Stroke _stroke(
+    Pen pen, {
+    double? size,
+    ToolId? toolId,
+  }) => Stroke(
+    color: Colors.black,
+    pressureEnabled: true,
+    options: pen.strokeOptions.copyWith(
+      size: size,
+      isComplete: true,
+      simulatePressure: false,
+      start: StrokeEndOptions.start(
+        taperEnabled: pen.strokeOptions.start.taperEnabled,
+        customTaper: pen.strokeOptions.start.customTaper,
+      ),
+      end: StrokeEndOptions.end(
+        taperEnabled: pen.strokeOptions.end.taperEnabled,
+        customTaper: pen.strokeOptions.end.customTaper,
+      ),
+    ),
+    pageIndex: 0,
+    page: _page,
+    toolId: toolId ?? pen.toolId,
+  );
+
+  void _draw(Canvas canvas, Stroke stroke, Color color) {
+    final paint = Paint()..color = color;
+    final outline = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke.options.size;
+    if (stroke is CircleStroke) {
+      canvas.drawCircle(stroke.center, stroke.radius, outline);
+    } else if (stroke is RectangleStroke) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          stroke.rect,
+          Radius.circular(stroke.options.size / 4),
+        ),
+        outline,
+      );
+    } else {
+      canvas.drawPath(stroke.highQualityPath, paint);
+    }
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(1.2);
+    final strokes = <Stroke>[];
+    final erasers = <(Offset, double)>[];
+
+    // Written lines with each pen, pressed harder towards the middle.
+    var y = 70.0;
+    for (final pen in [
+      Pen.fountainPen(),
+      Pen.ballpointPen(),
+      Pen.brushPen(),
+      Pen.calligraphyPen(),
+    ]) {
+      final stroke = _stroke(pen, size: pen.brush ? 12 : 6);
+      for (var i = 0; i <= 90; i++) {
+        final at = Offset(60 + i * 5.0, y + 22 * math.sin(i / 90 * math.pi * 4));
+        stroke.addPoint(at, 0.15 + 0.8 * math.sin(i / 90 * math.pi));
+      }
+      strokes.add(stroke);
+      erasers
+        ..add((Offset(60, y), 10))
+        ..add((Offset(172, y + 22), 10))
+        ..add((Offset(285, y), 4))
+        ..add((Offset(397, y - 22), 25));
+      y += 80;
+    }
+
+    // A highlighter line and a pencil line.
+    final highlighter = _stroke(
+      Pen.fountainPen(),
+      size: 40,
+      toolId: ToolId.highlighter,
+    )..options.thinning = 0;
+    for (var x = 60.0; x <= 510; x += 6) {
+      highlighter.addPoint(Offset(x, y + 10), 0.5);
+    }
+    strokes.add(highlighter);
+    erasers
+      ..add((Offset(200, y + 10), 10))
+      ..add((Offset(360, y - 6), 10))
+      ..add((Offset(450, y - 22), 10));
+    y += 90;
+
+    // Shapes: a circle, a rectangle, a straight line and a triangle.
+    final shapeOptions = StrokeOptions(
+      size: 5,
+      smoothing: 0,
+      streamline: 0,
+      simulatePressure: false,
+      isComplete: true,
+    );
+    strokes
+      ..add(
+        CircleStroke(
+          color: Colors.black,
+          pressureEnabled: false,
+          options: shapeOptions.copyWith(),
+          pageIndex: 0,
+          page: _page,
+          toolId: ToolId.fountainPen,
+          center: Offset(700, 150),
+          radius: 90,
+        ),
+      )
+      ..add(
+        RectangleStroke(
+          color: Colors.black,
+          pressureEnabled: false,
+          options: shapeOptions.copyWith(),
+          pageIndex: 0,
+          page: _page,
+          toolId: ToolId.fountainPen,
+          rect: const Rect.fromLTWH(840, 70, 180, 150),
+        ),
+      )
+      ..add(
+        _stroke(Pen.ballpointPen(), size: 5)
+          ..setVertexHandles(const [Offset(620, 300), Offset(1020, 340)]),
+      )
+      ..add(
+        Stroke(
+          color: Colors.black,
+          pressureEnabled: false,
+          options: shapeOptions.copyWith(),
+          pageIndex: 0,
+          page: _page,
+          toolId: ToolId.fountainPen,
+        )..setVertexHandles(const [
+          Offset(720, 380),
+          Offset(900, 520),
+          Offset(620, 520),
+        ]),
+      );
+    erasers
+      ..add((const Offset(700, 60), 25))
+      ..add((const Offset(790, 150), 10))
+      ..add((const Offset(930, 70), 10))
+      ..add((const Offset(1020, 220), 25))
+      ..add((const Offset(820, 320), 10))
+      ..add((const Offset(900, 520), 25))
+      ..add((const Offset(670, 450), 4));
+
+    // What was there, in red.
+    for (final stroke in strokes) {
+      _draw(canvas, stroke, const Color(0xFFE53935));
+    }
+
+    // What is left, in black: the same strokes after the eraser.
+    final left = List.of(strokes);
+    final eraser = InkEraser()..begin(left);
+    for (final (at, radius) in erasers) {
+      eraser.eraseAt(at, radius, left);
+    }
+    // One swipe across the lower right, as a hand would make it.
+    eraser
+      ..moveTo(const Offset(640, 560), 10, left)
+      ..moveTo(const Offset(760, 400), 10, left);
+    for (final stroke in left) {
+      _draw(canvas, stroke, Colors.black);
+    }
+
+    // Shapes with corners, untouched: as they are drawn now (black) and,
+    // to the right of each, drawn from their corners alone as before
+    // (red).
+    for (final (corners, offset) in [
+      (const [Offset(0, 0), Offset(60, 80), Offset(-50, 80)], Offset(90, 540)),
+      (
+        const [Offset(0, 0), Offset(55, 40), Offset(0, 80), Offset(-55, 40)],
+        Offset(380, 540),
+      ),
+    ]) {
+      final shape = Stroke(
+        color: Colors.black,
+        pressureEnabled: false,
+        options: shapeOptions.copyWith(),
+        pageIndex: 0,
+        page: _page,
+        toolId: ToolId.fountainPen,
+      )..setVertexHandles([for (final corner in corners) corner + offset]);
+      final sparse = getStroke([
+        for (final corner in [...corners, corners.first])
+          PointVector(corner.dx + offset.dx + 140, corner.dy + offset.dy),
+      ], options: shapeOptions);
+      canvas.drawPath(
+        Path()..addPolygon(sparse, true),
+        Paint()..color = const Color(0xFFE53935),
+      );
+      _draw(canvas, shape, Colors.black);
+    }
+
+    final ring = Paint()
+      ..color = const Color(0xFF1E88E5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    for (final (at, radius) in erasers) {
+      canvas.drawCircle(at, radius, ring);
+    }
+    canvas.drawLine(const Offset(640, 560), const Offset(760, 400), ring);
+  }
+
+  @override
+  bool shouldRepaint(_EraserCutsPainter oldDelegate) => false;
 }
 
 /// The backup page as it looks once a backup has been made.
