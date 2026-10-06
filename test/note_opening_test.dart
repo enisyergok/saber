@@ -132,6 +132,27 @@ void main() {
       expect(built, hasLength(1));
     });
 
+    testWidgets('the editor is not built again for each frame it moves', (
+      tester,
+    ) async {
+      _FakeEditorState.builds = 0;
+      await tester.pumpWidget(cardApp(built: []));
+      await tester.tap(find.text('card'));
+      await tester.pumpAndSettle();
+      expect(_FakeEditorState.builds, 1);
+
+      // Closing: the page shrinks back into its card over many frames
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pump();
+      for (var frame = 0; frame < 10; frame++) {
+        await tester.pump(const Duration(milliseconds: 20));
+      }
+      expect(find.text('editor'), findsOneWidget);
+      expect(_FakeEditorState.builds, 1);
+
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('going back before it has opened never starts the editor', (
       tester,
     ) async {
@@ -324,6 +345,9 @@ class _FakeEditor extends StatefulWidget {
 }
 
 class _FakeEditorState extends State<_FakeEditor> {
+  /// How often an editor's contents were built.
+  static var builds = 0;
+
   @override
   void initState() {
     super.initState();
@@ -331,6 +355,8 @@ class _FakeEditorState extends State<_FakeEditor> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: Text('editor')));
+  Widget build(BuildContext context) {
+    builds++;
+    return const Scaffold(body: Center(child: Text('editor')));
+  }
 }

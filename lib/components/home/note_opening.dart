@@ -53,6 +53,18 @@ class _NoteOpeningState extends State<NoteOpening> {
   /// editor stays while the page closes again).
   var _arrived = false;
 
+  /// The editor, made once and handed over unchanged from then on. The
+  /// page around it is rebuilt for every frame it moves (opening, and
+  /// closing again); given the very same widget each time, the editor is
+  /// left alone instead of being built again in each of those frames.
+  Widget? _editor;
+
+  @override
+  void didUpdateWidget(NoteOpening oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.path != widget.path) _editor = null;
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -96,7 +108,7 @@ class _NoteOpeningState extends State<NoteOpening> {
         children: [...previousChildren, ?currentChild],
       ),
       child: _arrived
-          ? KeyedSubtree(
+          ? _editor ??= KeyedSubtree(
               key: NoteOpening.editorKey,
               child:
                   widget.editorBuilder?.call(context) ??
