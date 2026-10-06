@@ -48,6 +48,9 @@ void main() {
     final editor = tester.state<EditorState>(find.byType(Editor));
     addTearDown(editor.cancelAutosaveAndMarkSaved);
     await tester.pump();
+    // (the editor opens with the tool that was last used)
+    editor.currentTool = Pen.currentPen;
+    await tester.pump();
     return editor;
   }
 
@@ -180,12 +183,13 @@ void main() {
   });
 
   testWidgets('a shape that is rubbed loses only that part', (tester) async {
-    stows.autoStraightenLines.value = true;
     final editor = await pumpEditor(tester, 'shape');
     final page = editor.coreInfo.pages.first;
-    editor.currentTool = Pen.currentPen;
-    // a straight line, made straight by the pen
+    // a straight line, drawn with the ruler
+    stows.rulerMode.value = true;
+    addTearDown(() => stows.rulerMode.value = false);
     await drag(tester, line(const Offset(300, 300), const Offset(800, 300)));
+    stows.rulerMode.value = false;
     expect(page.strokes.single.vertexHandles, hasLength(2));
 
     editor.currentTool = Eraser();

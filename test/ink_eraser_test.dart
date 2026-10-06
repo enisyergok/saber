@@ -29,8 +29,13 @@ Stroke _pen({
     streamline: streamline,
     simulatePressure: false,
     isComplete: true,
-    start: StrokeEndOptions.start(taperEnabled: pointed, customTaper: 20),
-    end: StrokeEndOptions.end(taperEnabled: pointed, customTaper: 20),
+    // (a taper length given turns the taper on, whatever else is said)
+    start: pointed
+        ? StrokeEndOptions.start(taperEnabled: true, customTaper: 20)
+        : StrokeEndOptions.start(taperEnabled: false),
+    end: pointed
+        ? StrokeEndOptions.end(taperEnabled: true, customTaper: 20)
+        : StrokeEndOptions.end(taperEnabled: false),
   ),
   pageIndex: 0,
   page: _page,
@@ -170,12 +175,37 @@ void main() {
       expect(copy.color, stroke.color);
       expect(copy.toolId, stroke.toolId);
       expect(copy.options.size, stroke.options.size);
-      // from end to end (but for the few points the drawing skips at the
-      // start of any line)
+      // point for point, from end to end
       final again = copy.inkLine();
-      expect(again.first.at, line.first.at);
-      expect(again.last.at, line.last.at);
-      expect(_lengthOf(again), closeTo(_lengthOf(line), 0.05));
+      expect(again.length, line.length);
+      for (var i = 0; i < line.length; i++) {
+        expect(again[i].at, line[i].at, reason: 'point $i');
+        expect(again[i].radius, closeTo(line[i].radius, 1e-9));
+      }
+    });
+
+    test('a stroke made from part of it starts and ends where the part does', () {
+      // also when the part begins with points close together, which the
+      // drawing would otherwise take for the pen settling and leave out
+      final stroke = _written();
+      final line = stroke.inkLine();
+      final part = [
+        (
+          at: Offset.lerp(line[20].at, line[21].at, 0.8)!,
+          radius: line[20].radius,
+        ),
+        ...line.sublist(21, 60),
+      ];
+      final piece = Stroke.fromInkLine(stroke, part, flatStart: true);
+      final again = piece.inkLine();
+      expect(again.length, part.length);
+      for (var i = 0; i < part.length; i++) {
+        expect(again[i].at, part[i].at, reason: 'point $i');
+        expect(again[i].radius, closeTo(part[i].radius, 1e-9));
+      }
+      // and saying it again changes nothing
+      final twice = Stroke.fromInkLine(piece, again, flatStart: true).inkLine();
+      expect(twice.length, part.length);
     });
 
     test('of a circle and of a rectangle goes round them once', () {
@@ -282,6 +312,29 @@ void main() {
         _lengthOf(pieces.single.inkLine()),
         lessThan(_lengthOf(original) - 8),
       );
+    });
+
+    test('an end the eraser made stays square when the piece is cut again', () {
+      final stroke = _written();
+      final strokes = <Stroke>[stroke];
+      final eraser = InkEraser()..begin(strokes);
+      eraser.eraseAt(const Offset(200, 300 + 4.5), 8, strokes);
+      expect(strokes, hasLength(2));
+      eraser.eraseAt(const Offset(400, 300 + 8.4), 8, strokes);
+      expect(strokes, hasLength(3));
+      final middle = strokes[1];
+      expect(middle.options.start.cap, isFalse, reason: 'cut by the first');
+      expect(middle.options.end.cap, isFalse, reason: 'cut by the second');
+      expect(strokes[0].options.start.cap, isTrue);
+      expect(strokes[2].options.end.cap, isTrue);
+
+      // and in a later drag, too
+      final later = InkEraser()..begin(strokes);
+      final at = middle.inkLine()[middle.inkLine().length ~/ 2].at;
+      later.eraseAt(at, 6, strokes);
+      expect(strokes, hasLength(4));
+      expect(strokes[1].options.start.cap, isFalse);
+      expect(strokes[2].options.end.cap, isFalse);
     });
 
     test('leaves a stroke it does not reach alone', () {
@@ -511,8 +564,8 @@ void main() {
       final far = _written(y: 900);
       final strokes = <Stroke>[under, middle, over, far];
       final eraser = InkEraser()..begin(strokes);
-      // a small eraser, right on the middle one near its start
-      eraser.moveTo(middle.inkLine()[2].at, 3, strokes);
+      // a small eraser, right on where the middle one starts
+      eraser.moveTo(middle.inkLine().first.at, 3, strokes);
       // only the middle one was reached
       expect(strokes, hasLength(4));
       expect(identical(strokes[0], under), isTrue);

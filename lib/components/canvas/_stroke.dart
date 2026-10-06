@@ -295,8 +295,22 @@ class Stroke {
     final rememberSimulatedPressure =
         quality == .high && options.simulatePressure && options.isComplete;
 
+    // A shape with corners is drawn from points along its sides, not from
+    // its corners alone: two sharp corners in a row leave the side between
+    // them a thin wedge otherwise.
+    final List<PointVector> source;
+    if (_isDrawnFromCorners &&
+        points.length > 3 &&
+        options.streamline == 0 &&
+        !options.simulatePressure) {
+      final spacing = inkLineSpacing(options.size);
+      source = _alongSides(points, quality == .low ? spacing * 4 : spacing);
+    } else {
+      source = skipPoints(points, quality.N);
+    }
+
     final polygon = getStroke(
-      skipPoints(points, quality.N),
+      source,
       options: switch (quality) {
         .low => options.copyWith(
           simulatePressure: false,
@@ -334,6 +348,25 @@ class Stroke {
     }
 
     return Path()..addPolygon(polygon, true);
+  }
+
+  /// [corners] with points added along the sides between them, no more
+  /// than [spacing] apart.
+  static List<PointVector> _alongSides(
+    List<PointVector> corners,
+    double spacing,
+  ) {
+    if (corners.length < 2) return corners;
+    final dense = <PointVector>[corners.first];
+    for (var i = 1; i < corners.length; i++) {
+      final a = corners[i - 1], b = corners[i];
+      final steps = (a.distanceTo(b) / spacing).ceil();
+      for (var step = 1; step < steps; step++) {
+        dense.add(a.lerp(step / steps, b));
+      }
+      dense.add(b);
+    }
+    return dense;
   }
 
   /// Returns a list with every Nth point in [points].
@@ -717,14 +750,39 @@ class Stroke {
       page: like.page,
       toolId: like.toolId,
     );
-    for (final point in line) {
-      stroke.points.add(
-        PointVector(
-          point.at.dx,
-          point.at.dy,
-          size <= 0 ? 0.5 : (point.radius / size).clamp(0.0, 1.0).toDouble(),
-        ),
-      );
+    PointVector at(InkPoint point) => PointVector(
+      point.at.dx,
+      point.at.dy,
+      size <= 0 ? 0.5 : (point.radius / size).clamp(0.0, 1.0).toDouble(),
+    );
+
+    if (line.isEmpty) return stroke;
+    stroke.points.add(at(line.first));
+    if (line.length == 1) return stroke;
+
+    // The drawing leaves out the points at the very start of a line until
+    // they add up to the pen's size away from its first point (it takes
+    // them for the pen settling). Here they are the line itself, so the
+    // first of them is given often enough to be counted in (see the
+    // `runningLength` of perfect_freehand's getStrokePoints). A point too
+    // close to the start to matter is left out instead.
+    var second = 1;
+    while (second < line.length - 1 &&
+        (line[second].at - line.first.at).distance < size / 32) {
+      second++;
+    }
+    if (second < line.length - 1) {
+      final distance = (line[second].at - line.first.at).distance;
+      final times = distance <= 0
+          ? 1
+          : (size / distance).ceil().clamp(1, 32).toInt();
+      for (var i = 0; i < times; i++) {
+        stroke.points.add(at(line[second]));
+      }
+      second++;
+    }
+    for (var i = second; i < line.length; i++) {
+      stroke.points.add(at(line[i]));
     }
     return stroke;
   }

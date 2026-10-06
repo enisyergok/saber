@@ -734,6 +734,35 @@ class _EraserCutsPainter extends CustomPainter {
       _draw(canvas, stroke, Colors.black);
     }
 
+    // Shapes with corners, untouched: as they are drawn now (black) and,
+    // to the right of each, drawn from their corners alone as before
+    // (red).
+    for (final (corners, offset) in [
+      (const [Offset(0, 0), Offset(60, 80), Offset(-50, 80)], Offset(90, 540)),
+      (
+        const [Offset(0, 0), Offset(55, 40), Offset(0, 80), Offset(-55, 40)],
+        Offset(380, 540),
+      ),
+    ]) {
+      final shape = Stroke(
+        color: Colors.black,
+        pressureEnabled: false,
+        options: shapeOptions.copyWith(),
+        pageIndex: 0,
+        page: _page,
+        toolId: ToolId.fountainPen,
+      )..setVertexHandles([for (final corner in corners) corner + offset]);
+      final sparse = getStroke([
+        for (final corner in [...corners, corners.first])
+          PointVector(corner.dx + offset.dx + 140, corner.dy + offset.dy),
+      ], options: shapeOptions);
+      canvas.drawPath(
+        Path()..addPolygon(sparse, true),
+        Paint()..color = const Color(0xFFE53935),
+      );
+      _draw(canvas, shape, Colors.black);
+    }
+
     final ring = Paint()
       ..color = const Color(0xFF1E88E5)
       ..style = PaintingStyle.stroke

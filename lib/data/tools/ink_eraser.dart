@@ -229,6 +229,9 @@ class InkEraser {
       if (piece.points.length < 2) continue;
       final length = piece.length;
       if (length < math.max(crumb, piece.widest / 2)) continue;
+      // An end the eraser made earlier stays square.
+      final flatStart = piece.cutStart || !stroke.options.start.cap;
+      final flatEnd = piece.cutEnd || !stroke.options.end.cap;
       final Stroke left;
       if (straight) {
         // What is left of a straight line is a straight line: its ends can
@@ -236,16 +239,21 @@ class InkEraser {
         left = stroke.lineLike(
           piece.points.first.at,
           piece.points.last.at,
-          flatStart: piece.cutStart,
-          flatEnd: piece.cutEnd,
+          flatStart: flatStart,
+          flatEnd: flatEnd,
         );
+        _inks[left] = _Ink([piece.points.first, piece.points.last]);
       } else {
         left = Stroke.fromInkLine(
           stroke,
           piece.points,
-          flatStart: piece.cutStart,
-          flatEnd: piece.cutEnd,
+          flatStart: flatStart,
+          flatEnd: flatEnd,
         );
+        // Further cuts in this drag are made in the line as it was first
+        // worked out, so that going over a stroke many times is as exact
+        // as going over it once.
+        _inks[left] = _Ink(piece.points);
       }
       pieces.add(left);
     }
