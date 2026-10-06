@@ -93,6 +93,7 @@ abstract class SaberTheme {
         elevation: 12,
         shape: DefterDesign.sheetShape,
         titleTextStyle: type.titleLarge?.copyWith(
+          fontSize: 20,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
         ),
@@ -134,7 +135,9 @@ abstract class SaberTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: colorScheme.inverseSurface,
-        contentTextStyle: type.bodyMedium?.copyWith(
+        // (Left to take its size where it is shown, like the same style
+        // of the e-ink theme: the two are blended when the mode changes.)
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: colorScheme.onInverseSurface,
         ),
         actionTextColor: colorScheme.inversePrimary,

@@ -112,14 +112,14 @@ class _NameOrderIcon extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Positioned(
-            left: -size * 0.12,
-            top: size * 0.08,
-            child: Icon(Symbols.match_case_rounded, size: size * 0.84),
+            left: -size * 0.22,
+            top: 0,
+            child: Icon(Symbols.match_case_rounded, size: size),
           ),
           Positioned(
-            right: -size * 0.24,
+            right: -size * 0.3,
             top: size * 0.14,
-            child: Icon(arrow, size: size * 0.72),
+            child: Icon(arrow, size: size * 0.74),
           ),
         ],
       ),

@@ -39,8 +39,11 @@ class _NewNoteButtonState extends State<NewNoteButton> {
           : const RoundedRectangleBorder(borderRadius: materialBorderRadius),
       dialRoot: (context, open, toggleChildren) {
         final platform = Theme.of(context).platform;
+        final colors = ColorScheme.of(context);
         return GlassyContainer(
           height: 56,
+          // The one thing to do on this page, in the accent itself.
+          color: platform.isCupertino ? null : colors.primary,
           borderRadius: platform.isCupertino ? null : materialBorderRadius,
           child: AspectRatio(
             aspectRatio: 1,
@@ -50,6 +53,7 @@ class _NewNoteButtonState extends State<NewNoteButton> {
               visualDensity: VisualDensity.compact,
               style: IconButton.styleFrom(
                 padding: .zero,
+                foregroundColor: platform.isCupertino ? null : colors.onPrimary,
                 shape: platform.isCupertino
                     ? const CircleBorder()
                     : const RoundedRectangleBorder(

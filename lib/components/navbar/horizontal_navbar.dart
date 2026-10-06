@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:saber/components/navbar/responsive_navbar.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/routes.dart';
 
@@ -71,10 +72,19 @@ class const HorizontalNavbar({
 }
 
 class GlassyContainer extends StatelessWidget {
-  const new({super.key, required this.child, this.height, this.borderRadius});
+  const new({
+    super.key,
+    required this.child,
+    this.height,
+    this.borderRadius,
+    this.color,
+  });
   final Widget child;
   final double? height;
   final BorderRadius? borderRadius;
+
+  /// What the container is filled with, if not its usual tint.
+  final Color? color;
   @override
   Widget build(BuildContext context) {
     final platform = Theme.of(context).platform;
@@ -83,7 +93,9 @@ class GlassyContainer extends StatelessWidget {
     final borderRadius = this.borderRadius ?? .circular(height / 2);
 
     final Color background;
-    if (platform.isCupertino) {
+    if (color != null) {
+      background = color!;
+    } else if (platform.isCupertino) {
       background = colorScheme.surfaceContainer.withValues(alpha: 0.7);
     } else {
       background = colorScheme.primaryContainer;
@@ -95,17 +107,17 @@ class GlassyContainer extends StatelessWidget {
         decoration: BoxDecoration(
           color: background,
           borderRadius: borderRadius,
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.5),
-              spreadRadius: -1,
-              blurRadius: platform.isCupertino ? 2 : 4,
-              offset: const Offset(0, 1),
-              blurStyle: platform.isCupertino
-                  ? BlurStyle.outer
-                  : BlurStyle.normal,
-            ),
-          ],
+          boxShadow: platform.isCupertino
+              ? [
+                  BoxShadow(
+                    color: colorScheme.shadow.withValues(alpha: 0.5),
+                    spreadRadius: -1,
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
+                    blurStyle: BlurStyle.outer,
+                  ),
+                ]
+              : DefterDesign.floatingShadow(colorScheme),
         ),
         child: ClipRRect(
           clipBehavior: platform.isCupertino ? Clip.antiAlias : Clip.none,
