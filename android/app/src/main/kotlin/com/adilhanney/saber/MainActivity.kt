@@ -1,7 +1,15 @@
 package com.adilhanney.saber
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import androidx.annotation.RequiresApi
+import androidx.core.content.FileProvider
+import java.io.File
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -142,12 +150,28 @@ class MainActivity: FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "modes" -> result.success(describeDisplayModes())
+                    "refreshInfo" -> result.success(refreshInfo())
+                    "openDisplaySettings" -> {
+                        try {
+                            startActivity(Intent(Settings.ACTION_DISPLAY_SETTINGS))
+                            result.success(true)
+                        } catch (_: Exception) {
+                            result.success(false)
+                        }
+                    }
                     "setBrightness" -> {
                         desiredBrightness =
                             (call.argument<Double>("value") ?: -1.0).toFloat()
                         setWindowBrightness(desiredBrightness)
                         result.success(null)
                     }
+                    else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/camera")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "takePhoto" -> takePhoto(result)
                     else -> result.notImplemented()
                 }
             }
@@ -163,6 +187,67 @@ class MainActivity: FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    // -- camera ----------------------------------------------------------------
+
+    private val photoRequest = 43127
+    private var pendingPhoto: MethodChannel.Result? = null
+    private var pendingPhotoFile: File? = null
+
+    /// Opens the device's camera app to take one photo. Answers with the
+    /// path of the photo (in the app's cache), or null if none was taken.
+    /// The app needs no camera permission for this: the camera app takes
+    /// the photo, and only that one photo is handed back.
+    private fun takePhoto(result: MethodChannel.Result) {
+        if (pendingPhoto != null) {
+            result.error("busy", "A photo is already being taken", null)
+            return
+        }
+        try {
+            val folder = File(cacheDir, "camera")
+            folder.mkdirs()
+            // Photos that were left behind are no longer needed.
+            folder.listFiles()?.forEach { it.delete() }
+            val file = File(folder, "photo_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(this, "$packageName.camera", file)
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                .putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                .addFlags(
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            // Some camera apps are only let in through the clip data.
+            intent.clipData = ClipData.newRawUri("photo", uri)
+            pendingPhoto = result
+            pendingPhotoFile = file
+            startActivityForResult(intent, photoRequest)
+        } catch (e: ActivityNotFoundException) {
+            pendingPhoto = null
+            pendingPhotoFile = null
+            result.error("no_camera", "No camera app was found", null)
+        } catch (e: Exception) {
+            pendingPhoto = null
+            pendingPhotoFile = null
+            result.error("failed", e.message ?: e.javaClass.simpleName, null)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode != photoRequest) {
+            super.onActivityResult(requestCode, resultCode, data)
+            return
+        }
+        val result = pendingPhoto
+        val file = pendingPhotoFile
+        pendingPhoto = null
+        pendingPhotoFile = null
+        if (resultCode == Activity.RESULT_OK && file != null && file.length() > 0) {
+            result?.success(file.absolutePath)
+        } else {
+            file?.delete()
+            result?.success(null)
+        }
     }
 
     /// Sets this window's brightness only (never the system setting). It
@@ -210,6 +295,38 @@ class MainActivity: FlutterActivity() {
         }
     }
 
+    /// What is known about the screen's refresh rate, for the page in the
+    /// settings that says how fast the app is drawn: the fastest rate the
+    /// screen has at this resolution ("max"), the rate of the mode in use
+    /// ("mode"), and the rate the system lets this app draw at ("app",
+    /// which can be lower than the mode's when the system holds the app
+    /// back).
+    private fun refreshInfo(): Map<String, Any?> {
+        val info = HashMap<String, Any?>()
+        try {
+            val display = currentDisplay()
+            if (display != null) {
+                val current = display.mode
+                val best = display.supportedModes
+                    .filter {
+                        it.physicalWidth == current.physicalWidth &&
+                            it.physicalHeight == current.physicalHeight
+                    }
+                    .maxByOrNull { it.refreshRate }
+                info["max"] = (best?.refreshRate ?: current.refreshRate).toDouble()
+                info["mode"] = current.refreshRate.toDouble()
+                info["app"] = display.refreshRate.toDouble()
+            }
+        } catch (_: Exception) {
+            // What could not be read is left out.
+        }
+        info["sdk"] = Build.VERSION.SDK_INT
+        info["maker"] = Build.MANUFACTURER
+        info["model"] = Build.MODEL
+        info["details"] = describeDisplayModes()
+        return info
+    }
+
     /// Flutter apps are often drawn at 60 Hz even on 120 Hz screens, which
     /// makes the pen trail further behind. Ask for the fastest mode that
     /// keeps the screen's current resolution, both through the window and
@@ -230,11 +347,42 @@ class MainActivity: FlutterActivity() {
             window.attributes = params
 
             val surface = applySurfaceFrameRate(best.refreshRate)
-            requestNote = "asked mode ${best.modeId} (${Math.round(best.refreshRate)} Hz), surface: $surface"
+            val views = applyViewFrameRate(best.refreshRate)
+            requestNote = "asked mode ${best.modeId} (${Math.round(best.refreshRate)} Hz), surface: $surface, views: $views"
         } catch (e: Exception) {
             // Keep the system's choice if this isn't possible.
             requestNote = "request failed: ${e.javaClass.simpleName}"
         }
+    }
+
+    /// On Android 15 and later, where the system picks a frame rate for
+    /// each window from what its views ask for: asks for [rate] on the
+    /// window's views, and for the system not to trade it for battery.
+    private fun applyViewFrameRate(rate: Float): String {
+        if (Build.VERSION.SDK_INT < 35) return "needs Android 15"
+        return try {
+            "asked on ${askViewsForFrameRate(rate)}"
+        } catch (e: Throwable) {
+            "failed: ${e.javaClass.simpleName}"
+        }
+    }
+
+    @RequiresApi(35)
+    private fun askViewsForFrameRate(rate: Float): Int {
+        window.isFrameRatePowerSavingsBalanced = false
+        return askViewForFrameRate(window.decorView, rate)
+    }
+
+    @RequiresApi(35)
+    private fun askViewForFrameRate(view: View, rate: Float): Int {
+        view.requestedFrameRate = rate
+        var count = 1
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                count += askViewForFrameRate(view.getChildAt(i), rate)
+            }
+        }
+        return count
     }
 
     /// Tells the system the drawing surface wants [rate] frames per second.

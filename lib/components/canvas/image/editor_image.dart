@@ -167,6 +167,15 @@ sealed class EditorImage extends ChangeNotifier {
     if (naturalSize.height != 0) 'nh': naturalSize.height,
   };
 
+  /// The file on disk this picture is read from, or null if it is held in
+  /// memory (a picture that was just added).
+  File? get assetFile => null;
+
+  /// Called when this picture's content has been put in [file] (the note
+  /// was saved, or its files were moved): from now on it is read from
+  /// there. A picture that is held in memory stays as it is.
+  void assetSavedTo(File file) {}
+
   /// Images are loaded out after 5 seconds of not being visible.
   ///
   /// Set this to true to load out immediately.

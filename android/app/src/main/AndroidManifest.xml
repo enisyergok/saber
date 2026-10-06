@@ -137,6 +137,17 @@
            android:grantUriPermissions="true" >
        </provider>
 
+       <!-- Lets the camera app write the photo taken for a note -->
+       <provider
+           android:name=".CameraFileProvider"
+           android:authorities="${applicationId}.camera"
+           android:exported="false"
+           android:grantUriPermissions="true">
+           <meta-data
+               android:name="android.support.FILE_PROVIDER_PATHS"
+               android:resource="@xml/camera_paths" />
+       </provider>
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -152,6 +163,10 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- To hand over to the camera app for taking a photo -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE"/>
         </intent>
     </queries>
 </manifest>

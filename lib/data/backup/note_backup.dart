@@ -229,7 +229,7 @@ class _Group {
 ///                        SHA-256 checksums
 abstract class NoteBackupWork {
   static final _notePart = RegExp(r'^(.*)(\.sbn2?)(?:\.(\d+|p))?$');
-  static final _transient = RegExp(r'\.(tmp|bak|bad)$');
+  static final _transient = RegExp(r'\.(tmp|bak|bad|new)$');
   static final _mainFile = RegExp(r'^notes/.*\.sbn2?$');
 
   static const handwritingName = 'handwriting.json';

@@ -50,6 +50,7 @@ class Toolbar extends StatefulWidget {
     required this.isRedoPossible,
     required this.toggleFingerDrawing,
     required this.pickPhoto,
+    this.takePhoto,
     required this.paste,
     required this.duplicateSelection,
     required this.deleteSelection,
@@ -80,6 +81,9 @@ class Toolbar extends StatefulWidget {
   final VoidCallback toggleFingerDrawing;
 
   final VoidCallback pickPhoto;
+
+  /// Takes a photo with the camera, or null if the device can't.
+  final VoidCallback? takePhoto;
 
   final VoidCallback paste;
 
@@ -549,6 +553,18 @@ class _ToolbarState extends State<Toolbar> {
                   cupertinoIcon: CupertinoIcons.photo,
                 ),
               ),
+              if (widget.takePhoto != null)
+                ToolbarIconButton(
+                  key: const Key('takePhoto'),
+                  tooltip: DefterStrings.takePhoto,
+                  enabled: !widget.readOnly,
+                  onPressed: widget.takePhoto,
+                  padding: buttonPadding,
+                  child: const AdaptiveIcon(
+                    icon: Icons.photo_camera,
+                    cupertinoIcon: CupertinoIcons.camera,
+                  ),
+                ),
               ToolbarIconButton(
                 tooltip: t.editor.toolbar.text,
                 selected: widget.textEditing,

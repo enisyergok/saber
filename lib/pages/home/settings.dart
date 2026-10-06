@@ -37,6 +37,7 @@ import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/backup.dart';
 import 'package:saber/pages/benchmark.dart';
+import 'package:saber/pages/display_rate.dart';
 import 'package:saber/pages/handwriting_settings.dart';
 import 'package:saber/pages/sync_status.dart';
 import 'package:saber/pages/trash.dart';
@@ -829,6 +830,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const HandwritingSettingsPage(),
+                    ),
+                  ),
+                ),
+                SettingsButton(
+                  title: DefterStrings.rateTitle,
+                  subtitle: DefterStrings.rateSubtitle,
+                  icon: Icons.monitor_outlined,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const DisplayRatePage(),
                     ),
                   ),
                 ),

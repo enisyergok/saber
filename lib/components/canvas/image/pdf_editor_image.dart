@@ -9,7 +9,19 @@ class PdfEditorImage extends EditorImage {
 
   /// If the pdf needs to be loaded from disk, this is the File
   /// that the pdf will be loaded from.
-  final File? pdfFile;
+  File? pdfFile;
+
+  @override
+  File? get assetFile => pdfFile;
+
+  @override
+  void assetSavedTo(File file) {
+    final from = pdfFile;
+    if (from == null || from.absolute.path == file.absolute.path) return;
+    // The document that is open stays in use under its new name.
+    assetCache.pdfDocumentCache.alias(from.path, file.path);
+    pdfFile = file;
+  }
 
   /// How much of the page's edges is cut away.
   PdfCrop crop;
@@ -114,7 +126,7 @@ class PdfEditorImage extends EditorImage {
     assert(!json.containsKey('a'));
     assert(!json.containsKey('b'));
 
-    json['a'] = assets.add(pdfFile ?? pdfBytes!);
+    json['a'] = assets.add(pdfFile ?? pdfBytes!, owner: this);
     json['pdfi'] = pdfPage;
     crop.writeTo(json);
 

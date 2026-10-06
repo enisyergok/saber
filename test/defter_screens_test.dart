@@ -6,6 +6,7 @@
 library;
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -46,6 +47,9 @@ import 'package:saber/data/notebooks/paper_templates.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/pages/home/dashboard.dart';
 import 'package:saber/pages/backup.dart';
+import 'package:saber/pages/display_rate.dart';
+import 'package:saber/data/display_rate.dart';
+import 'package:saber/data/device_camera.dart';
 import 'package:saber/components/toolbar/note_versions_dialog.dart';
 import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
@@ -64,6 +68,7 @@ import 'package:yaru/yaru.dart';
 
 import 'screenshot_goldens_test.dart';
 import 'utils/test_mock_channel_handlers.dart';
+import 'utils/test_pdfium.dart';
 import 'utils/test_user.dart';
 
 final _baseTablet = GoldenScreenshotDevices.androidTablet.device;
@@ -92,6 +97,8 @@ void main() {
     FlavorConfig.setup();
     StrokeOptionsExtension.setDefaults();
     SyncingButton.debugForceButtonActive = true;
+    // The pictures are of the tablet, which has a camera.
+    DeviceCamera.availableOverride = true;
 
     stows.lastStorageQuota.value = TestUser.getQuota();
     stows.username.value = 'myusername';
@@ -508,6 +515,69 @@ void main() {
       child: const Scaffold(
         body: SizedBox.expand(child: CustomPaint(painter: _EraserCutsPainter())),
       ),
+    );
+
+    // The screen rate page. The numbers are made up for the picture; the
+    // page itself reads them from the device and measures its own frames.
+    _shot(
+      theme: theme,
+      name: 'display_rate',
+      waitForEditor: false,
+      child: DisplayRatePage(
+        frozenAt: 59.9,
+        read: () async => const DisplayRateInfo(
+          max: 120,
+          mode: 60,
+          app: 60,
+          sdk: 34,
+          maker: 'HONOR',
+          model: 'Pad',
+          details:
+              '1: 2800x1840 @ 60 Hz, 2: 2800x1840 @ 120 Hz (in use: 1, 60 Hz; '
+              'window prefers mode 2; asked mode 2 (120 Hz), surface: set on 1)',
+        ),
+        openSettings: () async => true,
+      ),
+    );
+
+    // A PDF that was just imported: a real PDF, read by the app's own PDF
+    // reader. Its pages have three different sizes.
+    _shot(
+      theme: theme,
+      name: 'pdf_import',
+      child: Editor(path: '/PDF dersi'),
+      afterLoad: (tester) async {
+        if (!setUpPdfium()) {
+          markTestSkipped('PDFium was not found on this computer');
+          return;
+        }
+        final folder = Directory.systemTemp.createTempSync('pdf_scene');
+        addTearDown(() {
+          try {
+            folder.deleteSync(recursive: true);
+          } on FileSystemException {
+            // Still open.
+          }
+        });
+        final pdf = (await tester.runAsync(() => writeSamplePdf(folder)))!;
+        final editor = tester.state<EditorState>(find.byType(Editor));
+        addTearDown(editor.cancelAutosaveAndMarkSaved);
+        final imported = await tester.runAsync(
+          () => editor
+              .importPdfFromFilePath(pdf.path)
+              .timeout(const Duration(seconds: 60)),
+        );
+        expect(imported, isTrue);
+        // Not saved: the picture is of the page, not of a file.
+        editor.cancelAutosaveAndMarkSaved();
+        // The pages are drawn by the PDF reader, off the main thread.
+        for (var i = 0; i < 40; i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 100)),
+          );
+          await tester.pump();
+        }
+      },
     );
 
     // Backup and version history. The numbers shown are made up for the

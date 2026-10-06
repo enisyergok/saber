@@ -4,13 +4,13 @@ import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path/path.dart' as p;
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/preview_card.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
+import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/pages/editor/editor.dart';
@@ -113,14 +113,38 @@ class _DashboardPageState extends State<DashboardPage> {
       _snack(DefterStrings.pdfNotSupported);
       return;
     }
-    final file = await FilePicker.pickFile(
-      type: FileType.custom,
-      allowedExtensions: const ['pdf'],
+    final String path, name;
+    try {
+      final file = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: const ['pdf'],
+      );
+      if (file == null) return;
+      name = file.name;
+      path = await PdfImport.localPath(
+        path: file.path,
+        name: name,
+        readBytes: file.readAsBytes,
+      );
+    } on PdfImportException catch (e) {
+      if (mounted) _snack(DefterStrings.pdfImportReason(e.failure.name));
+      return;
+    }
+    await _openPdfAsNote(path, name);
+  }
+
+  /// Makes a note from the PDF at [path], named after it. A file that
+  /// plainly is no PDF is refused here, before an empty note is made.
+  Future<void> _openPdfAsNote(String path, String name) async {
+    try {
+      await PdfImport.check(path);
+    } on PdfImportException catch (e) {
+      if (mounted) _snack(DefterStrings.pdfImportReason(e.failure.name));
+      return;
+    }
+    final notePath = await FileManager.suffixFilePathToMakeItUnique(
+      '/${PdfImport.noteNameFor(name)}',
     );
-    final path = file?.path;
-    if (file == null || path == null) return;
-    final name = p.basenameWithoutExtension(file.name);
-    final notePath = await FileManager.suffixFilePathToMakeItUnique('/$name');
     if (!mounted) return;
     context.push(RoutePaths.editImportPdf(notePath, path));
   }
@@ -147,10 +171,7 @@ class _DashboardPageState extends State<DashboardPage> {
         _snack(DefterStrings.pdfNotSupported);
         return;
       }
-      final name = p.basenameWithoutExtension(file.name);
-      final notePath = await FileManager.suffixFilePathToMakeItUnique('/$name');
-      if (!mounted) return;
-      context.push(RoutePaths.editImportPdf(notePath, path));
+      await _openPdfAsNote(path, file.name);
       return;
     }
     if (!lower.endsWith('.sbn') &&

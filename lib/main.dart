@@ -12,6 +12,7 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_to_regexp/path_to_regexp.dart';
 import 'package:pdfrx/pdfrx.dart';
+import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:printing/printing.dart';
 import 'package:saber/components/canvas/pencil_shader.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
@@ -293,9 +294,8 @@ class const App({super.key}) extends StatefulWidget {
 
       _router.push(RoutePaths.editFilePath(path));
     } else if (extension == '.pdf' && Editor.canRasterPdf) {
-      final fileNameWithoutExtension = p.basenameWithoutExtension(filePath);
       final sbnFilePath = await FileManager.suffixFilePathToMakeItUnique(
-        '/$fileNameWithoutExtension',
+        '/${PdfImport.noteNameFor(filePath)}',
       );
       _router.push(RoutePaths.editImportPdf(sbnFilePath, filePath));
     } else {
