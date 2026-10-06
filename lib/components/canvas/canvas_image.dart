@@ -97,13 +97,6 @@ class _CanvasImageState extends State<CanvasImage> {
     CanvasImage.activeListener.addListener(disableActive);
     CanvasImage.requestActive.addListener(_onRequestActive);
 
-    // How large the page is shown is only known once it has been laid
-    // out: the action buttons of a picture that starts out active are
-    // sized again then.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _active) setState(() {});
-    });
-
     super.initState();
   }
 
@@ -117,18 +110,30 @@ class _CanvasImageState extends State<CanvasImage> {
     active = true;
   }
 
-  /// How many pixels on screen one unit of the page is right now (the
-  /// page is fitted to the screen and can be zoomed), so that the action
-  /// buttons keep the size of a fingertip whatever the zoom.
-  double _unitsToPixels() {
-    final box = context.findRenderObject();
-    if (box is! RenderBox || !box.attached || !box.hasSize) return 1;
-    try {
-      final scale = box.getTransformTo(null).getMaxScaleOnAxis();
-      return scale.isFinite && scale > 0 ? scale : 1;
-    } catch (_) {
-      return 1;
-    }
+  /// How many pixels on screen one unit of the page is (the page is
+  /// fitted to the screen and can be zoomed), so that the action buttons
+  /// keep the size of a fingertip whatever the zoom. Measured after each
+  /// frame while the picture is active, when everything has been laid out.
+  double _unitsToPixels = 1;
+  bool _followingScale = false;
+
+  void _followScale() {
+    if (_followingScale) return;
+    _followingScale = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _followingScale = false;
+      if (!mounted || !_active) return;
+      final box = context.findRenderObject();
+      if (box is RenderBox && box.attached && box.hasSize) {
+        final scale = box.getTransformTo(null).getMaxScaleOnAxis();
+        if (scale.isFinite &&
+            scale > 0 &&
+            (scale - _unitsToPixels).abs() > _unitsToPixels * 0.02) {
+          setState(() => _unitsToPixels = scale);
+        }
+      }
+      _followScale();
+    });
   }
 
   /// Turns the picture a quarter turn and tells the editor, which records
@@ -159,6 +164,7 @@ class _CanvasImageState extends State<CanvasImage> {
 
     useListenable(widget.image);
     if (widget.readOnly) active = false;
+    if (active) _followScale();
 
     final currentBrightness = widget.image.invertible
         ? Theme.brightnessOf(context)
@@ -290,7 +296,7 @@ class _CanvasImageState extends State<CanvasImage> {
           if (active && !widget.readOnly && !widget.isBackground)
             _CanvasImageActions(
               image: widget.image,
-              unitsToPixels: _unitsToPixels(),
+              unitsToPixels: _unitsToPixels,
               onRotate: _rotate,
               onDelete: _delete,
               onMore: showModal,

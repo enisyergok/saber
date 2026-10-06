@@ -602,6 +602,8 @@ void main() {
       name: 'image_actions',
       child: Editor(path: '/Resimli sayfa'),
       afterLoad: (tester) async {
+        EditorImage.shouldLoadOutImmediately = true;
+        addTearDown(() => EditorImage.shouldLoadOutImmediately = false);
         final editor = tester.state<EditorState>(find.byType(Editor));
         addTearDown(editor.cancelAutosaveAndMarkSaved);
         final png = File('test/demo_notes/Import PDFs.sbn2.0').readAsBytesSync();
