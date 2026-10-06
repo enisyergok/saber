@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/pages/editor/editor.dart';
@@ -81,7 +82,7 @@ class _TrashPageState extends State<TrashPage> {
           if (notes != null && notes.isNotEmpty)
             IconButton(
               tooltip: DefterStrings.emptyTrash,
-              icon: const Icon(Icons.delete_sweep),
+              icon: const Icon(Symbols.delete_sweep_rounded),
               onPressed: _confirmEmpty,
             ),
         ],
@@ -94,19 +95,19 @@ class _TrashPageState extends State<TrashPage> {
           itemBuilder: (context, index) {
             final trashedPath = notes[index];
             return ListTile(
-              leading: const Icon(Icons.description_outlined),
+              leading: const Icon(Symbols.description_rounded),
               title: Text(TrashPage.displayName(trashedPath)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     tooltip: DefterStrings.restore,
-                    icon: const Icon(Icons.restore),
+                    icon: const Icon(Symbols.restore_rounded),
                     onPressed: () => _restore(trashedPath),
                   ),
                   IconButton(
                     tooltip: DefterStrings.deleteForever,
-                    icon: const Icon(Icons.delete_forever),
+                    icon: const Icon(Symbols.delete_forever_rounded),
                     onPressed: () => _deleteForever(trashedPath),
                   ),
                 ],

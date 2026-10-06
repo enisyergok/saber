@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/paper_thumb.dart';
 import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -111,7 +112,7 @@ void main() {
     expect(find.text('Proje planı'), findsOneWidget);
     expect(find.text('/Projeler'), findsOneWidget);
     expect(find.text(DefterStrings.next), findsNothing);
-    await tester.tap(find.byIcon(Icons.check));
+    await tester.tap(find.byIcon(Symbols.check_rounded));
     await tester.pumpAndSettle();
 
     expect(find.byType(NewNotebookWizard), findsNothing);

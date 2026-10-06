@@ -4,6 +4,7 @@ import 'package:archive/archive_io.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_circular_progress_indicator.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/editor/editor_exporter.dart';
@@ -95,7 +96,7 @@ class _ExportNoteButtonState extends State<ExportNoteButton> {
                 padding: .zero,
                 tooltip: t.home.tooltips.exportNote,
                 onPressed: toggleChildren,
-                icon: const Icon(Icons.share),
+                icon: const Icon(Symbols.share_rounded),
               );
       },
       children: [
@@ -105,7 +106,7 @@ class _ExportNoteButtonState extends State<ExportNoteButton> {
           onTap: () => exportFile(widget.selectedFiles, true),
         ),
         SpeedDialChild(
-          child: const Icon(Icons.note),
+          child: const Icon(Icons.note_rounded),
           label: 'SBA',
           onTap: () => exportFile(widget.selectedFiles, false),
         ),

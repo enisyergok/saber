@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
@@ -68,7 +69,7 @@ class _EditorPageGridState extends State<EditorPageGrid> {
                       ),
                       ButtonSegment(
                         value: true,
-                        icon: const Icon(Icons.bookmark),
+                        icon: const Icon(Icons.bookmark_rounded),
                         label: Text(DefterStrings.bookmarks),
                       ),
                     ],
@@ -81,12 +82,12 @@ class _EditorPageGridState extends State<EditorPageGrid> {
                   const SizedBox(width: 8),
                   IconButton(
                     tooltip: DefterStrings.editPages,
-                    icon: const Icon(Icons.reorder),
+                    icon: const Icon(Symbols.reorder_rounded),
                     onPressed: widget.openPageManager,
                   ),
                   IconButton(
                     tooltip: MaterialLocalizations.of(context).closeButtonLabel,
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Symbols.close_rounded),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -211,7 +212,7 @@ class _PageTile extends StatelessWidget {
                   tooltip: DefterStrings.bookmark,
                   onPressed: toggleBookmark,
                   icon: Icon(
-                    page.bookmarked ? Icons.bookmark : Icons.bookmark_border,
+                    page.bookmarked ? Icons.bookmark_rounded : Symbols.bookmark_rounded,
                     color: page.bookmarked ? colorScheme.primary : null,
                   ),
                 ),

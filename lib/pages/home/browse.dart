@@ -4,6 +4,7 @@ import 'package:collapsible/collapsible.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
@@ -174,21 +175,21 @@ class _BrowsePageState extends State<BrowsePage> {
             actions: [
               IconButton(
                 tooltip: DefterStrings.search,
-                icon: const Icon(Icons.search),
+                icon: const Icon(Symbols.search_rounded),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const SearchPage()),
                 ),
               ),
               IconButton(
                 tooltip: DefterStrings.askNotes,
-                icon: const Icon(Icons.auto_awesome),
+                icon: const Icon(Icons.auto_awesome_rounded),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const AskNotesPage()),
                 ),
               ),
               IconButton(
                 tooltip: DefterStrings.favorites,
-                icon: const Icon(Icons.star_outline),
+                icon: const Icon(Symbols.star_rounded),
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => const FavoritesPage(),
@@ -205,6 +206,7 @@ class _BrowsePageState extends State<BrowsePage> {
           const SliverPadding(padding: .only(bottom: 16)),
           GridFolders(
             isAtRoot: path?.isEmpty ?? true,
+            parentPath: path ?? '',
             crossAxisCount: crossAxisCount,
             onTap: onDirectoryTap,
             createFolder: createFolder,

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/display_rate.dart';
 
@@ -117,22 +118,22 @@ class _DisplayRatePageState extends State<DisplayRatePage>
 
     final (IconData icon, Color color, String text) = switch (verdict) {
       DisplayRateVerdict.full => (
-        Icons.check_circle_outline,
+        Symbols.check_circle_rounded,
         colorScheme.primary,
         DefterStrings.rateFull(_hz(max)),
       ),
       DisplayRateVerdict.noFasterMode => (
-        Icons.info_outline,
+        Symbols.info_rounded,
         colorScheme.onSurfaceVariant,
         DefterStrings.rateNoFasterMode(_hz(max)),
       ),
       DisplayRateVerdict.heldBack => (
-        Icons.warning_amber_outlined,
+        Symbols.warning_amber_rounded,
         colorScheme.error,
         DefterStrings.rateHeldBack(_hz(max), _hz(_measured)),
       ),
       DisplayRateVerdict.unknown => (
-        Icons.hourglass_empty,
+        Symbols.hourglass_empty_rounded,
         colorScheme.onSurfaceVariant,
         info == null ? DefterStrings.rateNoInfo : DefterStrings.rateMeasuring,
       ),
@@ -216,7 +217,7 @@ class _DisplayRatePageState extends State<DisplayRatePage>
             children: [
               FilledButton.icon(
                 key: const Key('rateOpenSettings'),
-                icon: const Icon(Icons.settings_outlined),
+                icon: const Icon(Symbols.settings_rounded),
                 label: Text(DefterStrings.rateOpenSettings),
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);
@@ -233,7 +234,7 @@ class _DisplayRatePageState extends State<DisplayRatePage>
               ),
               OutlinedButton.icon(
                 key: const Key('rateCopy'),
-                icon: const Icon(Icons.copy),
+                icon: const Icon(Symbols.content_copy_rounded),
                 label: Text(DefterStrings.rateCopy),
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);

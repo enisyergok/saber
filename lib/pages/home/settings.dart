@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/navbar/responsive_navbar.dart';
 import 'package:saber/components/settings/app_info.dart';
 import 'package:saber/components/settings/nextcloud_profile.dart';
@@ -141,10 +142,10 @@ class _SettingsPageState extends State<SettingsPage> {
     CupertinoIcons.arrow_left_to_line,
   ];
   static const materialDirectionIcons = [
-    Icons.north,
-    Icons.east,
-    Icons.south,
-    Icons.west,
+    Symbols.north_rounded,
+    Symbols.east_rounded,
+    Symbols.south_rounded,
+    Symbols.west_rounded,
   ];
 
   @override
@@ -157,7 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final materialIcon = switch (defaultTargetPlatform) {
       .windows => FontAwesomeIcons.windows,
-      _ => Icons.android,
+      _ => Icons.android_rounded,
     };
 
     return Scaffold(
@@ -185,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 if (UpdateManager.status.value != .upToDate)
                   IconButton(
                     tooltip: t.home.tooltips.showUpdateDialog,
-                    icon: const Icon(Icons.system_update),
+                    icon: const Icon(Symbols.system_update_rounded),
                     onPressed: () {
                       UpdateManager.showUpdateDialog(
                         context,
@@ -204,7 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSubtitle(subtitle: t.settings.prefCategories.general),
                 SettingsDropdown(
                   title: t.settings.prefLabels.locale,
-                  icon: cupertino ? CupertinoIcons.globe : Icons.language,
+                  icon: cupertino ? CupertinoIcons.globe : Symbols.language_rounded,
                   pref: stows.locale,
                   options: [
                     ToggleButtonsOption('', Text(t.settings.systemLanguage)),
@@ -226,9 +227,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: t.settings.prefLabels.appTheme,
                   iconBuilder: (i) {
                     if (i == ThemeMode.system.index)
-                      return Icons.brightness_auto;
-                    if (i == ThemeMode.light.index) return Icons.light_mode;
-                    if (i == ThemeMode.dark.index) return Icons.dark_mode;
+                      return Symbols.brightness_auto_rounded;
+                    if (i == ThemeMode.light.index) return Icons.light_mode_rounded;
+                    if (i == ThemeMode.dark.index) return Icons.dark_mode_rounded;
                     return null;
                   },
                   pref: _SettingsStows.appTheme,
@@ -237,21 +238,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(
                       ThemeMode.system.index,
                       Icon(
-                        Icons.brightness_auto,
+                        Symbols.brightness_auto_rounded,
                         semanticLabel: t.settings.themeModes.system,
                       ),
                     ),
                     ToggleButtonsOption(
                       ThemeMode.light.index,
                       Icon(
-                        Icons.light_mode,
+                        Icons.light_mode_rounded,
                         semanticLabel: t.settings.themeModes.light,
                       ),
                     ),
                     ToggleButtonsOption(
                       ThemeMode.dark.index,
                       Icon(
-                        Icons.dark_mode,
+                        Icons.dark_mode_rounded,
                         semanticLabel: t.settings.themeModes.dark,
                       ),
                     ),
@@ -260,7 +261,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSelection(
                   title: t.settings.prefLabels.platform,
                   iconBuilder: (i) => switch (stows.platform.value) {
-                    .iOS || .macOS => Icons.apple,
+                    .iOS || .macOS => Icons.apple_rounded,
                     .linux => FontAwesomeIcons.ubuntu,
                     _ => materialIcon,
                   },
@@ -279,7 +280,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       if (usesCupertinoByDefault)
                         return defaultTargetPlatform.index;
                       return TargetPlatform.iOS.index;
-                    }(), const Icon(Icons.apple, semanticLabel: 'Cupertino')),
+                    }(), const Icon(Icons.apple_rounded, semanticLabel: 'Cupertino')),
                     ToggleButtonsOption(
                       () {
                         if (usesYaruByDefault)
@@ -302,9 +303,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   afterChange: (_) => setState(() {}),
                   iconBuilder: (i) => switch (LayoutSize.values[i]) {
-                    .auto => Icons.aspect_ratio,
-                    .phone => Icons.smartphone,
-                    .tablet => Icons.tablet,
+                    .auto => Symbols.aspect_ratio_rounded,
+                    .phone => Symbols.smartphone_rounded,
+                    .tablet => Symbols.tablet_rounded,
                   },
                   pref: _SettingsStows.layoutSize,
                   optionsWidth: 60,
@@ -312,21 +313,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(
                       LayoutSize.auto.index,
                       Icon(
-                        Icons.aspect_ratio,
+                        Symbols.aspect_ratio_rounded,
                         semanticLabel: t.settings.layoutSizes.auto,
                       ),
                     ),
                     ToggleButtonsOption(
                       LayoutSize.phone.index,
                       Icon(
-                        Icons.smartphone,
+                        Symbols.smartphone_rounded,
                         semanticLabel: t.settings.layoutSizes.phone,
                       ),
                     ),
                     ToggleButtonsOption(
                       LayoutSize.tablet.index,
                       Icon(
-                        Icons.tablet,
+                        Symbols.tablet_rounded,
                         semanticLabel: t.settings.layoutSizes.tablet,
                       ),
                     ),
@@ -334,7 +335,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 SettingsColor(
                   title: t.settings.prefLabels.customAccentColor,
-                  icon: Icons.colorize,
+                  icon: Symbols.colorize_rounded,
                   pref: stows.accentColor,
                 ),
                 SettingsSwitch(
@@ -344,10 +345,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     if (b)
                       return cupertino
                           ? CupertinoIcons.textformat
-                          : Icons.font_download;
+                          : Symbols.font_download_rounded;
                     return cupertino
                         ? CupertinoIcons.textformat_alt
-                        : Icons.font_download_off;
+                        : Symbols.font_download_off_rounded;
                   },
                   pref: stows.hyperlegibleFont,
                 ),
@@ -358,8 +359,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: t.settings.prefDescriptions.preferGreyscale,
                   iconBuilder: (b) {
                     return b
-                        ? Icons.monochrome_photos
-                        : Icons.enhance_photo_translate;
+                        ? Symbols.monochrome_photos_rounded
+                        : Icons.enhance_photo_translate_rounded;
                   },
                   pref: stows.preferGreyscale,
                 ),
@@ -367,13 +368,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: t.settings.prefLabels.autoClearWhiteboardOnExit,
                   subtitle:
                       t.settings.prefDescriptions.autoClearWhiteboardOnExit,
-                  icon: Icons.cleaning_services,
+                  icon: Symbols.cleaning_services_rounded,
                   pref: stows.autoClearWhiteboardOnExit,
                 ),
                 SettingsSwitch(
                   title: t.settings.prefLabels.disableEraserAfterUse,
                   subtitle: t.settings.prefDescriptions.disableEraserAfterUse,
-                  icon: FontAwesomeIcons.eraser,
+                  icon: Symbols.ink_eraser_rounded,
                   pref: stows.disableEraserAfterUse,
                 ),
                 ValueListenableBuilder(
@@ -433,13 +434,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: DefterStrings.gnLayout,
                   subtitle: DefterStrings.gnLayoutSubtitle,
-                  icon: Icons.view_agenda_outlined,
+                  icon: Symbols.view_agenda_rounded,
                   pref: stows.editorGnLayout,
                 ),
                 SettingsSwitch(
                   title: DefterStrings.homeDashboard,
                   subtitle: DefterStrings.homeDashboardSubtitle,
-                  icon: Icons.space_dashboard_outlined,
+                  icon: Symbols.space_dashboard_rounded,
                   pref: stows.homeDashboard,
                 ),
                 SettingsSelection(
@@ -476,13 +477,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: t.settings.prefLabels.editorToolbarShowInFullscreen,
                   icon: cupertino
                       ? CupertinoIcons.fullscreen
-                      : Icons.fullscreen,
+                      : Symbols.fullscreen_rounded,
                   pref: stows.editorToolbarShowInFullscreen,
                 ),
                 SettingsSwitch(
                   title: t.settings.prefLabels.editorAutoInvert,
                   iconBuilder: (b) {
-                    return b ? Icons.invert_colors_on : Icons.invert_colors_off;
+                    return b ? Icons.invert_colors_on_rounded : Symbols.invert_colors_off_rounded;
                   },
                   pref: stows.editorAutoInvert,
                 ),
@@ -493,21 +494,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     if (b)
                       return cupertino
                           ? CupertinoIcons.keyboard
-                          : Icons.keyboard;
+                          : Symbols.keyboard_rounded;
                     return cupertino
                         ? CupertinoIcons.keyboard_chevron_compact_down
-                        : Icons.keyboard_hide;
+                        : Symbols.keyboard_hide_rounded;
                   },
                   pref: stows.editorPromptRename,
                 ),
                 SettingsSwitch(
                   title: t.settings.prefLabels.recentColorsDontSavePresets,
-                  icon: Icons.palette,
+                  icon: Symbols.palette_rounded,
                   pref: stows.recentColorsDontSavePresets,
                 ),
                 SettingsSelection(
                   title: t.settings.prefLabels.recentColorsLength,
-                  icon: Icons.history,
+                  icon: Symbols.history_rounded,
                   pref: stows.recentColorsLength,
                   options: const [
                     ToggleButtonsOption(5, Text('5')),
@@ -517,43 +518,43 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: t.settings.prefLabels.printPageIndicators,
                   subtitle: t.settings.prefDescriptions.printPageIndicators,
-                  icon: Icons.numbers,
+                  icon: Symbols.numbers_rounded,
                   pref: stows.printPageIndicators,
                 ),
                 SettingsSubtitle(subtitle: DefterStrings.eInkSection),
                 SettingsSwitch(
                   title: DefterStrings.eInkMode,
                   subtitle: DefterStrings.eInkModeSubtitle,
-                  icon: Icons.menu_book_outlined,
+                  icon: Symbols.menu_book_rounded,
                   pref: stows.eInkMode,
                   afterChange: (_) => setState(() {}),
                 ),
                 if (stows.eInkMode.value) ...[
                   SettingsSlider(
                     title: DefterStrings.eInkPaperWarmth,
-                    icon: Icons.wb_sunny_outlined,
+                    icon: Symbols.wb_sunny_rounded,
                     pref: stows.eInkPaperWarmth,
                   ),
                   SettingsSlider(
                     title: DefterStrings.eInkInkDarkness,
-                    icon: Icons.edit_outlined,
+                    icon: Symbols.edit_rounded,
                     pref: stows.eInkInkDarkness,
                   ),
                   SettingsSlider(
                     title: DefterStrings.eInkTexture,
-                    icon: Icons.grain,
+                    icon: Symbols.grain_rounded,
                     pref: stows.eInkTexture,
                   ),
                   SettingsSwitch(
                     title: DefterStrings.eInkRefresh,
                     subtitle: DefterStrings.eInkRefreshSubtitle,
-                    icon: Icons.refresh,
+                    icon: Symbols.refresh_rounded,
                     pref: stows.eInkRefreshEffect,
                   ),
                   SettingsSelection(
                     title: DefterStrings.eInkBrightness,
                     subtitle: DefterStrings.eInkBrightnessSubtitle,
-                    icon: Icons.brightness_6_outlined,
+                    icon: Symbols.brightness_6_rounded,
                     pref: stows.eInkBrightness,
                     options: [
                       ToggleButtonsOption(
@@ -568,7 +569,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsSwitch(
                     title: DefterStrings.eInkExport,
                     subtitle: DefterStrings.eInkExportSubtitle,
-                    icon: Icons.ios_share,
+                    icon: Symbols.ios_share_rounded,
                     pref: stows.eInkExport,
                   ),
                   Padding(
@@ -588,7 +589,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSelection(
                   title: t.settings.prefLabels.maxImageSize,
                   subtitle: t.settings.prefDescriptions.maxImageSize,
-                  icon: Icons.photo_size_select_large,
+                  icon: Symbols.photo_size_select_large_rounded,
                   pref: stows.maxImageSize,
                   options: const <ToggleButtonsOption<double>>[
                     ToggleButtonsOption(500, Text('500')),
@@ -599,7 +600,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSelection(
                   title: t.settings.prefLabels.autosave,
                   subtitle: t.settings.prefDescriptions.autosave,
-                  icon: Icons.save,
+                  icon: Symbols.save_rounded,
                   pref: stows.autosaveDelay,
                   options: [
                     const ToggleButtonsOption(5000, Text('5s')),
@@ -610,13 +611,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: DefterStrings.penPrediction,
                   subtitle: DefterStrings.penPredictionSubtitle,
-                  icon: Icons.timeline,
+                  icon: Symbols.timeline_rounded,
                   pref: stows.penPrediction,
                 ),
                 SettingsSelection(
                   title: DefterStrings.stylusAction,
                   subtitle: DefterStrings.stylusActionSubtitle,
-                  icon: Icons.touch_app_outlined,
+                  icon: Symbols.touch_app_rounded,
                   pref: stows.stylusAction,
                   options: [
                     ToggleButtonsOption(
@@ -652,7 +653,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSelection(
                   title: DefterStrings.stylusTaps,
                   subtitle: DefterStrings.stylusTapsSubtitle,
-                  icon: Icons.looks_two_outlined,
+                  icon: Symbols.looks_two_rounded,
                   pref: stows.stylusTapsNeeded,
                   options: const [
                     ToggleButtonsOption(1, Text('1')),
@@ -662,7 +663,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsButton(
                   title: DefterStrings.stylusTest,
                   subtitle: DefterStrings.stylusTestSubtitle,
-                  icon: Icons.bug_report_outlined,
+                  icon: Symbols.bug_report_rounded,
                   onPressed: () => showDialog<void>(
                     context: context,
                     builder: (_) => const StylusTestDialog(),
@@ -671,19 +672,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: DefterStrings.penProbe,
                   subtitle: DefterStrings.penProbeSubtitle,
-                  icon: Icons.speed,
+                  icon: Symbols.speed_rounded,
                   pref: stows.penProbe,
                 ),
                 SettingsSwitch(
                   title: DefterStrings.holdToSnap,
                   subtitle: DefterStrings.holdToSnapSubtitle,
-                  icon: Icons.gesture,
+                  icon: Symbols.gesture_rounded,
                   pref: stows.shapeHoldToSnap,
                 ),
                 SettingsSelection(
                   title: DefterStrings.holdDelay,
                   subtitle: DefterStrings.holdDelaySubtitle,
-                  icon: Icons.timer_outlined,
+                  icon: Symbols.timer_rounded,
                   pref: stows.shapeHoldDelay,
                   options: const [
                     ToggleButtonsOption(400, Text('0.4s')),
@@ -694,25 +695,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: DefterStrings.advancedShapes,
                   subtitle: DefterStrings.advancedShapesSubtitle,
-                  icon: Icons.interests_outlined,
+                  icon: Symbols.interests_rounded,
                   pref: stows.advancedShapes,
                 ),
                 SettingsSwitch(
                   title: DefterStrings.snapEndpoints,
                   subtitle: DefterStrings.snapEndpointsSubtitle,
-                  icon: Icons.control_point,
+                  icon: Symbols.control_point_rounded,
                   pref: stows.shapeSnapEndpoints,
                 ),
                 SettingsSwitch(
                   title: DefterStrings.shapeArrows,
                   subtitle: DefterStrings.shapeArrowsSubtitle,
-                  icon: Icons.north_east,
+                  icon: Symbols.north_east_rounded,
                   pref: stows.shapePenArrows,
                 ),
                 SettingsSelection(
                   title: t.settings.prefLabels.shapeRecognitionDelay,
                   subtitle: t.settings.prefDescriptions.shapeRecognitionDelay,
-                  icon: FontAwesomeIcons.shapes,
+                  icon: Symbols.shapes_rounded,
                   pref: stows.shapeRecognitionDelay,
                   options: [
                     const ToggleButtonsOption(500, Text('0.5s')),
@@ -729,7 +730,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: t.settings.prefLabels.autoStraightenLines,
                   subtitle: t.settings.prefDescriptions.autoStraightenLines,
-                  icon: Icons.straighten,
+                  icon: Symbols.straighten_rounded,
                   pref: stows.autoStraightenLines,
                 ),
                 SettingsSubtitle(subtitle: t.settings.prefCategories.advanced),
@@ -737,12 +738,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 if (Platform.isAndroid)
                   SettingsDirectorySelector(
                     title: t.settings.prefLabels.customDataDir,
-                    icon: Icons.folder,
+                    icon: Icons.folder_rounded,
                   ),
                 if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
                   SettingsButton(
                     title: t.settings.openDataDir,
-                    icon: Icons.folder_open,
+                    icon: Icons.folder_open_rounded,
                     onPressed: () {
                       if (Platform.isWindows) {
                         Process.run('explorer', [
@@ -762,7 +763,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         stows.shouldCheckForUpdates.defaultValue) ...[
                   SettingsSwitch(
                     title: t.settings.prefLabels.shouldCheckForUpdates,
-                    icon: Icons.system_update,
+                    icon: Symbols.system_update_rounded,
                     pref: stows.shouldCheckForUpdates,
                     afterChange: (_) => setState(() {}),
                   ),
@@ -775,7 +776,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           .settings
                           .prefDescriptions
                           .shouldAlwaysAlertForUpdates,
-                      icon: Icons.system_security_update_warning,
+                      icon: Symbols.system_security_update_warning_rounded,
                       pref: stows.shouldAlwaysAlertForUpdates,
                     ),
                   ),
@@ -784,19 +785,19 @@ class _SettingsPageState extends State<SettingsPage> {
                   title: t.settings.prefLabels.allowInsecureConnections,
                   subtitle:
                       t.settings.prefDescriptions.allowInsecureConnections,
-                  icon: Icons.private_connectivity,
+                  icon: Symbols.private_connectivity_rounded,
                   pref: stows.allowInsecureConnections,
                 ),
                 SettingsButton(
                   title: t.logs.viewLogs,
                   subtitle: t.logs.debuggingInfo,
-                  icon: Icons.receipt_long,
+                  icon: Symbols.receipt_long_rounded,
                   onPressed: () => context.push(RoutePaths.logs),
                 ),
                 SettingsButton(
                   title: DefterStrings.backupTitle,
                   subtitle: DefterStrings.backupSettingsSubtitle,
-                  icon: Icons.backup_outlined,
+                  icon: Symbols.backup_rounded,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const BackupPage(),
@@ -806,7 +807,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsButton(
                   title: DefterStrings.trash,
                   subtitle: DefterStrings.trashSubtitle,
-                  icon: Icons.delete_outline,
+                  icon: Symbols.delete_rounded,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const TrashPage(),
@@ -816,7 +817,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsButton(
                   title: DefterStrings.syncStatus,
                   subtitle: DefterStrings.syncStatusSubtitle,
-                  icon: Icons.cloud_sync_outlined,
+                  icon: Symbols.cloud_sync_rounded,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const SyncStatusPage(),
@@ -826,7 +827,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsButton(
                   title: DefterStrings.handwritingSettings,
                   subtitle: DefterStrings.handwritingSettingsSubtitle,
-                  icon: Icons.text_fields,
+                  icon: Symbols.text_fields_rounded,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const HandwritingSettingsPage(),
@@ -836,7 +837,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsButton(
                   title: DefterStrings.rateTitle,
                   subtitle: DefterStrings.rateSubtitle,
-                  icon: Icons.monitor_outlined,
+                  icon: Symbols.monitor_rounded,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const DisplayRatePage(),
@@ -846,7 +847,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsButton(
                   title: DefterStrings.benchmark,
                   subtitle: DefterStrings.benchmarkSubtitle,
-                  icon: Icons.speed,
+                  icon: Symbols.speed_rounded,
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const BenchmarkPage(),

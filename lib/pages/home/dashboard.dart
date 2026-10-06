@@ -4,9 +4,11 @@ import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/preview_card.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -277,7 +279,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _hero(BuildContext context) {
     final colors = ColorScheme.of(context);
     final dark = Theme.brightnessOf(context) == Brightness.dark;
-    final ink = dark ? Colors.white : const Color(0xFF1F2440);
+    final ink = colors.onSurface;
 
     Widget action(
       IconData icon,
@@ -303,7 +305,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
       child: CustomPaint(
-        painter: HeroPainter(dark: dark),
+        painter: HeroPainter(dark: dark, accent: colors.primary),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 14, 16, 18),
           child: Column(
@@ -329,7 +331,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.search, size: 18, color: colors.onSurfaceVariant),
+                              Icon(Symbols.search_rounded, size: 18, color: colors.onSurfaceVariant),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -351,7 +353,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: IconButton.styleFrom(
                       backgroundColor: colors.surface.withValues(alpha: 0.9),
                     ),
-                    icon: const Icon(Icons.auto_awesome, size: 20),
+                    icon: const Icon(Icons.auto_awesome_rounded, size: 20),
                     onPressed: () => _push(const AskNotesPage()),
                   ),
                   IconButton.filledTonal(
@@ -359,7 +361,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: IconButton.styleFrom(
                       backgroundColor: colors.surface.withValues(alpha: 0.9),
                     ),
-                    icon: const Icon(Icons.settings_outlined, size: 20),
+                    icon: const Icon(Symbols.settings_rounded, size: 20),
                     onPressed: () => context.go(HomeRoutes.routes[3].path),
                   ),
                 ],
@@ -383,28 +385,28 @@ class _DashboardPageState extends State<DashboardPage> {
                 runSpacing: 8,
                 children: [
                   action(
-                    Icons.add_circle,
+                    Icons.add_circle_rounded,
                     DefterStrings.actionNewNote,
                     _newNote,
                     primary: true,
                   ),
                   action(
-                    Icons.dashboard_customize_outlined,
+                    Symbols.dashboard_customize_rounded,
                     DefterStrings.actionFromTemplate,
                     () => _push(const TemplateGalleryPage()),
                   ),
                   action(
-                    Icons.picture_as_pdf_outlined,
+                    Symbols.picture_as_pdf_rounded,
                     DefterStrings.actionImportPdf,
                     _importPdf,
                   ),
                   action(
-                    Icons.image_outlined,
+                    Symbols.image_rounded,
                     DefterStrings.actionAddImage,
                     _addImage,
                   ),
                   action(
-                    Icons.create_new_folder_outlined,
+                    Symbols.create_new_folder_rounded,
                     DefterStrings.actionNewFolder,
                     _newFolder,
                   ),
@@ -435,7 +437,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         color: colors.surface.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Icon(Icons.more_horiz, color: colors.onSurface),
+                      child: Icon(Symbols.more_horiz_rounded, color: colors.onSurface),
                     ),
                   ),
                 ],
@@ -460,16 +462,22 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           AspectRatio(
             aspectRatio: kNotebookCoverAspectRatio,
-            child: Material(
-              color: colors.surface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: colors.outlineVariant),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: _newNote,
-                child: Icon(Icons.add, size: 30, color: colors.primary),
+            child: PressScale(
+              child: Material(
+                color: colors.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(color: colors.outlineVariant),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: _newNote,
+                  child: Icon(
+                    Symbols.add_rounded,
+                    size: 30,
+                    color: colors.primary,
+                  ),
+                ),
               ),
             ),
           ),
@@ -523,16 +531,18 @@ class _DashboardPageState extends State<DashboardPage> {
     if (data == null) return const SizedBox(height: 56);
 
     Widget card({required Widget child, required VoidCallback onTap}) =>
-        Material(
-          color: colors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: colors.outlineVariant),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: SizedBox(height: 56, child: child),
+        PressScale(
+          child: Material(
+            color: colors.surface,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
+              side: BorderSide(color: colors.outlineVariant),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              child: SizedBox(height: 56, child: child),
+            ),
           ),
         );
 
@@ -550,7 +560,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.folder, size: 30, color: folderColour('/$name')),
+                    Icon(Icons.folder_rounded, size: 30, color: folderColour('/$name')),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -592,7 +602,7 @@ class _DashboardPageState extends State<DashboardPage> {
             message: DefterStrings.actionNewFolder,
             child: card(
               onTap: _newFolder,
-              child: Icon(Icons.add, color: colors.primary),
+              child: Icon(Symbols.add_rounded, color: colors.primary),
             ),
           ),
         ),
@@ -610,23 +620,23 @@ class _DashboardPageState extends State<DashboardPage> {
       spacing: 8,
       runSpacing: 8,
       children: [
-        chip(Icons.apps, DefterStrings.groupAll, null),
-        chip(Icons.reorder, PaperGroup.lined.label, PaperGroup.lined),
-        chip(Icons.grid_4x4, PaperGroup.squared.label, PaperGroup.squared),
-        chip(Icons.blur_on, PaperGroup.dotted.label, PaperGroup.dotted),
+        chip(Symbols.apps_rounded, DefterStrings.groupAll, null),
+        chip(Symbols.reorder_rounded, PaperGroup.lined.label, PaperGroup.lined),
+        chip(Symbols.grid_4x4_rounded, PaperGroup.squared.label, PaperGroup.squared),
+        chip(Symbols.blur_on_rounded, PaperGroup.dotted.label, PaperGroup.dotted),
         chip(
-          Icons.calendar_month_outlined,
+          Symbols.calendar_month_rounded,
           PaperGroup.planner.label,
           PaperGroup.planner,
         ),
-        chip(Icons.account_tree_outlined, PaperGroup.diagram.label, PaperGroup.diagram),
+        chip(Symbols.account_tree_rounded, PaperGroup.diagram.label, PaperGroup.diagram),
         chip(
-          Icons.architecture,
+          Symbols.architecture_rounded,
           PaperGroup.engineering.label,
           PaperGroup.engineering,
         ),
-        chip(Icons.school_outlined, PaperGroup.academic.label, PaperGroup.academic),
-        chip(Icons.star_outline, PaperGroup.special.label, PaperGroup.special),
+        chip(Symbols.school_rounded, PaperGroup.academic.label, PaperGroup.academic),
+        chip(Symbols.star_rounded, PaperGroup.special.label, PaperGroup.special),
       ],
     );
   }
@@ -635,15 +645,19 @@ class _DashboardPageState extends State<DashboardPage> {
 /// The picture behind the top of the home screen: a pale sky and three
 /// ranges of hills, drawn here so that it fits any width.
 class HeroPainter extends CustomPainter {
-  const HeroPainter({required this.dark});
+  const HeroPainter({required this.dark, required this.accent});
 
   final bool dark;
 
+  /// The app's accent: the sky and the hills are tints of it, so the
+  /// picture always goes with the buttons in front of it.
+  final Color accent;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final sky = dark
-        ? const [Color(0xFF232A4D), Color(0xFF3B3566)]
-        : const [Color(0xFFE6ECFF), Color(0xFFD9D3F7)];
+    final paper = dark ? const Color(0xFF111216) : Colors.white;
+    Color tint(double amount) => Color.lerp(paper, accent, amount)!;
+    final sky = dark ? [tint(0.18), tint(0.30)] : [tint(0.07), tint(0.17)];
     canvas.drawRect(
       Offset.zero & size,
       Paint()
@@ -654,8 +668,8 @@ class HeroPainter extends CustomPainter {
         ).createShader(Offset.zero & size),
     );
     final ranges = dark
-        ? const [Color(0xFF3A437A), Color(0xFF2F3768), Color(0xFF262D57)]
-        : const [Color(0xFFC9D2F6), Color(0xFFB3BFEF), Color(0xFF9FADE6)];
+        ? [tint(0.42), tint(0.34), tint(0.26)]
+        : [tint(0.22), tint(0.30), tint(0.38)];
     for (var i = 0; i < ranges.length; i++) {
       final base = size.height * (0.52 + i * 0.16);
       final rise = size.height * (0.3 - i * 0.06);
@@ -683,5 +697,6 @@ class HeroPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(HeroPainter old) => old.dark != dark;
+  bool shouldRepaint(HeroPainter old) =>
+      old.dark != dark || old.accent != accent;
 }

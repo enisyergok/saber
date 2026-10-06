@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:stow_codecs/stow_codecs.dart';
@@ -72,7 +72,7 @@ class _SortDialogOption extends StatelessWidget {
         .lastModifiedNewToOld => t.home.sort.lastModifiedNewToOld,
         .lastModifiedOldToNew => t.home.sort.lastModifiedOldToNew,
       }),
-      trailing: selected ? const Icon(Icons.check) : null,
+      trailing: selected ? const Icon(Symbols.check_rounded) : null,
       selected: selected,
       selectedTileColor: Colors.transparent,
     );
@@ -88,9 +88,41 @@ enum SortMetric {
   static const codec = EnumCodec(values);
 
   Widget get icon => switch (this) {
-    .nameAToZ => const FaIcon(FontAwesomeIcons.arrowDownAZ),
-    .nameZToA => const FaIcon(FontAwesomeIcons.arrowUpAZ),
-    .lastModifiedNewToOld => const Icon(Icons.hourglass_bottom),
-    .lastModifiedOldToNew => const Icon(Icons.hourglass_top),
+    .nameAToZ => const _NameOrderIcon(Symbols.arrow_downward_alt_rounded),
+    .nameZToA => const _NameOrderIcon(Symbols.arrow_upward_alt_rounded),
+    .lastModifiedNewToOld => const Icon(Symbols.clock_arrow_down_rounded),
+    .lastModifiedOldToNew => const Icon(Symbols.clock_arrow_up_rounded),
   };
+}
+
+/// "By name" with the direction next to it, in the manner of the clock
+/// with an arrow that stands for "by date".
+class _NameOrderIcon extends StatelessWidget {
+  const new(this.arrow);
+
+  final IconData arrow;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = IconTheme.of(context).size ?? 24;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: -size * 0.22,
+            top: 0,
+            child: Icon(Symbols.match_case_rounded, size: size),
+          ),
+          Positioned(
+            right: -size * 0.3,
+            top: size * 0.14,
+            child: Icon(arrow, size: size * 0.74),
+          ),
+        ],
+      ),
+    );
+  }
 }

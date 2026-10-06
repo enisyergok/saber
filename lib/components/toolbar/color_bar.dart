@@ -1,7 +1,7 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/toolbar/color_option.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
@@ -173,7 +173,7 @@ class _ColorBarState extends State<ColorBar> {
     final children = <Widget>[
       // pinned colors
       if (stows.pinnedColors.value.isNotEmpty) ...[
-        const ColorOptionSeparatorIcon(icon: Icons.pin_drop),
+        const ColorOptionSeparatorIcon(icon: Symbols.pin_drop_rounded),
         for (final colorString in stows.pinnedColors.value)
           ColorOption(
             isSelected:
@@ -198,7 +198,7 @@ class _ColorBarState extends State<ColorBar> {
           ),
       ],
 
-      const ColorOptionSeparatorIcon(icon: Icons.history),
+      const ColorOptionSeparatorIcon(icon: Symbols.history_rounded),
 
       // recent colors
       for (final colorString in stows.recentColorsPositioned.value.reversed)
@@ -247,7 +247,7 @@ class _ColorBarState extends State<ColorBar> {
           ),
         ),
 
-      const ColorOptionSeparatorIcon(icon: Icons.palette),
+      const ColorOptionSeparatorIcon(icon: Symbols.palette_rounded),
 
       // custom color
       ColorOption(
@@ -259,7 +259,7 @@ class _ColorBarState extends State<ColorBar> {
         tooltip: t.editor.colors.colorPicker,
         child: const DecoratedBox(
           decoration: BoxDecoration(color: Colors.transparent, shape: .circle),
-          child: Center(child: FaIcon(FontAwesomeIcons.droplet, size: 16)),
+          child: Center(child: Icon(Symbols.water_drop_rounded, size: 20)),
         ),
       ),
 

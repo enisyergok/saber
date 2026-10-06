@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/preview_card.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/navbar/vertical_navbar.dart';
@@ -110,7 +111,7 @@ void main() {
       expect(find.text('Projeler'), findsOneWidget);
       // what is inside a folder shows when it is unfolded
       expect(find.text('Fizik'), findsNothing);
-      await tester.tap(find.byIcon(Icons.expand_more));
+      await tester.tap(find.byIcon(Symbols.expand_more_rounded));
       await tester.pump();
       expect(find.text('Fizik'), findsOneWidget);
 

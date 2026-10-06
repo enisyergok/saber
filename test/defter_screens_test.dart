@@ -72,7 +72,6 @@ import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
 import 'package:saber/pages/home/browse.dart';
 import 'package:saber/pages/home/home.dart';
-import 'package:yaru/yaru.dart';
 
 import 'screenshot_goldens_test.dart';
 import 'utils/test_mock_channel_handlers.dart';
@@ -148,8 +147,8 @@ void main() {
       'Arşiv': [],
     };
 
-    final theme = SaberTheme.createThemeFromSeed(
-      YaruColors.blue,
+    // What the app looks like when no accent colour was chosen.
+    final theme = SaberTheme.createDefaultTheme(
       Brightness.light,
       TargetPlatform.android,
     );

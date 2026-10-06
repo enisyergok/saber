@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/editor_gn/gn_pen_profiles.dart';
 import 'package:saber/components/editor_gn/gn_pen_settings.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -349,7 +350,7 @@ void main() {
 
     Future<void> menu(String item) async {
       // the new profile is the last row
-      await tester.tap(find.byIcon(Icons.more_vert).last);
+      await tester.tap(find.byIcon(Symbols.more_vert_rounded).last);
       await tester.pumpAndSettle();
       await tester.tap(find.text(item));
       await tester.pumpAndSettle();

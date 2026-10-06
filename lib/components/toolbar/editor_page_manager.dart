@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_gesture_detector.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
@@ -89,7 +90,7 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                           index: pageIndex,
                           child: const Padding(
                             padding: .all(8),
-                            child: Icon(Icons.drag_handle),
+                            child: Icon(Symbols.drag_handle_rounded),
                           ),
                         ),
                       ),
@@ -101,7 +102,7 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                       IconButton(
                         tooltip: t.editor.menu.insertPage,
                         icon: const AdaptiveIcon(
-                          icon: Icons.insert_page_break,
+                          icon: Symbols.insert_page_break_rounded,
                           cupertinoIcon: CupertinoIcons.add,
                         ),
                         onPressed: () => setState(() {
@@ -112,7 +113,7 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                       IconButton(
                         tooltip: t.editor.menu.duplicatePage,
                         icon: const AdaptiveIcon(
-                          icon: Icons.content_copy,
+                          icon: Symbols.content_copy_rounded,
                           cupertinoIcon: CupertinoIcons.doc_on_clipboard,
                         ),
                         onPressed: () => setState(() {
@@ -125,7 +126,7 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                           page: pageIndex + 1,
                           totalPages: widget.coreInfo.pages.length,
                         ),
-                        icon: const Icon(Icons.cleaning_services),
+                        icon: const Icon(Symbols.cleaning_services_rounded),
                         onPressed: isEmptyLastPage
                             ? null
                             : () => setState(() {
@@ -136,7 +137,7 @@ class _EditorPageManagerState extends State<EditorPageManager> {
                       IconButton(
                         tooltip: t.editor.menu.deletePage,
                         icon: const AdaptiveIcon(
-                          icon: Icons.delete,
+                          icon: Symbols.delete_rounded,
                           cupertinoIcon: CupertinoIcons.delete,
                         ),
                         onPressed: isEmptyLastPage

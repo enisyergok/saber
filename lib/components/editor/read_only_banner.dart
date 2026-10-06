@@ -1,5 +1,6 @@
 import 'package:collapsible/collapsible.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/read_only_reason.dart';
 
@@ -44,13 +45,13 @@ class _ReadOnlyBannerState extends State<ReadOnlyBanner> {
       child: SafeArea(
         child: ListTile(
           onTap: widget.action,
-          leading: const Icon(Icons.edit_off),
+          leading: const Icon(Symbols.edit_off_rounded),
           title: Text(t.editor.readOnlyBanner.title),
           subtitle: Text(subtitle),
           trailing: widget.action != null
               ? IconButton(
                   onPressed: widget.action,
-                  icon: const Icon(Icons.open_in_new),
+                  icon: const Icon(Symbols.open_in_new_rounded),
                 )
               : null,
         ),

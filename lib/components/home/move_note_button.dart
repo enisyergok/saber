@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/grid_folders.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
@@ -32,7 +33,7 @@ class MoveNoteButton extends StatelessWidget {
           },
         );
       },
-      icon: const Icon(Icons.drive_file_move),
+      icon: const Icon(Symbols.drive_file_move_rounded),
     );
   }
 }

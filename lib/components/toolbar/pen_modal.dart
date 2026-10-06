@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:saber/components/toolbar/size_picker.dart';
 import 'package:saber/data/extensions/axis_extensions.dart';
 import 'package:saber/data/prefs.dart';
@@ -109,7 +108,7 @@ class _PenModalState extends State<PenModal> {
               shape: const CircleBorder(),
             ),
             tooltip: t.editor.pens.shapePen,
-            icon: const FaIcon(ShapePen.shapePenIcon),
+            icon: const Icon(ShapePen.shapePenIcon),
           ),
         ],
       ],

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/tools/stylus_action.dart';
 
@@ -230,8 +231,8 @@ class _StylusTestDialogState extends State<StylusTestDialog> {
                             return ListTile(
                               dense: true,
                               leading: signal.penKey
-                                  ? Icon(Icons.check_circle, color: colors.primary)
-                                  : const Icon(Icons.circle_outlined, size: 16),
+                                  ? Icon(Icons.check_circle_rounded, color: colors.primary)
+                                  : const Icon(Symbols.circle_rounded, size: 16),
                               title: Text(signal.text),
                               subtitle: signal.penKey
                                   ? Text(DefterStrings.stylusTestDetected)

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/components/theming/adaptive_switch.dart';
@@ -56,8 +57,8 @@ class _CanvasImageDialogState extends State<CanvasImageDialog> {
             onChanged: stows.editorAutoInvert.value ? setInvertible : null,
             thumbIcon: WidgetStateProperty.all(
               widget.image.invertible
-                  ? const Icon(Icons.invert_colors)
-                  : const Icon(Icons.invert_colors_off),
+                  ? const Icon(Symbols.invert_colors_rounded)
+                  : const Icon(Symbols.invert_colors_off_rounded),
             ),
           ),
         ),
@@ -118,7 +119,7 @@ class _CanvasImageDialogState extends State<CanvasImageDialog> {
         },
         title: t.editor.imageOptions.download,
         child: const AdaptiveIcon(
-          icon: Icons.download,
+          icon: Symbols.download_rounded,
           cupertinoIcon: CupertinoIcons.arrow_down_circle_fill,
         ),
       ),
@@ -131,7 +132,7 @@ class _CanvasImageDialogState extends State<CanvasImageDialog> {
             ? t.editor.imageOptions.removeAsBackground
             : t.editor.imageOptions.setAsBackground,
         child: const AdaptiveIcon(
-          icon: Icons.wallpaper,
+          icon: Symbols.wallpaper_rounded,
           cupertinoIcon: CupertinoIcons.photo_fill_on_rectangle_fill,
         ),
       ),
@@ -143,7 +144,7 @@ class _CanvasImageDialogState extends State<CanvasImageDialog> {
         },
         title: t.editor.imageOptions.delete,
         child: const AdaptiveIcon(
-          icon: Icons.delete,
+          icon: Symbols.delete_rounded,
           cupertinoIcon: CupertinoIcons.trash_fill,
         ),
       ),

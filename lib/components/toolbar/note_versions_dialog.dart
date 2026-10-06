@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/nextcloud/readable_bytes.dart';
 import 'package:saber/data/versions/note_versions.dart';
@@ -140,7 +141,7 @@ class _NoteVersionsDialogState extends State<NoteVersionsDialog> {
                     borderRadius: const .all(.circular(4)),
                   ),
                   child: Icon(
-                    Icons.description_outlined,
+                    Symbols.description_rounded,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 )
@@ -268,7 +269,7 @@ class _VersionPreview extends StatelessWidget {
           errorBuilder: (context, _, _) => ColoredBox(
             color: colorScheme.surfaceContainerHighest,
             child: Icon(
-              Icons.description_outlined,
+              Symbols.description_rounded,
               color: colorScheme.onSurfaceVariant,
             ),
           ),

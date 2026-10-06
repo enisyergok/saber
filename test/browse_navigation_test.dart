@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
 import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
@@ -28,32 +29,32 @@ void main() {
     testWidgets('No back folder at root', (tester) async {
       await tester.pumpWidget(const _BrowseApp());
       await tester.pump();
-      expect(find.byIcon(Icons.arrow_back), findsNothing);
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsNothing);
     });
     testWidgets('Back folder present in subfolder', (tester) async {
       await tester.pumpWidget(const _BrowseApp(path: '/helloworld'));
       await tester.pump();
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsOneWidget);
     });
     testWidgets('Navigate back to root', (tester) async {
       await tester.pumpWidget(const _BrowseApp(path: '/helloworld'));
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
       await tester.pump();
-      expect(find.byIcon(Icons.arrow_back), findsNothing);
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsNothing);
     });
     testWidgets('Navigate back twice to root', (tester) async {
       await tester.pumpWidget(const _BrowseApp(path: '/helloworld'));
       await tester.pump();
       await tester.tap(find.text('subfolder1'));
       await tester.pump();
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
       await tester.pump();
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.arrow_back));
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Symbols.arrow_back_rounded));
       await tester.pump();
-      expect(find.byIcon(Icons.arrow_back), findsNothing);
+      expect(find.byIcon(Symbols.arrow_back_rounded), findsNothing);
     });
   });
 }

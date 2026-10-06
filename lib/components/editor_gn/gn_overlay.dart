@@ -3,10 +3,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/editor_gn/gn_actions.dart';
 import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
 import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/components/toolbar/color_bar.dart';
@@ -150,7 +151,7 @@ class _GnOverlayState extends State<GnOverlay> {
                 showClearFormat: false,
                 customButtons: [
                   QuillToolbarCustomButtonOptions(
-                    icon: const Icon(Icons.note_add_outlined),
+                    icon: const Icon(Symbols.note_add_rounded),
                     tooltip: DefterStrings.linkToNote,
                     onPressed: () async {
                       final path = await NoteLinkDialog.show(
@@ -176,25 +177,25 @@ class _GnOverlayState extends State<GnOverlay> {
             selected: actions.isPen,
             tooltip: actions.writingPen.name,
             onTap: actions.selectPen,
-            child: UniIcon(actions.writingPen.icon, size: 18),
+            child: UniIcon(actions.writingPen.icon, size: 24),
           ),
           _PenChip(
             selected: actions.isPencil,
             tooltip: t.editor.pens.pencil,
             onTap: actions.selectPencil,
-            child: const FaIcon(Pencil.pencilIcon, size: 18),
+            child: const Icon(Pencil.pencilIcon, size: 24),
           ),
           _PenChip(
             selected: actions.isHighlighter,
             tooltip: t.editor.pens.highlighter,
             onTap: actions.selectHighlighter,
-            child: const FaIcon(Highlighter.highlighterIcon, size: 18),
+            child: const Icon(Highlighter.highlighterIcon, size: 24),
           ),
           _PenChip(
             selected: actions.isShape,
             tooltip: t.editor.pens.shapePen,
             onTap: actions.toggleShape,
-            child: const FaIcon(ShapePen.shapePenIcon, size: 18),
+            child: const Icon(ShapePen.shapePenIcon, size: 24),
           ),
           QuickStyleBar(
             pen: tool,
@@ -207,7 +208,7 @@ class _GnOverlayState extends State<GnOverlay> {
             link: widget.controller.links[GnPanel.color]!,
             child: IconButton(
               tooltip: t.editor.toolbar.toggleColors,
-              icon: Icon(Icons.palette_outlined, color: colors.onSurface),
+              icon: Icon(Symbols.palette_rounded, color: colors.onSurface),
               onPressed: () => widget.controller.toggle(GnPanel.color),
             ),
           ),
@@ -226,11 +227,7 @@ class _GnOverlayState extends State<GnOverlay> {
       );
     }
     if (content == null) return null;
-    return Material(
-      color: colors.surfaceContainerHigh,
-      elevation: 3,
-      borderRadius: BorderRadius.circular(24),
-      clipBehavior: Clip.antiAlias,
+    return FloatingPanel.pill(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -258,7 +255,9 @@ class _GnOverlayState extends State<GnOverlay> {
             followerAnchor: Alignment.topLeft,
             offset: const Offset(12, 8),
             showWhenUnlinked: false,
-            child: GnPenSettings(
+            child: Appear(
+              alignment: Alignment.topLeft,
+              child: GnPenSettings(
               getTool: () => spec.currentTool,
               setTool: spec.setTool,
               setColor: spec.setColor,
@@ -274,6 +273,7 @@ class _GnOverlayState extends State<GnOverlay> {
                     MediaQuery.viewPaddingOf(context).vertical -
                     GnEditorBar.contentHeight -
                     20,
+              ),
               ),
             ),
           ),
@@ -316,12 +316,12 @@ class _GnOverlayState extends State<GnOverlay> {
         showWhenUnlinked: false,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: width - 16),
-          child: Material(
-            color: ColorScheme.of(context).surfaceContainerHigh,
-            elevation: 8,
-            borderRadius: BorderRadius.circular(18),
-            clipBehavior: Clip.antiAlias,
-            child: Padding(padding: const EdgeInsets.all(10), child: body),
+          child: Appear(
+            key: ValueKey(panel),
+            alignment: rightSide ? Alignment.topRight : Alignment.topCenter,
+            child: FloatingPanel(
+              child: Padding(padding: const EdgeInsets.all(10), child: body),
+            ),
           ),
         ),
       ),
@@ -336,12 +336,7 @@ class _UndoRedo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
-    return Material(
-      color: colors.surfaceContainerHigh,
-      elevation: 3,
-      borderRadius: BorderRadius.circular(24),
-      clipBehavior: Clip.antiAlias,
+    return FloatingPanel.pill(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         child: Row(
@@ -349,12 +344,12 @@ class _UndoRedo extends StatelessWidget {
           children: [
             IconButton(
               tooltip: t.editor.toolbar.undo,
-              icon: const Icon(Icons.undo),
+              icon: const Icon(Symbols.undo_rounded),
               onPressed: !spec.readOnly && spec.isUndoPossible ? spec.undo : null,
             ),
             IconButton(
               tooltip: t.editor.toolbar.redo,
-              icon: const Icon(Icons.redo),
+              icon: const Icon(Symbols.redo_rounded),
               onPressed: !spec.readOnly && spec.isRedoPossible ? spec.redo : null,
             ),
           ],
@@ -419,7 +414,7 @@ class _MoreTools extends StatelessWidget {
         children: [
           ListTile(
             dense: true,
-            leading: const Icon(Icons.highlight_alt),
+            leading: const Icon(Symbols.highlight_alt_rounded),
             title: Text(t.editor.pens.laserPointer),
             onTap: actions.selectLaser,
           ),
@@ -428,7 +423,7 @@ class _MoreTools extends StatelessWidget {
               valueListenable: stows.editorFingerDrawing,
               builder: (context, value, _) => SwitchListTile(
                 dense: true,
-                secondary: const Icon(Icons.touch_app_outlined),
+                secondary: const Icon(Symbols.touch_app_rounded),
                 title: Text(t.editor.toolbar.toggleFingerDrawing),
                 value: value,
                 onChanged: spec.readOnly
@@ -438,7 +433,7 @@ class _MoreTools extends StatelessWidget {
             ),
           ListTile(
             dense: true,
-            leading: const Icon(Icons.fullscreen),
+            leading: const Icon(Symbols.fullscreen_rounded),
             title: Text(t.editor.toolbar.fullscreen),
             onTap: () {
               controller.close();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
 import 'package:saber/data/prefs.dart';
@@ -65,9 +66,9 @@ class SyncIndicator extends HookWidget {
                 duration: const Duration(milliseconds: 200),
                 child: switch (status) {
                   .done => null,
-                  .uploading => const Icon(Icons.upload),
-                  .downloading => const Icon(Icons.download),
-                  .merging => const Icon(Icons.sync),
+                  .uploading => const Icon(Symbols.upload_rounded),
+                  .downloading => const Icon(Symbols.download_rounded),
+                  .merging => const Icon(Symbols.sync_rounded),
                 },
               );
             },

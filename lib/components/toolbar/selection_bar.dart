@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -32,7 +33,7 @@ class SelectionBar extends StatelessWidget {
               shape: const CircleBorder(),
             ),
             tooltip: DefterStrings.recognize,
-            icon: const Icon(Icons.text_fields),
+            icon: const Icon(Symbols.text_fields_rounded),
           ),
         IconButton(
           onPressed: duplicateSelection,
@@ -43,7 +44,7 @@ class SelectionBar extends StatelessWidget {
           ),
           tooltip: t.editor.selectionBar.duplicate,
           icon: const AdaptiveIcon(
-            icon: Icons.content_copy,
+            icon: Symbols.content_copy_rounded,
             cupertinoIcon: CupertinoIcons.doc_on_clipboard,
           ),
         ),
@@ -56,7 +57,7 @@ class SelectionBar extends StatelessWidget {
           ),
           tooltip: t.editor.selectionBar.delete,
           icon: const AdaptiveIcon(
-            icon: Icons.delete,
+            icon: Symbols.delete_rounded,
             cupertinoIcon: CupertinoIcons.delete,
           ),
         ),

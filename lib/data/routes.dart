@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:path_to_regexp/path_to_regexp.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -52,7 +53,7 @@ abstract class HomeRoutes {
       destination: NavigationDestination(
         label: t.home.tabs.browse,
         icon: const AdaptiveIcon(
-          icon: Icons.auto_stories,
+          icon: Symbols.auto_stories_rounded,
           cupertinoIcon: CupertinoIcons.book_fill,
         ),
       ),
@@ -62,7 +63,7 @@ abstract class HomeRoutes {
       destination: NavigationDestination(
         label: t.home.tabs.home,
         icon: const AdaptiveIcon(
-          icon: Icons.schedule,
+          icon: Symbols.schedule_rounded,
           cupertinoIcon: CupertinoIcons.clock_fill,
         ),
       ),
@@ -72,7 +73,7 @@ abstract class HomeRoutes {
       destination: NavigationDestination(
         label: t.home.tabs.whiteboard,
         icon: const AdaptiveIcon(
-          icon: Icons.draw,
+          icon: Symbols.draw_rounded,
           cupertinoIcon: CupertinoIcons.pencil_outline,
         ),
       ),
@@ -82,7 +83,7 @@ abstract class HomeRoutes {
       destination: NavigationDestination(
         label: t.home.tabs.settings,
         icon: const AdaptiveIcon(
-          icon: Icons.settings,
+          icon: Symbols.settings_rounded,
           cupertinoIcon: CupertinoIcons.settings_solid,
         ),
       ),

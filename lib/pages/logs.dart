@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:logging/logging.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/font_fallbacks.dart';
@@ -71,7 +72,7 @@ class const LogsPage({super.key}) extends StatelessWidget {
                   if (logsHistory.isFrozen)
                     IconButton(
                       icon: const AdaptiveIcon(
-                        icon: Icons.play_arrow,
+                        icon: Icons.play_arrow_rounded,
                         cupertinoIcon: CupertinoIcons.play_arrow,
                       ),
                       onPressed: logsHistory.unfreeze,
@@ -79,14 +80,14 @@ class const LogsPage({super.key}) extends StatelessWidget {
                   else
                     IconButton(
                       icon: const AdaptiveIcon(
-                        icon: Icons.pause,
+                        icon: Icons.pause_rounded,
                         cupertinoIcon: CupertinoIcons.pause,
                       ),
                       onPressed: logsHistory.freeze,
                     ),
                   IconButton(
                     icon: const AdaptiveIcon(
-                      icon: Icons.copy,
+                      icon: Symbols.content_copy_rounded,
                       cupertinoIcon: CupertinoIcons.doc_on_clipboard,
                     ),
                     onPressed: logsHistory.history.isEmpty

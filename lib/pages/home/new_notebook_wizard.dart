@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/paper_thumb.dart';
 import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -140,7 +141,7 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
               if (_step > 0 && wide)
                 TextButton.icon(
                   onPressed: () => _goTo(_step - 1),
-                  icon: const Icon(Icons.chevron_left),
+                  icon: const Icon(Symbols.chevron_left_rounded),
                   label: Text(DefterStrings.back),
                 )
               else if (_step > 0)
@@ -148,7 +149,7 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                 IconButton(
                   tooltip: DefterStrings.back,
                   onPressed: () => _goTo(_step - 1),
-                  icon: const Icon(Icons.chevron_left),
+                  icon: const Icon(Symbols.chevron_left_rounded),
                 ),
               const Spacer(),
               if (_step < NewNotebookWizard.stepCount - 1) ...[
@@ -161,14 +162,14 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                 const SizedBox(width: 8),
                 FilledButton.icon(
                   onPressed: () => _goTo(_step + 1),
-                  icon: const Icon(Icons.chevron_right),
+                  icon: const Icon(Symbols.chevron_right_rounded),
                   iconAlignment: IconAlignment.end,
                   label: Text(DefterStrings.next),
                 ),
               ] else
                 FilledButton.icon(
                   onPressed: _create,
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Symbols.check_rounded),
                   label: Text(DefterStrings.stepCreate),
                 ),
             ],
@@ -327,7 +328,7 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
             ),
             IconButton(
               tooltip: DefterStrings.cancelWord,
-              icon: const Icon(Icons.close),
+              icon: const Icon(Symbols.close_rounded),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -571,12 +572,12 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                   segments: [
                     ButtonSegment(
                       value: false,
-                      icon: const Icon(Icons.crop_portrait),
+                      icon: const Icon(Symbols.crop_portrait_rounded),
                       label: Text(DefterStrings.orientationPortrait),
                     ),
                     ButtonSegment(
                       value: true,
-                      icon: const Icon(Icons.crop_landscape),
+                      icon: const Icon(Symbols.crop_landscape_rounded),
                       label: Text(DefterStrings.orientationLandscape),
                     ),
                   ],
@@ -694,11 +695,11 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
         dense: true,
         contentPadding: EdgeInsets.only(left: 8 + depth * 18.0, right: 8),
         leading: Icon(
-          path == '/' ? Icons.home_outlined : Icons.folder,
+          path == '/' ? Symbols.home_rounded : Icons.folder_rounded,
           color: path == '/' ? colors.onSurface : folderColour(path),
         ),
         title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-        trailing: selected ? Icon(Icons.check, color: colors.primary) : null,
+        trailing: selected ? Icon(Symbols.check_rounded, color: colors.primary) : null,
         selected: selected,
         onTap: () => setState(() => _spec.folder = path),
       );
@@ -754,7 +755,7 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
-            const Icon(Icons.edit_outlined, size: 16),
+            const Icon(Symbols.edit_rounded, size: 16),
           ],
         ),
       ),

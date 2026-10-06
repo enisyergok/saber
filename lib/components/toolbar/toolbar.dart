@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:collapsible/collapsible.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/toolbar/note_link_dialog.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/links/note_link.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:keybinder/keybinder.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
 import 'package:saber/components/theming/uni_icon.dart';
@@ -374,7 +373,7 @@ class _ToolbarState extends State<Toolbar> {
                       showClearFormat: false,
                       customButtons: [
                         QuillToolbarCustomButtonOptions(
-                          icon: const Icon(Icons.note_add_outlined),
+                          icon: const Icon(Symbols.note_add_rounded),
                           tooltip: DefterStrings.linkToNote,
                           onPressed: () async {
                             final path = await NoteLinkDialog.show(
@@ -421,7 +420,7 @@ class _ToolbarState extends State<Toolbar> {
                   }
                 },
                 padding: buttonPadding,
-                child: UniIcon(_writingPen.icon, size: 16),
+                child: UniIcon(_writingPen.icon, size: 22),
               ),
               ToolbarIconButton(
                 tooltip: t.editor.pens.pencil,
@@ -440,7 +439,7 @@ class _ToolbarState extends State<Toolbar> {
                   }
                 },
                 padding: buttonPadding,
-                child: const FaIcon(Pencil.pencilIcon, size: 16),
+                child: const Icon(Pencil.pencilIcon, size: 22),
               ),
               ToolbarIconButton(
                 tooltip: t.editor.pens.highlighter,
@@ -459,7 +458,7 @@ class _ToolbarState extends State<Toolbar> {
                   }
                 },
                 padding: buttonPadding,
-                child: const FaIcon(Highlighter.highlighterIcon, size: 16),
+                child: const Icon(Highlighter.highlighterIcon, size: 22),
               ),
               ToolbarIconButton(
                 tooltip: t.editor.pens.shapePen,
@@ -467,7 +466,7 @@ class _ToolbarState extends State<Toolbar> {
                 enabled: !widget.readOnly,
                 onPressed: toggleShapePen,
                 padding: buttonPadding,
-                child: const FaIcon(ShapePen.shapePenIcon, size: 16),
+                child: const Icon(ShapePen.shapePenIcon, size: 22),
               ),
               ValueListenableBuilder(
                 valueListenable: showColorOptions,
@@ -482,7 +481,7 @@ class _ToolbarState extends State<Toolbar> {
                   );
                 },
                 child: currentColor == null
-                    ? const Icon(Icons.palette)
+                    ? const Icon(Symbols.palette_rounded)
                     : Container(
                         width: 18,
                         height: 18,
@@ -528,7 +527,7 @@ class _ToolbarState extends State<Toolbar> {
                 enabled: !widget.readOnly,
                 onPressed: toggleEraser,
                 padding: buttonPadding,
-                child: const FaIcon(FontAwesomeIcons.eraser, size: 16),
+                child: const Icon(Symbols.ink_eraser_rounded, size: 22),
               ),
               ToolbarIconButton(
                 tooltip: t.editor.pens.laserPointer,
@@ -549,7 +548,7 @@ class _ToolbarState extends State<Toolbar> {
                 onPressed: widget.pickPhoto,
                 padding: buttonPadding,
                 child: const AdaptiveIcon(
-                  icon: Icons.photo,
+                  icon: Symbols.photo_rounded,
                   cupertinoIcon: CupertinoIcons.photo,
                 ),
               ),
@@ -561,7 +560,7 @@ class _ToolbarState extends State<Toolbar> {
                   onPressed: widget.takePhoto,
                   padding: buttonPadding,
                   child: const AdaptiveIcon(
-                    icon: Icons.photo_camera,
+                    icon: Symbols.photo_camera_rounded,
                     cupertinoIcon: CupertinoIcons.camera,
                   ),
                 ),
@@ -572,7 +571,7 @@ class _ToolbarState extends State<Toolbar> {
                 onPressed: widget.toggleTextEditing,
                 padding: buttonPadding,
                 child: const AdaptiveIcon(
-                  icon: Icons.text_fields,
+                  icon: Symbols.text_fields_rounded,
                   cupertinoIcon: CupertinoIcons.text_cursor,
                 ),
               ),
@@ -586,7 +585,7 @@ class _ToolbarState extends State<Toolbar> {
                     onPressed: widget.undo,
                     padding: buttonPadding,
                     child: const AdaptiveIcon(
-                      icon: Icons.undo,
+                      icon: Symbols.undo_rounded,
                       cupertinoIcon: CupertinoIcons.arrow_uturn_left,
                     ),
                   ),
@@ -596,7 +595,7 @@ class _ToolbarState extends State<Toolbar> {
                     onPressed: widget.redo,
                     padding: buttonPadding,
                     child: const AdaptiveIcon(
-                      icon: Icons.redo,
+                      icon: Symbols.redo_rounded,
                       cupertinoIcon: CupertinoIcons.arrow_uturn_right,
                     ),
                   ),
@@ -625,8 +624,8 @@ class _ToolbarState extends State<Toolbar> {
                 padding: buttonPadding,
                 child: AdaptiveIcon(
                   icon: DynamicMaterialApp.isFullscreen
-                      ? Icons.fullscreen_exit
-                      : Icons.fullscreen,
+                      ? Symbols.fullscreen_exit_rounded
+                      : Symbols.fullscreen_rounded,
                   cupertinoIcon: DynamicMaterialApp.isFullscreen
                       ? CupertinoIcons.fullscreen_exit
                       : CupertinoIcons.fullscreen,
@@ -645,7 +644,7 @@ class _ToolbarState extends State<Toolbar> {
                   );
                 },
                 child: const AdaptiveIcon(
-                  icon: Icons.share,
+                  icon: Symbols.share_rounded,
                   cupertinoIcon: CupertinoIcons.share,
                 ),
               ),

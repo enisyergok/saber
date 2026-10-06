@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -52,7 +53,7 @@ class GnPenProfiles extends StatelessWidget {
             IconButton(
               tooltip: DefterStrings.addProfile,
               visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Symbols.add_rounded),
               onPressed: onAdd,
             ),
           ],
@@ -86,7 +87,7 @@ class GnPenProfiles extends StatelessWidget {
             children: [
               UniIcon(
                 PenStyles.icon(profile.style),
-                size: 16,
+                size: 22,
                 color: selected ? colors.primary : colors.onSurface,
               ),
               const SizedBox(width: 10),
@@ -128,7 +129,7 @@ class GnPenProfiles extends StatelessWidget {
               PopupMenuButton<int>(
                 tooltip: '',
                 padding: EdgeInsets.zero,
-                icon: const Icon(Icons.more_vert, size: 18),
+                icon: const Icon(Symbols.more_vert_rounded, size: 18),
                 onSelected: (value) {
                   switch (value) {
                     case 0:

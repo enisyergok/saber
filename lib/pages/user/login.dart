@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/nextcloud/done_login_step.dart';
 import 'package:saber/components/nextcloud/enc_login_step.dart';
 import 'package:saber/components/nextcloud/nc_login_step.dart';
@@ -111,7 +112,7 @@ class _NcLoginPageState extends State<NcLoginPage> {
         }),
         leading: widget.forceAppBarLeading
             ? IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Symbols.arrow_back_rounded),
                 onPressed: () => Navigator.of(context).pop(),
               )
             : null,

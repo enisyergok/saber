@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/editor_gn/gn_actions.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
@@ -152,7 +151,7 @@ class GnEditorBar extends StatelessWidget {
           ),
           IconButton(
             tooltip: DefterStrings.gnNewTab,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Symbols.add_rounded),
             onPressed: onNewTab,
           ),
         ],
@@ -193,13 +192,13 @@ class GnEditorBar extends StatelessWidget {
           IconButton(
             tooltip: DefterStrings.pageSidebar,
             icon: Icon(
-              sidebarShown ? Icons.view_sidebar : Icons.view_sidebar_outlined,
+              sidebarShown ? Icons.view_sidebar_rounded : Symbols.view_sidebar_rounded,
             ),
             onPressed: sidebarAvailable ? onToggleSidebar : null,
           ),
           IconButton(
             tooltip: DefterStrings.askNotes,
-            icon: const Icon(Icons.auto_awesome_outlined),
+            icon: const Icon(Symbols.auto_awesome_rounded),
             onPressed: onAskNotes,
           ),
           Expanded(
@@ -210,32 +209,32 @@ class GnEditorBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     toolButton(
-                      icon: const Icon(CupertinoIcons.lasso),
+                      icon: const Icon(Symbols.lasso_select_rounded),
                       tooltip: t.editor.toolbar.select,
                       selected: tool is Select,
                       onPressed: readOnly ? null : actions.selectLasso,
                     ),
                     toolButton(
-                      icon: UniIcon(actions.writingPen.icon, size: 18),
+                      icon: UniIcon(actions.writingPen.icon, size: 24),
                       tooltip: actions.writingPen.name,
                       selected: actions.isDrawing,
                       panel: GnPanel.penSettings,
                       onPressed: readOnly ? null : actions.tapPenButton,
                     ),
                     toolButton(
-                      icon: const FaIcon(FontAwesomeIcons.eraser, size: 18),
+                      icon: const Icon(Symbols.ink_eraser_rounded),
                       tooltip: t.editor.toolbar.toggleEraser,
                       selected: tool is Eraser,
                       onPressed: readOnly ? null : actions.selectEraser,
                     ),
                     toolButton(
-                      icon: const Icon(Icons.text_fields),
+                      icon: const Icon(Symbols.text_fields_rounded),
                       tooltip: t.editor.toolbar.text,
                       selected: spec.textEditing,
                       onPressed: readOnly ? null : spec.toggleTextEditing,
                     ),
                     toolButton(
-                      icon: const Icon(Icons.photo_outlined),
+                      icon: const Icon(Symbols.photo_rounded),
                       tooltip: t.editor.toolbar.photo,
                       selected: false,
                       onPressed: readOnly ? null : spec.pickPhoto,
@@ -243,20 +242,20 @@ class GnEditorBar extends StatelessWidget {
                     if (spec.takePhoto != null)
                       toolButton(
                         key: const Key('gnTakePhoto'),
-                        icon: const Icon(Icons.photo_camera_outlined),
+                        icon: const Icon(Symbols.photo_camera_rounded),
                         tooltip: DefterStrings.takePhoto,
                         selected: false,
                         onPressed: readOnly ? null : spec.takePhoto,
                       ),
                     toolButton(
-                      icon: const Icon(Icons.expand_more),
+                      icon: const Icon(Symbols.expand_more_rounded),
                       tooltip: DefterStrings.gnMoreTools,
                       selected: controller.panel == GnPanel.more,
                       panel: GnPanel.more,
                       onPressed: () => controller.toggle(GnPanel.more),
                     ),
                     toolButton(
-                      icon: const Icon(Icons.mic_none),
+                      icon: const Icon(Symbols.mic_rounded),
                       tooltip: DefterStrings.recordings,
                       selected: false,
                       onPressed: onRecordings,
@@ -280,20 +279,20 @@ class GnEditorBar extends StatelessWidget {
           ),
           IconButton(
             tooltip: t.editor.menu.insertPage,
-            icon: const Icon(Icons.note_add_outlined),
+            icon: const Icon(Symbols.note_add_rounded),
             onPressed: spec.readOnly ? null : onAddPage,
           ),
           CompositedTransformTarget(
             link: controller.links[GnPanel.export]!,
             child: IconButton(
               tooltip: t.editor.toolbar.export,
-              icon: const Icon(Icons.ios_share),
+              icon: const Icon(Symbols.ios_share_rounded),
               onPressed: () => controller.toggle(GnPanel.export),
             ),
           ),
           IconButton(
             tooltip: DefterStrings.gnMenu,
-            icon: const Icon(Icons.more_horiz),
+            icon: const Icon(Symbols.more_horiz_rounded),
             onPressed: onMore,
           ),
         ],
@@ -384,7 +383,7 @@ class _Tab extends StatelessWidget {
                 ),
               ),
               if (selected && onRename != null)
-                Icon(Icons.keyboard_arrow_down, size: 18, color: palette.onHeader),
+                Icon(Symbols.keyboard_arrow_down_rounded, size: 18, color: palette.onHeader),
               if (onClose != null)
                 IconButton(
                   iconSize: 16,
@@ -392,7 +391,7 @@ class _Tab extends StatelessWidget {
                   constraints: const BoxConstraints.tightFor(width: 28, height: 28),
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: onClose,
-                  icon: Icon(Icons.close, color: palette.onHeader),
+                  icon: Icon(Symbols.close_rounded, color: palette.onHeader),
                 ),
             ],
           ),

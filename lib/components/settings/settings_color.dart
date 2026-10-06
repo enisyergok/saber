@@ -2,6 +2,7 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/adaptive_switch.dart';
 import 'package:saber/data/prefs.dart';
@@ -67,7 +68,7 @@ class SettingsColor extends HookWidget {
       afterChange?.call(color);
     }, [color]);
 
-    final icon = this.icon ?? iconBuilder?.call(color) ?? Icons.settings;
+    final icon = this.icon ?? iconBuilder?.call(color) ?? Symbols.settings_rounded;
 
     return ListTile(
       contentPadding: const .symmetric(vertical: 4, horizontal: 16),

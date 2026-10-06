@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_switch_list_tile.dart';
 import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/pages/home/settings.dart';
@@ -46,7 +47,7 @@ class _SettingsSwitchState extends State<SettingsSwitch> {
   Widget build(BuildContext context) {
     var icon = widget.icon;
     icon ??= widget.iconBuilder?.call(widget.pref.value);
-    icon ??= Icons.settings;
+    icon ??= Symbols.settings_rounded;
 
     return GestureDetector(
       onLongPress: () {

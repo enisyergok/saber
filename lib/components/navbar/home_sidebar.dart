@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -167,7 +168,7 @@ class _HomeSidebarState extends State<HomeSidebar> {
               padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
               child: Row(
                 children: [
-                  Icon(Icons.folder, size: 18, color: folderColour(path)),
+                  Icon(Icons.folder_rounded, size: 18, color: folderColour(path)),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -190,8 +191,8 @@ class _HomeSidebarState extends State<HomeSidebar> {
                         padding: const EdgeInsets.all(4),
                         child: Icon(
                           _open.contains(name)
-                              ? Icons.expand_less
-                              : Icons.expand_more,
+                              ? Symbols.expand_less_rounded
+                              : Symbols.expand_more_rounded,
                           size: 18,
                         ),
                       ),
@@ -219,7 +220,7 @@ class _HomeSidebarState extends State<HomeSidebar> {
                 padding: const EdgeInsets.fromLTRB(18, 14, 12, 12),
                 child: Row(
                   children: [
-                    Icon(Icons.auto_stories, color: colors.primary),
+                    Icon(Symbols.auto_stories_rounded, color: colors.primary),
                     const SizedBox(width: 10),
                     Text(
                       DefterStrings.appName,
@@ -231,56 +232,56 @@ class _HomeSidebarState extends State<HomeSidebar> {
                 ),
               ),
               item(
-                Icons.home_outlined,
+                Symbols.home_rounded,
                 DefterStrings.navHome,
                 selected: widget.subpage == HomePage.dashboardSubpage,
                 onTap: () => widget.go(RoutePaths.dashboard),
               ),
               item(
-                Icons.description_outlined,
+                Symbols.description_rounded,
                 DefterStrings.navNotes,
                 selected: browsing && (widget.path == null || widget.path!.isEmpty),
                 onTap: () => widget.go(HomeRoutes.browseFilePath('/')),
               ),
               item(
-                Icons.calendar_month_outlined,
+                Symbols.calendar_month_rounded,
                 DefterStrings.navPlanners,
                 selected: false,
                 onTap: () =>
                     _push(const TemplateGalleryPage(group: PaperGroup.planner)),
               ),
               item(
-                Icons.dashboard_customize_outlined,
+                Symbols.dashboard_customize_rounded,
                 DefterStrings.navTemplates,
                 selected: false,
                 onTap: () => _push(const TemplateGalleryPage()),
               ),
               item(
-                Icons.star_outline,
+                Symbols.star_rounded,
                 DefterStrings.navFavorites,
                 selected: false,
                 onTap: () => _push(const FavoritesPage()),
               ),
               item(
-                Icons.schedule,
+                Symbols.schedule_rounded,
                 DefterStrings.navRecent,
                 selected: widget.subpage == HomePage.recentSubpage,
                 onTap: () => widget.go(HomeRoutes.routes[1].path),
               ),
               item(
-                Icons.draw_outlined,
+                Symbols.draw_rounded,
                 DefterStrings.navWhiteboard,
                 selected: widget.subpage == HomePage.whiteboardSubpage,
                 onTap: () => widget.go(HomeRoutes.routes[2].path),
               ),
               item(
-                Icons.delete_outline,
+                Symbols.delete_rounded,
                 DefterStrings.navTrash,
                 selected: false,
                 onTap: () => _push(const TrashPage()),
               ),
               item(
-                Icons.settings_outlined,
+                Symbols.settings_rounded,
                 DefterStrings.navSettings,
                 selected: widget.subpage == HomePage.settingsSubpage,
                 onTap: () => widget.go(HomeRoutes.routes[3].path),
@@ -303,7 +304,7 @@ class _HomeSidebarState extends State<HomeSidebar> {
                       tooltip: DefterStrings.folders,
                       visualDensity: VisualDensity.compact,
                       icon: Icon(
-                        _foldersShown ? Icons.expand_less : Icons.expand_more,
+                        _foldersShown ? Symbols.expand_less_rounded : Symbols.expand_more_rounded,
                         size: 20,
                       ),
                       onPressed: () =>
@@ -325,7 +326,7 @@ class _HomeSidebarState extends State<HomeSidebar> {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: _newFolder,
-                    icon: const Icon(Icons.add, size: 18),
+                    icon: const Icon(Symbols.add_rounded, size: 18),
                     label: Text(DefterStrings.newFolder),
                   ),
                 ),

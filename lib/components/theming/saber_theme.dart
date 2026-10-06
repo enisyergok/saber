@@ -1,27 +1,323 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/eink/eink_style.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:sbn/font_fallbacks.dart';
 import 'package:yaru/yaru.dart';
 
 abstract class SaberTheme {
+  /// Defter's theme for [colorScheme]: its accent on neutral paper, with
+  /// one set of corners, lines, shadows and motion for every component.
   static ThemeData createTheme(
     ColorScheme colorScheme,
     TargetPlatform platform,
   ) {
-    colorScheme = _adjustColorScheme(colorScheme, platform);
+    colorScheme = DefterDesign.withPaper(colorScheme);
+    final light = colorScheme.brightness == .light;
+    final textTheme = _Components.textTheme(platform, colorScheme);
+    // The same styles with their sizes filled in, for the components that
+    // are given a whole style here (a theme's own styles only get their
+    // sizes where they are used).
+    final type = Typography.material2021(
+      platform: platform,
+      colorScheme: colorScheme,
+    ).englishLike.merge(textTheme);
+    final hairline = BorderSide(color: colorScheme.outlineVariant, width: 1);
+    // The shadow under what floats: wide and faint.
+    final shadow = colorScheme.shadow.withValues(alpha: light ? 0.18 : 0.6);
+
+    final buttonText = WidgetStatePropertyAll(
+      type.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+    );
+    const buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
+      DefterDesign.controlShape,
+    );
+    const buttonSize = WidgetStatePropertyAll(Size(48, 44));
+    const buttonPadding = WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+    );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      textTheme: _Components.textTheme(platform, colorScheme),
+      textTheme: textTheme,
       platform: platform,
-      progressIndicatorTheme: _Components.progressIndicatorTheme,
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       cardColor: colorScheme.surface,
-      cardTheme: _Components.cardTheme(colorScheme),
+      shadowColor: shadow,
+      // A press dims what is pressed; nothing ripples.
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: colorScheme.onSurface.withValues(alpha: 0.06),
+      hoverColor: colorScheme.onSurface.withValues(alpha: 0.04),
+      focusColor: colorScheme.primary.withValues(alpha: 0.10),
+      dividerColor: colorScheme.outlineVariant,
+      progressIndicatorTheme: _Components.progressIndicatorTheme,
       cupertinoOverrideTheme: _Components.cupertinoOverrideTheme,
-      appBarTheme: _Components.appBarTheme,
+      // Pages slide in from the side and can be followed with the eye.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final target in TargetPlatform.values)
+            target: const DefterPageTransitionsBuilder(),
+        },
+      ),
+      iconTheme: IconThemeData(
+        color: colorScheme.onSurface,
+        size: 24,
+        weight: 400,
+        opticalSize: 24,
+      ),
+      appBarTheme: AppBarTheme(
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: colorScheme.onSurface,
+        titleTextStyle: type.titleLarge?.copyWith(
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.2,
+        ),
+      ),
+      cardTheme: _Components.cardTheme(colorScheme),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
+        thickness: 1,
+        space: 1,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: shadow,
+        elevation: 12,
+        shape: DefterDesign.sheetShape,
+        titleTextStyle: type.titleLarge?.copyWith(
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.2,
+        ),
+        contentTextStyle: type.bodyMedium?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+          height: 1.4,
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: colorScheme.surface,
+        modalBackgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: shadow,
+        elevation: 12,
+        modalElevation: 12,
+        dragHandleColor: colorScheme.outline,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(DefterDesign.radiusSheet),
+          ),
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: shadow,
+        elevation: 8,
+        shape: DefterDesign.cardShape,
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(colorScheme.surface),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          shadowColor: WidgetStatePropertyAll(shadow),
+          elevation: const WidgetStatePropertyAll(8),
+          shape: const WidgetStatePropertyAll(DefterDesign.cardShape),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: colorScheme.inverseSurface,
+        // (Left to take its size where it is shown, like the same style
+        // of the e-ink theme: the two are blended when the mode changes.)
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onInverseSurface,
+        ),
+        actionTextColor: colorScheme.inversePrimary,
+        elevation: 6,
+        shape: DefterDesign.controlShape,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: colorScheme.inverseSurface.withValues(alpha: 0.94),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ),
+        textStyle: type.bodySmall?.copyWith(
+          color: colorScheme.onInverseSurface,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        waitDuration: const Duration(milliseconds: 500),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(
+          shape: buttonShape,
+          textStyle: buttonText,
+          minimumSize: buttonSize,
+          padding: buttonPadding,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          shape: buttonShape,
+          textStyle: buttonText,
+          minimumSize: buttonSize,
+          padding: buttonPadding,
+          // A quiet button: a tint of paper, the accent for its words.
+          elevation: const WidgetStatePropertyAll(0),
+          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? colorScheme.onSurface.withValues(alpha: 0.06)
+                : colorScheme.surfaceContainerHigh,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? colorScheme.onSurface.withValues(alpha: 0.38)
+                : colorScheme.primary,
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(
+          shape: buttonShape,
+          textStyle: buttonText,
+          minimumSize: buttonSize,
+          padding: buttonPadding,
+          side: WidgetStatePropertyAll(
+            BorderSide(color: colorScheme.outline, width: 1),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(shape: buttonShape, textStyle: buttonText),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          shape: buttonShape,
+          side: WidgetStatePropertyAll(hairline),
+          textStyle: WidgetStatePropertyAll(
+            type.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colorScheme.primaryContainer
+                : colorScheme.surface,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colorScheme.onPrimaryContainer
+                : colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: colorScheme.surface,
+        selectedColor: colorScheme.primaryContainer,
+        surfaceTintColor: Colors.transparent,
+        side: hairline,
+        shape: DefterDesign.controlShape,
+        labelStyle: type.labelLarge?.copyWith(
+          fontWeight: FontWeight.w500,
+        ),
+        showCheckmark: false,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: colorScheme.surfaceContainer,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(DefterDesign.radiusControl),
+          ),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(DefterDesign.radiusControl),
+          ),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(DefterDesign.radiusControl),
+          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        // A white knob that slides on a track of accent or of grey.
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
+        thumbIcon: const WidgetStatePropertyAll<Icon?>(null),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          final on = states.contains(WidgetState.selected);
+          final color = on ? colorScheme.primary : colorScheme.outline;
+          return states.contains(WidgetState.disabled)
+              ? color.withValues(alpha: 0.4)
+              : color;
+        }),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      sliderTheme: SliderThemeData(
+        trackHeight: 4,
+        activeTrackColor: colorScheme.primary,
+        inactiveTrackColor: colorScheme.surfaceContainerHighest,
+        thumbColor: light ? Colors.white : colorScheme.onSurface,
+        overlayColor: Colors.transparent,
+        thumbShape: const RoundSliderThumbShape(
+          enabledThumbRadius: 11,
+          elevation: 3,
+          pressedElevation: 5,
+        ),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+      ),
+      checkboxTheme: const CheckboxThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+        ),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: colorScheme.onSurfaceVariant,
+        shape: DefterDesign.controlShape,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        elevation: 4,
+        focusElevation: 4,
+        hoverElevation: 5,
+        highlightElevation: 2,
+        shape: DefterDesign.cardShape,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        indicatorColor: colorScheme.primaryContainer,
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        indicatorColor: colorScheme.primaryContainer,
+      ),
+      scrollbarTheme: ScrollbarThemeData(
+        radius: const Radius.circular(4),
+        thickness: const WidgetStatePropertyAll(5.0),
+        thumbColor: WidgetStatePropertyAll(
+          colorScheme.onSurface.withValues(alpha: 0.28),
+        ),
+      ),
     );
   }
 
@@ -209,48 +505,17 @@ abstract class SaberTheme {
       return getThemeFromYaru(seedColor, brightness, platform, highContrast);
     }
 
-    final ColorScheme colorScheme;
-    if (platform.isCupertino) {
-      final bg = brightness == .light
-          ? CupertinoColors.systemBackground.color
-          : CupertinoColors.systemBackground.darkColor;
-      colorScheme = ColorScheme.fromSeed(
-        brightness: brightness,
-        seedColor: seedColor,
-        surface: bg,
-        surfaceTint: bg,
-        dynamicSchemeVariant: .neutral,
-      );
-    } else {
-      colorScheme = ColorScheme.fromSeed(
-        brightness: brightness,
-        seedColor: seedColor,
-      );
-    }
-    return createTheme(colorScheme, platform);
-  }
-
-  /// Adjusts certain colors in the [ColorScheme].
-  static ColorScheme _adjustColorScheme(
-    ColorScheme colorScheme,
-    TargetPlatform platform,
-  ) {
-    return colorScheme.copyWith(
-      surface: platform.isCupertino
-          ? (colorScheme.brightness == .light
-                ? CupertinoColors.white
-                : CupertinoColors.darkBackgroundGray)
-          : null,
-      // Hack: Mimic Material 3 Expressive color schemes by making
-      // surfaceContainer much closer to surface.
-      // Remove this when Flutter supports M3E natively.
-      surfaceContainer: Color.lerp(
-        colorScheme.surface,
-        colorScheme.surfaceTint,
-        0.02,
-      )!,
+    return createTheme(
+      DefterDesign.colorScheme(brightness, accent: seedColor),
+      platform,
     );
   }
+
+  /// The theme when no accent colour was chosen: Defter's own ink blue.
+  static ThemeData createDefaultTheme(
+    Brightness brightness,
+    TargetPlatform platform,
+  ) => createTheme(DefterDesign.colorScheme(brightness), platform);
 
   static ThemeData getThemeFromYaru(
     Color primaryColor,
@@ -320,9 +585,48 @@ abstract class _Components {
       platform: platform,
       colorScheme: colorScheme,
     );
-    final textTheme = colorScheme.brightness == .dark
+    final base = colorScheme.brightness == .dark
         ? typography.white
         : typography.black;
+    // Titles are set a little tighter and heavier than Material's, body
+    // text without extra tracking: closer to a printed page.
+    final textTheme = base.copyWith(
+      displaySmall: base.displaySmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.6,
+      ),
+      headlineLarge: base.headlineLarge?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.6,
+      ),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
+      ),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.4,
+      ),
+      titleLarge: base.titleLarge?.copyWith(
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+      ),
+      titleMedium: base.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.1,
+      ),
+      titleSmall: base.titleSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+      bodyLarge: base.bodyLarge?.copyWith(letterSpacing: 0),
+      bodyMedium: base.bodyMedium?.copyWith(letterSpacing: 0),
+      bodySmall: base.bodySmall?.copyWith(letterSpacing: 0.1),
+      labelLarge: base.labelLarge?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+    );
 
     if (stows.hyperlegibleFont.value) {
       return textTheme.withFont(
@@ -350,11 +654,8 @@ abstract class _Components {
       surfaceTintColor: Colors.transparent,
       shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: const .all(.circular(kYaruContainerRadius)),
-        side: BorderSide(
-          color: colorScheme.onSurface.withValues(alpha: 0.12),
-          width: 2,
-        ),
+        borderRadius: const .all(.circular(DefterDesign.radiusCard)),
+        side: BorderSide(color: colorScheme.outlineVariant, width: 1),
       ),
     );
   }
@@ -363,7 +664,6 @@ abstract class _Components {
     applyThemeToAll: true,
   );
 
-  static const appBarTheme = AppBarTheme(centerTitle: false);
 }
 
 extension SaberThemePlatform on TargetPlatform {

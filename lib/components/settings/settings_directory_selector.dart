@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
@@ -170,10 +171,10 @@ class _DirectorySelectorState extends State<DirectorySelector> {
                   ),
                 ),
               ),
-              IconButton(icon: const Icon(Icons.folder), onPressed: _pickDir),
+              IconButton(icon: const Icon(Icons.folder_rounded), onPressed: _pickDir),
               if (stows.customDataDir.value != null)
                 IconButton(
-                  icon: const Icon(Icons.undo),
+                  icon: const Icon(Symbols.undo_rounded),
                   onPressed: _pickDefaultDir,
                 ),
             ],
