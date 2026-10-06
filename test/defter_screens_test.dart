@@ -7,6 +7,7 @@ library;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -52,6 +53,8 @@ import 'package:saber/pages/display_rate.dart';
 import 'package:saber/data/display_rate.dart';
 import 'package:saber/data/device_camera.dart';
 import 'package:saber/components/toolbar/note_versions_dialog.dart';
+import 'package:saber/components/toolbar/pdf_remove_dialog.dart';
+import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
 import 'package:saber/pages/home/template_gallery.dart';
@@ -585,6 +588,63 @@ void main() {
           );
           await tester.pump();
         }
+      },
+    );
+
+    // Removing a PDF: what is asked before anything is taken out. The note
+    // is made up for the picture: a PDF of twelve pages, three written on.
+    _shot(
+      theme: theme,
+      name: 'pdf_remove_dialog',
+      waitForEditor: false,
+      child: const Scaffold(body: SizedBox.expand()),
+      afterLoad: (tester) async {
+        final note = EditorCoreInfo(filePath: '/Fizik');
+        addTearDown(note.dispose);
+        final pdf = File('${Directory.systemTemp.path}/defter_scene.pdf');
+        for (var i = 0; i < 12; i++) {
+          note.pages.add(
+            EditorPage(
+              backgroundImage: PdfEditorImage(
+                id: i,
+                assetCache: note.assetCache,
+                pdfBytes: null,
+                pdfFile: pdf,
+                pdfPage: i,
+                pageIndex: i,
+                pageSize: const Size(1000, 1400),
+                naturalSize: const Size(595, 842),
+                onMoveImage: null,
+                onDeleteImage: null,
+                onMiscChange: null,
+              ),
+              images: [
+                if (i < 3)
+                  PngEditorImage(
+                    id: 100 + i,
+                    assetCache: note.assetCache,
+                    extension: '.png',
+                    imageProvider: MemoryImage(Uint8List(8)),
+                    pageIndex: i,
+                    pageSize: const Size(1000, 1400),
+                    onMoveImage: null,
+                    onDeleteImage: null,
+                    onMiscChange: null,
+                    naturalSize: const Size(10, 10),
+                  ),
+              ],
+            ),
+          );
+        }
+        unawaited(
+          showDialog<void>(
+            context: tester.element(find.byType(Scaffold)),
+            builder: (context) =>
+                PdfRemoveDialog(coreInfo: note, currentPageIndex: 1),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
       },
     );
 

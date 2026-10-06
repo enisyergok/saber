@@ -41,6 +41,7 @@ class EditorBottomSheet extends StatefulWidget {
     required this.hasPdf,
     required this.currentPageHasPdf,
     required this.showPdfTools,
+    required this.removePdf,
     required this.cropPdfPage,
     required this.getIsWatchingServer,
     required this.setIsWatchingServer,
@@ -73,6 +74,9 @@ class EditorBottomSheet extends StatefulWidget {
   /// Whether the current page is a PDF page (so it can be cropped).
   final bool currentPageHasPdf;
   final VoidCallback showPdfTools;
+
+  /// Asks which PDF pages to take out of the note.
+  final VoidCallback removePdf;
   final VoidCallback cropPdfPage;
   final bool Function() getIsWatchingServer;
   final void Function(bool) setIsWatchingServer;
@@ -472,6 +476,16 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                       onPressed: () {
                         Navigator.pop(context);
                         widget.cropPdfPage();
+                      },
+                    ),
+                  if (!widget.coreInfo.readOnly)
+                    ElevatedButton.icon(
+                      key: const Key('removePdf'),
+                      icon: const Icon(Icons.delete_outline),
+                      label: Text(DefterStrings.pdfRemove),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        widget.removePdf();
                       },
                     ),
                 ],
