@@ -459,6 +459,18 @@ class Stows {
         volatile: !_isOnMainIsolate,
       );
 
+  /// Whether earlier states of notes are kept as they are written, so that
+  /// they can be brought back (see `NoteVersions`).
+  final versionHistory = PlainStow(
+    'versionHistory',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// What is remembered of the backup last made on this device (see
+  /// `LastBackup`); empty if none was made.
+  final lastBackup = PlainStow('lastBackup', '', volatile: !_isOnMainIsolate);
+
   /// The home screen with a sidebar, recent notes, folders and templates,
   /// shown first on tablets instead of the plain list of notes.
   final homeDashboard = PlainStow(

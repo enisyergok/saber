@@ -776,4 +776,180 @@ abstract class DefterStrings {
   static String get eInkLimits => _tr
       ? 'Gerçek e-mürekkep ekran ışığı yansıtır, görüntüyü güç harcamadan tutar ve fiziksel olarak yenilenir. Bunlar yazılımla yapılamaz; bu mod yalnızca görünümü taklit eder.'
       : 'A real e-ink screen reflects light, holds an image without power and refreshes physically. Software cannot do those; this mode only imitates the look.';
+
+  // -- version history -----------------------------------------------------
+  static String get versionHistory => _tr ? 'Sürüm geçmişi' : 'Version history';
+  static String get versionHistoryAbout => _tr
+      ? 'Not açılırken, kapanırken ve yazarken yaklaşık on dakikada bir o anki hali saklanır. Son 10 sürüm ve daha eskilerden günde bir sürüm (20 güne kadar) tutulur. Bir sürüme dönerseniz şimdiki hali de saklanır.'
+      : 'The note is kept as it is when it is opened, when it is closed and about every ten minutes while you write. The last 10 versions are kept, and of older ones one a day (for up to 20 days). When you go back to a version, the note as it is now is kept too.';
+  static String get versionsEmpty => _tr
+      ? 'Bu notun henüz saklanan bir sürümü yok.'
+      : 'No version of this note has been kept yet.';
+  static String get versionsOff => _tr
+      ? 'Sürüm saklama kapalı; yeni sürüm saklanmıyor. Ayarlar > Yedekleme bölümünden açabilirsiniz.'
+      : 'Keeping versions is off; no new versions are kept. You can turn it on under Settings > Backup.';
+  static String get versionRestore => _tr ? 'Geri yükle' : 'Restore';
+  static String get versionReasonOpen => _tr ? 'Açılırken' : 'On opening';
+  static String get versionReasonAuto => _tr ? 'Yazarken' : 'While writing';
+  static String get versionReasonClose => _tr ? 'Kapanırken' : 'On closing';
+  static String get versionReasonRestore =>
+      _tr ? 'Geri yüklemeden önce' : 'Before a restore';
+  static String versionReason(String reason) => switch (reason) {
+    'open' => versionReasonOpen,
+    'close' => versionReasonClose,
+    'restore' => versionReasonRestore,
+    _ => versionReasonAuto,
+  };
+  static String versionRestoreTitle(String when) =>
+      _tr ? '$when sürümüne dönülsün mü?' : 'Go back to the version of $when?';
+  static String get versionRestoreBody => _tr
+      ? 'Not bu sürümdeki haline döner. Şimdiki hali de sürüm olarak saklanır; isterseniz ona geri dönebilirsiniz.'
+      : 'The note goes back to how it was in this version. The note as it is now is kept as a version too, so you can come back to it.';
+  static String get versionFirstPage =>
+      _tr ? 'İlk sayfanın görüntüsü' : 'Picture of the first page';
+  static String get versionRestored =>
+      _tr ? 'Sürüm geri yüklendi' : 'Version restored';
+  static String get versionRestoreFailed => _tr
+      ? 'Bu sürüm geri yüklenemedi. Not olduğu gibi duruyor.'
+      : 'This version could not be restored. The note is as it was.';
+  static String versionPages(int assets) => _tr
+      ? (assets == 0 ? 'Ek dosya yok' : '$assets ek dosya')
+      : (assets == 0 ? 'No attachments' : '$assets attachments');
+
+  static const _monthsTr = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+  ];
+  static const _monthsEn = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+
+  /// A point in time the way it is said: "Bugün 14:05", "Dün 09:30" or
+  /// "3 Ekim 2026 18:02".
+  static String dayAndTime(DateTime time, {DateTime? now}) {
+    now ??= DateTime.now();
+    final clock =
+        '${time.hour.toString().padLeft(2, '0')}:'
+        '${time.minute.toString().padLeft(2, '0')}';
+    // From midnight to midnight, in hours: a day is 23 to 25 of them,
+    // whichever way the clocks were changed.
+    final gap = DateTime(now.year, now.month, now.day)
+        .difference(DateTime(time.year, time.month, time.day))
+        .inHours;
+    if (gap == 0) return _tr ? 'Bugün $clock' : 'Today $clock';
+    if (gap > 0 && gap <= 25) return _tr ? 'Dün $clock' : 'Yesterday $clock';
+    final month = (_tr ? _monthsTr : _monthsEn)[time.month - 1];
+    return _tr
+        ? '${time.day} $month ${time.year} $clock'
+        : '${time.day} $month ${time.year}, $clock';
+  }
+
+  // -- backup ----------------------------------------------------------------
+  static String get backupTitle =>
+      _tr ? 'Yedekleme ve sürüm geçmişi' : 'Backup and version history';
+  static String get backupSettingsSubtitle => _tr
+      ? 'Tüm defterleri tek dosyaya yedekleyin, yedekten geri yükleyin'
+      : 'Back up every notebook to one file, bring a backup back';
+  static String get backupSection => _tr ? 'Tam yedek' : 'Full backup';
+  static String get backupAbout => _tr
+      ? 'Tüm notlarınız; içlerindeki resimler ve PDF\'ler, ses kayıtları, el yazısı arama metinleri ve kalem profilleriyle birlikte tek bir zip dosyasına yazılır ve yazıldıktan sonra baştan okunarak doğrulanır.'
+      : 'All your notes, with their pictures and PDFs, audio recordings, handwriting search text and pen profiles, are written to one zip file, which is then read back to check it.';
+  static String get backupLimits => _tr
+      ? 'Yedek kendiliğinden alınmaz ve cihazın dışına kendiliğinden gitmez: oluşturduktan sonra Drive, bilgisayar veya USB bellek gibi başka bir yere kaydedin. Çöp kutusundaki notlar ve uygulama ayarları yedeğe girmez.'
+      : 'Backups are not made on their own and do not leave the device on their own: after making one, save it somewhere else, such as Drive, a computer or a USB stick. Notes in the trash and app settings are not included.';
+  static String get backupCreate => _tr ? 'Yedek oluştur' : 'Make a backup';
+  static String get backupRestore =>
+      _tr ? 'Yedekten geri yükle' : 'Restore from a backup';
+  static String get backupShare => _tr ? 'Paylaş / gönder' : 'Share / send';
+  static String get backupSave => _tr ? 'Cihaza kaydet' : 'Save to device';
+  static String get backupSaved => _tr ? 'Yedek kaydedildi' : 'Backup saved';
+  static String get backupTooLargeToSave => _tr
+      ? 'Bu yedek "Cihaza kaydet" için çok büyük. "Paylaş / gönder" ile dosya yöneticinize veya Drive\'a gönderin.'
+      : 'This backup is too large for "Save to device". Use "Share / send" to hand it to your file manager or Drive.';
+  static String get backupWriting => _tr ? 'Yedek yazılıyor…' : 'Writing the backup…';
+  static String get backupVerifying =>
+      _tr ? 'Yedek doğrulanıyor…' : 'Checking the backup…';
+  static String get backupRestoring =>
+      _tr ? 'Notlar geri yükleniyor…' : 'Restoring notes…';
+  static String get backupReading => _tr ? 'Yedek okunuyor…' : 'Reading the backup…';
+  static String backupProgress(String done, String total) =>
+      '$done / $total';
+  static String get backupReady =>
+      _tr ? 'Yedek hazır ve doğrulandı' : 'The backup is ready and checked';
+  static String backupSummary(int notes, int recordings, String size) => _tr
+      ? '$notes not, $recordings ses kaydı · $size'
+      : '$notes notes, $recordings recordings · $size';
+  static String get backupReadyHint => _tr
+      ? 'Şimdi bu dosyayı cihazın dışında bir yere kaydedin. Dosya uygulamanın geçici alanında durur; yeni yedek alınca veya sistem yer açınca silinir.'
+      : 'Now save this file somewhere off the device. It sits in the app\'s temporary space and goes when a new backup is made or the system frees space.';
+  static String backupLast(String when) =>
+      _tr ? 'Son oluşturulan yedek: $when' : 'Last backup made: $when';
+  static String get backupNone =>
+      _tr ? 'Bu cihazda henüz yedek oluşturulmadı' : 'No backup has been made on this device yet';
+  static String get backupFileGone => _tr
+      ? 'Dosyası artık geçici alanda değil; gerekirse yeniden oluşturun.'
+      : 'Its file is no longer in the temporary space; make a new one if needed.';
+  static String backupRestoreTitle(String when) =>
+      _tr ? '$when tarihli yedek' : 'Backup of $when';
+  static String backupRestoreBody(int notes, int recordings, String size) => _tr
+      ? 'Bu yedekte $notes not ve $recordings ses kaydı var ($size).\n\nCihazdaki hiçbir notun üzerine yazılmaz ve hiçbir not silinmez: aynı olan notlar atlanır, aynı adlı ama farklı olan notlar "(2)" gibi bir adla yanına eklenir.'
+      : 'This backup holds $notes notes and $recordings recordings ($size).\n\nNo note on the device is replaced or deleted: notes that are the same are skipped, and notes of the same name that differ are added next to them under a name like "(2)".';
+  static String get backupRestoreDone =>
+      _tr ? 'Geri yükleme tamamlandı' : 'Restore finished';
+  static String restoreRestored(int n) =>
+      _tr ? '$n not geri yüklendi' : '$n notes restored';
+  static String restoreAlreadyThere(int n) => _tr
+      ? '$n not zaten vardı, dokunulmadı'
+      : '$n notes were here already and left alone';
+  static String restoreCopies(int n) => _tr
+      ? '$n not farklıydı, kopya olarak eklendi'
+      : '$n notes differed and were added as copies';
+  static String restoreRecordings(int n) =>
+      _tr ? '$n ses kaydı geri yüklendi' : '$n recordings restored';
+  static String restoreFailed(int n) => _tr
+      ? '$n not yedekte bozuk çıktı ve atlandı'
+      : '$n notes are damaged in the backup and were left out';
+  static String backupError(String failure) => switch (failure) {
+    'notABackup' =>
+      _tr
+          ? 'Bu dosya Defter yedeği değil.'
+          : 'This file is not a Defter backup.',
+    'newerFormat' =>
+      _tr
+          ? 'Bu yedek uygulamanın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.'
+          : 'This backup was made by a newer version of the app. Update the app first.',
+    'damaged' =>
+      _tr
+          ? 'Yedek dosyası bozuk veya eksik.'
+          : 'The backup file is damaged or incomplete.',
+    'changedWhileReading' =>
+      _tr
+          ? 'Yedek alınırken notlar değişti. Lütfen yeniden deneyin.'
+          : 'Notes changed while the backup was made. Please try again.',
+    _ =>
+      _tr
+          ? 'Dosya okunamadı veya yazılamadı. Boş yer kalmamış olabilir.'
+          : 'A file could not be read or written. The device may be out of space.',
+  };
+  static String get backupFailed =>
+      _tr ? 'Yedek oluşturulamadı' : 'The backup could not be made';
+  static String get restoreFailedTitle =>
+      _tr ? 'Geri yüklenemedi' : 'Could not restore';
+  static String get versionsSection => _tr ? 'Sürüm geçmişi' : 'Version history';
+  static String get versionsSwitch =>
+      _tr ? 'Notların eski sürümlerini sakla' : 'Keep earlier versions of notes';
+  static String versionsSize(String size) => _tr
+      ? 'Saklanan sürümler cihazda $size yer kaplıyor'
+      : 'The versions kept take $size on the device';
+  static String get versionsWhere => _tr
+      ? 'Sürümlere not açıkken ⋯ menüsündeki "Sürüm geçmişi" ile ulaşılır. Sürümler yalnızca bu cihazda durur; yedeğe ve eşitlemeye girmez.'
+      : 'Versions are reached with "Version history" in the ⋯ menu while a note is open. They stay on this device only; they are not part of backups or sync.';
+  static String get versionsClear =>
+      _tr ? 'Tüm sürümleri sil' : 'Delete all versions';
+  static String get versionsClearBody => _tr
+      ? 'Bütün notların saklanan eski sürümleri silinir. Notların şimdiki hali etkilenmez. Bu geri alınamaz.'
+      : 'The earlier versions kept of every note are deleted. The notes as they are now are not affected. This cannot be undone.';
+  static String get versionsCleared =>
+      _tr ? 'Sürümler silindi' : 'Versions deleted';
 }

@@ -15,6 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:saber/components/home/sort_button.dart';
 import 'package:saber/data/audio/note_recordings.dart';
 import 'package:saber/data/search/handwriting_text.dart';
+import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/data/nextcloud/saber_syncer.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/i18n/strings.g.dart';
@@ -296,6 +297,7 @@ class FileManager {
   }) async {
     filePath = _sanitisePath(filePath);
     log.fine('Writing to $filePath');
+    NoteVersions.noteWritten(filePath);
 
     await _saveFileAsRecentlyAccessed(filePath);
 
@@ -560,6 +562,7 @@ class FileManager {
         toPath.endsWith(Editor.extension)) {
       await NoteRecordings.move(fromPath, toPath);
       await HandwritingTexts.move(fromPath, toPath);
+      await NoteVersions.move(fromPath, toPath);
     }
 
     syncer.uploader.enqueueRel(fromPath);
@@ -600,10 +603,16 @@ class FileManager {
     return toPath;
   }
 
+  /// Deletes the file at [filePath]. With a note go its assets (unless
+  /// [alsoDeleteAssets] is false) and what is kept for it elsewhere: its
+  /// recordings, handwriting text and version history. [keepAttachments]
+  /// leaves those three alone, for when the note itself lives on (as when
+  /// an earlier version in the old format takes its place).
   static Future deleteFile(
     String filePath, {
     bool alsoUpload = true,
     bool alsoDeleteAssets = true,
+    bool keepAttachments = false,
   }) async {
     filePath = _sanitisePath(filePath);
 
@@ -612,8 +621,11 @@ class FileManager {
     await file.delete();
     if (filePath.endsWith(Editor.extension)) {
       await _deleteIfExists(getFile('$filePath.bak'));
-      await NoteRecordings.deleteAll(filePath);
-      await HandwritingTexts.remove(filePath);
+      if (!keepAttachments) {
+        await NoteRecordings.deleteAll(filePath);
+        await HandwritingTexts.remove(filePath);
+        await NoteVersions.deleteAll(filePath);
+      }
     }
 
     if (alsoUpload) syncer.uploader.enqueueRel(filePath);
@@ -680,6 +692,13 @@ class FileManager {
     await directory.rename(documentsDirectory + newPath);
 
     for (final child in children) {
+      if (child.endsWith(Editor.extension)) {
+        // What is kept for a note elsewhere follows it to the renamed folder.
+        final from = directoryPath + child, to = newPath + child;
+        await NoteRecordings.move(from, to);
+        await HandwritingTexts.move(from, to);
+        await NoteVersions.move(from, to);
+      }
       _renameReferences(directoryPath + child, newPath + child);
       broadcastFileWrite(FileOperationType.delete, directoryPath + child);
       broadcastFileWrite(FileOperationType.write, newPath + child);

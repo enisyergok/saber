@@ -12,6 +12,8 @@ Defter, Saber Notes'un (Flutter) çatalıdır. Tablet için kalem deneyimi,
 | Şekiller | Bekleyince düzleştirme (kalemi çizimden sonra 0,6 sn durdur; fosforlu dahil), çokgen/elips/yay/döndürülmüş dikdörtgen tanıma, şekil köşelerini sürükleyerek düzenleme, uçların yakın şekillere yapışması; hepsi Ayarlar'dan kapatılabilir |
 | Arayüz | Gruplanmış araç çubuğu, doğrudan şekil düğmesi, üst çubukta "3 / 12" sayfa sayacı, geniş ekranda sayfa küçük resim paneli |
 | Güvenli kayıt | Atomik yazma, `.bak` yedek, bozuk dosyada yedekten kurtarma, `.bad` karantina |
+| Sürüm geçmişi | Not açılırken, kapanırken ve yazarken on dakikada bir o anki hali (resim ve PDF'leriyle) cihazda saklanır: son 10 sürüm ve daha eskilerden günde bir sürüm (20 güne kadar). Alt menü > Sürüm geçmişi ile bir sürüme dönülür; dönmeden önce şimdiki hal de saklanır, yani geri dönüş de geri alınabilir. Aynı içerik bir kez tutulur. Ayarlar > Yedekleme'den kapatılır, kapladığı yer görülür, tümü silinir. |
+| Tam yedek | Ayarlar > Yedekleme ve sürüm geçmişi > Yedek oluştur: tüm notlar (resim, PDF, önizleme), ses kayıtları, el yazısı arama metinleri ve kalem profilleri tek bir zip dosyasına yazılır, sonra baştan okunup SHA-256 ile doğrulanır; dosya paylaşma menüsüyle ya da "Cihaza kaydet" ile dışarı alınır. Yedekten geri yükle: hiçbir notun üzerine yazılmaz ve hiçbir not silinmez; aynı olan atlanır, farklı olan "(2)" adıyla yanına eklenir, yedekte bozuk çıkan not atlanıp gerisi yüklenir. |
 | Düzen | Çöp kutusu, favoriler, ad ve metin araması (Türkçe harf duyarlı), sayfa ızgarası ve yer imleri, sekmeler |
 | PDF | PDF içinde metin arama, içindekiler listesi, sayfa kırpma (Alt menü > PDF), PDF'e dışa aktarma |
 | Kalem | (devamı) Kalem çift dokunuşu eylemi (Ayarlar), kalem sinyali testi, kalem gecikme ölçümü (Ayarlar > Kalem gecikme ölçümü; editörde kayıt düğmesi) |
@@ -53,7 +55,14 @@ saklanır (şifrelenmez, eşitlenmez).
 - Tutmadan şekil tanıma açıkken yaklaşık 2 cm'den büyük kapalı çizimler şekle döner; büyük yazılmış "O" gibi harfler de daireye dönebilir. Varsayılan olarak kapalıdır.
 - Kalem paneli yatay tablette ekrana sığmayabilir; içi kaydırılır.
 - Notlarıma sor, yazıyla girilen metni ve "Aramaya ekle" ile okunmuş el yazısını tarar. Aramaya eklenmemiş notların el yazısı taranmaz; not sonradan değişirse metin eski kalır (menü uyarır, yenilemek için dokun). Aramaya ekleme internet ve OpenRouter anahtarı ister; eklendikten sonra arama çevrimdışıdır. Uzun not en çok 60 parça okunur.
-- Ses kayıtları eşitlenmez. Not yeniden adlandırılırsa, taşınırsa veya çöpe atılırsa kayıtlar notla birlikte gider; klasör olarak taşınırsa kayıtlar yerinde kalır.
+- Ses kayıtları eşitlenmez. Not yeniden adlandırılırsa, taşınırsa veya çöpe atılırsa kayıtlar notla birlikte gider; klasör yeniden adlandırılınca da içindeki notların kayıtları, el yazısı metni ve sürümleri notlarla gider.
+- Yedek kendiliğinden alınmaz ve cihazın dışına kendiliğinden gitmez; zamanlanmış otomatik yedek yok. Yedek dosyası uygulamanın geçici alanında oluşur (yeni yedekte veya sistem yer açınca silinir); kalıcı olması için dışarı kaydetmek gerekir. "Cihaza kaydet" dosyayı bellekten geçirdiği için 150 MB'a kadar olan yedeklerde çıkar, daha büyükleri paylaşma menüsüyle alınır.
+- Yedeğe girmeyenler: çöp kutusundaki notlar, uygulama ayarları, sürüm geçmişi, arama dizini (yeniden kurulur), Nextcloud oturumu. Kalem profillerinden yalnızca cihazda olmayanlar eklenir; var olan bir profilin yedekteki farklı hali geri gelmez.
+- Geri yüklemede "aynı not" şöyle anlaşılır: not dosyası bayt bayt aynı, ek sayısı ve her ekin boyutu aynı. Ekin içeriği ayrıca karşılaştırılmaz.
+- Sürüm geçmişi yalnızca cihazda durur (eşitlenmez, yedeğe girmez) ve uygulama silinince gider; cihaz kaybına karşı koruma tam yedektir. Sürümler not açıkken alt menüden açılır; ana ekrandan bir notun sürümlerine bakılamaz. Bir sürüm yalnızca tümüyle geri yüklenir, tek sayfası alınamaz. Editör dışından değişen notların (eşitlemeyle gelen değişiklik) ara halleri sürüm olmaz; not bir sonraki açılışta o haliyle saklanır.
+- Sürüm geçmişi yer kaplar: her notun resim ve PDF'lerinin bir kopyası sürüm deposunda da durur (aynı içerik bir kez tutulur, sürüm sayısı kadar çoğalmaz), ayrıca her sürüm için not dosyasının o hali. Kapladığı yer Ayarlar > Yedekleme'de yazar.
+- Sürüm saklanırken not dosyaları arka planda okunur; çok büyük PDF'li notlarda ilk sürüm birkaç saniye sürebilir (yazmayı bekletmez, kayıt en çok 3 sn bekler ve o sürüm atlanır).
+- Sürüm geçmişi ve tam yedek tablette denenmedi; dosya işlemleri testlerde gerçek dosyalarla, paylaşma ve dosya seçme pencereleri ise yalnızca tablette denenebilir.
 - Notlar arası bağlantılar yolu içerir; hedef not yeniden adlandırılırsa bağlantı eski adı gösterir.
 - Resim ve dikdörtgen içeren seçimler döndürülemez.
 - PDF dışa aktarmada arka plan PDF sayfaları resim olarak (3 kat çözünürlük) gömülür; çizgiler vektör kalır. Gerçek vektör PDF için yeni kütüphane gerekir.
