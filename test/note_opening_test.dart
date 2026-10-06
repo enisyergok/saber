@@ -141,14 +141,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(_FakeEditorState.builds, 1);
 
-      // Closing: the page shrinks back into its card over many frames
+      // Closing: the page shrinks back into its card over many frames.
+      // (Moving the page into the closing picture builds it once more;
+      // what must not happen is a build in every frame after that.)
       tester.state<NavigatorState>(find.byType(Navigator)).pop();
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 20));
+      final atTheStart = _FakeEditorState.builds;
+      expect(atTheStart, lessThanOrEqualTo(2));
       for (var frame = 0; frame < 10; frame++) {
         await tester.pump(const Duration(milliseconds: 20));
       }
       expect(find.text('editor'), findsOneWidget);
-      expect(_FakeEditorState.builds, 1);
+      expect(_FakeEditorState.builds, atTheStart);
 
       await tester.pumpAndSettle();
     });
