@@ -9,6 +9,7 @@ import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/extensions/list_extensions.dart';
 import 'package:saber/i18n/strings.g.dart';
+import 'package:saber/pages/home/new_notebook_wizard.dart';
 
 class GridFolders extends StatelessWidget {
   const new({
@@ -22,7 +23,12 @@ class GridFolders extends StatelessWidget {
     required this.deleteFolder,
     required this.doesFolderExist,
     required this.folders,
+    this.parentPath = '',
   });
+
+  /// The folder these folders are in ('' for the top), which gives each
+  /// of them the colour it has everywhere else.
+  final String parentPath;
 
   final bool isAtRoot;
   final Function(String) onTap;
@@ -59,6 +65,7 @@ class GridFolders extends StatelessWidget {
           return _GridFolder(
             cardType: cardType,
             folderName: folderName,
+            parentPath: parentPath,
             createFolder: createFolder,
             doesFolderExist: doesFolderExist,
             renameFolder: renameFolder,
@@ -76,6 +83,7 @@ class _GridFolder extends StatefulWidget {
   const new({
     required this.cardType,
     required this.folderName,
+    required this.parentPath,
     required this.createFolder,
     required this.doesFolderExist,
     required this.renameFolder,
@@ -89,6 +97,7 @@ class _GridFolder extends StatefulWidget {
 
   final _FolderCardType cardType;
   final String? folderName;
+  final String parentPath;
   final void Function(String) createFolder;
   final bool Function(String) doesFolderExist;
   final Future<void> Function(String oldName, String newName) renameFolder;
@@ -158,7 +167,13 @@ class _GridFolderState extends State<_GridFolder> {
                             .realFolder => '',
                           },
                           child: AdaptiveIcon(
-                            color: colorScheme.primary,
+                            color: switch (widget.cardType) {
+                              .backFolder => colorScheme.onSurfaceVariant,
+                              .newFolder => colorScheme.primary,
+                              .realFolder => folderColour(
+                                '${widget.parentPath}/${widget.folderName}',
+                              ),
+                            },
                             icon: switch (widget.cardType) {
                               .backFolder => Icons.folder_open_rounded,
                               .newFolder => Icons.create_new_folder_rounded,

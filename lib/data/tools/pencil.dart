@@ -20,5 +20,5 @@ class Pencil extends Pen {
 
   static var currentPencil = Pencil();
 
-  static const pencilIcon = Symbols.stylus_pencil_rounded;
+  static const pencilIcon = Symbols.edit_rounded;
 }

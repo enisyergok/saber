@@ -16,12 +16,19 @@ abstract class SaberTheme {
     colorScheme = DefterDesign.withPaper(colorScheme);
     final light = colorScheme.brightness == .light;
     final textTheme = _Components.textTheme(platform, colorScheme);
+    // The same styles with their sizes filled in, for the components that
+    // are given a whole style here (a theme's own styles only get their
+    // sizes where they are used).
+    final type = Typography.material2021(
+      platform: platform,
+      colorScheme: colorScheme,
+    ).englishLike.merge(textTheme);
     final hairline = BorderSide(color: colorScheme.outlineVariant, width: 1);
     // The shadow under what floats: wide and faint.
     final shadow = colorScheme.shadow.withValues(alpha: light ? 0.18 : 0.6);
 
     final buttonText = WidgetStatePropertyAll(
-      textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+      type.labelLarge?.copyWith(fontWeight: FontWeight.w600),
     );
     const buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
       DefterDesign.controlShape,
@@ -68,7 +75,7 @@ abstract class SaberTheme {
         backgroundColor: colorScheme.surface,
         surfaceTintColor: Colors.transparent,
         foregroundColor: colorScheme.onSurface,
-        titleTextStyle: textTheme.titleLarge?.copyWith(
+        titleTextStyle: type.titleLarge?.copyWith(
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
         ),
@@ -85,11 +92,11 @@ abstract class SaberTheme {
         shadowColor: shadow,
         elevation: 12,
         shape: DefterDesign.sheetShape,
-        titleTextStyle: textTheme.titleLarge?.copyWith(
+        titleTextStyle: type.titleLarge?.copyWith(
           fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
         ),
-        contentTextStyle: textTheme.bodyMedium?.copyWith(
+        contentTextStyle: type.bodyMedium?.copyWith(
           color: colorScheme.onSurfaceVariant,
           height: 1.4,
         ),
@@ -127,7 +134,7 @@ abstract class SaberTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: colorScheme.inverseSurface,
-        contentTextStyle: textTheme.bodyMedium?.copyWith(
+        contentTextStyle: type.bodyMedium?.copyWith(
           color: colorScheme.onInverseSurface,
         ),
         actionTextColor: colorScheme.inversePrimary,
@@ -139,7 +146,7 @@ abstract class SaberTheme {
           color: colorScheme.inverseSurface.withValues(alpha: 0.94),
           borderRadius: const BorderRadius.all(Radius.circular(8)),
         ),
-        textStyle: textTheme.bodySmall?.copyWith(
+        textStyle: type.bodySmall?.copyWith(
           color: colorScheme.onInverseSurface,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -194,7 +201,7 @@ abstract class SaberTheme {
           shape: buttonShape,
           side: WidgetStatePropertyAll(hairline),
           textStyle: WidgetStatePropertyAll(
-            textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+            type.labelLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           backgroundColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)
@@ -214,7 +221,7 @@ abstract class SaberTheme {
         surfaceTintColor: Colors.transparent,
         side: hairline,
         shape: DefterDesign.controlShape,
-        labelStyle: textTheme.labelLarge?.copyWith(
+        labelStyle: type.labelLarge?.copyWith(
           fontWeight: FontWeight.w500,
         ),
         showCheckmark: false,

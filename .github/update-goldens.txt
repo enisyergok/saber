@@ -5,3 +5,4 @@ test/home_theme_test.dart
 test/login_golden_test.dart
 test/logs_page_test.dart
 test/fonts_test.dart
+test/screenshot_goldens_test.dart

@@ -143,10 +143,10 @@ class Pen extends Tool {
   @override
   final ToolId toolId;
 
-  static const fountainPenIcon = Symbols.stylus_fountain_pen_rounded;
-  static const ballpointPenIcon = Symbols.stylus_pen_rounded;
-  static const brushPenIcon = Symbols.stylus_brush_rounded;
-  static const calligraphyPenIcon = Symbols.ink_pen_rounded;
+  static const fountainPenIcon = Symbols.ink_pen_rounded;
+  static const ballpointPenIcon = Symbols.stylus_rounded;
+  static const brushPenIcon = Symbols.brush_rounded;
+  static const calligraphyPenIcon = Symbols.stylus_fountain_pen_rounded;
 
   static Stroke? currentStroke;
   Color color;

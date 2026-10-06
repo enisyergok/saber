@@ -290,7 +290,9 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     required double width,
     required Widget child,
   }) {
+    // A grey ground with white cards on it, as in a grouped list.
     return FloatingPanel(
+      color: ColorScheme.of(context).surfaceContainer,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: widget.maxHeight),
         child: SizedBox(
