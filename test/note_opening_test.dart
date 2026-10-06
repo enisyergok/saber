@@ -21,7 +21,8 @@ void main() {
   setupMockPathProvider();
 
   /// A card that opens into a [NoteOpening], the way a note's card does.
-  /// [built] counts how often the "editor" was asked for.
+  /// [built] counts how often an "editor" was started (not how often its
+  /// widget was rebuilt, which costs nothing).
   Widget cardApp({
     required List<int> built,
     Widget? picture,
@@ -43,10 +44,7 @@ void main() {
                 path: '/note',
                 paper: _paper,
                 picture: picture,
-                editorBuilder: (context) {
-                  built.add(built.length);
-                  return const Scaffold(body: Center(child: Text('editor')));
-                },
+                editorBuilder: (context) => _FakeEditor(built),
               ),
             ),
           ),
@@ -189,15 +187,13 @@ void main() {
           home: NoteOpening(
             path: '/note',
             paper: _paper,
-            editorBuilder: (context) {
-              built.add(0);
-              return const Text('editor');
-            },
+            editorBuilder: (context) => _FakeEditor(built),
           ),
         ),
       );
       expect(find.text('editor'), findsOneWidget);
       expect(find.byKey(NoteOpening.skeletonKey), findsNothing);
+      expect(built, hasLength(1));
     });
 
     testWidgets('the picture sits under a band the colour of the bar', (
@@ -295,7 +291,9 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.byType(OpenContainer));
+      await tester.tap(
+        find.byWidgetPredicate((widget) => widget is OpenContainer),
+      );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 150));
 
@@ -313,4 +311,26 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
     });
   });
+}
+
+/// Stands in for the editor: it notes each time one is started.
+class _FakeEditor extends StatefulWidget {
+  const _FakeEditor(this.started);
+
+  final List<int> started;
+
+  @override
+  State<_FakeEditor> createState() => _FakeEditorState();
+}
+
+class _FakeEditorState extends State<_FakeEditor> {
+  @override
+  void initState() {
+    super.initState();
+    widget.started.add(widget.started.length);
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: Text('editor')));
 }
