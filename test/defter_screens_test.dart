@@ -5,6 +5,7 @@
 @Tags(['screens'])
 library;
 
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -39,6 +40,9 @@ import 'package:saber/data/notebooks/notebook_spec.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/pages/home/dashboard.dart';
+import 'package:saber/pages/backup.dart';
+import 'package:saber/components/toolbar/note_versions_dialog.dart';
+import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/data/tools/pen.dart';
@@ -488,7 +492,88 @@ void main() {
         await tester.pump();
       },
     );
+
+    // Backup and version history. The numbers shown are made up for the
+    // picture; the page itself reads them from the device.
+    _shot(
+      theme: theme,
+      name: 'backup_page',
+      waitForEditor: false,
+      child: const _BackupScene(),
+    );
+    _shot(
+      theme: theme,
+      name: 'versions_dialog',
+      waitForEditor: false,
+      child: const Scaffold(body: SizedBox.expand()),
+      afterLoad: (tester) async {
+        final now = DateTime(2026, 10, 6, 15);
+        NoteVersion version(int n, DateTime time, String reason, int size) =>
+            NoteVersion(
+              id: 'v$n',
+              key: '/Fizik',
+              time: time,
+              extension: '.sbn2',
+              main: 'a' * 64,
+              assets: const [],
+              preview: null,
+              size: size,
+              reason: reason,
+            );
+        unawaited(
+          showDialog<void>(
+            context: tester.element(find.byType(Scaffold)),
+            builder: (context) => NoteVersionsDialog(
+              notePath: '/Fizik',
+              restore: (_) async {},
+              now: now,
+              load: () async => [
+                version(5, DateTime(2026, 10, 6, 14, 52), 'auto', 412000),
+                version(4, DateTime(2026, 10, 6, 14, 41), 'auto', 398000),
+                version(3, DateTime(2026, 10, 6, 14, 30), 'open', 371000),
+                version(2, DateTime(2026, 10, 5, 21, 8), 'close', 371000),
+                version(1, DateTime(2026, 10, 3, 18, 2), 'restore', 96000),
+              ],
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+      },
+    );
   });
+}
+
+/// The backup page as it looks once a backup has been made.
+class _BackupScene extends StatefulWidget {
+  const _BackupScene();
+
+  @override
+  State<_BackupScene> createState() => _BackupSceneState();
+}
+
+class _BackupSceneState extends State<_BackupScene> {
+  final String _before = stows.lastBackup.value;
+
+  @override
+  void initState() {
+    super.initState();
+    stows.lastBackup.value = LastBackup(
+      time: DateTime.now().subtract(const Duration(hours: 2)),
+      notes: 48,
+      recordings: 6,
+      zipBytes: 312 * 1024 * 1024,
+    ).encode();
+  }
+
+  @override
+  void dispose() {
+    stows.lastBackup.value = _before;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => const BackupPage();
 }
 
 void _shot({

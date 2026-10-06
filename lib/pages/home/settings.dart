@@ -35,6 +35,7 @@ import 'package:saber/data/sentry/sentry_init.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/i18n/strings.g.dart';
+import 'package:saber/pages/backup.dart';
 import 'package:saber/pages/benchmark.dart';
 import 'package:saber/pages/handwriting_settings.dart';
 import 'package:saber/pages/sync_status.dart';
@@ -790,6 +791,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: t.logs.debuggingInfo,
                   icon: Icons.receipt_long,
                   onPressed: () => context.push(RoutePaths.logs),
+                ),
+                SettingsButton(
+                  title: DefterStrings.backupTitle,
+                  subtitle: DefterStrings.backupSettingsSubtitle,
+                  icon: Icons.backup_outlined,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const BackupPage(),
+                    ),
+                  ),
                 ),
                 SettingsButton(
                   title: DefterStrings.trash,

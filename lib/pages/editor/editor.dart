@@ -51,6 +51,7 @@ import 'package:saber/data/open_tabs.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/data/tools/_tool.dart';
+import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
@@ -60,6 +61,7 @@ import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
+import 'package:saber/components/toolbar/note_versions_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
 import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
@@ -283,6 +285,9 @@ class EditorState extends State<Editor> {
     }
 
     await _loadCoreInfo(filePath);
+    // The note as it was found, so that it can be brought back whatever is
+    // done to it now.
+    unawaited(NoteVersions.snapshot(filePath, reason: NoteVersion.reasonOpen));
     // Opening a note scrolls to its page: that is not a page turn.
     _eInkPageTurnsFrom = DateTime.now().add(const Duration(milliseconds: 1500));
 
@@ -1313,60 +1318,135 @@ class EditorState extends State<Editor> {
     await _renameFileNow();
 
     final filePath = coreInfo.filePath + Editor.extension;
-    final Uint8List bson;
-    final OrderedAssetCache assets;
-    coreInfo.assetCache.allowRemovingAssets = false;
+    // A version of the note is never read while its files are half written.
+    final endSave = await NoteVersions.beginSave(filePath);
     try {
-      (bson, assets) = coreInfo.saveToBinary(
-        currentPageIndex: currentPageIndex,
-      );
-    } finally {
-      coreInfo.assetCache.allowRemovingAssets = true;
-    }
-    try {
-      await Future.wait([
-        FileManager.writeFile(filePath, bson, awaitWrite: true),
-        for (int i = 0; i < assets.length; ++i)
-          assets
-              .getBytes(i)
-              .then(
-                (bytes) => FileManager.writeFile(
-                  '$filePath.$i',
-                  bytes,
-                  awaitWrite: true,
+      final Uint8List bson;
+      final OrderedAssetCache assets;
+      coreInfo.assetCache.allowRemovingAssets = false;
+      try {
+        (bson, assets) = coreInfo.saveToBinary(
+          currentPageIndex: currentPageIndex,
+        );
+      } finally {
+        coreInfo.assetCache.allowRemovingAssets = true;
+      }
+      try {
+        await Future.wait([
+          FileManager.writeFile(filePath, bson, awaitWrite: true),
+          for (int i = 0; i < assets.length; ++i)
+            assets
+                .getBytes(i)
+                .then(
+                  (bytes) => FileManager.writeFile(
+                    '$filePath.$i',
+                    bytes,
+                    awaitWrite: true,
+                  ),
                 ),
-              ),
-        FileManager.removeUnusedAssets(filePath, numAssets: assets.length),
-      ]);
-      savingState.value = .saved;
-      history.markLastChangeAsSaved();
-    } catch (e, st) {
-      log.severe('Failed to save file: $e', e, st);
-      savingState.value = .waitingToSave;
-      if (kDebugMode) rethrow;
-      return;
+          FileManager.removeUnusedAssets(filePath, numAssets: assets.length),
+        ]);
+        savingState.value = .saved;
+        history.markLastChangeAsSaved();
+      } catch (e, st) {
+        log.severe('Failed to save file: $e', e, st);
+        savingState.value = .waitingToSave;
+        if (kDebugMode) rethrow;
+        return;
+      }
+    } finally {
+      endSave();
     }
 
+    if (!mounted) {
+      // The note was left while it was being saved.
+      unawaited(
+        NoteVersions.snapshot(filePath, reason: NoteVersion.reasonClose),
+      );
+      return;
+    }
+    try {
+      final page = coreInfo.pages.first;
+      final previewHeight = page.previewHeight(lineHeight: coreInfo.lineHeight);
+      final thumbnailSize = Size(720, 720 * previewHeight / page.size.width);
+      final thumbnail = await EditorExporter.screenshotPage(
+        coreInfo: coreInfo,
+        pageIndex: 0,
+        rasterizeAllStrokes: true,
+        targetSize: thumbnailSize,
+        cropHeight: previewHeight,
+        pixelRatio: 1,
+      );
+      final thumbnailPng = await thumbnail.toByteData(format: .png);
+      thumbnail.dispose();
+      await FileManager.writeFile(
+        // Note that this ends with .sbn2.p
+        '$filePath.p',
+        thumbnailPng!.buffer.asUint8List(),
+        awaitWrite: true,
+      );
+    } finally {
+      // Every few minutes of writing leaves a version behind.
+      unawaited(NoteVersions.snapshotIfDue(filePath));
+    }
+  }
+
+  /// Shows the versions kept of this note, to bring one back.
+  void showVersions() {
     if (!mounted) return;
-    final page = coreInfo.pages.first;
-    final previewHeight = page.previewHeight(lineHeight: coreInfo.lineHeight);
-    final thumbnailSize = Size(720, 720 * previewHeight / page.size.width);
-    final thumbnail = await EditorExporter.screenshotPage(
-      coreInfo: coreInfo,
-      pageIndex: 0,
-      rasterizeAllStrokes: true,
-      targetSize: thumbnailSize,
-      cropHeight: previewHeight,
-      pixelRatio: 1,
+    showDialog<void>(
+      context: context,
+      builder: (context) => NoteVersionsDialog(
+        notePath: coreInfo.filePath,
+        restore: restoreVersion,
+      ),
     );
-    final thumbnailPng = await thumbnail.toByteData(format: .png);
-    thumbnail.dispose();
-    await FileManager.writeFile(
-      // Note that this ends with .sbn2.p
-      '$filePath.p',
-      thumbnailPng!.buffer.asUint8List(),
-      awaitWrite: true,
-    );
+  }
+
+  /// Completes when what is on screen is on disk; false if it could not be
+  /// saved.
+  Future<bool> _saveNow() async {
+    for (var attempt = 0; attempt < 200; attempt++) {
+      switch (savingState.value) {
+        case .saved:
+          {
+            return true;
+          }
+        case .waitingToSave:
+          {
+            await saveToFile();
+            if (savingState.value == .waitingToSave) return false;
+          }
+        case .saving:
+          {
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          }
+      }
+    }
+    return false;
+  }
+
+  /// Brings an earlier [version] of this note back and shows it.
+  ///
+  /// What is on screen now is saved and kept as a version first, so nothing
+  /// is lost. Throws if the version can't be brought back; the note is then
+  /// as it was.
+  Future<void> restoreVersion(NoteVersion version) async {
+    if (coreInfo.readOnlyReason == .watchingServer) {
+      throw StateError('A note that follows the server is not restored');
+    }
+    Select.currentSelect.unselect();
+    if (!await _saveNow()) throw StateError('Could not save the note first');
+
+    final path = coreInfo.filePath;
+    await NoteVersions.restore(path + Editor.extension, version);
+    if (!mounted) return;
+
+    _delayedSaveTimer?.cancel();
+    history = EditorHistory();
+    await _loadCoreInfo(path);
+    savingState.value = .saved;
+    if (mounted) setState(() {});
   }
 
   late final _filenameFormKey = GlobalKey<FormState>();
@@ -2334,6 +2414,7 @@ class EditorState extends State<Editor> {
               is PdfEditorImage,
       showPdfTools: showPdfTools,
       cropPdfPage: cropPdfPage,
+      showVersions: showVersions,
       getIsWatchingServer: () => _watchServerTimer?.isActive ?? false,
       setIsWatchingServer: (bool watch) {
         if (watch) {
@@ -2994,6 +3075,13 @@ class EditorState extends State<Editor> {
       }
       await saveToFile();
     } finally {
+      // The note as it is left.
+      unawaited(
+        NoteVersions.snapshot(
+          coreInfo.filePath + Editor.extension,
+          reason: NoteVersion.reasonClose,
+        ),
+      );
       coreInfo.dispose();
     }
   }

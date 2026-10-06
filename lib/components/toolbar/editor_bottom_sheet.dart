@@ -43,6 +43,7 @@ class EditorBottomSheet extends StatefulWidget {
     required this.cropPdfPage,
     required this.getIsWatchingServer,
     required this.setIsWatchingServer,
+    this.showVersions,
   });
 
   final bool invert;
@@ -71,6 +72,10 @@ class EditorBottomSheet extends StatefulWidget {
   final VoidCallback cropPdfPage;
   final bool Function() getIsWatchingServer;
   final void Function(bool) setIsWatchingServer;
+
+  /// Opens the list of the note's earlier versions. The button is left out
+  /// when this is null.
+  final VoidCallback? showVersions;
 
   @override
   State<EditorBottomSheet> createState() => _EditorBottomSheetState();
@@ -141,6 +146,21 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                     ],
                   ),
                 ),
+                if (widget.showVersions != null)
+                  ElevatedButton(
+                    key: const ValueKey('showVersions'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.showVersions!();
+                    },
+                    child: Wrap(
+                      children: [
+                        const Icon(Icons.history),
+                        const SizedBox(width: 8),
+                        Text(DefterStrings.versionHistory),
+                      ],
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 16),

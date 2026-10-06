@@ -14,7 +14,6 @@ import 'package:saber/data/notebooks/paper_templates.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/pages/editor/editor.dart';
-import 'package:saber/pages/home/home.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/search.dart';
