@@ -138,8 +138,8 @@ abstract class DefterStrings {
       ? 'Defter ekranın en yüksek hızında ($max) çiziliyor.'
       : 'The app is drawn at the screen\'s fastest rate ($max).';
   static String rateNoFasterMode(String max) => _tr
-      ? 'Bu ekranın en yüksek hızı $max. Daha hızlı çizim bu cihazda mümkün değil.'
-      : 'The fastest rate of this screen is $max. Faster drawing is not possible on this device.';
+      ? 'Cihaz şu an bu ekran için en fazla $max bildiriyor. Tabletiniz daha yüksek bir hızı (90/120 Hz) destekliyorsa, bu ekran ayarında yüksek hızın kapalı olduğunu gösterir: aşağıdaki adımları uygulayın. Desteklemiyorsa daha hızlı çizim bu cihazda mümkün değildir.'
+      : 'The device reports at most $max for this screen right now. If your tablet supports a faster rate (90/120 Hz), this means the fast rate is switched off in the screen settings: follow the steps below. If it does not, faster drawing is not possible on this device.';
   static String rateHeldBack(String max, String measured) => _tr
       ? 'Ekran $max destekliyor ama sistem Defter\'i şu an $measured ile çizdiriyor. Defter en yüksek hızı her açılışta ister; karar cihazın ekran ayarındadır.'
       : 'The screen supports $max, but the system draws the app at $measured right now. The app asks for the fastest rate every time it opens; the decision is the device\'s screen setting.';

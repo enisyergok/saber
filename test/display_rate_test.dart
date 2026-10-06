@@ -203,6 +203,9 @@ void main() {
         find.text(DefterStrings.rateNoFasterMode('60 Hz')),
         findsOneWidget,
       );
+      // Some devices hide the fast modes while they are switched off: the
+      // way to switch them on is shown here too.
+      expect(find.text(DefterStrings.rateSteps), findsOneWidget);
     });
 
     testWidgets('still measures when the device says nothing, and tells '

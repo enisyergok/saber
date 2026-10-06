@@ -217,6 +217,84 @@ void main() {
     });
   });
 
+  group('Notes of earlier versions:', () {
+    test('the copies of a PDF, one a page, become one file again', () async {
+      const note = '/Eski PDF';
+      // As an earlier version left it: a picture, then a PDF of four
+      // pages saved four times, then another PDF of the same size twice.
+      asset(note, 0).writeAsBytesSync(content(50));
+      for (var i = 1; i <= 4; i++) {
+        asset(note, i).writeAsBytesSync(content(51, 200000));
+      }
+      for (var i = 5; i <= 6; i++) {
+        asset(note, i).writeAsBytesSync(content(52, 200000));
+      }
+      final photo = picture(FileImage(asset(note, 0)));
+      final first = [
+        for (var i = 0; i < 4; i++) pdfPage(asset(note, i + 1), i),
+      ];
+      final second = [
+        for (var i = 0; i < 2; i++) pdfPage(asset(note, i + 5), i),
+      ];
+      final coreInfo = EditorCoreInfo(filePath: note);
+      addTearDown(coreInfo.dispose);
+      coreInfo.pages.add(EditorPage(images: [photo]));
+      for (final page in [...first, ...second]) {
+        coreInfo.pages.add(EditorPage(backgroundImage: page));
+      }
+      List<EditorImage> all() => [photo, ...first, ...second];
+
+      expect(collect(all()).length, 7);
+      expect(await NoteAssets.shareIdenticalPdfs(coreInfo), 4);
+      for (final page in first) {
+        expect(page.pdfFile!.path, asset(note, 1).path);
+      }
+      for (final page in second) {
+        expect(page.pdfFile!.path, asset(note, 5).path, reason: 'another PDF');
+      }
+      // Nothing on disk was touched by looking.
+      for (var i = 0; i <= 6; i++) {
+        expect(asset(note, i).existsSync(), isTrue);
+      }
+
+      // The next save keeps one file for each PDF and removes the rest.
+      final assets = collect(all());
+      expect(assets.length, 3);
+      final result = await NoteAssets.write('$note.sbn2', assets);
+      expect(result.ok, isTrue);
+      expect((result.kept, result.copied, result.written), (2, 1, 0));
+      await FileManager.removeUnusedAssets('$note.sbn2', numAssets: 3);
+      expect(asset(note, 0).readAsBytesSync(), content(50));
+      expect(asset(note, 1).readAsBytesSync(), content(51, 200000));
+      expect(asset(note, 2).readAsBytesSync(), content(52, 200000));
+      expect(asset(note, 3).existsSync(), isFalse);
+      expect(asset(note, 6).existsSync(), isFalse);
+      for (final page in second) {
+        expect(page.pdfFile!.path, asset(note, 2).path);
+      }
+
+      // Looking again finds nothing to do.
+      expect(await NoteAssets.shareIdenticalPdfs(coreInfo), 0);
+      expect(collect(all()).length, 3);
+    });
+
+    test('PDFs that only have the same size are left apart', () async {
+      const note = '/Benzer';
+      asset(note, 0).writeAsBytesSync(content(60, 50000));
+      asset(note, 1).writeAsBytesSync(content(61, 50000));
+      final a = pdfPage(asset(note, 0), 0), b = pdfPage(asset(note, 1), 0);
+      final coreInfo = EditorCoreInfo(filePath: note);
+      addTearDown(coreInfo.dispose);
+      coreInfo.pages
+        ..add(EditorPage(backgroundImage: a))
+        ..add(EditorPage(backgroundImage: b));
+
+      expect(await NoteAssets.shareIdenticalPdfs(coreInfo), 0);
+      expect(a.pdfFile!.path, asset(note, 0).path);
+      expect(b.pdfFile!.path, asset(note, 1).path);
+    });
+  });
+
   group('When the files of a note move:', () {
     test('its pictures are read from where they are now', () async {
       const from = '/Eski ad', to = '/Klasör/Yeni ad';

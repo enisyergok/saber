@@ -21,6 +21,7 @@ import 'package:saber/data/tools/ink_eraser.dart';
 import 'package:sbn/has_size.dart';
 import 'package:sbn/tool_id.dart';
 import 'package:saber/components/canvas/canvas.dart' as saber;
+import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/canvas_background_preview.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:sbn/canvas_background_pattern.dart';
@@ -551,6 +552,10 @@ void main() {
           markTestSkipped('PDFium was not found on this computer');
           return;
         }
+        // Pages that leave the screen are let go at once, not after a
+        // wait that would outlive the test.
+        EditorImage.shouldLoadOutImmediately = true;
+        addTearDown(() => EditorImage.shouldLoadOutImmediately = false);
         final folder = Directory.systemTemp.createTempSync('pdf_scene');
         addTearDown(() {
           try {
@@ -570,6 +575,9 @@ void main() {
         expect(imported, isTrue);
         // Not saved: the picture is of the page, not of a file.
         editor.cancelAutosaveAndMarkSaved();
+        // Nothing left over from the scenes before this one.
+        Select.currentSelect.unselect();
+        editor.currentTool = Pen.currentPen;
         // The pages are drawn by the PDF reader, off the main thread.
         for (var i = 0; i < 40; i++) {
           await tester.runAsync(

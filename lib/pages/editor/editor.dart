@@ -297,6 +297,10 @@ class EditorState extends State<Editor> {
     // Opening a note scrolls to its page: that is not a page turn.
     _eInkPageTurnsFrom = DateTime.now().add(const Duration(milliseconds: 1500));
 
+    // Notes of earlier versions hold a copy of a PDF for each of its
+    // pages: they are found here and given up with the next save.
+    unawaited(_sharePdfCopies(coreInfo));
+
     // A notebook that was just made in the new notebook screen.
     final spec = PendingNotebook.take(filePath);
     if (spec != null) await applyNotebookSpec(spec);
@@ -306,6 +310,16 @@ class EditorState extends State<Editor> {
     }
     if (widget.imagePath != null) {
       await _addImageFromPath(widget.imagePath!);
+    }
+  }
+
+  Future<void> _sharePdfCopies(EditorCoreInfo loaded) async {
+    if (loaded.readOnly) return;
+    try {
+      await NoteAssets.shareIdenticalPdfs(loaded);
+    } catch (e, st) {
+      // The note works as it is; it only takes more room.
+      log.warning('Could not look for copies of PDFs: $e', e, st);
     }
   }
 

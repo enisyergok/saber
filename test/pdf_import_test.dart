@@ -164,6 +164,12 @@ void main() {
   });
 
   group('Assets of a note:', () {
+    test('two File objects for one path are not equal to Dart', () {
+      // This is why paths are compared: the pages of a PDF each hold a File
+      // of their own, and each used to be saved as a PDF of its own.
+      expect(File('${temp.path}/a.pdf') == File('${temp.path}/a.pdf'), isFalse);
+    });
+
     test('the pages of one PDF file are one asset', () {
       final assets = OrderedAssetCache();
       final first = assets.add(File('${temp.path}/a.pdf'), owner: 'page 1');

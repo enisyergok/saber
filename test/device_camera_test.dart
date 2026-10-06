@@ -149,7 +149,7 @@ void main() {
     var asked = 0;
     messenger.setMockMethodCallHandler(DeviceCamera.channel, (call) async {
       asked++;
-      if (error != null) throw error!;
+      if (error != null) throw error;
       return answer;
     });
 
@@ -230,5 +230,8 @@ void main() {
     expect(saved.existsSync(), isTrue);
     expect(saved.lengthSync(), greaterThan(0));
     expect(File('${saved.path}.new').existsSync(), isFalse);
+    // Let what the toolbar animates (undo became possible) come to rest.
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
   });
 }

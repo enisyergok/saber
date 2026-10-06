@@ -197,7 +197,8 @@ class _DisplayRatePageState extends State<DisplayRatePage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(text, style: theme.textTheme.bodyLarge),
-                        if (verdict == DisplayRateVerdict.heldBack) ...[
+                        if (verdict == DisplayRateVerdict.heldBack ||
+                            verdict == DisplayRateVerdict.noFasterMode) ...[
                           const SizedBox(height: 12),
                           Text(DefterStrings.rateSteps),
                         ],
