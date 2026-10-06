@@ -20,7 +20,7 @@ home:
   create:
     newNote: Yeni defter
     importNote: Notu içeri aktar
-  welcome: Defter'e hoş geldiniz
+  welcome: Marj'a hoş geldiniz
   invalidFormat: Seçtiğiniz dosya desteklenmiyor. Lütfen bir .sbn, .sbn2, .sba veya .pdf dosyası seçin.
   noFiles: Dosya yok
   createNewNote: Yeni bir not oluşturmak için + butonuna tıklayınız

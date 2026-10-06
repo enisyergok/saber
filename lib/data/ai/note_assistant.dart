@@ -173,7 +173,7 @@ abstract class NoteAssistant {
             headers: {
               'Authorization': 'Bearer ${apiKey.trim()}',
               'Content-Type': 'application/json',
-              'X-Title': 'Defter',
+              'X-Title': 'Marj',
             },
             body: jsonEncode(
               buildRequestBody(

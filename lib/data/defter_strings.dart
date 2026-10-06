@@ -121,10 +121,10 @@ abstract class DefterStrings {
   // -- screen refresh rate ---------------------------------------------------
   static String get rateTitle => _tr ? 'Ekran hızı (Hz)' : 'Screen rate (Hz)';
   static String get rateSubtitle => _tr
-      ? 'Defter bu ekranda saniyede kaç kare çiziliyor, ölçer'
+      ? 'Marj bu ekranda saniyede kaç kare çiziliyor, ölçer'
       : 'Measures how many frames a second the app is drawn at';
   static String get rateIntro => _tr
-      ? 'Yüksek ekran hızı (90/120/144 Hz) kalemin çizgiyi daha yakından izlemesini sağlar. Aşağıdaki son sayı tahmin değil: Defter\'in şu anda çizdiği karelerden ölçülür.'
+      ? 'Yüksek ekran hızı (90/120/144 Hz) kalemin çizgiyi daha yakından izlemesini sağlar. Aşağıdaki son sayı tahmin değil: Marj\'ın şu anda çizdiği karelerden ölçülür.'
       : 'A fast screen (90/120/144 Hz) lets the line follow the pen more closely. The last number below is not a guess: it is measured from the frames the app is drawing right now.';
   static String get rateMax =>
       _tr ? 'Ekranın en yüksek hızı' : 'Fastest rate of the screen';
@@ -135,13 +135,13 @@ abstract class DefterStrings {
   static String rateFrames(String value) =>
       _tr ? '$value kare/sn' : '$value frames/s';
   static String rateFull(String max) => _tr
-      ? 'Defter ekranın en yüksek hızında ($max) çiziliyor.'
+      ? 'Marj ekranın en yüksek hızında ($max) çiziliyor.'
       : 'The app is drawn at the screen\'s fastest rate ($max).';
   static String rateNoFasterMode(String max) => _tr
       ? 'Cihaz şu an bu ekran için en fazla $max bildiriyor. Tabletiniz daha yüksek bir hızı (90/120 Hz) destekliyorsa, bu ekran ayarında yüksek hızın kapalı olduğunu gösterir: aşağıdaki adımları uygulayın. Desteklemiyorsa daha hızlı çizim bu cihazda mümkün değildir.'
       : 'The device reports at most $max for this screen right now. If your tablet supports a faster rate (90/120 Hz), this means the fast rate is switched off in the screen settings: follow the steps below. If it does not, faster drawing is not possible on this device.';
   static String rateHeldBack(String max, String measured) => _tr
-      ? 'Ekran $max destekliyor ama sistem Defter\'i şu an $measured ile çizdiriyor. Defter en yüksek hızı her açılışta ister; karar cihazın ekran ayarındadır.'
+      ? 'Ekran $max destekliyor ama sistem Marj\'ı şu an $measured ile çizdiriyor. Marj en yüksek hızı her açılışta ister; karar cihazın ekran ayarındadır.'
       : 'The screen supports $max, but the system draws the app at $measured right now. The app asks for the fastest rate every time it opens; the decision is the device\'s screen setting.';
   static String get rateSteps => _tr
       ? '1. Ayarlar > Ekran ve parlaklık > Ekran yenileme hızı bölümünde "Yüksek" seçin ("Dinamik" ya da "Akıllı" seçiliyse sistem uygulamaları 60 Hz\'de tutabilir).\n2. Güç tasarrufu modu açıksa kapatın.\n3. Bu sayfaya dönün: ölçülen sayı ekranın en yüksek hızına çıkmalı.'
@@ -491,7 +491,7 @@ abstract class DefterStrings {
   static String get homeDashboardSubtitle => _tr
       ? 'Kenar çubuğu, son kullanılanlar, klasörler ve şablonlar tek ekranda'
       : 'Sidebar, recent notes, folders and templates on one screen';
-  static String get appName => 'Defter';
+  static String get appName => 'Marj';
   static String get navHome => _tr ? 'Ana Sayfa' : 'Home';
   static String get navNotes => _tr ? 'Notlarım' : 'My Notes';
   static String get navPlanners => _tr ? 'Planlayıcılar' : 'Planners';
@@ -1091,8 +1091,8 @@ abstract class DefterStrings {
   static String backupError(String failure) => switch (failure) {
     'notABackup' =>
       _tr
-          ? 'Bu dosya Defter yedeği değil.'
-          : 'This file is not a Defter backup.',
+          ? 'Bu dosya Marj yedeği değil.'
+          : 'This file is not a Marj backup.',
     'newerFormat' =>
       _tr
           ? 'Bu yedek uygulamanın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.'
