@@ -8,6 +8,7 @@ import 'package:saber/components/canvas/inner_canvas.dart';
 import 'package:saber/components/canvas/invert_widget.dart';
 import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/eink/eink_scope.dart';
+import 'package:saber/components/home/note_opening.dart';
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/sync_indicator.dart';
 import 'package:saber/components/theming/defter_design.dart';
@@ -123,6 +124,22 @@ class _PreviewCardState extends State<PreviewCard> {
       Directionality.of(context),
     );
     final modified = _modified;
+    final paper =
+        eInk?.paper ?? InnerCanvas.defaultBackgroundColor.withInversion(invert);
+
+    // The picture of the note's first page: cropped to the cover on the
+    // card, and across the whole screen while the card opens.
+    Widget picture(BoxFit fit) => EInkImageFilter(
+      child: InvertWidget(
+        invert: invert,
+        child: Image(
+          image: thumbnail.image!,
+          alignment: .topCenter,
+          fit: fit,
+          gaplessPlayback: true,
+        ),
+      ),
+    );
 
     final Widget cover = PressScale(
       child: MouseRegion(
@@ -134,29 +151,21 @@ class _PreviewCardState extends State<PreviewCard> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            ColoredBox(
-              color:
-                  eInk?.paper ??
-                  InnerCanvas.defaultBackgroundColor.withInversion(invert),
-            ),
+            ColoredBox(color: paper),
             ListenableBuilder(
               listenable: thumbnail,
               builder: (context, _) => AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: SizedBox.expand(
                   key: ValueKey(thumbnail.updateCount),
-                  child: EInkImageFilter(
-                    child: InvertWidget(
-                      invert: invert,
-                      child: thumbnail.doesImageExist
-                          ? Image(
-                              image: thumbnail.image!,
-                              alignment: .topCenter,
-                              fit: .cover,
-                            )
-                          : const _FallbackThumbnail(),
-                    ),
-                  ),
+                  child: thumbnail.doesImageExist
+                      ? picture(BoxFit.cover)
+                      : EInkImageFilter(
+                          child: InvertWidget(
+                            invert: invert,
+                            child: const _FallbackThumbnail(),
+                          ),
+                        ),
                 ),
               ),
             ),
@@ -252,8 +261,14 @@ class _PreviewCardState extends State<PreviewCard> {
                   closedElevation: 0,
                   closedBuilder: (context, action) => cover,
                   openColor: colorScheme.surface,
-                  openBuilder: (context, action) =>
-                      Editor(path: widget.filePath),
+                  // The picture grows; the editor comes when it has grown
+                  openBuilder: (context, action) => NoteOpening(
+                    path: widget.filePath,
+                    paper: paper,
+                    picture: thumbnail.doesImageExist
+                        ? picture(BoxFit.fitWidth)
+                        : null,
+                  ),
                   transitionDuration: transitionDuration,
                   routeSettings: RouteSettings(
                     name: RoutePaths.editFilePath(widget.filePath),
