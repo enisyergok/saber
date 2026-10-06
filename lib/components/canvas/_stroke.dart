@@ -14,6 +14,10 @@ import 'package:sbn/has_size.dart';
 import 'package:vector_math/vector_math_64.dart' show Matrix4;
 import 'package:sbn/tool_id.dart';
 
+/// A point of the line a stroke is drawn along, and half the width of the
+/// ink there.
+typedef InkPoint = ({Offset at, double radius});
+
 class Stroke {
   static final log = Logger('Stroke');
 
@@ -575,6 +579,189 @@ class Stroke {
     page: page,
     toolId: toolId,
   )..points.addAll(points);
+
+  // -- the ink as it is drawn ----------------------------------------------
+
+  /// Whether this stroke is a shape drawn from its few corners (a straight
+  /// line, a polygon, an arrow) and not from many points along its way.
+  bool get _isDrawnFromCorners {
+    final n = points.length;
+    if (n < 3 || n > _maxVertexPoints) return false;
+    final last = points[n - 1], before = points[n - 2];
+    return last.dx == before.dx && last.dy == before.dy;
+  }
+
+  /// Whether the [inkLine] ends where it starts (a closed outline).
+  bool get inkLineIsClosed => (vertexHandles?.length ?? 0) >= 3;
+
+  /// The line the ink of this stroke follows, exactly as it is drawn: with
+  /// the pen's steadying applied, and with half the ink's width at every
+  /// point (pressure and pointed ends included).
+  ///
+  /// This is what the eraser cuts, so that what is left of a stroke stays
+  /// where it was and as wide as it was (see [fromInkLine]).
+  List<InkPoint> inkLine() {
+    if (points.isEmpty) return const [];
+    // A line whose width was made up from the pen's speed keeps those
+    // widths from the first time it is drawn in full: make sure it has been.
+    if (options.simulatePressure && options.isComplete && pressureEnabled) {
+      highQualityPolygon.length;
+    }
+    if (!pressureEnabled) options.simulatePressure = false;
+
+    // The same steps as the drawing itself takes (see perfect_freehand's
+    // getStrokePoints and getStrokeOutlinePoints).
+    final strokePoints = getStrokePoints(points, options: options);
+    if (strokePoints.isEmpty) return const [];
+    final size = options.size;
+    final total = strokePoints.last.runningLength;
+    final taperStart = options.start.taperEnabled
+        ? options.start.customTaper ?? max(size, total)
+        : 0.0;
+    final taperEnd = options.end.taperEnabled
+        ? options.end.customTaper ?? max(size, total)
+        : 0.0;
+
+    var previous = strokePoints.first.pressure;
+    if (options.simulatePressure) {
+      for (final point in strokePoints.sublist(
+        0,
+        min(10, strokePoints.length - 1),
+      )) {
+        previous = (previous + point.simulatePressure(previous, size)) / 2;
+      }
+    }
+
+    final line = <InkPoint>[];
+    for (final point in strokePoints) {
+      double radius;
+      if (options.thinning != 0) {
+        final double pressure;
+        if (options.simulatePressure) {
+          pressure = point.simulatePressure(previous, size);
+          previous = pressure;
+        } else {
+          pressure = point.pressure;
+        }
+        radius = size * options.easing(0.5 - options.thinning * (0.5 - pressure));
+      } else {
+        radius = size / 2;
+      }
+      final run = point.runningLength;
+      final atStart = run < taperStart
+          ? options.start.easing(run / taperStart)
+          : 1.0;
+      final atEnd = total - run < taperEnd
+          ? options.end.easing((total - run) / taperEnd)
+          : 1.0;
+      radius = max(0.01, radius * min(atStart, atEnd));
+      line.add((at: Offset(point.point.x, point.point.y), radius: radius));
+    }
+    // A shape's sides are single long steps; cut into pieces, it is drawn
+    // like handwriting, which rounds corners over the length of a step.
+    return _isDrawnFromCorners
+        ? densifyInkLine(line, inkLineSpacing(size))
+        : line;
+  }
+
+  /// How far apart the points of a shape's [inkLine] are at most.
+  static double inkLineSpacing(double size) => max(2.0, size * 0.6);
+
+  /// [line] with points added so that none are more than [spacing] apart.
+  static List<InkPoint> densifyInkLine(List<InkPoint> line, double spacing) {
+    if (line.length < 2) return line;
+    final dense = <InkPoint>[line.first];
+    for (var i = 1; i < line.length; i++) {
+      final a = line[i - 1], b = line[i];
+      final steps = ((b.at - a.at).distance / spacing).ceil();
+      for (var step = 1; step < steps; step++) {
+        final t = step / steps;
+        dense.add((
+          at: Offset.lerp(a.at, b.at, t)!,
+          radius: a.radius + (b.radius - a.radius) * t,
+        ));
+      }
+      dense.add(b);
+    }
+    return dense;
+  }
+
+  /// A stroke that is drawn along [line] with exactly the widths it gives,
+  /// in the colour and with the tool of [like].
+  ///
+  /// An end that is [flatStart] or [flatEnd] is cut off square (it is where
+  /// the eraser went through); the others are round.
+  static Stroke fromInkLine(
+    Stroke like,
+    List<InkPoint> line, {
+    bool flatStart = false,
+    bool flatEnd = false,
+  }) {
+    final size = like.options.size;
+    final stroke = Stroke(
+      color: like.color,
+      // The widths are kept as pressure: with thinning at 1, the ink is
+      // exactly `size * pressure` wide on either side of the line.
+      pressureEnabled: true,
+      options: StrokeOptions(
+        size: size,
+        thinning: 1,
+        smoothing: like.options.smoothing,
+        streamline: 0,
+        simulatePressure: false,
+        isComplete: true,
+        start: StrokeEndOptions.start(cap: !flatStart, taperEnabled: false),
+        end: StrokeEndOptions.end(cap: !flatEnd, taperEnabled: false),
+      ),
+      pageIndex: like.pageIndex,
+      page: like.page,
+      toolId: like.toolId,
+    );
+    for (final point in line) {
+      stroke.points.add(
+        PointVector(
+          point.at.dx,
+          point.at.dy,
+          size <= 0 ? 0.5 : (point.radius / size).clamp(0.0, 1.0).toDouble(),
+        ),
+      );
+    }
+    return stroke;
+  }
+
+  /// A straight line like this one (see [vertexHandles]) from [a] to [b].
+  /// An end that is [flatStart] or [flatEnd] is cut off square.
+  Stroke lineLike(
+    Offset a,
+    Offset b, {
+    bool flatStart = false,
+    bool flatEnd = false,
+  }) {
+    final line = Stroke(
+      color: color,
+      pressureEnabled: pressureEnabled,
+      options: options.copyWith(
+        isComplete: true,
+        start: StrokeEndOptions.start(
+          cap: !flatStart && options.start.cap,
+          taperEnabled: false,
+        ),
+        end: StrokeEndOptions.end(
+          cap: !flatEnd && options.end.cap,
+          taperEnabled: false,
+        ),
+      ),
+      pageIndex: pageIndex,
+      page: page,
+      toolId: toolId,
+    );
+    final pressure = points.isEmpty ? null : points.first.pressure;
+    line.points
+      ..add(PointVector(a.dx, a.dy, pressure))
+      ..add(PointVector(b.dx, b.dy, pressure))
+      ..add(PointVector(b.dx, b.dy, pressure));
+    return line;
+  }
 }
 
 enum StrokeQuality(

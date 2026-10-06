@@ -8,6 +8,7 @@ Defter, Saber Notes'un (Flutter) çatalıdır. Tablet için kalem deneyimi,
 | Alan | Ne var |
 | --- | --- |
 | Kalem | Mürekkep katmanları (yazarken yalnızca canlı katman çizilir), avuç içi reddi, silgi hızlandırma ve 3 silgi boyutu, kalın/ince ve renk ön ayarları, 3 saydamlık düzeyi |
+| Silgi | Hassas silgi (varsayılan): yalnızca üzerinden geçtiği yeri siler; çizginin geri kalanı yerinde, aynı kalınlıkta ve aynı sırada kalır, kesilen uç düz biter. Şekillerde de çalışır (daire yay olur, düz çizgi iki düz çizgi olur ve uçları yine taşınabilir). Silerken silginin kapladığı alan daire olarak görünür. Dört boyut (en küçüğü tek harf için). "Çizgi" seçeneği eski davranıştır: dokunduğu çizgiyi bütünüyle siler. Tek geri al, silinen her şeyi olduğu gibi geri getirir. |
 | Araçlar | Kement seçimi: taşı, boyutlandır, döndür (geri al/yinele dahil); şekil kalemi, isteğe bağlı ok ucu |
 | Şekiller | Bekleyince düzleştirme (kalemi çizimden sonra 0,6 sn durdur; fosforlu dahil), çokgen/elips/yay/döndürülmüş dikdörtgen tanıma, şekil köşelerini sürükleyerek düzenleme, uçların yakın şekillere yapışması; hepsi Ayarlar'dan kapatılabilir |
 | Arayüz | Gruplanmış araç çubuğu, doğrudan şekil düğmesi, üst çubukta "3 / 12" sayfa sayacı, geniş ekranda sayfa küçük resim paneli |
@@ -49,6 +50,9 @@ saklanır (şifrelenmez, eşitlenmez).
 - Çizgi aralığı dar/orta/geniş olan kâğıtlar aynı deseni farklı satır yüksekliğiyle kullanır; satır yüksekliği not açıkken alt menüden de değiştirilebilir.
 - Yeni defterin kapağı ilk sayfa olarak eklenir; ana ekrandaki defter kartı notun ilk sayfasını gösterdiği için kapak orada da görünür. Kapak görüntüsü tablette doğrulanmadı (testler gerçek resim çizemiyor).
 - Uzunluklar sayfanın A4 genişliğinde (210 mm) olduğu varsayılarak hesaplanır: 1000 sayfa birimi = 210 mm. Başka boyutta yazdırırsan ölçüler aynı oranda değişir; PDF üzerine çizilen notlarda sayfa genişliği A4 değilse mm değeri gerçek ölçüyü vermez.
+- Hassas silgi çizgiyi ortasından geçen hat üzerinden keser, mürekkebi piksel piksel oymaz: kesilen uç silginin yuvarlağına göre değil, çizgiye dik düz biter. İnce kalem çizgilerinde fark görünmez; kalın fosforlu çizgide silgi çizginin kenarına değince değil, genişliğinin dörtte birinden fazlasına girince o kesimi boydan boya siler. Yarım kalınlık silinemez.
+- Hassas silgiyle kesilen daire ve dikdörtgen artık şekil değil, çizgi parçalarıdır (köşe tutamaçları olmaz); düz çizgi parçaları düz çizgi olarak kalır. Bir çizginin genişliğinin dörtte birinden (ve 0,2 mm'den) kısa kalan kırıntıları kendiliğinden silinir.
+- Silginin dairesi yalnızca silerken görünür; kalem ekrana değmeden (havada) silginin yeri gösterilmez. Resimler silgiyle silinmez.
 - Açı kılavuzu ve ölçülendirme yalnızca düz çizilen çizgilere dokunur: çizgi, iki ucu arasındaki doğrudan boyunun %6'sından fazla sapmamalı ve yaklaşık 7 mm'den uzun olmalı; yazı ve eğriler olduğu gibi kalır. Bu ikisi açıkken kısa düz çizgiler ("l", "–" gibi) de düzleşebilir; yazı yazarken kapatmak gerekir. Ölçüm tek başına çizgiyi değiştirmez, yalnızca ölçer.
 - Ölçülendirme yazısı sıradan mürekkeptir: çizgiyi sonradan taşır ya da uzatırsan yazı kendiliğinden güncellenmez.
 - Fırça ve kaligrafi kalemlerinin çizgileri dosyada dolma kalem çizgisi olarak saklanır (eski sürümler de açabilsin diye); bu yüzden not yeniden açıldığında çizgiler aynı görünür ama hangi kalemle çizildikleri ayırt edilmez.

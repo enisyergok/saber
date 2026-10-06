@@ -172,6 +172,26 @@ class RectangleStroke extends Stroke {
   bool isStraightLine([int minLength = 0]) => false;
 
   @override
+  bool get inkLineIsClosed => true;
+
+  /// Round the rectangle once, clockwise from its top left corner.
+  @override
+  List<InkPoint> inkLine() {
+    if (rect.isEmpty) return const [];
+    final half = options.size / 2;
+    return Stroke.densifyInkLine([
+      for (final corner in [
+        rect.topLeft,
+        rect.topRight,
+        rect.bottomRight,
+        rect.bottomLeft,
+        rect.topLeft,
+      ])
+        (at: corner, radius: half),
+    ], Stroke.inkLineSpacing(options.size));
+  }
+
+  @override
   RectangleStroke copy() => RectangleStroke(
     color: color,
     pressureEnabled: pressureEnabled,

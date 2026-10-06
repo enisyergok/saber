@@ -5,6 +5,7 @@ import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/prefs.dart';
 
 import 'package:saber/data/tools/_tool.dart';
+import 'package:saber/data/tools/ink_eraser.dart';
 import 'package:sbn/tool_id.dart';
 
 double square(double x) => x * x;
@@ -20,10 +21,31 @@ class Eraser extends Tool {
   /// The extra 1 keeps points exactly on the edge from being missed.
   double get _reach => math.sqrt(sqrSize) + 1;
 
-  /// The sizes offered by the toolbar, smallest first.
-  static const sizePresets = <double>[10, 25, 50];
+  /// The sizes offered by the toolbar, smallest first. The smallest is for
+  /// taking a single letter or part of a line out of dense writing.
+  static const sizePresets = <double>[4, 10, 25, 50];
 
   List<Stroke> _erased = [];
+
+  /// Whether the eraser rubs out only what it passes over (the default) or
+  /// takes away every stroke it touches as a whole.
+  static bool get precise => stows.eraserPrecise.value;
+
+  final _ink = InkEraser();
+
+  /// Begins a drag of the precise eraser over [strokes], the page's own
+  /// list.
+  void beginPrecise(List<Stroke> strokes) => _ink.begin(strokes);
+
+  /// Moves the precise eraser to [position], rubbing out what it passes
+  /// over in [strokes] (which is changed in place). Returns whether
+  /// anything was rubbed out.
+  bool erasePrecise(Offset position, List<Stroke> strokes) =>
+      _ink.moveTo(position, size, strokes);
+
+  /// Ends a drag of the precise eraser: what became of each stroke it
+  /// touched.
+  List<StrokeReplacement> endPrecise() => _ink.finish();
 
   /// Uses the person's last chosen size unless [size] is given.
   new({double? size}) : size = size ?? stows.eraserSize.value;
