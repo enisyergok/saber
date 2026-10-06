@@ -77,7 +77,7 @@ jobs:
         env:
           RUN_NUMBER: ${{ github.run_number }}
         run: |
-          apkName="Defter_b${RUN_NUMBER}.apk"
+          apkName="Marj_b${RUN_NUMBER}.apk"
           echo "apkName=$apkName" >> $GITHUB_OUTPUT
           mkdir -p output
           mv build/app/outputs/flutter-apk/app-release.apk "output/$apkName"
@@ -85,7 +85,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Defter-Android
+          name: Marj-Android
           path: output/${{ steps.rename_apk.outputs.apkName }}
 
       - name: Publish release
@@ -97,6 +97,6 @@ jobs:
           gh release create "build-${RUN_NUMBER}" "$APK" \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
-            --title "Defter build ${RUN_NUMBER}" \
+            --title "Marj build ${RUN_NUMBER}" \
             --notes "Commit ${GITHUB_SHA}" \
             --latest

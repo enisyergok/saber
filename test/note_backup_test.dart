@@ -549,12 +549,12 @@ void main() {
       Directory('${temp.path}/backups').createSync();
       File('${temp.path}/backups/Defter-yedek-2025-01-01-0000.zip')
           .writeAsStringSync('eski yedek');
-      expect(NoteBackup.fileName(created), 'Defter-yedek-2026-10-06-1405.zip');
+      expect(NoteBackup.fileName(created), 'Marj-yedek-2026-10-06-1405.zip');
 
       final summary = await NoteBackup.create(now: created);
       expect(
         summary.path,
-        '${temp.path}/backups/Defter-yedek-2026-10-06-1405.zip',
+        '${temp.path}/backups/Marj-yedek-2026-10-06-1405.zip',
       );
       expect(summary.notes, 3);
       expect((await NoteBackup.latest())!.path, summary.path);

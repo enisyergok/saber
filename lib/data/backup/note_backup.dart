@@ -815,7 +815,7 @@ abstract class NoteBackup {
 
   /// The name a backup made at [time] is given.
   static String fileName(DateTime time) =>
-      'Defter-yedek-${time.year}-${_two(time.month)}-${_two(time.day)}'
+      'Marj-yedek-${time.year}-${_two(time.month)}-${_two(time.day)}'
       '-${_two(time.hour)}${_two(time.minute)}.zip';
 
   static File get _handwritingFile => HandwritingTexts.file;

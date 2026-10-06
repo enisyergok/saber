@@ -96,7 +96,7 @@ class _DisplayRatePageState extends State<DisplayRatePage>
   String get _report {
     final info = _info;
     return [
-      'Defter ekran hızı',
+      'Marj ekran hızı',
       'ölçülen: ${_measured?.toStringAsFixed(1) ?? '?'}',
       'en yüksek: ${info?.max?.toStringAsFixed(1) ?? '?'}',
       'kip: ${info?.mode?.toStringAsFixed(1) ?? '?'}',

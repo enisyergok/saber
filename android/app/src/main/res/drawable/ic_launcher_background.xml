@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The ink Marj's mark is written on: a little lighter at the top.
+     (The same two colours as scripts/make_marj_icon.py.) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:startColor="#FF3055C9"
+        android:endColor="#FF203993"
+        android:type="linear" />
+</shape>

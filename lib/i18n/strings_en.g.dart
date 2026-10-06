@@ -78,8 +78,8 @@ class Translations$home$en {
 	late final Translations$home$tooltips$en tooltips = Translations$home$tooltips$en.internal(_root);
 	late final Translations$home$create$en create = Translations$home$create$en.internal(_root);
 
-	/// en: 'Welcome to Defter'
-	String get welcome => 'Welcome to Defter';
+	/// en: 'Welcome to Marj'
+	String get welcome => 'Welcome to Marj';
 
 	/// en: 'The file you selected is not supported. Please select an sbn, sbn2, sba, or pdf file.'
 	String get invalidFormat => 'The file you selected is not supported. Please select an sbn, sbn2, sba, or pdf file.';

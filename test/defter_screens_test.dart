@@ -1073,7 +1073,7 @@ void _shot({
           ? theme
           : SaberTheme.createEInkTheme(eInk, _tablet.platform),
       device: _tablet,
-      title: 'Defter',
+      title: 'Marj',
       home: TranslationProvider(
         child: eInk == null
             ? child

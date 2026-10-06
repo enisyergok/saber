@@ -65,7 +65,7 @@ class _BenchmarkPageState extends State<BenchmarkPage> {
     try {
       final size = view.physicalSize;
       _log(
-        'Defter $buildName ($buildNumber)'
+        'Marj $buildName ($buildNumber)'
         '${ciBuild.isEmpty ? '' : ', build $ciBuild'}',
       );
       _log(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:saber/components/theming/marj_mark.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -220,7 +221,7 @@ class _HomeSidebarState extends State<HomeSidebar> {
                 padding: const EdgeInsets.fromLTRB(18, 14, 12, 12),
                 child: Row(
                   children: [
-                    Icon(Symbols.auto_stories_rounded, color: colors.primary),
+                    const MarjMark(size: 26),
                     const SizedBox(width: 10),
                     Text(
                       DefterStrings.appName,
