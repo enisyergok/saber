@@ -54,6 +54,10 @@ import 'package:saber/data/display_rate.dart';
 import 'package:saber/data/device_camera.dart';
 import 'package:saber/components/toolbar/note_versions_dialog.dart';
 import 'package:saber/components/toolbar/pdf_remove_dialog.dart';
+import 'package:saber/components/toolbar/pdf_picker_dialog.dart';
+import 'package:saber/components/canvas/image/pdf_document_cache.dart';
+import 'package:saber/data/pdf/pdf_import.dart';
+import 'package:saber/data/pdf/pdf_pick.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/versions/note_versions.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
@@ -582,6 +586,63 @@ void main() {
         Select.currentSelect.unselect();
         editor.currentTool = Pen.currentPen;
         // The pages are drawn by the PDF reader, off the main thread.
+        for (var i = 0; i < 40; i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 100)),
+          );
+          await tester.pump();
+        }
+      },
+    );
+
+    // The window a PDF opens in before any of it is put into the note: a
+    // real PDF, a page ticked and a part of the open page marked.
+    _shot(
+      theme: theme,
+      name: 'pdf_picker',
+      waitForEditor: false,
+      child: const Scaffold(body: SizedBox.expand()),
+      afterLoad: (tester) async {
+        if (!setUpPdfium()) {
+          markTestSkipped('PDFium was not found on this computer');
+          return;
+        }
+        final folder = Directory.systemTemp.createTempSync('pdf_picker_scene');
+        final cache = PdfDocumentCache();
+        addTearDown(() {
+          cache.dispose();
+          try {
+            folder.deleteSync(recursive: true);
+          } on FileSystemException {
+            // Still open.
+          }
+        });
+        final document = (await tester.runAsync(() async {
+          final pdf = await writeSamplePdf(folder, copies: 2);
+          return PdfImport.open(cache, pdf.path);
+        }))!;
+        unawaited(
+          showDialog<void>(
+            context: tester.element(find.byType(Scaffold)),
+            builder: (context) => PdfPickerDialog(
+              document: document,
+              name: 'Ders notlari.pdf',
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.tap(find.byKey(const Key('pdfPickPage-1')));
+        await tester.pump();
+        tester
+            .state<PdfPickerDialogState>(find.byType(PdfPickerDialog))
+            .setRegion(
+              PdfRegion.rectangle(
+                const Offset(0.03, 0.03),
+                const Offset(0.62, 0.14),
+              ),
+            );
+        // The pages are drawn and the text is read off the main thread.
         for (var i = 0; i < 40; i++) {
           await tester.runAsync(
             () => Future<void>.delayed(const Duration(milliseconds: 100)),

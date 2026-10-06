@@ -37,6 +37,8 @@ class EditorBottomSheet extends StatefulWidget {
     required this.pickPhotos,
     this.takePhoto,
     required this.importPdf,
+    this.lastPdfName,
+    this.reopenPdf,
     required this.canRasterPdf,
     required this.hasPdf,
     required this.currentPageHasPdf,
@@ -66,6 +68,10 @@ class EditorBottomSheet extends StatefulWidget {
   /// Takes a photo with the camera, or null if the device can't.
   final Future<int> Function()? takePhoto;
   final Future<bool> Function() importPdf;
+
+  /// The PDF whose window was last open, to take more from it.
+  final String? lastPdfName;
+  final Future<bool> Function()? reopenPdf;
   final bool canRasterPdf;
 
   /// Whether the note has any PDF pages.
@@ -449,6 +455,28 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                       }
                     },
                     child: const Text('PDF'),
+                  ),
+                if (widget.canRasterPdf &&
+                    widget.lastPdfName != null &&
+                    widget.reopenPdf != null)
+                  ElevatedButton.icon(
+                    key: const Key('reopenPdf'),
+                    icon: const Icon(Icons.picture_as_pdf_outlined),
+                    label: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 260),
+                      child: Text(
+                        DefterStrings.pdfPickAgain(widget.lastPdfName!),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    onPressed: () async {
+                      final taken = await widget.reopenPdf!();
+                      if (taken) {
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                      }
+                    },
                   ),
               ],
             ),

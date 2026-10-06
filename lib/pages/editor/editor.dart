@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:collapsible/collapsible.dart';
 import 'package:file_picker/file_picker.dart';
@@ -75,6 +76,8 @@ import 'package:saber/components/toolbar/recordings_dialog.dart';
 import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
 import 'package:saber/data/pdf/pdf_removal.dart';
+import 'package:saber/data/pdf/pdf_pick.dart';
+import 'package:saber/components/toolbar/pdf_picker_dialog.dart';
 import 'package:saber/components/toolbar/pdf_remove_dialog.dart';
 import 'package:saber/data/device_camera.dart';
 import 'package:saber/data/editor/note_assets.dart';
@@ -308,7 +311,7 @@ class EditorState extends State<Editor> {
     if (spec != null) await applyNotebookSpec(spec);
 
     if (widget.pdfPath != null) {
-      await importPdfFromFilePath(widget.pdfPath!);
+      await openPdfWindow(widget.pdfPath!);
     }
     if (widget.imagePath != null) {
       await _addImageFromPath(widget.imagePath!);
@@ -1847,13 +1850,171 @@ class EditorState extends State<Editor> {
       return false;
     }
 
-    return importPdfFromFilePath(path);
+    return openPdfWindow(path);
   }
 
-  /// Puts the pages of the PDF at [path] into this note, each as a page of
-  /// its own. Returns whether it did; if it could not, the note is left as
-  /// it was and the reason is shown.
-  Future<bool> importPdfFromFilePath(String path) async {
+  /// The PDF whose window was last open in this editor, and the page it
+  /// showed, so that more can be taken from it without picking it again.
+  ({String path, String name, int page})? _lastPdfWindow;
+
+  /// The name of the PDF that [reopenPdfWindow] would show, if any.
+  String? get lastPdfWindowName {
+    final last = _lastPdfWindow;
+    if (last == null || !File(last.path).existsSync()) return null;
+    return last.name;
+  }
+
+  /// Shows the PDF that was last looked at again, where it was left.
+  Future<bool> reopenPdfWindow() async {
+    final last = _lastPdfWindow;
+    if (last == null) return false;
+    return openPdfWindow(last.path, initialPage: last.page);
+  }
+
+  /// Shows the PDF at [path] in a window before anything of it is put into
+  /// the note, and puts in what is chosen there: whole pages, a marked
+  /// part of a page as a picture, or its text.
+  ///
+  /// Returns whether anything was put into the note.
+  Future<bool> openPdfWindow(String path, {int initialPage = 0}) async {
+    if (coreInfo.readOnly) return false;
+
+    final PdfDocument document;
+    try {
+      document = await PdfImport.open(
+        coreInfo.assetCache.pdfDocumentCache,
+        path,
+      );
+    } on PdfImportException catch (e, st) {
+      log.severe('Could not open the PDF at $path: $e', e, st);
+      _showPdfImportError(e);
+      return false;
+    }
+    if (!mounted) return false;
+
+    final name = p.basename(path);
+    _lastPdfWindow = (path: path, name: name, page: initialPage);
+    final pick = await showDialog<PdfPick>(
+      context: context,
+      builder: (context) => PdfPickerDialog(
+        document: document,
+        name: name,
+        initialPage: initialPage,
+        onPageChanged: (page) =>
+            _lastPdfWindow = (path: path, name: name, page: page),
+      ),
+    );
+    if (pick == null || !mounted) return false;
+    return applyPdfPick(path, pick);
+  }
+
+  /// Puts what was chosen from the PDF at [path] into the note.
+  Future<bool> applyPdfPick(String path, PdfPick pick) async {
+    switch (pick) {
+      case PdfPickPages(:final pages):
+        {
+          return importPdfFromFilePath(path, pages: pages);
+        }
+      case PdfPickImage():
+        {
+          return _addPdfPiece(pick);
+        }
+      case PdfPickText(:final text):
+        {
+          return _addPdfText(text);
+        }
+    }
+  }
+
+  /// Puts a piece of a PDF page on the page that is open, as large as it
+  /// was on its own page, where it can be moved and resized like a photo.
+  bool _addPdfPiece(PdfPickImage piece) {
+    if (coreInfo.readOnly) return false;
+    final pageIndex = currentPageIndex;
+    createPage(pageIndex);
+    final page = coreInfo.pages[pageIndex];
+
+    // The top of what is on screen, in the page's own units.
+    final fitted = page.size.width < _viewportWidth
+        ? 1.0
+        : page.size.width / _viewportWidth;
+    final topOfPage = CanvasGestureDetector.getTopOfPage(
+      pageIndex: pageIndex,
+      pages: coreInfo.pages,
+      screenWidth: _viewportWidth,
+    );
+    final visibleTop = (-scrollY - topOfPage) * fitted;
+
+    final image = PngEditorImage(
+      id: coreInfo.nextImageId++,
+      extension: '.png',
+      imageProvider: MemoryImage(piece.png),
+      pageIndex: pageIndex,
+      pageSize: page.size,
+      naturalSize: piece.pixelSize,
+      srcRect: Offset.zero & piece.pixelSize,
+      dstRect: PdfClip.placeOn(
+        pageSize: page.size,
+        fractionOfPage: piece.fractionOfPage,
+        pixelSize: piece.pixelSize,
+        top: visibleTop + page.size.height * 0.04,
+      ),
+      onMoveImage: onMoveImage,
+      onDeleteImage: onDeleteImage,
+      onMiscChange: autosaveAfterDelay,
+      onLoad: () => setState(() {}),
+      assetCache: coreInfo.assetCache,
+    );
+
+    setState(() {
+      // The Select tool, so that the piece can be moved at once.
+      currentTool = Select.currentSelect;
+      history.recordChange(
+        EditorHistoryItem(
+          type: .draw,
+          pageIndex: pageIndex,
+          strokes: [],
+          images: [image],
+        ),
+      );
+      page.images.add(image);
+    });
+    autosaveAfterDelay();
+    return true;
+  }
+
+  /// Adds [text] to what is typed on the page that is open.
+  bool _addPdfText(String text) {
+    if (coreInfo.readOnly) return false;
+    final cleaned = text.trim();
+    if (cleaned.isEmpty) return false;
+    final pageIndex = currentPageIndex;
+    createPage(pageIndex);
+    final controller = coreInfo.pages[pageIndex].quill.controller;
+    // A document always ends with a line break: the text goes before it,
+    // on a line of its own if something is typed already.
+    final end = math.max(0, controller.document.length - 1);
+    final lead = controller.document.isEmpty() ? '' : '\n';
+    controller.replaceText(
+      end,
+      0,
+      '$lead$cleaned',
+      TextSelection.collapsed(offset: end + lead.length + cleaned.length),
+    );
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(content: Text(DefterStrings.pdfPickTextAdded)),
+      );
+    }
+    return true;
+  }
+
+  /// Puts pages of the PDF at [path] into this note, each as a page of its
+  /// own: all of them, or only [pages] (the first page of the PDF is 0).
+  /// Returns whether it did; if it could not, the note is left as it was
+  /// and the reason is shown.
+  Future<bool> importPdfFromFilePath(String path, {List<int>? pages}) async {
     if (coreInfo.readOnly) return false;
 
     final PdfDocument pdfDocument;
@@ -1877,9 +2038,11 @@ class EditorState extends State<Editor> {
 
     // One file for all the pages: it is saved once.
     final pdfFile = File(path);
+    final wanted = pages?.toSet();
     for (final pdfPage in pdfDocument.pages) {
       assert(pdfPage.pageNumber >= 1, 'pdfrx page numbers start at 1');
       if (pdfPage.width <= 0 || pdfPage.height <= 0) continue;
+      if (wanted != null && !wanted.contains(pdfPage.pageNumber - 1)) continue;
 
       // resize to [defaultWidth] to keep pen sizes consistent
       final pageSize = Size(
@@ -2784,6 +2947,8 @@ class EditorState extends State<Editor> {
       pickPhotos: _pickPhotos,
       takePhoto: DeviceCamera.isAvailable ? takePhoto : null,
       importPdf: importPdf,
+      lastPdfName: lastPdfWindowName,
+      reopenPdf: reopenPdfWindow,
       canRasterPdf: Editor.canRasterPdf,
       hasPdf: PdfNoteText.hasPdf(coreInfo),
       currentPageHasPdf:
