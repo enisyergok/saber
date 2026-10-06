@@ -78,10 +78,19 @@ class _Ink {
 /// stroke it met has become, for undoing (see [finish]).
 class InkEraser {
   /// How much of the ink's half width counts towards the eraser's reach:
-  /// the eraser rubs out a line when it covers this much of it, not only
-  /// once it gets to the middle of it. It matters for broad strokes (a
-  /// highlighter); for a pen line it is a hair's breadth.
+  /// the eraser rubs out a line a little before it gets to the middle of
+  /// it. For a pen line that is a hair's breadth.
   static const reach = 0.5;
+
+  /// The most the ink's width adds to the eraser's reach, as a part of the
+  /// eraser's own radius: what is rubbed out of a broad stroke (a
+  /// highlighter) is about as wide as the eraser, not as the stroke.
+  static const maxReach = 0.25;
+
+  /// How close to [centre] the line of ink [radius] wide (to either side)
+  /// has to be for an eraser of [eraser] radius there to rub it out.
+  static double reachOf(double eraser, double radius) =>
+      eraser + math.min(reach * radius, maxReach * eraser);
 
   /// What is left of a stroke is dropped if it is shorter than this (in
   /// page units) or than a quarter of its own width: such crumbs are too
@@ -169,7 +178,7 @@ class InkEraser {
     if (line.length == 1) {
       final touched =
           (line.first.at - centre).distance <
-          radius + reach * line.first.radius;
+          reachOf(radius, line.first.radius);
       return touched ? const [] : null;
     }
 
@@ -188,7 +197,7 @@ class InkEraser {
         a.at,
         b.at,
         centre,
-        radius + reach * (a.radius + b.radius) / 2,
+        reachOf(radius, (a.radius + b.radius) / 2),
       );
       if (covered == null) {
         (run ??= _Run([a], cutStart: true)).points.add(b);

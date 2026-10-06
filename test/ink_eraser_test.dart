@@ -283,7 +283,7 @@ void main() {
       for (final end in [left.inkLine().last, right.inkLine().first]) {
         expect(
           (end.at - centre).distance,
-          closeTo(radius + InkEraser.reach * end.radius, 0.2),
+          closeTo(InkEraser.reachOf(radius, end.radius), 0.2),
         );
       }
       // Nothing is left under the eraser.
@@ -364,7 +364,7 @@ void main() {
       expect(pieces, isEmpty);
     });
 
-    test('broad ink is rubbed out when the eraser covers half of it', () {
+    test('broad ink is rubbed out when the eraser gets near its middle', () {
       // a highlighter line, 50 wide
       final broad = _pen(
         size: 50,
@@ -375,15 +375,23 @@ void main() {
       for (var x = 100.0; x <= 500; x += 5) {
         broad.addPoint(Offset(x, 300), 0.5);
       }
-      // the eraser's edge 5 into the ink: not yet
-      expect(InkEraser().cut(broad, const Offset(300, 270), 10), isNull);
-      // 15 into the ink (more than half way to the middle): rubbed out
-      final pieces = InkEraser().cut(broad, const Offset(300, 280), 10)!;
+      // the eraser's edge 15 into ink that is 25 to either side: not yet
+      expect(InkEraser().cut(broad, const Offset(300, 280), 10), isNull);
+      // its edge at the middle of the ink, and a little: rubbed out
+      final pieces = InkEraser().cut(broad, const Offset(300, 289), 10)!;
       expect(pieces, hasLength(2));
       for (final piece in pieces) {
         expect(piece.toolId, ToolId.highlighter);
         expect(piece.inkLine().first.radius, 25);
       }
+      // What goes is about as wide as the eraser, not as the ink: an
+      // eraser 20 across, drawn through the middle, takes 25.
+      final through = InkEraser().cut(broad, const Offset(300, 300), 10)!;
+      final gap =
+          through[1].inkLine().first.at.dx - through[0].inkLine().last.at.dx;
+      expect(gap, closeTo(25, 0.01));
+      expect(InkEraser.reachOf(10, 25), 12.5);
+      expect(InkEraser.reachOf(10, 1), 10.5);
     });
 
     test('what is left can be saved and read back the same', () {
