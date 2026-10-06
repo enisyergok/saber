@@ -47,9 +47,10 @@ class FileManager {
 
   /// Matches the temporary, backup and quarantined copies of a note (or one of
   /// its assets) that [writeFile] and crash recovery create next to the real
-  /// file. These are never listed in the library or synced.
+  /// file, and the copy of an asset that is being put in place (`.new`).
+  /// These are never listed in the library or synced.
   static final transientFileRegex = RegExp(
-    r'\.sbn2?(\.[\dp]+)?\.(tmp|bak|bad)$',
+    r'\.sbn2?(\.[\dp]+)?\.(tmp|bak|bad|new)$',
   );
 
   /// The last write to each path, so that writes to one file never overlap.
@@ -334,6 +335,38 @@ class FileManager {
 
     writeFuture = writeFuture.then((_) => afterWrite());
     if (awaitWrite) await writeFuture;
+  }
+
+  /// Puts [staged], a finished file in the same folder, in the place of
+  /// the file at [filePath], and lets everything know as [writeFile] does.
+  ///
+  /// This is how large files (a PDF, a photo) are written without holding
+  /// them in memory: they are copied next to where they belong first.
+  static Future<void> commitStagedFile(
+    String filePath,
+    File staged, {
+    bool alsoUpload = true,
+  }) async {
+    filePath = _sanitisePath(filePath);
+    log.fine('Putting a staged file at $filePath');
+    NoteVersions.noteWritten(filePath);
+
+    final file = getFile(filePath);
+    final previous = _pendingWrites[file.path] ?? Future<void>.value();
+    final next = previous
+        .catchError((_) {}) // a failed earlier write must not block this one
+        .then((_) => staged.rename(file.path));
+    _pendingWrites[file.path] = next;
+    try {
+      await next;
+    } finally {
+      if (identical(_pendingWrites[file.path], next)) {
+        _pendingWrites.remove(file.path);
+      }
+    }
+
+    broadcastFileWrite(FileOperationType.write, filePath);
+    if (alsoUpload) syncer.uploader.enqueueRel(filePath);
   }
 
   /// Restores `<mainPath>.bak` as the note when the main file is missing.

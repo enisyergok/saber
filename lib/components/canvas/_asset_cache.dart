@@ -83,9 +83,15 @@ class OrderedAssetCache {
 
   final List<Object> _cache = [];
 
+  /// What uses each item, in the order of the items.
+  final List<List<Object>> _owners = [];
+
   /// Adds [value] to the cache if it is not already present and
   /// returns the index of the added item.
-  int add<T extends Object>(T value) {
+  ///
+  /// [owner] is what the item belongs to (a picture on a page). Owners are
+  /// told where their item ended up once it is on disk.
+  int add<T extends Object>(T value, {Object? owner}) {
     int index = _cache.indexOf(value);
     if (index == -1 && value is List<int>) {
       // Lists need to be compared per item
@@ -99,14 +105,38 @@ class OrderedAssetCache {
         break;
       }
     }
+    if (index == -1 && value is File) {
+      // Two File objects for one path are one file. (The pages of a PDF
+      // each have their own: without this, a PDF of a hundred pages was
+      // written a hundred times with every save.)
+      final path = value.absolute.path;
+      index = _cache.indexWhere(
+        (item) => item is File && item.absolute.path == path,
+      );
+    }
     log.fine('OrderedAssetCache.add: index = $index, value = $value');
 
     if (index == -1) {
       _cache.add(value);
-      return _cache.length - 1;
-    } else {
-      return index;
+      _owners.add([]);
+      index = _cache.length - 1;
     }
+    if (owner != null) _owners[index].add(owner);
+    return index;
+  }
+
+  /// What the item at [index] belongs to.
+  List<Object> ownersOf(int index) => List.unmodifiable(_owners[index]);
+
+  /// The file the item at [index] is read from, or null if the item is
+  /// held in memory.
+  File? fileAt(int index) {
+    final item = _cache[index];
+    return switch (item) {
+      File() => item,
+      FileImage() => item.file,
+      _ => null,
+    };
   }
 
   /// The number of (distinct) items in the cache.

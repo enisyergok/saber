@@ -35,6 +35,7 @@ class EditorBottomSheet extends StatefulWidget {
     required this.clearAllPages,
     required this.redrawAndSave,
     required this.pickPhotos,
+    this.takePhoto,
     required this.importPdf,
     required this.canRasterPdf,
     required this.hasPdf,
@@ -60,6 +61,9 @@ class EditorBottomSheet extends StatefulWidget {
   final VoidCallback clearAllPages;
   final VoidCallback redrawAndSave;
   final Future<int> Function() pickPhotos;
+
+  /// Takes a photo with the camera, or null if the device can't.
+  final Future<int> Function()? takePhoto;
   final Future<bool> Function() importPdf;
   final bool canRasterPdf;
 
@@ -419,6 +423,18 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                   },
                   child: Text(t.editor.toolbar.photo),
                 ),
+                if (widget.takePhoto != null)
+                  ElevatedButton(
+                    key: const Key('sheetTakePhoto'),
+                    onPressed: () async {
+                      final photosTaken = await widget.takePhoto!();
+                      if (photosTaken > 0) {
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Text(DefterStrings.camera),
+                  ),
                 if (widget.canRasterPdf)
                   ElevatedButton(
                     onPressed: () async {

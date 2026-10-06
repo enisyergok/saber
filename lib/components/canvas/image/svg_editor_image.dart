@@ -111,9 +111,23 @@ class SvgEditorImage extends EditorImage {
     assert(!json.containsKey('b'));
 
     final svgData = _extractSvg();
-    json['a'] = assets.add(svgData.string ?? svgData.file!);
+    json['a'] = assets.add(svgData.string ?? svgData.file!, owner: this);
 
     return json;
+  }
+
+  @override
+  File? get assetFile => switch (svgLoader) {
+    (final SvgFileLoader loader) => loader.file,
+    _ => null,
+  };
+
+  @override
+  void assetSavedTo(File file) {
+    final from = assetFile;
+    if (from == null || from.absolute.path == file.absolute.path) return;
+    svgLoader = SvgFileLoader(file);
+    notifyListeners();
   }
 
   ({String? string, File? file}) _extractSvg() => switch (svgLoader) {

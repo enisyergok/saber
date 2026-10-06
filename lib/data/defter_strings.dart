@@ -118,6 +118,50 @@ abstract class DefterStrings {
       ? 'Boş bırakırsan tarihle adlandırılır'
       : 'Leave empty to name it by date';
 
+  // -- screen refresh rate ---------------------------------------------------
+  static String get rateTitle => _tr ? 'Ekran hızı (Hz)' : 'Screen rate (Hz)';
+  static String get rateSubtitle => _tr
+      ? 'Defter bu ekranda saniyede kaç kare çiziliyor, ölçer'
+      : 'Measures how many frames a second the app is drawn at';
+  static String get rateIntro => _tr
+      ? 'Yüksek ekran hızı (90/120/144 Hz) kalemin çizgiyi daha yakından izlemesini sağlar. Aşağıdaki son sayı tahmin değil: Defter\'in şu anda çizdiği karelerden ölçülür.'
+      : 'A fast screen (90/120/144 Hz) lets the line follow the pen more closely. The last number below is not a guess: it is measured from the frames the app is drawing right now.';
+  static String get rateMax =>
+      _tr ? 'Ekranın en yüksek hızı' : 'Fastest rate of the screen';
+  static String get rateGiven =>
+      _tr ? 'Sistemin uygulamaya verdiği' : 'What the system gives the app';
+  static String get rateMeasured =>
+      _tr ? 'Şu an ölçülen çizim hızı' : 'Drawing rate measured now';
+  static String rateFrames(String value) =>
+      _tr ? '$value kare/sn' : '$value frames/s';
+  static String rateFull(String max) => _tr
+      ? 'Defter ekranın en yüksek hızında ($max) çiziliyor.'
+      : 'The app is drawn at the screen\'s fastest rate ($max).';
+  static String rateNoFasterMode(String max) => _tr
+      ? 'Cihaz şu an bu ekran için en fazla $max bildiriyor. Tabletiniz daha yüksek bir hızı (90/120 Hz) destekliyorsa, bu ekran ayarında yüksek hızın kapalı olduğunu gösterir: aşağıdaki adımları uygulayın. Desteklemiyorsa daha hızlı çizim bu cihazda mümkün değildir.'
+      : 'The device reports at most $max for this screen right now. If your tablet supports a faster rate (90/120 Hz), this means the fast rate is switched off in the screen settings: follow the steps below. If it does not, faster drawing is not possible on this device.';
+  static String rateHeldBack(String max, String measured) => _tr
+      ? 'Ekran $max destekliyor ama sistem Defter\'i şu an $measured ile çizdiriyor. Defter en yüksek hızı her açılışta ister; karar cihazın ekran ayarındadır.'
+      : 'The screen supports $max, but the system draws the app at $measured right now. The app asks for the fastest rate every time it opens; the decision is the device\'s screen setting.';
+  static String get rateSteps => _tr
+      ? '1. Ayarlar > Ekran ve parlaklık > Ekran yenileme hızı bölümünde "Yüksek" seçin ("Dinamik" ya da "Akıllı" seçiliyse sistem uygulamaları 60 Hz\'de tutabilir).\n2. Güç tasarrufu modu açıksa kapatın.\n3. Bu sayfaya dönün: ölçülen sayı ekranın en yüksek hızına çıkmalı.'
+      : '1. In Settings > Display & brightness > Screen refresh rate choose "High" (with "Dynamic" or "Smart" the system may keep apps at 60 Hz).\n2. Turn power saving off if it is on.\n3. Come back to this page: the measured number should reach the screen\'s fastest rate.';
+  static String get rateMeasuring => _tr ? 'Ölçülüyor…' : 'Measuring…';
+  static String get rateNoInfo => _tr
+      ? 'Bu cihazdan ekran bilgisi alınamadı; yalnızca ölçülen hız gösteriliyor.'
+      : 'The device gave no screen information; only the measured rate is shown.';
+  static String get rateOpenSettings =>
+      _tr ? 'Ekran ayarlarını aç' : 'Open screen settings';
+  static String get rateSettingsNotOpened => _tr
+      ? 'Ekran ayarları açılamadı. Cihazın Ayarlar uygulamasından açın.'
+      : 'The screen settings could not be opened. Open them from the Settings app.';
+  static String get rateCopy => _tr ? 'Bilgiyi kopyala' : 'Copy the details';
+  static String get rateCopied =>
+      _tr ? 'Panoya kopyalandı' : 'Copied to the clipboard';
+  static String get rateTouchHint => _tr
+      ? 'Parmağınızı ya da kalemi ekranda gezdirirken ölçülen sayı yükseliyor, bırakınca düşüyorsa cihaz hızı kendisi değiştiriyor demektir (dinamik mod).'
+      : 'If the measured number rises while you move a finger or the pen on the screen and falls when you stop, the device is changing the rate by itself (dynamic mode).';
+
   static String get benchmark => _tr ? 'Performans ölçümü' : 'Benchmark';
   static String get benchmarkSubtitle => _tr
       ? 'Kalem ve kayıt hızını bu cihazda ölçer'
@@ -406,6 +450,42 @@ abstract class DefterStrings {
   static String itemCount(int count) => _tr ? '$count öğe' : '$count items';
   static String templatesOf(String group) =>
       _tr ? '$group Şablonları' : '$group Templates';
+  static String get camera => _tr ? 'Kamera' : 'Camera';
+  static String get takePhoto => _tr ? 'Fotoğraf çek' : 'Take a photo';
+  static String cameraFailed(String failure) => switch (failure) {
+    'noCamera' =>
+      _tr
+          ? 'Bu cihazda kamera uygulaması bulunamadı.'
+          : 'No camera app was found on this device.',
+    'busy' =>
+      _tr ? 'Kamera zaten açık.' : 'The camera is already open.',
+    _ =>
+      _tr
+          ? 'Fotoğraf alınamadı. Lütfen yeniden deneyin.'
+          : 'The photo could not be taken. Please try again.',
+  };
+  static String get pdfImportFailed =>
+      _tr ? 'PDF içe aktarılamadı' : 'The PDF could not be imported';
+  static String pdfImportReason(String failure) => switch (failure) {
+    'missing' =>
+      _tr
+          ? 'Seçilen dosyaya ulaşılamadı. Dosya başka bir uygulamadaysa önce cihaza indirip yeniden deneyin.'
+          : 'The chosen file could not be reached. If it is in another app, download it to the device first and try again.',
+    'empty' =>
+      _tr
+          ? 'Dosya boş ya da içinde sayfa yok.'
+          : 'The file is empty or has no pages.',
+    'notPdf' =>
+      _tr ? 'Bu dosya bir PDF değil.' : 'This file is not a PDF.',
+    'locked' =>
+      _tr
+          ? 'Bu PDF parola ile korunuyor. Parolasız bir kopyasını içe aktarın.'
+          : 'This PDF is protected with a password. Import a copy without one.',
+    _ =>
+      _tr
+          ? 'PDF okunamadı. Dosya bozuk olabilir.'
+          : 'The PDF could not be read. The file may be damaged.',
+  };
   static String get pdfNotSupported => _tr
       ? 'Bu cihazda PDF içe aktarılamıyor.'
       : 'PDFs can\'t be imported on this device.';

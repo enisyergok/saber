@@ -164,6 +164,7 @@ class GnEditorBar extends StatelessWidget {
     final readOnly = spec.readOnly;
     final tool = actions.tool;
     Widget toolButton({
+      Key? key,
       required Widget icon,
       required String tooltip,
       required bool selected,
@@ -171,6 +172,7 @@ class GnEditorBar extends StatelessWidget {
       GnPanel? panel,
     }) {
       final button = _ToolButton(
+        key: key,
         icon: icon,
         tooltip: tooltip,
         selected: selected,
@@ -238,6 +240,14 @@ class GnEditorBar extends StatelessWidget {
                       selected: false,
                       onPressed: readOnly ? null : spec.pickPhoto,
                     ),
+                    if (spec.takePhoto != null)
+                      toolButton(
+                        key: const Key('gnTakePhoto'),
+                        icon: const Icon(Icons.photo_camera_outlined),
+                        tooltip: DefterStrings.takePhoto,
+                        selected: false,
+                        onPressed: readOnly ? null : spec.takePhoto,
+                      ),
                     toolButton(
                       icon: const Icon(Icons.expand_more),
                       tooltip: DefterStrings.gnMoreTools,
@@ -294,6 +304,7 @@ class GnEditorBar extends StatelessWidget {
 
 class _ToolButton extends StatelessWidget {
   const _ToolButton({
+    super.key,
     required this.icon,
     required this.tooltip,
     required this.selected,

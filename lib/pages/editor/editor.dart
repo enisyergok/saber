@@ -72,7 +72,10 @@ import 'package:saber/components/editor_gn/gn_overlay.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
 import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/components/toolbar/recordings_dialog.dart';
+import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
+import 'package:saber/data/device_camera.dart';
+import 'package:saber/data/editor/note_assets.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/data/tools/selection_transform.dart';
@@ -294,6 +297,10 @@ class EditorState extends State<Editor> {
     // Opening a note scrolls to its page: that is not a page turn.
     _eInkPageTurnsFrom = DateTime.now().add(const Duration(milliseconds: 1500));
 
+    // Notes of earlier versions hold a copy of a PDF for each of its
+    // pages: they are found here and given up with the next save.
+    unawaited(_sharePdfCopies(coreInfo));
+
     // A notebook that was just made in the new notebook screen.
     final spec = PendingNotebook.take(filePath);
     if (spec != null) await applyNotebookSpec(spec);
@@ -303,6 +310,16 @@ class EditorState extends State<Editor> {
     }
     if (widget.imagePath != null) {
       await _addImageFromPath(widget.imagePath!);
+    }
+  }
+
+  Future<void> _sharePdfCopies(EditorCoreInfo loaded) async {
+    if (loaded.readOnly) return;
+    try {
+      await NoteAssets.shareIdenticalPdfs(loaded);
+    } catch (e, st) {
+      // The note works as it is; it only takes more room.
+      log.warning('Could not look for copies of PDFs: $e', e, st);
     }
   }
 
@@ -1437,20 +1454,18 @@ class EditorState extends State<Editor> {
         coreInfo.assetCache.allowRemovingAssets = true;
       }
       try {
-        await Future.wait([
-          FileManager.writeFile(filePath, bson, awaitWrite: true),
-          for (int i = 0; i < assets.length; ++i)
-            assets
-                .getBytes(i)
-                .then(
-                  (bytes) => FileManager.writeFile(
-                    '$filePath.$i',
-                    bytes,
-                    awaitWrite: true,
-                  ),
-                ),
-          FileManager.removeUnusedAssets(filePath, numAssets: assets.length),
-        ]);
+        // The pictures and PDFs first, so that the note never points at
+        // one that is not there yet. Those that are already in place are
+        // not written again.
+        final written = await NoteAssets.write(filePath, assets);
+        // What was drawn is saved even if a picture could not be.
+        await FileManager.writeFile(filePath, bson, awaitWrite: true);
+        if (!written.ok) throw written.errors.first;
+        // Only now does nothing point at the assets that are left over.
+        await FileManager.removeUnusedAssets(
+          filePath,
+          numAssets: assets.length,
+        );
         savingState.value = .saved;
         history.markLastChangeAsSaved();
       } catch (e, st) {
@@ -1577,6 +1592,12 @@ class EditorState extends State<Editor> {
       coreInfo.filePath = coreInfo.filePath.substring(
         0,
         coreInfo.filePath.lastIndexOf(Editor.extension),
+      );
+      // The pictures are read from where the note's files are now.
+      NoteAssets.moved(
+        coreInfo,
+        oldPath + Editor.extension,
+        coreInfo.filePath + Editor.extension,
       );
       needsNaming = false;
 
@@ -1755,28 +1776,66 @@ class EditorState extends State<Editor> {
   }
 
   /// Prompts the user to pick a PDF to import.
-  /// Returns whether a PDF was picked.
+  /// Returns whether a PDF was imported.
   Future<bool> importPdf() async {
     if (coreInfo.readOnly) return false;
     if (!Editor.canRasterPdf) return false;
 
-    final file = await FilePicker.pickFile(
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (file == null) return false;
+    final String path;
+    try {
+      final file = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+      if (file == null) return false;
+      path = await PdfImport.localPath(
+        path: file.path,
+        name: file.name,
+        readBytes: file.readAsBytes,
+      );
+    } on PdfImportException catch (e, st) {
+      log.severe('Could not get the picked PDF: $e', e, st);
+      _showPdfImportError(e);
+      return false;
+    } catch (e, st) {
+      log.severe('Could not pick a PDF: $e', e, st);
+      _showPdfImportError(PdfImportException(.missing, '$e'));
+      return false;
+    }
 
-    return importPdfFromFilePath(file.path!);
+    return importPdfFromFilePath(path);
   }
 
+  /// Puts the pages of the PDF at [path] into this note, each as a page of
+  /// its own. Returns whether it did; if it could not, the note is left as
+  /// it was and the reason is shown.
   Future<bool> importPdfFromFilePath(String path) async {
-    final pdfDocument = await coreInfo.assetCache.pdfDocumentCache.load(path);
+    if (coreInfo.readOnly) return false;
 
-    final emptyPage = coreInfo.pages.removeLast();
-    assert(emptyPage.isEmpty);
+    final PdfDocument pdfDocument;
+    try {
+      pdfDocument = await PdfImport.open(
+        coreInfo.assetCache.pdfDocumentCache,
+        path,
+      );
+    } on PdfImportException catch (e, st) {
+      log.severe('Could not import the PDF at $path: $e', e, st);
+      _showPdfImportError(e);
+      return false;
+    }
+    if (!mounted) return false;
 
+    // The empty page a note ends with goes after the PDF's pages.
+    final EditorPage? emptyPage =
+        coreInfo.pages.isNotEmpty && coreInfo.pages.last.isEmpty
+        ? coreInfo.pages.removeLast()
+        : null;
+
+    // One file for all the pages: it is saved once.
+    final pdfFile = File(path);
     for (final pdfPage in pdfDocument.pages) {
       assert(pdfPage.pageNumber >= 1, 'pdfrx page numbers start at 1');
+      if (pdfPage.width <= 0 || pdfPage.height <= 0) continue;
 
       // resize to [defaultWidth] to keep pen sizes consistent
       final pageSize = Size(
@@ -1789,7 +1848,7 @@ class EditorState extends State<Editor> {
         backgroundImage: PdfEditorImage(
           id: coreInfo.nextImageId++,
           pdfBytes: null,
-          pdfFile: File(path),
+          pdfFile: pdfFile,
           pdfPage: pdfPage.pageNumber - 1,
           pageIndex: coreInfo.pages.length,
           pageSize: pageSize,
@@ -1802,6 +1861,7 @@ class EditorState extends State<Editor> {
         ),
       );
       coreInfo.pages.add(page);
+      listenToQuillChanges(page.quill, coreInfo.pages.length - 1);
       // TODO(adil192): Group multiple pages into one atomic change
       history.recordChange(
         EditorHistoryItem(
@@ -1814,12 +1874,80 @@ class EditorState extends State<Editor> {
       );
     }
 
-    coreInfo.pages.add(emptyPage);
+    if (emptyPage != null) {
+      coreInfo.pages.add(emptyPage);
+      // It has another place in the note now.
+      listenToQuillChanges(emptyPage.quill, coreInfo.pages.length - 1);
+    } else {
+      createPage(coreInfo.pages.length - 1);
+    }
     if (mounted) setState(() {});
 
     autosaveAfterDelay();
 
     return true;
+  }
+
+  /// Says why a PDF could not be imported, with what the device reported
+  /// underneath (so that it can be passed on when asking for help).
+  void _showPdfImportError(PdfImportException error) {
+    if (!mounted) return;
+    final detail = error.detail;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const Key('pdfImportError'),
+        title: Text(DefterStrings.pdfImportFailed),
+        content: SizedBox(
+          width: 420,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(DefterStrings.pdfImportReason(error.failure.name)),
+              if (detail != null && detail.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                SelectableText(
+                  detail.length > 400 ? '${detail.substring(0, 400)}…' : detail,
+                  style: TextTheme.of(context).bodySmall,
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Takes a photo with the device's camera and puts it on the page.
+  /// Returns the number of photos added.
+  Future<int> takePhoto() async {
+    if (coreInfo.readOnly) return 0;
+
+    // The camera takes the screen: what was written is put away first, in
+    // case the system closes this app while it is in the background.
+    unawaited(saveToFile());
+
+    final DevicePhoto? photo;
+    try {
+      photo = await DeviceCamera.takePhoto();
+    } on DeviceCameraException catch (e, st) {
+      log.warning('Could not take a photo: $e', e, st);
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text(DefterStrings.cameraFailed(e.failure.name))),
+        );
+      }
+      return 0;
+    }
+    if (photo == null || !mounted) return 0;
+    return _pickPhotos([(bytes: photo.bytes, extension: photo.extension)]);
   }
 
   Future paste() async {
@@ -2170,6 +2298,7 @@ class EditorState extends State<Editor> {
             lastSeenPointerCount = 0;
           },
           pickPhoto: _pickPhotos,
+          takePhoto: DeviceCamera.isAvailable ? takePhoto : null,
           paste: paste,
           exportAsSba: exportAsSba,
           exportAsPdf: exportAsPdf,
@@ -2519,6 +2648,7 @@ class EditorState extends State<Editor> {
         autosaveAfterDelay();
       }),
       pickPhotos: _pickPhotos,
+      takePhoto: DeviceCamera.isAvailable ? takePhoto : null,
       importPdf: importPdf,
       canRasterPdf: Editor.canRasterPdf,
       hasPdf: PdfNoteText.hasPdf(coreInfo),

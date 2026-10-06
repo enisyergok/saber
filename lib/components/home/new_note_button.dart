@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
@@ -101,13 +102,9 @@ class _NewNoteButtonState extends State<NewNoteButton> {
               if (!Editor.canRasterPdf) return;
               if (!mounted) return;
 
-              final fileNameWithoutExtension = fileName.substring(
-                0,
-                fileName.length - '.pdf'.length,
-              );
               final sbnFilePath =
                   await FileManager.suffixFilePathToMakeItUnique(
-                    '${widget.path ?? ''}/$fileNameWithoutExtension',
+                    '${widget.path ?? ''}/${PdfImport.noteNameFor(fileName)}',
                   );
               if (!context.mounted) return;
 
