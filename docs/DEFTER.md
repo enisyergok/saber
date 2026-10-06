@@ -60,6 +60,7 @@ saklanır (şifrelenmez, eşitlenmez).
 - Yedeğe girmeyenler: çöp kutusundaki notlar, uygulama ayarları, sürüm geçmişi, arama dizini (yeniden kurulur), Nextcloud oturumu. Kalem profillerinden yalnızca cihazda olmayanlar eklenir; var olan bir profilin yedekteki farklı hali geri gelmez.
 - Geri yüklemede "aynı not" şöyle anlaşılır: not dosyası bayt bayt aynı, ek sayısı ve her ekin boyutu aynı. Ekin içeriği ayrıca karşılaştırılmaz.
 - Sürüm geçmişi yalnızca cihazda durur (eşitlenmez, yedeğe girmez) ve uygulama silinince gider; cihaz kaybına karşı koruma tam yedektir. Sürümler not açıkken alt menüden açılır; ana ekrandan bir notun sürümlerine bakılamaz. Bir sürüm yalnızca tümüyle geri yüklenir, tek sayfası alınamaz. Editör dışından değişen notların (eşitlemeyle gelen değişiklik) ara halleri sürüm olmaz; not bir sonraki açılışta o haliyle saklanır.
+- Sürüm geçmişi yer kaplar: her notun resim ve PDF'lerinin bir kopyası sürüm deposunda da durur (aynı içerik bir kez tutulur, sürüm sayısı kadar çoğalmaz), ayrıca her sürüm için not dosyasının o hali. Kapladığı yer Ayarlar > Yedekleme'de yazar.
 - Sürüm saklanırken not dosyaları arka planda okunur; çok büyük PDF'li notlarda ilk sürüm birkaç saniye sürebilir (yazmayı bekletmez, kayıt en çok 3 sn bekler ve o sürüm atlanır).
 - Sürüm geçmişi ve tam yedek tablette denenmedi; dosya işlemleri testlerde gerçek dosyalarla, paylaşma ve dosya seçme pencereleri ise yalnızca tablette denenebilir.
 - Notlar arası bağlantılar yolu içerir; hedef not yeniden adlandırılırsa bağlantı eski adı gösterir.
