@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -420,21 +419,61 @@ abstract class PenAssist {
   /// is on; null when there is nothing to show.
   static final readout = ValueNotifier<String?>(null);
 
-  static Timer? _readoutTimer;
+  /// Where the pen is on screen (in global coordinates), so that the
+  /// readout can be shown next to it; null when that isn't known.
+  static final readoutAt = ValueNotifier<Offset?>(null);
+
+  /// Goes up by one each time a finished measurement is shown: what shows
+  /// the readout takes it away again [readoutDuration] later.
+  static final readoutFinished = ValueNotifier<int>(0);
 
   /// How long a finished measurement stays on screen.
   static const readoutDuration = Duration(seconds: 4);
 
   /// Shows [text] until the next measurement.
-  static void showReadout(String? text) {
-    _readoutTimer?.cancel();
-    _readoutTimer = null;
-    readout.value = text;
-  }
+  static void showReadout(String? text) => readout.value = text;
 
   /// The measurement of a straight line from [a] to [b].
   static String describeLine(Offset a, Offset b) =>
-      '${formatLength((b - a).distance)}  ∠ ${angleDegrees(a, b).round()}°';
+      '${formatLength((b - a).distance)}  ${describeAngle(a, b)}';
+
+  /// The angle of a straight line from [a] to [b], as it is shown.
+  static String describeAngle(Offset a, Offset b) =>
+      '∠ ${angleDegrees(a, b).round() % 360}°';
+
+  /// A line shorter than this (in page units) is not yet said to be
+  /// straight while it is drawn: its direction still jumps about.
+  static const liveLineMinLength = 24.0;
+
+  /// What to show while a line is being drawn from [start] to [position],
+  /// [pathLength] long so far; null for nothing.
+  ///
+  /// As long as the line is straight, that is its length and angle (the
+  /// angle it will be turned to, with the [angleGuide] on); once it bends,
+  /// how long it is along its path. Lengths are only shown with [measure].
+  static String? liveReadout({
+    required Offset start,
+    required Offset position,
+    required double pathLength,
+    required bool measure,
+    required bool angleGuide,
+  }) {
+    if (!measure && !angleGuide) return null;
+    final chord = (position - start).distance;
+    final straight =
+        chord >= liveLineMinLength && pathLength <= chord * 1.12 + 1e-9;
+    if (straight) {
+      final end = angleGuide ? snapAngle(start, position) : position;
+      return measure ? describeLine(start, end) : describeAngle(start, end);
+    }
+    return measure ? formatLength(pathLength) : null;
+  }
+
+  /// Whether [stroke] was drawn as a straight line, by a rule that allows
+  /// for an unsteady hand: it never strays more than a little from the
+  /// line between its ends, and is long enough not to be writing.
+  static bool isLine(Stroke stroke) =>
+      ShapeAnalysis.analyze(stroke.pointOffsets)?.kind == ShapeKind.line;
 
   /// The measurement of a finished [stroke]: length and angle of a line,
   /// diameter of a circle, sides of a rectangle, otherwise how long the
@@ -453,9 +492,12 @@ abstract class PenAssist {
   }
 
   /// Shows the measurement of a finished [stroke] for a few seconds.
-  static void showResult(Stroke stroke) {
-    showReadout(describe(stroke));
-    _readoutTimer = Timer(readoutDuration, () => readout.value = null);
+  static void showResult(Stroke stroke) => showBriefly(describe(stroke));
+
+  /// Shows [text] for a few seconds.
+  static void showBriefly(String text) {
+    showReadout(text);
+    readoutFinished.value++;
   }
 
   // -- finishing a line -----------------------------------------------------
@@ -468,14 +510,26 @@ abstract class PenAssist {
     required bool dimensions,
     required bool measure,
   }) {
+    var isLine = false;
     if (angleGuide) {
       final ends = stroke.vertexHandles;
       if (ends != null && ends.length == 2) {
+        isLine = true;
         stroke.setVertexHandles([ends[0], snapAngle(ends[0], ends[1])]);
         stroke.markPolygonNeedsUpdating();
       }
     }
-    if (measure) showResult(stroke);
+    if (measure) {
+      showResult(stroke);
+    } else if (angleGuide) {
+      // The angle the line was turned to, or nothing for what is no line.
+      final ends = stroke.vertexHandles;
+      if (isLine && ends != null) {
+        showBriefly(describeAngle(ends[0], ends[1]));
+      } else {
+        showReadout(null);
+      }
+    }
     return dimensions ? dimensionStrokes(stroke) : const [];
   }
 }

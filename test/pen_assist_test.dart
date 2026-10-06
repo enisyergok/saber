@@ -310,6 +310,87 @@ void main() {
       expect((ends.last - a).direction * 180 / pi, closeTo(15, 1e-6));
     });
 
+    test('the angle a line was turned to is shown when it is finished', () {
+      PenAssist.showReadout(null);
+      const a = Offset(100, 500);
+      // up and to the right, 18 degrees above level
+      final line = _line(a, a + Offset.fromDirection(-18 * pi / 180, 200));
+      final before = PenAssist.readoutFinished.value;
+      PenAssist.finish(line, angleGuide: true, dimensions: false, measure: false);
+      expect(PenAssist.readout.value, '∠ 15°');
+      expect(PenAssist.readoutFinished.value, before + 1);
+
+      // with measuring on, the length comes with it
+      PenAssist.finish(line, angleGuide: true, dimensions: false, measure: true);
+      expect(PenAssist.readout.value, '42 mm  ∠ 15°');
+
+      // what is no line has no angle to show
+      final writing = _stroke();
+      for (var i = 0; i < 40; i++) {
+        writing.addPoint(Offset(i * 3.0, sin(i / 3) * 10));
+      }
+      PenAssist.finish(writing, angleGuide: true, dimensions: false, measure: false);
+      expect(PenAssist.readout.value, isNull);
+    });
+
+    test('while a line is drawn, what is shown follows what it is', () {
+      const start = Offset(100, 500);
+      String? live(
+        Offset position,
+        double pathLength, {
+        bool measure = false,
+        bool angleGuide = false,
+      }) => PenAssist.liveReadout(
+        start: start,
+        position: position,
+        pathLength: pathLength,
+        measure: measure,
+        angleGuide: angleGuide,
+      );
+
+      // nothing is on: nothing is shown
+      expect(live(const Offset(400, 500), 300), isNull);
+
+      // the angle guide alone shows the angle the line will be turned to
+      final towards = start + Offset.fromDirection(-18 * pi / 180, 200);
+      expect(live(towards, 200, angleGuide: true), '∠ 15°');
+      // not while the line is too short to have a direction
+      expect(live(const Offset(110, 498), 10.2, angleGuide: true), isNull);
+      // and not once the line bends: that will not be a straight line
+      expect(live(towards, 320, angleGuide: true), isNull);
+
+      // measuring shows length and angle of a straight line as it is
+      expect(live(towards, 200, measure: true), '42 mm  ∠ 18°');
+      // with the guide, as it will be
+      expect(live(towards, 200, measure: true, angleGuide: true), '42 mm  ∠ 15°');
+      // and of a bent line how long it is along its path
+      expect(live(towards, 320, measure: true), '67 mm');
+      expect(live(const Offset(110, 500), 10, measure: true), '2,1 mm');
+    });
+
+    test('a line drawn by hand counts as straight, writing does not', () {
+      // straight but unsteady: two units to either side over 300
+      final unsteady = _stroke();
+      for (var i = 0; i <= 40; i++) {
+        unsteady.addPoint(Offset(100 + i * 7.5, 400 + i * 2.0 + sin(i * 0.9) * 2));
+      }
+      expect(PenAssist.isLine(unsteady), isTrue);
+
+      final wave = _stroke();
+      for (var i = 0; i <= 40; i++) {
+        wave.addPoint(Offset(100 + i * 7.5, 400 + sin(i / 3) * 30));
+      }
+      expect(PenAssist.isLine(wave), isFalse);
+
+      // too short to be anything but writing
+      final dash = _stroke();
+      for (var i = 0; i <= 10; i++) {
+        dash.addPoint(Offset(100 + i * 2.0, 400));
+      }
+      expect(PenAssist.isLine(dash), isFalse);
+      expect(PenAssist.isLine(_stroke()..addPoints(_circle(100))), isFalse);
+    });
+
     test('handwriting is left alone by the angle guide', () {
       final writing = _stroke();
       for (var i = 0; i < 30; i++) {
