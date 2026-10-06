@@ -171,6 +171,8 @@ class Pen extends Tool {
     double? pressure,
   ) {
     PenFeel.curve = PressureCurve.parse(stows.pressureCurve.value);
+    // What the last line measured makes way for this one.
+    PenAssist.showReadout(null);
     _ruler = usesAssists && stows.rulerMode.value;
     _start = position;
     _pathLength = 0;
@@ -248,13 +250,29 @@ class Pen extends Tool {
       stroke.setLine(_start, end);
       if (stows.measureMode.value) {
         PenAssist.showReadout(PenAssist.describeLine(_start, end));
+      } else if (stows.angleGuide.value) {
+        PenAssist.showReadout(
+          (end - _start).distance >= PenAssist.liveLineMinLength
+              ? PenAssist.describeAngle(_start, end)
+              : null,
+        );
       }
       return;
     }
-    if (usesAssists && stows.measureMode.value && stroke != null) {
+    if (usesAssists &&
+        stroke != null &&
+        (stows.measureMode.value || stows.angleGuide.value)) {
       if (stroke.length > 0) _pathLength += (position - _measuredAt).distance;
       _measuredAt = position;
-      PenAssist.showReadout(PenAssist.formatLength(_pathLength));
+      PenAssist.showReadout(
+        PenAssist.liveReadout(
+          start: _start,
+          position: position,
+          pathLength: _pathLength,
+          measure: stows.measureMode.value,
+          angleGuide: stows.angleGuide.value,
+        ),
+      );
     }
     if (pressureEnabled && pressure != null && stows.pressureAuto.value) {
       _rawLow = math.min(_rawLow, pressure);
@@ -322,7 +340,7 @@ class Pen extends Tool {
       final ends = stroke.pointOffsets;
       // A tap with the ruler draws nothing.
       if (ends.length < 2 || (ends.last - ends.first).distance < 2) {
-        if (stows.measureMode.value) PenAssist.showReadout(null);
+        PenAssist.showReadout(null);
         return null;
       }
       stroke

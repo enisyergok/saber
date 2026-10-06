@@ -60,6 +60,7 @@ import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
+import 'package:saber/components/canvas/measure_readout.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/note_versions_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
@@ -812,6 +813,7 @@ class EditorState extends State<Editor> {
 
     if (currentTool is Pen) {
       ShapeSnap.redraw = page.redrawLiveInk;
+      PenAssist.readoutAt.value = details.focalPoint;
       (currentTool as Pen).onDragStart(
         position,
         page,
@@ -893,6 +895,9 @@ class EditorState extends State<Editor> {
     final offset = position - previousPosition;
 
     if (currentTool is Pen) {
+      if (stows.measureMode.value || stows.angleGuide.value) {
+        PenAssist.readoutAt.value = details.focalPoint;
+      }
       (currentTool as Pen).onDragUpdate(position, currentPressure);
       page.redrawLiveInk();
     } else if (currentTool is Eraser) {
@@ -962,15 +967,25 @@ class EditorState extends State<Editor> {
       if (currentTool is Pen) {
         final pen = currentTool as Pen;
         var newStroke = pen.onDragEnd();
-        if (newStroke == null) return;
-        if (newStroke.isEmpty) return;
+        if (newStroke == null || newStroke.isEmpty) {
+          PenAssist.showReadout(null);
+          return;
+        }
 
         final recognise = pen.usesAssists && !ShapeSnap.lastWasSnapped;
-        if (stows.autoStraightenLines.value &&
-            recognise &&
-            newStroke.isStraightLine()) {
+        // The angle guide and dimensions are for straight lines, so with
+        // either of them on a line drawn straight is made straight, whether
+        // or not lines are straightened otherwise; dimensions are for
+        // circles and rectangles too, so those are recognised with them.
+        final technical =
+            stows.angleGuide.value || stows.dimensionMode.value;
+        if (recognise &&
+            ((stows.autoStraightenLines.value || technical) &&
+                    newStroke.isStraightLine() ||
+                technical && PenAssist.isLine(newStroke))) {
           newStroke.convertToLine();
-        } else if (stows.autoShapes.value && recognise) {
+        } else if (recognise &&
+            (stows.autoShapes.value || stows.dimensionMode.value)) {
           newStroke = PenAssist.autoShape(
             newStroke,
             tidy: stows.shapeAutoCorrect.value,
@@ -1842,7 +1857,7 @@ class EditorState extends State<Editor> {
         stows.editorToolbarAlignment.value == AxisDirection.left ||
         stows.editorToolbarAlignment.value == AxisDirection.right;
 
-    final Widget canvas = CanvasGestureDetector(
+    final Widget pageArea = CanvasGestureDetector(
       key: _canvasGestureDetectorKey,
       filePath: coreInfo.filePath,
       isDrawGesture: isDrawGesture,
@@ -1877,6 +1892,13 @@ class EditorState extends State<Editor> {
         );
       },
       transformationController: _transformationController,
+    );
+    // The page, with what the measuring tools read shown over it.
+    final Widget canvas = Stack(
+      children: [
+        Positioned.fill(child: pageArea),
+        const Positioned.fill(child: IgnorePointer(child: MeasureReadout())),
+      ],
     );
 
     final readonlyBanner = ReadOnlyBanner(
