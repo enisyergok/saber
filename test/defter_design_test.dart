@@ -100,6 +100,96 @@ void main() {
       }
     });
 
+    test('a light accent washes the paper in its own colour', () {
+      // Yellow can only be read on white as an olive. What is merely
+      // tinted must still be yellow, and must still be seen.
+      const yellow = Color(0xFFFFD32E);
+      final scheme = DefterDesign.colorScheme(Brightness.light, accent: yellow);
+      final wash = HSLColor.fromColor(scheme.primaryContainer);
+      expect(wash.hue, closeTo(HSLColor.fromColor(yellow).hue, 4));
+      expect(wash.saturation, greaterThan(0.8));
+      expect(
+        _contrast(scheme.primaryContainer, scheme.surface),
+        greaterThan(1.12),
+      );
+      for (final accent in _accents) {
+        final scheme = DefterDesign.colorScheme(
+          Brightness.light,
+          accent: accent,
+        );
+        expect(
+          _contrast(scheme.secondaryContainer, scheme.surface),
+          greaterThan(1.12),
+          reason: 'a selected row can be told from the paper, $accent',
+        );
+      }
+    });
+
+    test('without an accent the washes are those of the ink', () {
+      final scheme = DefterDesign.colorScheme(Brightness.light);
+      expect(
+        scheme.primaryContainer,
+        Color.lerp(Colors.white, DefterDesign.ink, 0.14),
+      );
+      expect(
+        scheme.secondaryContainer,
+        Color.lerp(Colors.white, DefterDesign.ink, 0.10),
+      );
+    });
+
+    test('pictures keep a colour whatever the accent', () {
+      // The ink itself, untouched
+      expect(
+        DefterDesign.pictureTint(DefterDesign.colorScheme(Brightness.light)),
+        DefterDesign.ink,
+      );
+
+      // The olive of a yellow accent goes back to yellow
+      final yellow = DefterDesign.colorScheme(
+        Brightness.light,
+        accent: const Color(0xFFFFD32E),
+      );
+      final sunny = HSLColor.fromColor(DefterDesign.pictureTint(yellow));
+      expect(sunny.hue, closeTo(HSLColor.fromColor(yellow.primary).hue, 1));
+      expect(sunny.lightness, greaterThan(0.4));
+      expect(sunny.saturation, greaterThan(0.5));
+
+      // A grey or a black accent has no colour to give: the ink's sky
+      for (final neutral in const [
+        Color(0xFF000000),
+        Color(0xFF808080),
+        Color(0xFF2B2B2B),
+      ]) {
+        for (final brightness in Brightness.values) {
+          final tint = DefterDesign.pictureTint(
+            DefterDesign.colorScheme(brightness, accent: neutral),
+          );
+          final hsl = HSLColor.fromColor(tint);
+          final reason = '$neutral, ${brightness.name}';
+          expect(hsl.saturation, greaterThan(0.4), reason: reason);
+          expect(
+            hsl.hue,
+            closeTo(HSLColor.fromColor(DefterDesign.ink).hue, 2),
+            reason: reason,
+          );
+        }
+      }
+
+      // Every accent gives a picture that is not grey
+      for (final brightness in Brightness.values) {
+        for (final accent in _accents) {
+          final tint = DefterDesign.pictureTint(
+            DefterDesign.colorScheme(brightness, accent: accent),
+          );
+          expect(
+            HSLColor.fromColor(tint).saturation,
+            greaterThanOrEqualTo(0.18),
+            reason: '$accent, ${brightness.name}',
+          );
+        }
+      }
+    });
+
     test('the editor bar is deep enough for white icons', () {
       for (final brightness in Brightness.values) {
         for (final accent in _accents) {

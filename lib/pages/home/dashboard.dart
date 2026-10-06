@@ -305,7 +305,10 @@ class _DashboardPageState extends State<DashboardPage> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
       child: CustomPaint(
-        painter: HeroPainter(dark: dark, accent: colors.primary),
+        painter: HeroPainter(
+          dark: dark,
+          accent: DefterDesign.pictureTint(colors),
+        ),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 14, 16, 18),
           child: Column(
