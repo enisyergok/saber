@@ -1318,8 +1318,7 @@ class EditorState extends State<Editor> {
       final now = _transformationController.value;
       final moved =
           (now.getTranslation() - finger.view.getTranslation()).length;
-      final zoomed =
-          (now.getMaxScaleOnAxis() - finger.view.getMaxScaleOnAxis()).abs();
+      final zoomed = (now.entry(0, 0) - finger.view.entry(0, 0)).abs();
       if (moved < 6 && zoomed < 0.001) _onFingerTap(finger.at);
     }
 

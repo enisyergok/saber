@@ -125,7 +125,14 @@ class _CanvasImageState extends State<CanvasImage> {
       if (!mounted || !_active) return;
       final box = context.findRenderObject();
       if (box is RenderBox && box.attached && box.hasSize) {
-        final scale = box.getTransformTo(null).getMaxScaleOnAxis();
+        // The length of the x axis after the transform. (Not
+        // getMaxScaleOnAxis: that counts the untouched z axis too, and so
+        // never gives less than 1.)
+        final transform = box.getTransformTo(null);
+        final scale = Offset(
+          transform.entry(0, 0),
+          transform.entry(1, 0),
+        ).distance;
         if (scale.isFinite &&
             scale > 0 &&
             (scale - _unitsToPixels).abs() > _unitsToPixels * 0.02) {
