@@ -178,6 +178,15 @@ void main() {
     final placed = image.dstRect;
     expect(placed.width, closeTo(300, 0.01));
 
+    /// The same box, give or take what turning twice does to the last
+    /// digits of a number.
+    void expectSameBox(Rect actual, Rect expected) {
+      expect(actual.left, closeTo(expected.left, 1e-6));
+      expect(actual.top, closeTo(expected.top, 1e-6));
+      expect(actual.right, closeTo(expected.right, 1e-6));
+      expect(actual.bottom, closeTo(expected.bottom, 1e-6));
+    }
+
     final actions = find.byKey(const Key('imageActions'));
     final rotate = find.byKey(const Key('imageRotate'));
     final delete = find.byKey(const Key('imageDelete'));
@@ -219,7 +228,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(image.quarterTurns, 2);
-    expect(image.dstRect, placed);
+    expectSameBox(image.dstRect, placed);
 
     // Each turn is undone on its own.
     editor.undo();
@@ -229,7 +238,7 @@ void main() {
     editor.undo();
     await tester.pump();
     expect(image.quarterTurns, 0);
-    expect(image.dstRect, placed);
+    expectSameBox(image.dstRect, placed);
     editor.redo();
     await tester.pump();
     expect(image.quarterTurns, 1);
