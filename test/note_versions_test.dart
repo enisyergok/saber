@@ -335,7 +335,8 @@ void main() {
     });
 
     test('a note with a long name with odd characters', () {
-      final key = '/Öğrenci/${'çok uzun ad ' * 30}: "tırnak" ?*';
+      // close to the longest name a file can have
+      final key = '/Öğrenci/${'çok uzun ad ' * 15}: "tırnak" ?*';
       put(key, 'bir');
       expect(keep(key, at: t0), isNotNull);
       expect(store.list(key).single.key, key);

@@ -647,12 +647,12 @@ abstract class NoteVersions {
     // A note that has no place yet has nothing on disk to keep.
     if (!key.startsWith('/')) return null;
     try {
-      // One thing at a time for each note.
+      // One thing at a time for each note. (No time limit here: a save
+      // always ends, and a version must not be read in the middle of one.)
       while (true) {
         final pending = _saving[key] ?? _reading[key];
         if (pending == null) break;
-        await pending.timeout(const Duration(seconds: 30), onTimeout: () {});
-        if (identical(_saving[key] ?? _reading[key], pending)) break;
+        await pending;
       }
 
       final mainPath = _mainFile(notePath).path;
