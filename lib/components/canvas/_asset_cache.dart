@@ -105,14 +105,12 @@ class OrderedAssetCache {
         break;
       }
     }
-    if (index == -1 && value is File) {
-      // Two File objects for one path are one file. (The pages of a PDF
-      // each have their own: without this, a PDF of a hundred pages was
-      // written a hundred times with every save.)
-      final path = value.absolute.path;
-      index = _cache.indexWhere(
-        (item) => item is File && item.absolute.path == path,
-      );
+    final path = _pathOf(value);
+    if (index == -1 && path != null) {
+      // Two objects for one path are one file. (The pages of a PDF each
+      // have a File of their own: without this, a PDF of a hundred pages
+      // was written a hundred times with every save.)
+      index = _cache.indexWhere((item) => _pathOf(item) == path);
     }
     log.fine('OrderedAssetCache.add: index = $index, value = $value');
 
@@ -124,6 +122,13 @@ class OrderedAssetCache {
     if (owner != null) _owners[index].add(owner);
     return index;
   }
+
+  /// The path of the file an item is read from, if it is one.
+  static String? _pathOf(Object item) => switch (item) {
+    File() => item.absolute.path,
+    FileImage() => item.file.absolute.path,
+    _ => null,
+  };
 
   /// What the item at [index] belongs to.
   List<Object> ownersOf(int index) => List.unmodifiable(_owners[index]);

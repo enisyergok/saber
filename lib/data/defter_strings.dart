@@ -272,6 +272,52 @@ abstract class DefterStrings {
   static String get pdfSearch => _tr ? 'Ara' : 'Search';
   static String pdfPageLabel(int page) => _tr ? 'Sayfa $page' : 'Page $page';
   static String get pdfSection => 'PDF';
+  static String get pdfRemove => _tr ? 'PDF\'i kaldır' : 'Remove PDF';
+  static String get pdfRemoveTitle =>
+      _tr ? 'PDF\'i nottan kaldır' : 'Remove the PDF from the note';
+  static String get pdfRemoveAbout => _tr
+      ? 'Üzerine yazdığın sayfalar silinmez: yazıların aynı yerde kalır, yalnızca arkasındaki PDF kalkar. Üzerinde bir şey olmayan PDF sayfaları nottan çıkar. Geri al düğmesi hepsini geri getirir.'
+      : 'Pages you wrote on are not deleted: your writing stays where it is and only the PDF behind it goes. PDF pages with nothing on them leave the note. Undo brings everything back.';
+  static String get pdfRemoveThisPage =>
+      _tr ? 'Yalnızca bu sayfadan' : 'From this page only';
+  static String get pdfRemoveThisPdf =>
+      _tr ? 'Bu PDF\'in tamamını' : 'This whole PDF';
+  static String get pdfRemoveAll =>
+      _tr ? 'Nottaki bütün PDF\'leri' : 'Every PDF in the note';
+  static String pdfRemoveCounts({required int pages, required int written}) {
+    final leaving = pages - written;
+    if (written == 0) {
+      return _tr
+          ? '$pages sayfa nottan çıkar'
+          : '$pages ${pages == 1 ? 'page leaves' : 'pages leave'} the note';
+    }
+    if (leaving == 0) {
+      return _tr
+          ? '$pages sayfa: yazıların kalır, yalnızca PDF kalkar'
+          : '$pages ${pages == 1 ? 'page' : 'pages'}: your writing stays, only the PDF goes';
+    }
+    return _tr
+        ? '$pages sayfa: yazı olan $written sayfa yazısıyla kalır, $leaving sayfa nottan çıkar'
+        : '$pages pages: $written with writing stay, $leaving leave the note';
+  }
+
+  static String pdfRemoved({required int removed, required int kept}) {
+    if (kept == 0) {
+      return _tr
+          ? 'PDF kaldırıldı ($removed sayfa)'
+          : 'PDF removed ($removed ${removed == 1 ? 'page' : 'pages'})';
+    }
+    if (removed == 0) {
+      return _tr
+          ? 'PDF kaldırıldı, yazıların duruyor ($kept sayfa)'
+          : 'PDF removed, your writing is still there ($kept ${kept == 1 ? 'page' : 'pages'})';
+    }
+    return _tr
+        ? 'PDF kaldırıldı: $removed sayfa çıktı, yazı olan $kept sayfa duruyor'
+        : 'PDF removed: $removed pages left, $kept with writing stayed';
+  }
+
+  static String get undoAction => _tr ? 'Geri al' : 'Undo';
   static String get pdfCrop => _tr ? 'PDF sayfasını kırp' : 'Crop PDF page';
   static String get pdfCropHint => _tr
       ? 'Kırpılan bölüm sayfaya sığacak şekilde büyür. Çizimler yerinde kalır, bu yüzden yazmadan önce kırpmak en iyisi.'

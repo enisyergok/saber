@@ -74,6 +74,8 @@ import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/components/toolbar/recordings_dialog.dart';
 import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
+import 'package:saber/data/pdf/pdf_removal.dart';
+import 'package:saber/components/toolbar/pdf_remove_dialog.dart';
 import 'package:saber/data/device_camera.dart';
 import 'package:saber/data/editor/note_assets.dart';
 import 'package:saber/data/tools/select.dart';
@@ -720,6 +722,15 @@ class EditorState extends State<Editor> {
               ..insertAll(at, change.after);
           }
           removeExcessPages();
+
+        case .removePdf:
+          PdfRemover.undo(coreInfo, item.pdfRemoval!);
+          _endWithAnEmptyPage();
+          removeExcessPages();
+
+        case .removePdfRedone:
+          PdfRemover.redo(coreInfo, item.pdfRemoval!);
+          _endWithAnEmptyPage();
       }
 
       if (item.type != .move && item.type != .transform) {
@@ -790,6 +801,10 @@ class EditorState extends State<Editor> {
         undo(item.copyWith(type: .replaceRedone));
       case .replaceRedone: // this will never happen
         throw Exception('history should not contain replaceRedone items');
+      case .removePdf:
+        undo(item.copyWith(type: .removePdfRedone));
+      case .removePdfRedone: // this will never happen
+        throw Exception('history should not contain removePdfRedone items');
     }
   }
 
@@ -1453,6 +1468,18 @@ class EditorState extends State<Editor> {
       } finally {
         coreInfo.assetCache.allowRemovingAssets = true;
       }
+      // What undo could bring back (a PDF that was removed, a picture
+      // that was deleted) keeps its file for as long as the note is open:
+      // it is saved after the assets the note uses, and goes when the
+      // note is closed.
+      if (mounted) {
+        final used = assets.length;
+        for (final image in history.imagesKept) {
+          final file = image.assetFile;
+          if (file != null) assets.add(file, owner: image);
+        }
+        if (assets.length > used) _keptAssetsForUndo = true;
+      }
       try {
         // The pictures and PDFs first, so that the note never points at
         // one that is not there yet. Those that are already in place are
@@ -1509,6 +1536,23 @@ class EditorState extends State<Editor> {
       // Every few minutes of writing leaves a version behind.
       unawaited(NoteVersions.snapshotIfDue(filePath));
     }
+  }
+
+  /// Whether a save of this editor kept files next to the note only
+  /// because undo could still need them.
+  bool _keptAssetsForUndo = false;
+
+  /// Removes the files that were only kept for undo, once the note is
+  /// closed. Only when the note is saved as it is: the files it uses are
+  /// then exactly the ones it would save now.
+  Future<void> _removeAssetsKeptForUndo() async {
+    if (!_keptAssetsForUndo || coreInfo.readOnly) return;
+    if (savingState.value != .saved) return;
+    final (_, assets) = coreInfo.saveToBinary(currentPageIndex: null);
+    await FileManager.removeUnusedAssets(
+      coreInfo.filePath + Editor.extension,
+      numAssets: assets.length,
+    );
   }
 
   /// Shows the versions kept of this note, to bring one back.
@@ -1886,6 +1930,96 @@ class EditorState extends State<Editor> {
     autosaveAfterDelay();
 
     return true;
+  }
+
+  /// A note always ends with a page that has nothing on it.
+  void _endWithAnEmptyPage() {
+    if (coreInfo.pages.isEmpty || !coreInfo.pages.last.isEmpty) {
+      createPage(coreInfo.pages.length - 1);
+    }
+  }
+
+  /// Takes the PDF out of the pages that [scope] means. A page that was
+  /// written on stays with its writing (only the PDF behind it goes); a
+  /// PDF page with nothing on it leaves the note. One undo brings
+  /// everything back.
+  ///
+  /// Returns what was done, or null if there was nothing to take out.
+  PdfRemoval? removePdf(PdfRemovalScope scope) {
+    if (coreInfo.readOnly) return null;
+    final at = currentPageIndex;
+    final indexes = PdfRemover.pagesIn(coreInfo, scope, at);
+    if (indexes.isEmpty) return null;
+
+    PdfRemoval? removal;
+    setState(() {
+      Select.currentSelect.unselect();
+      removal = PdfRemover.remove(coreInfo, indexes);
+      if (removal == null) return;
+      _endWithAnEmptyPage();
+      history.recordChange(
+        EditorHistoryItem(
+          type: .removePdf,
+          pageIndex: at,
+          strokes: const [],
+          images: const [],
+          pdfRemoval: removal,
+        ),
+      );
+    });
+    final done = removal;
+    if (done == null) return null;
+
+    if (done.removed.isNotEmpty) {
+      // Stay where the reader was: as many pages down as are still there.
+      final before = done.removed.where((entry) => entry.index < at).length;
+      final target = (at - before).clamp(0, coreInfo.pages.length - 1).toInt();
+      CanvasGestureDetector.scrollToPage(
+        pageIndex: target,
+        pages: coreInfo.pages,
+        screenWidth: _viewportWidth,
+        transformationController: _transformationController,
+      );
+    }
+    autosaveAfterDelay();
+    return done;
+  }
+
+  /// Asks which PDF pages to take out of the note, and takes them out.
+  Future<void> showRemovePdf() async {
+    if (coreInfo.readOnly || !mounted) return;
+    final scope = await showDialog<PdfRemovalScope>(
+      context: context,
+      builder: (context) => PdfRemoveDialog(
+        coreInfo: coreInfo,
+        currentPageIndex: currentPageIndex,
+      ),
+    );
+    if (scope == null || !mounted) return;
+    final removal = removePdf(scope);
+    if (removal == null || !mounted) return;
+    ScaffoldMessenger.maybeOf(context)
+      ?..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            DefterStrings.pdfRemoved(
+              removed: removal.removed.length,
+              kept: removal.stripped.length,
+            ),
+          ),
+          action: SnackBarAction(
+            label: DefterStrings.undoAction,
+            onPressed: () {
+              // Only if nothing was done since.
+              if (history.canUndo &&
+                  identical(history.peekUndo().pdfRemoval, removal)) {
+                undo();
+              }
+            },
+          ),
+        ),
+      );
   }
 
   /// Says why a PDF could not be imported, with what the device reported
@@ -2656,6 +2790,7 @@ class EditorState extends State<Editor> {
           coreInfo.pages.getOrNull(currentPageIndex)?.backgroundImage
               is PdfEditorImage,
       showPdfTools: showPdfTools,
+      removePdf: showRemovePdf,
       cropPdfPage: cropPdfPage,
       showVersions: showVersions,
       getIsWatchingServer: () => _watchServerTimer?.isActive ?? false,
@@ -3317,6 +3452,7 @@ class EditorState extends State<Editor> {
         filenameTextEditingController.dispose();
       }
       await saveToFile();
+      await _removeAssetsKeptForUndo();
     } finally {
       // The note as it is left.
       unawaited(

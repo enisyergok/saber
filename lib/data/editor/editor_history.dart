@@ -3,6 +3,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/data/editor/page.dart';
+import 'package:saber/data/pdf/pdf_removal.dart';
 import 'package:saber/data/tools/ink_eraser.dart';
 import 'package:sbn/canvas_background_pattern.dart';
 import 'package:sbn/change.dart';
@@ -137,6 +138,19 @@ class EditorHistory {
   void clearRedo() {
     _future.clear();
   }
+
+  /// The pictures and PDF pages that are not in the note now but that
+  /// undoing or redoing could bring back. Their files must stay on disk
+  /// for as long as the note is open.
+  Iterable<EditorImage> get imagesKept sync* {
+    for (final item in [..._past, ..._future]) {
+      yield* item.images;
+      final page = item.page;
+      if (page != null) yield* [?page.backgroundImage, ...page.images];
+      final removal = item.pdfRemoval;
+      if (removal != null) yield* removal.images;
+    }
+  }
 }
 
 class EditorHistoryItem {
@@ -153,7 +167,13 @@ class EditorHistoryItem {
     this.transform,
     this.reshapeChange,
     this.replacements,
+    this.pdfRemoval,
   }) : assert(
+         (type != .removePdf && type != .removePdfRedone) ||
+             pdfRemoval != null,
+         'What was removed must be provided for removePdf',
+       ),
+       assert(
          type != .move || offset != null,
          'Offset must be provided for move',
        ),
@@ -216,6 +236,10 @@ class EditorHistoryItem {
   /// precise eraser went over, in the order the strokes were on the page.
   final List<StrokeReplacement>? replacements;
 
+  /// For [EditorHistoryItemType.removePdf]: the pages that left the note
+  /// and the pages that lost the PDF behind their writing.
+  final PdfRemoval? pdfRemoval;
+
   EditorHistoryItem copyWith({
     EditorHistoryItemType? type,
     int? pageIndex,
@@ -229,6 +253,7 @@ class EditorHistoryItem {
     Matrix4? transform,
     Map<Stroke, Change<List<Offset>>>? reshapeChange,
     List<StrokeReplacement>? replacements,
+    PdfRemoval? pdfRemoval,
   }) {
     return EditorHistoryItem(
       type: type ?? this.type,
@@ -244,6 +269,7 @@ class EditorHistoryItem {
       transform: transform ?? this.transform,
       reshapeChange: reshapeChange ?? this.reshapeChange,
       replacements: replacements ?? this.replacements,
+      pdfRemoval: pdfRemoval ?? this.pdfRemoval,
     );
   }
 }
@@ -267,4 +293,10 @@ enum EditorHistoryItemType {
 
   /// The opposite of [replace], for redoing; never kept in the history.
   replaceRedone,
+
+  /// A PDF was taken out of the note. Undoing puts its pages back.
+  removePdf,
+
+  /// The opposite of [removePdf], for redoing; never kept in the history.
+  removePdfRedone,
 }
