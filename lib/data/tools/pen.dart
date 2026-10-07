@@ -356,6 +356,13 @@ class Pen extends Tool {
       PressureCalibration.addStroke(_rawLow, _rawHigh, _rawCount);
       _rawCount = 0;
     }
+    if (makesDots && stroke.reach < stroke.options.size * dotReach) {
+      // A tap: a dot the width of the pen, where the pen was.
+      ShapeSnap.reset();
+      ShapeSnap.lastWasSnapped = false;
+      stroke.becomeDot();
+      return stroke;
+    }
     if (kind != null) _limitTapers(stroke);
     stroke
       ..options.isComplete = true
@@ -374,6 +381,17 @@ class Pen extends Tool {
     }
     return result;
   }
+
+  /// A mark that reaches less far than this many pen widths is a dot (see
+  /// [Stroke.becomeDot]). Up to one width the line is drawn from its last
+  /// point alone, and a little beyond that a pen with pointed ends still
+  /// draws nothing but the two points.
+  static const dotReach = 1.5;
+
+  /// Whether a tap with this pen leaves a dot: every pen that writes. Not
+  /// the highlighter, whose short dabs are as wide as they are long, nor
+  /// the shape pen, which makes shapes of what is drawn.
+  bool get makesDots => toolId != .highlighter && toolId != .shapePen;
 
   /// Shortens the pointed ends of a finished line that is itself short.
   static void _limitTapers(Stroke stroke) {
