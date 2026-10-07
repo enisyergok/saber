@@ -25,6 +25,7 @@ import 'package:saber/components/canvas/canvas_image.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/editor/editor_tab_strip.dart';
+import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/components/editor/page_sidebar.dart';
 import 'package:saber/components/editor/read_only_banner.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
@@ -82,6 +83,7 @@ import 'package:saber/components/toolbar/pdf_picker_dialog.dart';
 import 'package:saber/components/toolbar/pdf_remove_dialog.dart';
 import 'package:saber/data/device_camera.dart';
 import 'package:saber/data/editor/note_assets.dart';
+import 'package:saber/data/editor/note_cover.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/stylus_action.dart';
 import 'package:saber/data/tools/selection_transform.dart';
@@ -356,8 +358,11 @@ class EditorState extends State<Editor> {
     final cover = spec.cover;
     if (cover != null) {
       // A notebook without a name of its own gets a cover without one.
-      await insertCover(cover, title: spec.name.trim());
-    } else if (mounted) {
+      coreInfo.cover = NoteCover(designId: cover.id, title: spec.name.trim());
+      // A notebook with a cover is one already, before anything is written.
+      history.markUnsaved();
+    }
+    if (mounted) {
       setState(() {});
       autosaveAfterDelay();
     }
@@ -374,7 +379,19 @@ class EditorState extends State<Editor> {
   }
 
   Future _loadCoreInfo(String filePath) async {
-    coreInfo = await EditorCoreInfo.loadFromFilePath(filePath);
+    final loaded = await EditorCoreInfo.loadFromFilePath(filePath);
+    // A notebook from when the cover was its first page: the cover goes
+    // onto the card, where it belongs, before the pages are shown.
+    final adoptedCover = await NoteCover.adoptCoverPage(loaded);
+    coreInfo = loaded;
+    _coverPictureWritten = null;
+    if (adoptedCover) {
+      log.info('Took the cover out of the pages of $filePath');
+      history.markUnsaved();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && identical(coreInfo, loaded)) autosaveAfterDelay();
+      });
+    }
     if (coreInfo.readOnly) {
       log.info('Loaded file as read-only: ${coreInfo.readOnlyReason}');
     }
@@ -622,21 +639,17 @@ class EditorState extends State<Editor> {
           // insert the page at the correct index
           coreInfo.pages.insert(item.pageIndex, item.page!);
 
-          // fix the page indices of all pages after this one
-          for (int i = item.pageIndex + 1; i < coreInfo.pages.length; ++i) {
-            final page = coreInfo.pages[i];
-            page.updatePageIndex(i);
-          }
+          // every page from here on has moved one place
+          _renumberPages();
 
         case .insertPage:
           // remove the page at the given index
           coreInfo.pages.removeAt(item.pageIndex);
+          // (a notebook is never without a page)
+          createPage(-1);
 
-          // fix the page indices of all pages after this one
-          for (int i = item.pageIndex; i < coreInfo.pages.length; ++i) {
-            final page = coreInfo.pages[i];
-            page.updatePageIndex(i);
-          }
+          // every page from here on has moved one place
+          _renumberPages();
 
         case .move:
           for (final stroke in item.strokes) {
@@ -1410,7 +1423,20 @@ class EditorState extends State<Editor> {
       }
       autosaveAfterDelay();
     });
-    quill.focusNode.addListener(_onQuillFocusChange);
+    quill.focusNode
+      ..removeListener(_onQuillFocusChange)
+      ..addListener(_onQuillFocusChange);
+  }
+
+  /// Gives every page its place again after pages were put in, taken out
+  /// or moved: the page number its strokes and pictures carry (undo goes
+  /// by it), and the page its text reports changes for.
+  void _renumberPages() {
+    for (var i = 0; i < coreInfo.pages.length; i++) {
+      final page = coreInfo.pages[i];
+      page.updatePageIndex(i);
+      listenToQuillChanges(page.quill, i);
+    }
   }
 
   void _onQuillFocusChange() {
@@ -1594,6 +1620,25 @@ class EditorState extends State<Editor> {
       return;
     }
     try {
+      // A notebook with a cover shows its cover; any other note its
+      // first page.
+      final cover = coreInfo.cover;
+      if (cover != null && cover.isUsable) {
+        if (_coverPictureWritten != cover.signature) {
+          final signature = cover.signature;
+          final picture = await cover.render();
+          if (picture != null) {
+            await FileManager.writeFile(
+              '$filePath.p',
+              picture,
+              awaitWrite: true,
+            );
+            _coverPictureWritten = signature;
+          }
+        }
+        return;
+      }
+      _coverPictureWritten = null;
       final page = coreInfo.pages.first;
       final previewHeight = page.previewHeight(lineHeight: coreInfo.lineHeight);
       final thumbnailSize = Size(720, 720 * previewHeight / page.size.width);
@@ -1724,6 +1769,16 @@ class EditorState extends State<Editor> {
         oldPath + Editor.extension,
         coreInfo.filePath + Editor.extension,
       );
+      // A cover that carries the notebook's name carries the new one.
+      final cover = coreInfo.cover;
+      if (cover != null &&
+          cover.design != null &&
+          (cover.title.isNotEmpty || needsNaming)) {
+        cover.title = coreInfo.fileName;
+        history.markUnsaved();
+        // (when this is part of a save, the save takes it along)
+        if (savingState.value != .saving) autosaveAfterDelay();
+      }
       needsNaming = false;
 
       if (_usesTabs && coreInfo.filePath != oldPath) {
@@ -2913,6 +2968,8 @@ class EditorState extends State<Editor> {
                   PageSidebar(
                     coreInfo: coreInfo,
                     currentPage: _visiblePageIndex,
+                    onPageAction: coreInfo.readOnly ? null : onPageAction,
+                    canDeletePage: canDeletePage,
                     onPageSelected: (pageIndex) =>
                         CanvasGestureDetector.scrollToPage(
                           pageIndex: pageIndex,
@@ -2985,7 +3042,9 @@ class EditorState extends State<Editor> {
         );
         autosaveAfterDelay();
       }),
-      insertCover: insertCover,
+      setCover: setCover,
+      coverDesignId: coreInfo.cover?.designId,
+      hasCover: coreInfo.cover != null,
       setBackgroundColor: (color) => setState(() {
         if (coreInfo.readOnly) return;
         coreInfo.backgroundColor = color;
@@ -3017,6 +3076,9 @@ class EditorState extends State<Editor> {
       clearPage: () {
         clearPage(currentPageIndex);
       },
+      deletePage: canDeletePage(currentPageIndex)
+          ? () => deletePage(currentPageIndex)
+          : null,
       clearAllPages: clearAllPages,
       redrawAndSave: () => setState(() {
         if (coreInfo.readOnly) return;
@@ -3268,6 +3330,8 @@ class EditorState extends State<Editor> {
       final page = coreInfo.pages[pageIndex];
       page.bookmarked = !page.bookmarked;
     });
+    // (a bookmark is not a step that is undone, but it is a change)
+    history.markUnsaved();
     autosaveAfterDelay();
   }
 
@@ -3362,6 +3426,8 @@ class EditorState extends State<Editor> {
           );
         },
         toggleBookmark: coreInfo.readOnly ? null : toggleBookmark,
+        onPageAction: coreInfo.readOnly ? null : onPageAction,
+        canDeletePage: canDeletePage,
         openPageManager: () {
           Navigator.of(dialogContext).pop();
           showDialog(
@@ -3386,65 +3452,120 @@ class EditorState extends State<Editor> {
         autosaveAfterDelay();
       }),
       insertPageAfter: insertPageAfter,
-      duplicatePage: (int pageIndex) => setState(() {
-        if (coreInfo.readOnly) return;
-        final page = coreInfo.pages[pageIndex];
-        final newPage = page.copyWith(
-          strokes: page.strokes
-              .map((stroke) => stroke.copy()..pageIndex += 1)
-              .toList(),
-          images: page.images
-              .map((image) => image.copy()..pageIndex += 1)
-              .toList(),
-          quill: QuillStruct(
-            controller: flutter_quill.QuillController(
-              document: flutter_quill.Document.fromDelta(
-                page.quill.controller.document.toDelta(),
-              ),
-              selection: const TextSelection.collapsed(offset: 0),
-            ),
-            focusNode: FocusNode(debugLabel: 'Quill Focus Node'),
-          ),
-          backgroundImage: page.backgroundImage?.copy()?..pageIndex += 1,
-        );
-        coreInfo.pages.insert(pageIndex + 1, newPage);
-        listenToQuillChanges(newPage.quill, pageIndex + 1);
-        history.recordChange(
-          EditorHistoryItem(
-            type: .insertPage,
-            pageIndex: pageIndex,
-            strokes: const [],
-            images: const [],
-            page: newPage,
-          ),
-        );
-        autosaveAfterDelay();
-      }),
+      duplicatePage: duplicatePage,
       clearPage: clearPage,
-      deletePage: (int pageIndex) => setState(() {
-        if (coreInfo.readOnly) return;
-        final page = coreInfo.pages.removeAt(pageIndex);
-        createPage(pageIndex - 1);
-        history.recordChange(
-          EditorHistoryItem(
-            type: .deletePage,
-            pageIndex: pageIndex,
-            strokes: const [],
-            images: const [],
-            page: page,
-          ),
-        );
-        autosaveAfterDelay();
-      }),
+      deletePage: deletePage,
       transformationController: _transformationController,
     );
+  }
+
+  /// Puts a copy of the page at [pageIndex] after it.
+  void duplicatePage(int pageIndex) {
+    if (coreInfo.readOnly) return;
+    if (pageIndex < 0 || pageIndex >= coreInfo.pages.length) return;
+    setState(() {
+      final page = coreInfo.pages[pageIndex];
+      final newPage = page.copyWith(
+        strokes: page.strokes.map((stroke) => stroke.copy()).toList(),
+        images: page.images.map((image) => image.copy()).toList(),
+        quill: QuillStruct(
+          controller: flutter_quill.QuillController(
+            document: flutter_quill.Document.fromDelta(
+              page.quill.controller.document.toDelta(),
+            ),
+            selection: const TextSelection.collapsed(offset: 0),
+          ),
+          focusNode: FocusNode(debugLabel: 'Quill Focus Node'),
+        ),
+        backgroundImage: page.backgroundImage?.copy(),
+      );
+      coreInfo.pages.insert(pageIndex + 1, newPage);
+      _renumberPages();
+      history.recordChange(
+        EditorHistoryItem(
+          type: .insertPage,
+          pageIndex: pageIndex + 1,
+          strokes: const [],
+          images: const [],
+          page: newPage,
+        ),
+      );
+      autosaveAfterDelay();
+    });
+  }
+
+  /// Whether the page at [pageIndex] can be taken out of the notebook:
+  /// every page can, except the only page there is while it is empty.
+  bool canDeletePage(int pageIndex) =>
+      !coreInfo.readOnly &&
+      pageIndex >= 0 &&
+      pageIndex < coreInfo.pages.length &&
+      (coreInfo.pages.length > 1 || coreInfo.pages[pageIndex].isNotEmpty);
+
+  /// Takes the page at [pageIndex] out of the notebook, with everything
+  /// on it. Undo puts it back. A notebook always keeps one page: deleting
+  /// the last one there is leaves an empty page in its place.
+  void deletePage(int pageIndex) {
+    if (!canDeletePage(pageIndex)) return;
+    Select.currentSelect.unselect();
+    CanvasImage.activeListener.notifyListenersPlease();
+    setState(() {
+      final page = coreInfo.pages.removeAt(pageIndex);
+      createPage(-1);
+      _renumberPages();
+      history.recordChange(
+        EditorHistoryItem(
+          type: .deletePage,
+          pageIndex: pageIndex,
+          strokes: const [],
+          images: const [],
+          page: page,
+        ),
+      );
+      autosaveAfterDelay();
+    });
+    // Where the page was is now the page after it (or the last one).
+    final showing = math.min(pageIndex, coreInfo.pages.length - 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      CanvasGestureDetector.scrollToPage(
+        pageIndex: math.min(showing, coreInfo.pages.length - 1),
+        pages: coreInfo.pages,
+        screenWidth: _viewportWidth,
+        transformationController: _transformationController,
+      );
+    });
+    ScaffoldMessenger.maybeOf(context)
+      ?..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          key: const ValueKey('pageDeleted'),
+          content: Text(DefterStrings.pageDeleted(pageIndex + 1)),
+          action: SnackBarAction(
+            label: DefterStrings.undoAction,
+            onPressed: () {
+              if (mounted && history.canUndo) undo();
+            },
+          ),
+        ),
+      );
+  }
+
+  /// What the "..." under a page's thumbnail does.
+  void onPageAction(int pageIndex, PageAction action) {
+    switch (action) {
+      case PageAction.duplicate:
+        duplicatePage(pageIndex);
+      case PageAction.delete:
+        deletePage(pageIndex);
+    }
   }
 
   void insertPageAfter(int pageIndex) => setState(() {
     if (coreInfo.readOnly) return;
     final page = EditorPage(size: _sizeForPageAfter(pageIndex));
     coreInfo.pages.insert(pageIndex + 1, page);
-    listenToQuillChanges(page.quill, pageIndex + 1);
+    _renumberPages();
     history.recordChange(
       EditorHistoryItem(
         type: .insertPage,
@@ -3484,52 +3605,35 @@ class EditorState extends State<Editor> {
     autosaveAfterDelay();
   });
 
-  /// Inserts [design] as a new first page, with the note's name as title.
-  ///
-  /// [title] is what is written on the cover instead (nothing, if empty).
-  Future<void> insertCover(CoverDesign design, {String? title}) async {
+  /// Gives the notebook [design] as its cover (none, if null), with the
+  /// note's name on it. The cover is what the notebook's card shows; it
+  /// is not a page.
+  void setCover(CoverDesign? design) {
     if (coreInfo.readOnly) return;
-    // As big as the notebook's own pages.
-    final first = coreInfo.pages.firstOrNull;
-    final size = first == null || first.backgroundImage is PdfEditorImage
-        ? EditorPage.defaultSize
-        : first.size;
-    final bytes = await design.renderPng(
-      size,
-      title: title ?? coreInfo.fileName,
-    );
-    if (!mounted) return;
     setState(() {
-      final page = EditorPage(
-        size: size,
-        backgroundImage: PngEditorImage(
-          id: coreInfo.nextImageId++,
-          extension: '.png',
-          imageProvider: MemoryImage(bytes),
-          pageIndex: 0,
-          pageSize: size,
-          invertible: false,
-          onMoveImage: onMoveImage,
-          onDeleteImage: onDeleteImage,
-          onMiscChange: autosaveAfterDelay,
-          onLoad: () => setState(() {}),
-          assetCache: coreInfo.assetCache,
-        ),
-      );
-      coreInfo.pages.insert(0, page);
-      listenToQuillChanges(page.quill, 0);
-      history.recordChange(
-        EditorHistoryItem(
-          type: .insertPage,
-          pageIndex: 0,
-          strokes: const [],
-          images: const [],
-          page: page,
-        ),
-      );
-      autosaveAfterDelay();
+      coreInfo.cover = design == null
+          ? null
+          : NoteCover(designId: design.id, title: coreInfo.fileName);
+      _coverPictureWritten = null;
     });
+    history.markUnsaved();
+    autosaveAfterDelay();
+    ScaffoldMessenger.maybeOf(context)
+      ?..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            design == null
+                ? DefterStrings.coverRemoved
+                : DefterStrings.coverOnCardOnly,
+          ),
+        ),
+      );
   }
+
+  /// The cover whose picture was last written as this note's preview by
+  /// this editor (see [NoteCover.signature]).
+  String? _coverPictureWritten;
 
   void clearPage(int pageIndex) {
     if (coreInfo.readOnly) return;
