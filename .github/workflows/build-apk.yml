@@ -58,6 +58,11 @@ jobs:
 
           echo "JAVA_HOME=$JAVA_HOME_25_X64" >> $GITHUB_ENV
 
+          # Gradle's own process wants a JDK 21 (android/gradle/
+          # gradle-daemon-jvm.properties): point it at the one installed here.
+          mkdir -p "$HOME/.gradle"
+          echo "org.gradle.java.installations.paths=$JAVA_HOME_21_X64" >> "$HOME/.gradle/gradle.properties"
+
       - name: Disable Flutter CLI animations
         run: flutter config --no-cli-animations
 
