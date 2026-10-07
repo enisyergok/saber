@@ -3212,6 +3212,8 @@ class EditorState extends State<Editor> {
           context: context,
           builder: (_) => RecordingsDialog(notePath: coreInfo.filePath),
         ),
+        showPenProbe: stows.penProbe.value,
+        onPenProbe: _togglePenProbe,
         onMore: () => showModalBottomSheet(
           context: context,
           builder: (context) => bottomSheet(context),
