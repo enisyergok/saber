@@ -545,6 +545,56 @@ class Stroke {
     }
   }
 
+  /// How far apart the points of this stroke lie at most: the diagonal of
+  /// the box around them. (Not the length of the line: a pen held on one
+  /// spot wanders a long way without going anywhere.)
+  double get reach {
+    if (points.isEmpty) return 0;
+    var left = points.first.dx, right = left;
+    var top = points.first.dy, bottom = top;
+    for (final point in points) {
+      left = min(left, point.dx);
+      right = max(right, point.dx);
+      top = min(top, point.dy);
+      bottom = max(bottom, point.dy);
+    }
+    final width = right - left, height = bottom - top;
+    return sqrt(width * width + height * height);
+  }
+
+  /// Makes this stroke a dot: a single point in the middle of where its
+  /// points were, with round ends whatever the pen's tip.
+  ///
+  /// It is as wide as the pen writes at [minPressure], or wider if the pen
+  /// was pressed harder than that. A tap is over before the pen has
+  /// reported any pressure to speak of, and a line this short is nothing
+  /// but its two pointed ends: drawn as it came, it is a mark too small
+  /// to see.
+  void becomeDot({double minPressure = 0.5}) {
+    if (points.isEmpty) return;
+    var left = points.first.dx, right = left;
+    var top = points.first.dy, bottom = top;
+    double? pressure;
+    for (final point in points) {
+      left = min(left, point.dx);
+      right = max(right, point.dx);
+      top = min(top, point.dy);
+      bottom = max(bottom, point.dy);
+      final pointPressure = point.pressure;
+      if (pointPressure != null) {
+        pressure = max(pressure ?? minPressure, pointPressure);
+      }
+    }
+    points
+      ..clear()
+      ..add(PointVector((left + right) / 2, (top + bottom) / 2, pressure));
+    options
+      ..start.taperEnabled = false
+      ..end.taperEnabled = false
+      ..isComplete = true;
+    markPolygonNeedsUpdating();
+  }
+
   /// The points of this stroke as plain offsets.
   List<Offset> get pointOffsets => [
     for (final point in points) Offset(point.dx, point.dy),
