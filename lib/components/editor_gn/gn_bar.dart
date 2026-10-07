@@ -8,6 +8,7 @@ import 'package:saber/components/editor_gn/gn_controller.dart';
 import 'package:saber/components/editor_gn/gn_palette.dart';
 import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
+import 'package:saber/data/benchmark/pen_latency_probe.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/select.dart';
@@ -39,6 +40,8 @@ class GnEditorBar extends StatelessWidget {
     required this.visiblePage,
     required this.pageCount,
     required this.onPages,
+    this.showPenProbe = false,
+    this.onPenProbe,
   });
 
   final GnController controller;
@@ -71,6 +74,12 @@ class GnEditorBar extends StatelessWidget {
   final ValueListenable<int> visiblePage;
   final int pageCount;
   final VoidCallback onPages;
+
+  /// Whether the pen latency button is shown (Settings > Pen latency
+  /// measurement). It is also shown while a recording runs, so that it can
+  /// be stopped.
+  final bool showPenProbe;
+  final VoidCallback? onPenProbe;
 
   static const tabRowHeight = 44.0;
   static const toolRowHeight = 56.0;
@@ -260,6 +269,28 @@ class GnEditorBar extends StatelessWidget {
                       selected: false,
                       onPressed: onRecordings,
                     ),
+                    if (onPenProbe != null)
+                      ValueListenableBuilder<bool>(
+                        valueListenable: PenLatencyProbe.instance.recording,
+                        builder: (context, recording, _) {
+                          if (!showPenProbe && !recording) {
+                            return const SizedBox.shrink();
+                          }
+                          return toolButton(
+                            icon: Icon(
+                              recording
+                                  ? Icons.stop_circle_rounded
+                                  : Symbols.speed_rounded,
+                              color: recording ? Colors.red : null,
+                            ),
+                            tooltip: recording
+                                ? DefterStrings.penProbeStop
+                                : DefterStrings.penProbeStart,
+                            selected: recording,
+                            onPressed: onPenProbe,
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
