@@ -246,12 +246,21 @@ class CanvasPainter extends CustomPainter {
     final tip = PenPrediction.tip;
     final points = currentStroke!.points;
     if (tip != null && points.isNotEmpty && stows.penPrediction.value) {
-      canvas.drawLine(
-        points.last,
-        tip,
+      // Along the curve the pen is following, not straight out of it.
+      final bend = PenPrediction.bend;
+      final start = points.last;
+      final ahead = Path()..moveTo(start.dx, start.dy);
+      if (bend == null) {
+        ahead.lineTo(tip.dx, tip.dy);
+      } else {
+        ahead.quadraticBezierTo(bend.dx, bend.dy, tip.dx, tip.dy);
+      }
+      canvas.drawPath(
+        ahead,
         paint
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
           ..strokeWidth = currentStroke!.options.size * 0.9,
       );
     }
