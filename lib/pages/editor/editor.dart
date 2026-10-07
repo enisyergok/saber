@@ -985,6 +985,7 @@ class EditorState extends State<Editor> {
         page,
         dragPageIndex!,
         currentPressure,
+        at: details.sourceTimeStamp,
       );
     } else if (currentTool is Eraser) {
       final eraser = currentTool as Eraser;
@@ -1074,7 +1075,11 @@ class EditorState extends State<Editor> {
       if (stows.measureMode.value || stows.angleGuide.value) {
         PenAssist.readoutAt.value = details.focalPoint;
       }
-      (currentTool as Pen).onDragUpdate(position, currentPressure);
+      (currentTool as Pen).onDragUpdate(
+        position,
+        currentPressure,
+        at: details.sourceTimeStamp,
+      );
       page.redrawLiveInk();
     } else if (currentTool is Eraser) {
       final eraser = currentTool as Eraser;

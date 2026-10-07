@@ -168,8 +168,9 @@ class Pen extends Tool {
     Offset position,
     EditorPage page,
     int pageIndex,
-    double? pressure,
-  ) {
+    double? pressure, {
+    Duration? at,
+  }) {
     PenFeel.curve = PressureCurve.parse(stows.pressureCurve.value);
     // What the last line measured makes way for this one.
     PenAssist.showReadout(null);
@@ -196,9 +197,10 @@ class Pen extends Tool {
       toolId: toolId,
     );
     PenPrediction.reset();
+    PenPrediction.tuneToRefreshRate(_displayRefreshRate());
     if (_ruler) {
       ShapeSnap.reset();
-      onDragUpdate(position, pressure);
+      onDragUpdate(position, pressure, at: at);
       return;
     }
     _rawLow = double.infinity;
@@ -217,7 +219,7 @@ class Pen extends Tool {
         tidy: stows.shapeAutoCorrect.value,
       );
     }
-    onDragUpdate(position, pressure);
+    onDragUpdate(position, pressure, at: at);
   }
 
   /// Whether the technical helpers of the pen panel (ruler, angle guide,
@@ -243,7 +245,9 @@ class Pen extends Tool {
   bool _fallback = false;
   Offset _measuredAt = Offset.zero;
 
-  void onDragUpdate(Offset position, double? pressure) {
+  /// The pen is at [position]. [at] is when it was there (the time stamp of
+  /// its event; see [PenPrediction.add]), if known.
+  void onDragUpdate(Offset position, double? pressure, {Duration? at}) {
     final stroke = currentStroke;
     if (_ruler && stroke != null) {
       final end = _ruledEnd(position);
@@ -304,12 +308,24 @@ class Pen extends Tool {
       ShapeSnap.onMove(position);
     }
     if (stows.penPrediction.value && predictsAhead) {
-      PenPrediction.add(position, _clock.elapsed);
+      PenPrediction.add(position, at ?? _clock.elapsed);
     }
   }
 
-  /// Measures time between pen movements for [PenPrediction].
+  /// Measures time between pen movements for [PenPrediction], for the pens
+  /// that are not told when an event happened.
   static final _clock = Stopwatch()..start();
+
+  /// How often the screen the app is on refreshes, or 0 if that is not known
+  /// (there is no screen in a test).
+  static double _displayRefreshRate() {
+    try {
+      final views = WidgetsBinding.instance.platformDispatcher.views;
+      return views.isEmpty ? 0 : views.first.display.refreshRate;
+    } on Object {
+      return 0;
+    }
+  }
 
   /// Whether the line is drawn a little ahead of the pen. Not for the
   /// highlighter and pencil, which are drawn differently, nor the shape pen,

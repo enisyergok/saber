@@ -108,7 +108,27 @@ class MainActivity: FlutterActivity() {
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         recordMotion("TOUCH", event)
+        askForPenEventsAtOnce(event)
         return super.dispatchTouchEvent(event)
+    }
+
+    /// Android holds touch and pen events back and hands them to the app
+    /// once per screen refresh, so a pen that reports every 4 ms is heard
+    /// only every 16 ms, and the ink starts that much behind it. Asking for
+    /// the events of a pen stroke "unbuffered" has them delivered as they
+    /// happen. (This has to be asked for at the pen's first contact, and
+    /// holds until it lifts.) Fingers are left as they were: nothing about
+    /// scrolling gets better from it.
+    private fun askForPenEventsAtOnce(event: MotionEvent) {
+        if (event.actionMasked != MotionEvent.ACTION_DOWN) return
+        val tool = event.getToolType(0)
+        if (tool != MotionEvent.TOOL_TYPE_STYLUS &&
+            tool != MotionEvent.TOOL_TYPE_ERASER) return
+        try {
+            window.decorView.requestUnbufferedDispatch(event)
+        } catch (_: Exception) {
+            // Only a request: without it the pen works as before.
+        }
     }
 
     /// Names and kinds of the input devices, to see whether the pen shows

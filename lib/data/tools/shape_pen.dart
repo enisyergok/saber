@@ -65,8 +65,8 @@ class ShapePen extends Pen {
   }
 
   @override
-  void onDragUpdate(Offset position, double? pressure) {
-    super.onDragUpdate(position, pressure);
+  void onDragUpdate(Offset position, double? pressure, {Duration? at}) {
+    super.onDragUpdate(position, pressure, at: at);
 
     final isPreviewEnabled = debounceDuration < const Duration(hours: 1);
     final isTimerActive = _detectShapeDebouncer?.isActive ?? false;
