@@ -69,6 +69,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   DashboardData? _data;
   StreamSubscription<FileOperation>? _writes;
+  StreamSubscription<String>? _folderChanges;
 
   @override
   void initState() {
@@ -77,18 +78,29 @@ class _DashboardPageState extends State<DashboardPage> {
     _writes = FileManager.fileWriteStream.stream.listen((_) {
       if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) _load();
     });
+    // A folder made, renamed or removed is shown at once, also while the
+    // dialog that did it is still closing over this page.
+    _folderChanges = FileManager.folderChanges.stream.listen((_) {
+      if (mounted) _load();
+    });
   }
 
   @override
   void dispose() {
     _writes?.cancel();
+    _folderChanges?.cancel();
     super.dispose();
   }
 
+  /// Counts the listings begun, so that one that was begun earlier and
+  /// comes back later cannot put back what has changed since.
+  var _loads = 0;
+
   Future<void> _load() async {
+    final load = ++_loads;
     try {
       final data = DashboardPage.overrideData ?? await widget.load();
-      if (mounted) setState(() => _data = data);
+      if (mounted && load == _loads) setState(() => _data = data);
     } on Object catch (e) {
       // Show the page without notes rather than nothing at all.
       debugPrint('The notes could not be listed: $e');

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
+import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 
 /// A strip of page thumbnails beside the editor, for seeing where you are in
@@ -11,7 +12,16 @@ class PageSidebar extends StatelessWidget {
     required this.coreInfo,
     required this.currentPage,
     required this.onPageSelected,
+    this.onPageAction,
+    this.canDeletePage,
   });
+
+  /// Copies or deletes a page. Null if the note is read-only.
+  final void Function(int pageIndex, PageAction action)? onPageAction;
+
+  /// Whether the page at an index can be deleted (all can, if this is
+  /// not given).
+  final bool Function(int pageIndex)? canDeletePage;
 
   final EditorCoreInfo coreInfo;
 
@@ -103,6 +113,18 @@ class PageSidebar extends StatelessWidget {
                                 Icons.bookmark_rounded,
                                 size: 14,
                                 color: colorScheme.primary,
+                              ),
+                            ),
+                          if (onPageAction != null)
+                            SizedBox(
+                              width: 32,
+                              height: 24,
+                              child: PageMenuButton(
+                                pageIndex: index,
+                                iconSize: 16,
+                                canDelete: canDeletePage?.call(index) ?? true,
+                                onAction: (action) =>
+                                    onPageAction!(index, action),
                               ),
                             ),
                         ],

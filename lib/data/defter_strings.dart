@@ -99,7 +99,7 @@ abstract class DefterStrings {
       ? 'Kalemin basınç aralığı dar ise çizgi yine de kalınlaşıp incelir; basınç hiç değişmiyorsa hıza göre'
       : 'Lines still thicken and thin if the pen\'s pressure range is narrow; by speed if it never changes';
 
-  static String get coverTitle => _tr ? 'Kapak ekle' : 'Add cover';
+  static String get coverTitle => _tr ? 'Kapak' : 'Cover';
   static String get coverAdded => _tr ? 'Kapak eklendi' : 'Cover added';
 
   static String get pages => _tr ? 'Sayfalar' : 'Pages';
@@ -358,6 +358,22 @@ abstract class DefterStrings {
   }
 
   static String get undoAction => _tr ? 'Geri al' : 'Undo';
+
+  // -- pages of a notebook ---------------------------------------------------
+  static String get pageActions => _tr ? 'Sayfa işlemleri' : 'Page actions';
+  static String get deletePage => _tr ? 'Sayfayı sil' : 'Delete page';
+  static String get duplicatePage => _tr ? 'Sayfayı çoğalt' : 'Duplicate page';
+  static String deleteThisPage(int page) =>
+      _tr ? '$page. sayfayı sil' : 'Delete page $page';
+  static String pageDeleted(int page) =>
+      _tr ? '$page. sayfa silindi' : 'Page $page deleted';
+
+  // -- the cover of a notebook -----------------------------------------------
+  static String get coverRemoved =>
+      _tr ? 'Kapak kaldırıldı' : 'The cover was removed';
+  static String get coverOnCardOnly => _tr
+      ? 'Kapak yalnızca not defterinin kartında görünür'
+      : 'The cover is only shown on the notebook\'s card';
   static String get pdfCrop => _tr ? 'PDF sayfasını kırp' : 'Crop PDF page';
   static String get pdfCropHint => _tr
       ? 'Kırpılan bölüm sayfaya sığacak şekilde büyür. Çizimler yerinde kalır, bu yüzden yazmadan önce kırpmak en iyisi.'

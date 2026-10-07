@@ -93,7 +93,17 @@ class EditorHistory {
   /// whether the current state is saved or not.
   void markLastChangeAsSaved() {
     _lastSaved = _past.lastOrNull;
+    _changedOutsideHistory = false;
   }
+
+  /// Whether something was changed that is not one of the steps that can
+  /// be undone (the notebook's cover, a bookmark): it has to be saved all
+  /// the same.
+  var _changedOutsideHistory = false;
+
+  /// Says that the note was changed in a way undo knows nothing about, so
+  /// that it is saved (see [isCurrentStateSaved]).
+  void markUnsaved() => _changedOutsideHistory = true;
 
   /// Whether the current state is saved to disk.
   ///
@@ -101,7 +111,7 @@ class EditorHistory {
   /// not whether _past is empty. This is because _past items can be discarded
   /// if the history exceeds [maxHistoryLength].
   bool get isCurrentStateSaved {
-    return _past.lastOrNull == _lastSaved;
+    return !_changedOutsideHistory && _past.lastOrNull == _lastSaved;
   }
 
   /// Removes the last history item due to a rejected stroke.

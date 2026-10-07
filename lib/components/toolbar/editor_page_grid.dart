@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
+import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 
@@ -14,7 +15,16 @@ class EditorPageGrid extends StatefulWidget {
     required this.onPageSelected,
     required this.toggleBookmark,
     required this.openPageManager,
+    this.onPageAction,
+    this.canDeletePage,
   });
+
+  /// Copies or deletes a page. Null if the note is read-only.
+  final void Function(int pageIndex, PageAction action)? onPageAction;
+
+  /// Whether the page at an index can be deleted (all can, if this is
+  /// not given).
+  final bool Function(int pageIndex)? canDeletePage;
 
   final EditorCoreInfo coreInfo;
   final int currentPageIndex;
@@ -43,6 +53,7 @@ class _EditorPageGridState extends State<EditorPageGrid> {
         if (!_bookmarksOnly || pages[i].bookmarked) i,
     ];
     final toggleBookmark = widget.toggleBookmark;
+    final onPageAction = widget.onPageAction;
 
     return Dialog(
       clipBehavior: Clip.antiAlias,
@@ -125,6 +136,15 @@ class _EditorPageGridState extends State<EditorPageGrid> {
                               : () => setState(() {
                                   toggleBookmark(pageIndex);
                                 }),
+                          canDelete:
+                              widget.canDeletePage?.call(pageIndex) ?? true,
+                          // The pages shown here are the note's own list:
+                          // drawn again, they are the pages that are left.
+                          onAction: onPageAction == null
+                              ? null
+                              : (action) => setState(() {
+                                  onPageAction(pageIndex, action);
+                                }),
                         );
                       },
                     ),
@@ -143,6 +163,8 @@ class _PageTile extends StatelessWidget {
     required this.isCurrent,
     required this.onTap,
     required this.toggleBookmark,
+    required this.onAction,
+    required this.canDelete,
   });
 
   final EditorCoreInfo coreInfo;
@@ -150,6 +172,8 @@ class _PageTile extends StatelessWidget {
   final bool isCurrent;
   final VoidCallback onTap;
   final VoidCallback? toggleBookmark;
+  final void Function(PageAction action)? onAction;
+  final bool canDelete;
 
   static const _radius = BorderRadius.all(Radius.circular(6));
 
@@ -216,6 +240,16 @@ class _PageTile extends StatelessWidget {
                     color: page.bookmarked ? colorScheme.primary : null,
                   ),
                 ),
+                if (onAction != null)
+                  SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: PageMenuButton(
+                      pageIndex: pageIndex,
+                      canDelete: canDelete,
+                      onAction: onAction!,
+                    ),
+                  ),
               ],
             ),
           ),

@@ -38,6 +38,18 @@ class FileManager {
 
   static final fileWriteStream = StreamController<FileOperation>.broadcast();
 
+  /// Tells of every folder that was made, renamed or removed, by its path.
+  ///
+  /// [fileWriteStream] does not: an empty folder has no files to speak
+  /// of, and the files of a folder that is removed are reported before
+  /// the folder itself is gone, so whoever lists the folders then still
+  /// finds it.
+  static final folderChanges = StreamController<String>.broadcast();
+
+  static void _folderChanged(String folderPath) {
+    if (folderChanges.hasListener) folderChanges.add(folderPath);
+  }
+
   // TODO(adil192): Implement or remove this
   static String _sanitisePath(String path) => File(path).path;
 
@@ -464,6 +476,7 @@ class FileManager {
 
     final dir = Directory(documentsDirectory + folderPath);
     await dir.create(recursive: true);
+    _folderChanged(folderPath);
   }
 
   static Future exportFile(
@@ -736,6 +749,7 @@ class FileManager {
       broadcastFileWrite(FileOperationType.delete, directoryPath + child);
       broadcastFileWrite(FileOperationType.write, newPath + child);
     }
+    _folderChanged(newPath);
   }
 
   static Future deleteDirectory(
@@ -757,6 +771,7 @@ class FileManager {
     }
 
     await directory.delete(recursive: recursive);
+    _folderChanged(directoryPath);
   }
 
   /// Gets the children of a directory, separated into

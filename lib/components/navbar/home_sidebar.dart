@@ -63,6 +63,7 @@ class _HomeSidebarState extends State<HomeSidebar> {
   final _open = <String>{};
   var _foldersShown = true;
   StreamSubscription<FileOperation>? _writes;
+  StreamSubscription<String>? _folderChanges;
 
   @override
   void initState() {
@@ -72,18 +73,29 @@ class _HomeSidebarState extends State<HomeSidebar> {
       // Notes saved while the editor is open don't change the folders.
       if (mounted && (ModalRoute.of(context)?.isCurrent ?? true)) _load();
     });
+    // A folder made, renamed or removed is shown at once, also while the
+    // dialog that did it is still closing over this page.
+    _folderChanges = FileManager.folderChanges.stream.listen((_) {
+      if (mounted) _load();
+    });
   }
 
   @override
   void dispose() {
     _writes?.cancel();
+    _folderChanges?.cancel();
     super.dispose();
   }
 
+  /// Counts the listings begun, so that one that was begun earlier and
+  /// comes back later cannot put back what has changed since.
+  var _loads = 0;
+
   Future<void> _load() async {
+    final load = ++_loads;
     try {
       final folders = HomeSidebar.overrideFolders ?? await widget.loadFolders();
-      if (mounted) setState(() => _folders = folders);
+      if (mounted && load == _loads) setState(() => _folders = folders);
     } on Object catch (e) {
       // Keep what was shown: the next change to the notes tries again.
       debugPrint('The folders could not be listed: $e');

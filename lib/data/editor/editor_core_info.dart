@@ -12,6 +12,7 @@ import 'package:path/path.dart' as p;
 import 'package:saber/components/canvas/_asset_cache.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
+import 'package:saber/data/editor/note_cover.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/flavor_config.dart';
@@ -75,6 +76,10 @@ class EditorCoreInfo {
   /// Stores the current page index so that it can be restored when the file is reloaded.
   int? initialPageIndex;
 
+  /// What the notebook's card shows instead of its first page, if it was
+  /// given a cover. Not one of the [pages].
+  NoteCover? cover;
+
   static final placeholder =
       EditorCoreInfo._(
         filePath: '',
@@ -118,6 +123,7 @@ class EditorCoreInfo {
     required this.pages,
     required this.initialPageIndex,
     required AssetCache? assetCache,
+    this.cover,
   }) : assetCache = assetCache ?? AssetCache() {
     _handleEmptyImageIds();
   }
@@ -193,6 +199,7 @@ class EditorCoreInfo {
         ),
         initialPageIndex: json['c'] as int?,
         assetCache: assetCache,
+        cover: NoteCover.fromJson(json['cv']),
       )
       .._migrateOldStrokesAndImages(
         fileVersion: fileVersion,
@@ -555,6 +562,7 @@ class EditorCoreInfo {
       'lt': lineThickness,
       'z': pages.map((EditorPage page) => page.toJson(assets)).toList(),
       'c': initialPageIndex,
+      if (cover != null) 'cv': cover!.toJson(),
     };
 
     return (json, assets);
@@ -628,6 +636,7 @@ class EditorCoreInfo {
       pages: pages ?? this.pages,
       initialPageIndex: initialPageIndex,
       assetCache: assetCache,
+      cover: cover,
     );
   }
 }

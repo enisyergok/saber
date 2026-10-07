@@ -27,12 +27,15 @@ class EditorBottomSheet extends StatefulWidget {
     required this.currentPageIndex,
     required this.setBackgroundPattern,
     required this.setBackgroundColor,
-    required this.insertCover,
+    required this.setCover,
+    this.coverDesignId,
+    this.hasCover = false,
     required this.setLineHeight,
     required this.setLineThickness,
     required this.removeBackgroundImage,
     required this.redrawImage,
     required this.clearPage,
+    this.deletePage,
     required this.clearAllPages,
     required this.redrawAndSave,
     required this.pickPhotos,
@@ -56,12 +59,22 @@ class EditorBottomSheet extends StatefulWidget {
   final int? currentPageIndex;
   final void Function(CanvasBackgroundPattern) setBackgroundPattern;
   final void Function(Color?) setBackgroundColor;
-  final void Function(CoverDesign) insertCover;
+  /// Gives the notebook a cover, or takes it away (null).
+  final void Function(CoverDesign? design) setCover;
+
+  /// The notebook's cover as the sheet is opened: which of the designs it
+  /// is (null for none of them), and whether it has a cover at all.
+  final String? coverDesignId;
+  final bool hasCover;
   final void Function(int) setLineHeight;
   final void Function(int) setLineThickness;
   final VoidCallback removeBackgroundImage;
   final VoidCallback redrawImage;
   final VoidCallback clearPage;
+
+  /// Takes the page that is shown out of the notebook. Null if it cannot
+  /// be (a read-only note, or its only page while that is empty).
+  final VoidCallback? deletePage;
   final VoidCallback clearAllPages;
   final VoidCallback redrawAndSave;
   final Future<int> Function() pickPhotos;
@@ -98,6 +111,10 @@ class EditorBottomSheet extends StatefulWidget {
 
 class _EditorBottomSheetState extends State<EditorBottomSheet> {
   static const imageBoxFits = <BoxFit>[.fill, .cover, .contain];
+
+  /// The cover as chosen in this sheet (it shows the choice at once).
+  late var _hasCover = widget.hasCover;
+  late String? _coverDesignId = widget.coverDesignId;
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +159,28 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                               : widget.currentPageIndex! + 1,
                           totalPages: widget.coreInfo.pages.length,
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton(
+                  key: const ValueKey('sheetDeletePage'),
+                  onPressed: widget.deletePage == null
+                      ? null
+                      : () {
+                          Navigator.pop(context);
+                          widget.deletePage!();
+                        },
+                  child: Wrap(
+                    children: [
+                      const Icon(Symbols.delete_rounded),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.currentPageIndex == null
+                            ? DefterStrings.deletePage
+                            : DefterStrings.deleteThisPage(
+                                widget.currentPageIndex! + 1,
+                              ),
                       ),
                     ],
                   ),
@@ -292,28 +331,60 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
               height: 96,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: CoverDesigns.all.length,
+                // the first tile is "no cover"
+                itemCount: CoverDesigns.all.length + 1,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final design = CoverDesigns.all[index];
+                  final design = index == 0
+                      ? null
+                      : CoverDesigns.all[index - 1];
+                  final selected = design == null
+                      ? !_hasCover
+                      : _hasCover && design.id == _coverDesignId;
+                  final colors = ColorScheme.of(context);
                   return Tooltip(
-                    message: design.name,
+                    message: design?.name ?? DefterStrings.noCover,
                     child: InkWell(
-                      onTap: () => widget.insertCover(design),
+                      key: ValueKey('sheetCover-${design?.id ?? 'none'}'),
+                      onTap: () {
+                        setState(() {
+                          _hasCover = design != null;
+                          _coverDesignId = design?.id;
+                        });
+                        widget.setCover(design);
+                      },
                       child: AspectRatio(
                         aspectRatio: 1000 / 1400,
                         child: DecoratedBox(
+                          position: DecorationPosition.foreground,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: ColorScheme.of(context).outlineVariant,
+                              color: selected
+                                  ? colors.primary
+                                  : colors.outlineVariant,
+                              width: selected ? 3 : 1,
                             ),
                           ),
-                          child: CustomPaint(painter: _CoverPainter(design)),
+                          child: design == null
+                              ? Center(
+                                  child: Icon(
+                                    Symbols.block_rounded,
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                )
+                              : CustomPaint(painter: _CoverPainter(design)),
                         ),
                       ),
                     ),
                   );
                 },
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              DefterStrings.coverOnCardOnly,
+              style: TextTheme.of(context).bodySmall?.copyWith(
+                color: ColorScheme.of(context).onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 16),
