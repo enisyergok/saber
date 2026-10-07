@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/components/canvas/_stroke.dart';
+import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/components/editor/page_sidebar.dart';
 import 'package:saber/components/toolbar/editor_page_grid.dart';

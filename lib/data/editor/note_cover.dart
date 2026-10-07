@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:bson/bson.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart' show MemoryImage;
 import 'package:image/image.dart' as im;
 import 'package:logging/logging.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';

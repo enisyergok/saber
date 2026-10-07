@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/components/canvas/_asset_cache.dart';
 import 'package:saber/components/canvas/_stroke.dart';
+import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
