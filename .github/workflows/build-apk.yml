@@ -65,12 +65,39 @@ jobs:
         env:
           RUN_NUMBER: ${{ github.run_number }}
         run: |
+          set -o pipefail
           baseBuildNumber=$(grep -oP "(?<=buildNumber = )\d+" lib/data/version.dart)
           flutter build apk \
             --target-platform android-arm64 \
             --build-number=$((baseBuildNumber + RUN_NUMBER)) \
             --dart-define=UPDATE_CHECK="false" \
-            --dart-define=CI_BUILD="${RUN_NUMBER}"
+            --dart-define=CI_BUILD="${RUN_NUMBER}" 2>&1 | tee build-log.txt
+
+      # A failed build leaves its log on an orphan branch, so it can be read
+      # with plain git (the job logs themselves need a browser).
+      - name: Publish the log of a failed build
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          results="$RUNNER_TEMP/build-results"
+          mkdir -p "$results"
+          tail -n 400 build-log.txt > "$results/build-log.txt" 2>/dev/null || true
+          {
+            echo "commit: $GITHUB_SHA"
+            echo "ANDROID_NDK=$ANDROID_NDK"
+            echo "JAVA_HOME=$JAVA_HOME"
+            echo "-- ndk:"; ls /usr/local/lib/android/sdk/ndk 2>&1
+            echo "-- java:"; env | grep -E '^JAVA_HOME_' | sort
+            echo "-- image: $ImageOS $ImageVersion"
+          } > "$results/environment.txt"
+          cd "$results"
+          git init -q -b build-results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Build log for $GITHUB_SHA"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" build-results
 
       - name: Rename apk
         id: rename_apk
