@@ -19,6 +19,7 @@ import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/pdf/pdf_crop.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/pages/editor/editor.dart';
+import 'package:sbn/change.dart';
 
 part 'png_editor_image.dart';
 part 'pdf_editor_image.dart';
@@ -148,6 +149,20 @@ sealed class EditorImage extends ChangeNotifier {
     }
     final turns = json['r'];
     if (turns is int) image._quarterTurns = turns % 4;
+    final cropLeft = json['cl'], cropTop = json['ct'];
+    final cropRight = json['cr'], cropBottom = json['cb'];
+    if (cropLeft is num &&
+        cropTop is num &&
+        cropRight is num &&
+        cropBottom is num) {
+      final saved = Rect.fromLTRB(
+        cropLeft.toDouble(),
+        cropTop.toDouble(),
+        cropRight.toDouble(),
+        cropBottom.toDouble(),
+      );
+      if (isValidCrop(saved)) image._crop = saved;
+    }
     return image;
   }
 
@@ -170,7 +185,92 @@ sealed class EditorImage extends ChangeNotifier {
     if (naturalSize.width != 0) 'nw': naturalSize.width,
     if (naturalSize.height != 0) 'nh': naturalSize.height,
     if (quarterTurns != 0) 'r': quarterTurns,
+    if (isCropped) ...{
+      'cl': crop.left,
+      'ct': crop.top,
+      'cr': crop.right,
+      'cb': crop.bottom,
+    },
   };
+
+  /// The whole picture.
+  static const wholePicture = Rect.fromLTRB(0, 0, 1, 1);
+
+  /// The least of the picture a crop may leave, as a fraction of each side.
+  static const minCrop = 0.05;
+
+  /// Whether [crop] is a part of the picture that can be shown: inside it,
+  /// and not a sliver.
+  static bool isValidCrop(Rect crop) =>
+      crop.left >= 0 &&
+      crop.top >= 0 &&
+      crop.right <= 1 &&
+      crop.bottom <= 1 &&
+      crop.width >= minCrop - 1e-9 &&
+      crop.height >= minCrop - 1e-9;
+
+  /// The part of the picture that is shown, as fractions of the picture's
+  /// own (unturned) width and height. [dstRect] is the box of just that
+  /// part: cutting a picture shows the same ink in the same place and
+  /// leaves the rest out.
+  Rect get crop => _crop;
+  Rect _crop = wholePicture;
+  set crop(Rect crop) {
+    if (crop == _crop) return;
+    _crop = crop;
+    notifyListeners();
+  }
+
+  bool get isCropped => _crop != wholePicture;
+
+  /// What [crop] was before the cuts that the history has not been told
+  /// about yet.
+  Rect? _unreportedCropFrom;
+
+  bool get hasUnreportedCrop =>
+      _unreportedCropFrom != null && _unreportedCropFrom != _crop;
+
+  /// Cuts the picture down to [next] (fractions of the whole picture, in
+  /// its own unturned frame; see [crop]). The picture stays where it is:
+  /// the part that is left keeps its place and its scale on the page, and
+  /// the box shrinks (or grows, if a cut is being undone) to fit it.
+  void cropTo(Rect next) {
+    if (!isValidCrop(next) || next == _crop) return;
+    final old = _crop;
+    final turns = _quarterTurns;
+    // The box in the picture's own frame (not turned).
+    final width = turns.isOdd ? dstRect.height : dstRect.width;
+    final height = turns.isOdd ? dstRect.width : dstRect.height;
+    // The size the whole picture would have at this scale.
+    final wholeWidth = width / old.width;
+    final wholeHeight = height / old.height;
+    final x0 = (next.left - old.left) * wholeWidth;
+    final y0 = (next.top - old.top) * wholeHeight;
+    final x1 = (next.right - old.left) * wholeWidth;
+    final y1 = (next.bottom - old.top) * wholeHeight;
+    // The same points once the picture is turned.
+    Offset turned(double x, double y) => switch (turns) {
+      1 => Offset(height - y, x),
+      2 => Offset(width - x, height - y),
+      3 => Offset(y, width - x),
+      _ => Offset(x, y),
+    };
+    final part = Rect.fromPoints(turned(x0, y0), turned(x1, y1));
+
+    _unreportedCropFrom ??= old;
+    _crop = next;
+    // Also tells who listens.
+    dstRect = part.shift(dstRect.topLeft);
+  }
+
+  /// The cuts made with [cropTo] since this was last asked, for the
+  /// history item of the change that is being recorded.
+  Change<Rect>? takeUnreportedCrop() {
+    final from = _unreportedCropFrom;
+    _unreportedCropFrom = null;
+    if (from == null || from == _crop) return null;
+    return Change(previous: from, current: _crop);
+  }
 
   /// How many quarter turns clockwise the picture is shown turned (0 to
   /// 3). [dstRect] is the box of the picture as it is shown, turned.

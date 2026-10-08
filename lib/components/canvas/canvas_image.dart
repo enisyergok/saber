@@ -9,6 +9,7 @@ import 'package:saber/components/canvas/image/editor_image.dart';
 import 'package:saber/components/eink/eink_image_filter.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/defter_design.dart';
+import 'package:saber/components/toolbar/image_crop_dialog.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/change_notifier_extensions.dart';
 import 'package:saber/data/prefs.dart';
@@ -43,8 +44,12 @@ class CanvasImage extends StatefulHookWidget {
   /// and action buttons), as a tap on it does.
   static final requestActive = ValueNotifier<EditorImage?>(null);
 
+  /// How long a picture has to be pressed for its frame, handles and
+  /// buttons to come up (a tap on it does nothing).
+  static const holdToActivate = Duration(seconds: 3);
+
   /// The size on screen of one of the small buttons that an active picture
-  /// shows (delete, turn, more), in logical pixels.
+  /// shows (turn, cut, delete, more), in logical pixels.
   static const actionButtonSize = 40.0;
 
   /// The minimum size of the interactive area for the image.
@@ -163,6 +168,33 @@ class _CanvasImageState extends State<CanvasImage> {
     );
   }
 
+  /// Opens the frame for cutting the picture down, and tells the editor
+  /// what was cut, which records it so that it can be undone.
+  void _crop() {
+    final image = widget.image;
+    showDialog<void>(
+      context: context,
+      builder: (_) => ImageCropDialog(
+        image: image,
+        onApply: (crop) {
+          final before = image.dstRect;
+          setState(() => image.cropTo(crop));
+          final after = image.dstRect;
+          if (!image.hasUnreportedCrop) return;
+          image.onMoveImage?.call(
+            image,
+            .fromLTRB(
+              after.left - before.left,
+              after.top - before.top,
+              after.right - before.right,
+              after.bottom - before.bottom,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   void _delete() {
     widget.image.onDeleteImage?.call(widget.image);
   }
@@ -190,11 +222,27 @@ class _CanvasImageState extends State<CanvasImage> {
         children: [
           MouseRegion(
             cursor: active ? SystemMouseCursors.grab : MouseCursor.defer,
-            child: GestureDetector(
+            child: RawGestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                active = !active;
+              gestures: {
+                // A picture at rest is woken by pressing it for three
+                // seconds; once it is active that press is not needed.
+                if (!active && !widget.isBackground)
+                  LongPressGestureRecognizer:
+                      GestureRecognizerFactoryWithHandlers<
+                        LongPressGestureRecognizer
+                      >(
+                        () => LongPressGestureRecognizer(
+                          duration: CanvasImage.holdToActivate,
+                        ),
+                        (recognizer) =>
+                            recognizer.onLongPress = () => active = true,
+                      ),
               },
+              child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              // A tap puts an active picture to rest again.
+              onTap: active ? () => active = false : null,
               onLongPress: active ? showModal : null,
               onSecondaryTap: active ? showModal : null,
               onPanStart: active
@@ -274,11 +322,16 @@ class _CanvasImageState extends State<CanvasImage> {
                         child: Transform.translate(
                           offset: -widget.image.srcRect.topLeft,
                           child: EInkImageFilter(
-                            child: widget.image.buildImageWidget(
-                              context: context,
-                              overrideBoxFit: widget.overrideBoxFit,
-                              isBackground: widget.isBackground,
-                              invert: imageBrightness == .dark,
+                            child: _Cut(
+                              crop: widget.isBackground
+                                  ? EditorImage.wholePicture
+                                  : widget.image.crop,
+                              child: widget.image.buildImageWidget(
+                                context: context,
+                                overrideBoxFit: widget.overrideBoxFit,
+                                isBackground: widget.isBackground,
+                                invert: imageBrightness == .dark,
+                              ),
                             ),
                           ),
                         ),
@@ -286,6 +339,7 @@ class _CanvasImageState extends State<CanvasImage> {
                     ),
                   ),
                 ),
+              ),
               ),
             ),
           ),
@@ -307,6 +361,7 @@ class _CanvasImageState extends State<CanvasImage> {
               image: widget.image,
               unitsToPixels: _unitsToPixels,
               onRotate: _rotate,
+              onCrop: _crop,
               onDelete: _delete,
               onMore: showModal,
             ),
@@ -379,6 +434,7 @@ class _CanvasImageActions extends StatelessWidget {
     required this.image,
     required this.unitsToPixels,
     required this.onRotate,
+    required this.onCrop,
     required this.onDelete,
     required this.onMore,
   });
@@ -388,6 +444,7 @@ class _CanvasImageActions extends StatelessWidget {
   /// Pixels on screen for one unit of the page.
   final double unitsToPixels;
   final VoidCallback onRotate;
+  final VoidCallback onCrop;
   final VoidCallback onDelete;
   final VoidCallback onMore;
 
@@ -400,7 +457,7 @@ class _CanvasImageActions extends StatelessWidget {
         .clamp(16.0, 160.0)
         .toDouble();
     final gap = button * 0.3;
-    const count = 3;
+    const count = 4;
     final barWidth = button * count + gap * 0.5 * (count + 1);
     final barHeight = button + gap * 0.5;
 
@@ -445,6 +502,12 @@ class _CanvasImageActions extends StatelessWidget {
                 Symbols.rotate_90_degrees_cw_rounded,
                 DefterStrings.imageRotate,
                 onRotate,
+              ),
+              action(
+                const Key('imageCrop'),
+                Symbols.crop_rounded,
+                DefterStrings.imageCrop,
+                onCrop,
               ),
               action(
                 const Key('imageDelete'),
@@ -602,6 +665,43 @@ class _CanvasImageResizeHandle extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Shows only [crop] of its child (fractions of the child's own width and
+/// height), at the size the box it is in gives: the child is drawn larger
+/// than the box and moved so that the part shows, and the rest is clipped.
+class _Cut extends StatelessWidget {
+  const _Cut({required this.crop, required this.child});
+
+  final Rect crop;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (crop == EditorImage.wholePicture) return child;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!constraints.hasBoundedWidth || !constraints.hasBoundedHeight) {
+          return child;
+        }
+        final width = constraints.maxWidth / crop.width;
+        final height = constraints.maxHeight / crop.height;
+        return ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.topLeft,
+            minWidth: width,
+            maxWidth: width,
+            minHeight: height,
+            maxHeight: height,
+            child: FractionalTranslation(
+              translation: Offset(-crop.left, -crop.top),
+              child: child,
+            ),
+          ),
+        );
+      },
     );
   }
 }

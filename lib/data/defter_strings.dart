@@ -554,6 +554,10 @@ abstract class DefterStrings {
       _tr ? '$group Şablonları' : '$group Templates';
   static String get imageRotate => _tr ? 'Döndür' : 'Rotate';
   static String get imageMore => _tr ? 'Diğer' : 'More';
+  static String get imageCrop => _tr ? 'Resmi kes' : 'Crop picture';
+  static String get imageCropHint => _tr
+      ? 'Kesilen kısım silinmez; resim sonra yine tamamı görünecek şekilde açılabilir.'
+      : 'What is cut is not deleted: the picture can be opened up to whole again.';
   static String get camera => _tr ? 'Kamera' : 'Camera';
   static String get takePhoto => _tr ? 'Fotoğraf çek' : 'Take a photo';
   static String cameraFailed(String failure) => switch (failure) {

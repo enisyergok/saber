@@ -294,11 +294,31 @@ void main() {
     expect(editor.currentTool, same(pen));
     expect(actions, findsNothing);
 
-    // A tap on it.
+    // A quick tap on it does nothing.
     await tester.tapAt(onScreen(image.dstRect.center));
-    await tester.pump(const Duration(milliseconds: 30));
-    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(seconds: 4));
+    expect(editor.currentTool, same(pen));
+    expect(actions, findsNothing);
+
+    /// Presses the middle of the picture for [seconds] seconds.
+    Future<void> holdPicture(double seconds) async {
+      final finger = await tester.startGesture(
+        onScreen(image.dstRect.center),
+      );
+      await tester.pump(Duration(milliseconds: (seconds * 1000).round()));
+      await finger.up();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    // Two seconds is not enough.
+    await holdPicture(2);
+    expect(editor.currentTool, same(pen));
+    expect(actions, findsNothing);
+
+    // Three is.
+    await holdPicture(3.2);
     expect(editor.currentTool, isA<Select>());
     expect(actions, findsOneWidget);
     expect(page.strokes.length, strokesBefore, reason: 'a tap draws nothing');
@@ -323,10 +343,7 @@ void main() {
     expect(page.images.single, same(image));
 
     // -- deleting
-    await tester.tapAt(onScreen(image.dstRect.center));
-    await tester.pump(const Duration(milliseconds: 30));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await holdPicture(3.2);
     expect(actions, findsOneWidget);
     await tester.tap(delete);
     await tester.pump();
