@@ -48,14 +48,14 @@ void main() {
     test('keeps the part that is left where and as large as it was', () {
       final image = picture();
       // The right half.
-      image.cutoutTo(const Rect.fromLTRB(0.5, 0, 1, 1));
+      image.cutTo(const Rect.fromLTRB(0.5, 0, 1, 1));
       expect(image.isCut, isTrue);
       expectRect(image.dstRect, const Rect.fromLTWH(300, 300, 200, 200));
       // Then the lower half of that.
-      image.cutoutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      image.cutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
       expectRect(image.dstRect, const Rect.fromLTWH(300, 400, 200, 100));
       // Opening it up to whole again gives the first box back.
-      image.cutoutTo(EditorImage.wholePicture);
+      image.cutTo(EditorImage.wholePicture);
       expectRect(image.dstRect, const Rect.fromLTWH(100, 300, 400, 200));
     });
 
@@ -63,7 +63,7 @@ void main() {
       for (var turns = 1; turns < 4; turns++) {
         final image = picture()..rotateQuarter(turns);
         final whole = image.dstRect;
-        image.cutoutTo(const Rect.fromLTRB(0.25, 0, 1, 0.5));
+        image.cutTo(const Rect.fromLTRB(0.25, 0, 1, 0.5));
         final cut = image.dstRect;
         // The same share of the box, whatever the turn.
         final unturnedWidth = turns.isOdd ? cut.height : cut.width;
@@ -76,24 +76,24 @@ void main() {
           isTrue,
           reason: 'turns $turns',
         );
-        image.cutoutTo(EditorImage.wholePicture);
+        image.cutTo(EditorImage.wholePicture);
         expectRect(image.dstRect, whole);
       }
     });
 
     test('a sliver or something outside the picture is refused', () {
       final image = picture();
-      image.cutoutTo(const Rect.fromLTRB(0, 0, 0.01, 1));
-      image.cutoutTo(const Rect.fromLTRB(-0.1, 0, 1, 1));
-      image.cutoutTo(const Rect.fromLTRB(0, 0, 1.2, 1));
+      image.cutTo(const Rect.fromLTRB(0, 0, 0.01, 1));
+      image.cutTo(const Rect.fromLTRB(-0.1, 0, 1, 1));
+      image.cutTo(const Rect.fromLTRB(0, 0, 1.2, 1));
       expect(image.isCut, isFalse);
       expect(image.dstRect, const Rect.fromLTWH(100, 300, 400, 200));
     });
 
     test('is told to the history once, from before the first cut', () {
       final image = picture();
-      image.cutoutTo(const Rect.fromLTRB(0.5, 0, 1, 1));
-      image.cutoutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      image.cutTo(const Rect.fromLTRB(0.5, 0, 1, 1));
+      image.cutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
       expect(image.hasUnreportedCut, isTrue);
       final change = image.takeUnreportedCut()!;
       expect(change.previous, EditorImage.wholePicture);
@@ -102,8 +102,8 @@ void main() {
       expect(image.hasUnreportedCut, isFalse);
 
       // A cut that is put back is no change.
-      image.cutoutTo(EditorImage.wholePicture);
-      image.cutoutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      image.cutTo(EditorImage.wholePicture);
+      image.cutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
       expect(image.takeUnreportedCut(), isNull);
     });
 
