@@ -104,7 +104,7 @@ void main() {
       // A cut that is put back is no change.
       image.cropTo(EditorImage.wholePicture);
       image.cropTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
-      expect(image.takeUnreportedCrop()!.previous, const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      expect(image.takeUnreportedCrop(), isNull);
     });
 
     test('is saved, read back and copied', () {
