@@ -665,6 +665,8 @@ class EditorState extends State<Editor> {
           for (final image in item.images) {
             final turns = item.imageTurns;
             if (turns != null) image.quarterTurns -= turns;
+            final cut = item.imageCut;
+            if (cut != null) image.cutout = cut.previous;
             image.dstRect = .fromLTRB(
               image.dstRect.left - item.offset!.left,
               image.dstRect.top - item.offset!.top,
@@ -785,6 +787,7 @@ class EditorState extends State<Editor> {
               -item.offset!.bottom,
             ),
             imageTurns: item.imageTurns == null ? null : -item.imageTurns!,
+            imageCut: item.imageCut?.reverse(),
           ),
         );
       case .transform:
@@ -881,8 +884,11 @@ class EditorState extends State<Editor> {
   /// again at once without having moved the page, it was a tap.
   ({Offset at, Stopwatch since, Matrix4 view})? _fingerDown;
 
-  /// How long a finger may stay down for a tap.
-  static const _tapTime = Duration(milliseconds: 350);
+  /// How long a finger has to stay down on a picture, without moving the
+  /// page, for the picture to be woken (a quick tap does nothing to it).
+  static const _holdTime = CanvasImage.holdToActivate;
+
+  Timer? _holdTimer;
 
   /// The picture at [globalPosition], the topmost if several overlap.
   EditorImage? imageAt(Offset globalPosition) {
@@ -920,7 +926,8 @@ class EditorState extends State<Editor> {
         .notifyListenersPlease(); // un-select active image
 
     _fingerDown = null;
-    // The picture that was tapped is let go: back to the tool from before.
+    _holdTimer?.cancel();
+    // The picture that was held is let go: back to the tool from before.
     final toolBefore = _toolBeforeImageTap;
     if (toolBefore != null) {
       _toolBeforeImageTap = null;
@@ -963,11 +970,14 @@ class EditorState extends State<Editor> {
       log.fine('Non-stylus found, rejected stroke');
       // A finger that does not draw may be tapping a picture.
       if (details.pointerCount == 1 && currentTool is! Select) {
-        _fingerDown = (
+        final down = (
           at: details.focalPoint,
           since: Stopwatch()..start(),
           view: _transformationController.value.clone(),
         );
+        _fingerDown = down;
+        _holdTimer?.cancel();
+        _holdTimer = Timer(_holdTime, () => _onFingerHeld(down));
       }
       return false;
     }
@@ -1333,16 +1343,20 @@ class EditorState extends State<Editor> {
     if (shouldSave) autosaveAfterDelay();
   }
 
-  void onInteractionEnd(ScaleEndDetails details) {
-    final finger = _fingerDown;
+  /// The finger that went down at [down] is still there after the hold
+  /// time: if it has not moved the page, it is holding a picture.
+  void _onFingerHeld(({Offset at, Stopwatch since, Matrix4 view}) down) {
+    if (!identical(_fingerDown, down)) return;
     _fingerDown = null;
-    if (finger != null && finger.since.elapsed <= _tapTime) {
-      final now = _transformationController.value;
-      final moved =
-          (now.getTranslation() - finger.view.getTranslation()).length;
-      final zoomed = (now.entry(0, 0) - finger.view.entry(0, 0)).abs();
-      if (moved < 6 && zoomed < 0.001) _onFingerTap(finger.at);
-    }
+    final now = _transformationController.value;
+    final moved = (now.getTranslation() - down.view.getTranslation()).length;
+    final zoomed = (now.entry(0, 0) - down.view.entry(0, 0)).abs();
+    if (moved < 6 && zoomed < 0.001) _onFingerTap(down.at);
+  }
+
+  void onInteractionEnd(ScaleEndDetails details) {
+    _fingerDown = null;
+    _holdTimer?.cancel();
 
     // reset after 1ms to keep track of the same gesture only
     _lastSeenPointerCountTimer?.cancel();
@@ -1386,6 +1400,7 @@ class EditorState extends State<Editor> {
   void onMoveImage(EditorImage image, Rect offset) {
     // A picture that was turned was given a new box as well.
     final turns = image.takeUnreportedTurns();
+    final cut = image.takeUnreportedCut();
     history.recordChange(
       EditorHistoryItem(
         type: .move,
@@ -1394,6 +1409,7 @@ class EditorState extends State<Editor> {
         images: [image],
         offset: offset,
         imageTurns: turns == 0 ? null : turns,
+        imageCut: cut,
       ),
     );
     // setState to update undo button
@@ -3770,6 +3786,7 @@ class EditorState extends State<Editor> {
 
   @override
   void dispose() {
+    _holdTimer?.cancel();
     unawaited(_cleanUpAsync());
 
     DynamicMaterialApp.removeFullscreenListener(_setState);

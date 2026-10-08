@@ -179,6 +179,7 @@ class EditorHistoryItem {
     this.replacements,
     this.pdfRemoval,
     this.imageTurns,
+    this.imageCut,
   }) : assert(
          (type != .removePdf && type != .removePdfRedone) ||
              pdfRemoval != null,
@@ -255,6 +256,10 @@ class EditorHistoryItem {
   /// clockwise they were turned by as well (undoing turns them back).
   final int? imageTurns;
 
+  /// For [EditorHistoryItemType.move] of a picture: the part of it that
+  /// was shown before and after it was cut (undoing shows the one before).
+  final Change<Rect>? imageCut;
+
   EditorHistoryItem copyWith({
     EditorHistoryItemType? type,
     int? pageIndex,
@@ -270,6 +275,7 @@ class EditorHistoryItem {
     List<StrokeReplacement>? replacements,
     PdfRemoval? pdfRemoval,
     int? imageTurns,
+    Change<Rect>? imageCut,
   }) {
     return EditorHistoryItem(
       type: type ?? this.type,
@@ -287,6 +293,7 @@ class EditorHistoryItem {
       replacements: replacements ?? this.replacements,
       pdfRemoval: pdfRemoval ?? this.pdfRemoval,
       imageTurns: imageTurns ?? this.imageTurns,
+      imageCut: imageCut ?? this.imageCut,
     );
   }
 }
