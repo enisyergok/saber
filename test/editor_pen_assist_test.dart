@@ -23,10 +23,8 @@ void main() {
     FlavorConfig.setup();
     stows.editorGnLayout.value = false;
     stows.shapeHoldToSnap.value = false;
-    stows.penPrediction.value = false;
     addTearDown(() {
       stows.shapeHoldToSnap.value = true;
-      stows.penPrediction.value = true;
       stows.rulerMode.value = false;
       stows.angleGuide.value = false;
       stows.dimensionMode.value = false;

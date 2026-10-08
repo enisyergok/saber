@@ -46,11 +46,9 @@ void main() {
       stows.editorGnLayout.value = false;
       stows.autosaveDelay.value = -1;
       stows.shapeHoldToSnap.value = false;
-      stows.penPrediction.value = false;
       addTearDown(() {
         stows.autosaveDelay.value = stows.autosaveDelay.defaultValue;
         stows.shapeHoldToSnap.value = true;
-        stows.penPrediction.value = true;
       });
       await tester.runAsync(
         () => FileManager.init(

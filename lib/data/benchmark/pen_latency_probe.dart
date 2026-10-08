@@ -49,7 +49,7 @@ class PenLatencyProbe {
     _recorder = null;
     if (recorder == null) return null;
     return recorder.finish(
-      prediction: stows.penPrediction.value,
+      prediction: false,
       displayHz: _displayHz(),
       displayModes: await _displayModes(),
     );

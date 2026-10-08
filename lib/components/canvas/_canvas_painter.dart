@@ -15,9 +15,7 @@ import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/shape_analysis.dart';
 import 'package:saber/data/tools/shape_snap.dart';
-import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
-import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/select.dart';
 import 'package:saber/data/tools/selection_transform.dart';
 import 'package:saber/data/tools/shape_pen.dart';
@@ -241,20 +239,23 @@ class CanvasPainter extends CustomPainter {
     // Current stroke always uses high quality
     canvas.drawPath(currentStroke!.highQualityPath, paint);
 
-    // The ink drawn from the stroke's outline ends a little behind the
-    // pen (the line is smoothed as it is drawn), and the pen is a little
-    // further along than the last point by the time the screen shows it.
-    // The last few points and a short guess of where the pen is heading
-    // are drawn on top, as one line as wide as the ink there: neither is
-    // part of the stroke, only drawn.
+    // The ink drawn from the stroke's outline ends a little behind the pen
+    // (the line is smoothed as it is drawn, and the first stretch of a stroke
+    // is not outlined at all). The last few points the pen really went
+    // through are drawn on top, as one line as wide as the ink there, so the
+    // ink reaches the pen's latest point. Nothing is guessed: it is only
+    // points the pen has been at.
     final points = currentStroke!.points;
-    final predicted =
+    final bridged =
         currentStroke!.toolId == .fountainPen ||
         currentStroke!.toolId == .ballpointPen;
-    if (predicted && points.isNotEmpty && stows.penPrediction.value) {
-      final tip = PenPrediction.tip;
+    if (bridged && points.length > 1) {
       final options = currentStroke!.options;
       final pressure = points.last.pressure ?? 0.5;
+      // A stroke starts thin (pointed) and swells to its width over its
+      // first few points: the line over them does the same, so the start of
+      // the stroke does not change when the outline takes over.
+      final swell = min(1.0, points.length / 8);
       final width =
           2 *
           options.size *
@@ -263,34 +264,24 @@ class CanvasPainter extends CustomPainter {
                 .clamp(0.0, 1.0)
                 .toDouble(),
           ) *
-          0.95;
+          0.95 *
+          swell;
       // Where ink is see-through, drawing over the same place twice would
-      // show: only the part beyond the last point is drawn then.
+      // show: only the last segment is drawn then.
       final opaque = color.a >= 0.999;
-      final first = opaque ? max(0, points.length - 4) : points.length - 1;
-      final ahead = Path()..moveTo(points[first].dx, points[first].dy);
+      final first = opaque ? max(0, points.length - 4) : points.length - 2;
+      final tail = Path()..moveTo(points[first].dx, points[first].dy);
       for (var i = first + 1; i < points.length; i++) {
-        ahead.lineTo(points[i].dx, points[i].dy);
+        tail.lineTo(points[i].dx, points[i].dy);
       }
-      if (tip != null) {
-        // Along the curve the pen is following, not straight out of it.
-        final bend = PenPrediction.bend;
-        if (bend == null) {
-          ahead.lineTo(tip.dx, tip.dy);
-        } else {
-          ahead.quadraticBezierTo(bend.dx, bend.dy, tip.dx, tip.dy);
-        }
-      }
-      if (tip != null || points.length > 1) {
-        canvas.drawPath(
-          ahead,
-          paint
-            ..style = PaintingStyle.stroke
-            ..strokeCap = StrokeCap.round
-            ..strokeJoin = StrokeJoin.round
-            ..strokeWidth = width,
-        );
-      }
+      canvas.drawPath(
+        tail,
+        paint
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..strokeWidth = width,
+      );
     }
   }
 

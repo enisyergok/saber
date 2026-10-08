@@ -22,12 +22,10 @@ void main() {
     PressureCalibration.reset();
     // No timers in these tests: nothing is held still.
     stows.shapeHoldToSnap.value = false;
-    stows.penPrediction.value = false;
     stows.pressureCurve.value = '';
   });
   tearDown(() {
     stows.shapeHoldToSnap.value = true;
-    stows.penPrediction.value = true;
     stows.rulerMode.value = false;
     stows.angleGuide.value = false;
     stows.measureMode.value = false;
