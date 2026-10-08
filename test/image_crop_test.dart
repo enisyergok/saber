@@ -129,7 +129,7 @@ void main() {
       final json = picture().toJson(OrderedAssetCache())
         ..['cl'] = 0.9
         ..['ct'] = 0.0
-        ..['cr'] = 0.95
+        ..['cr'] = 0.92
         ..['cb'] = 1.0;
       final read = EditorImage.fromJson(
         json,
