@@ -608,12 +608,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     ToggleButtonsOption(-1, Text(t.settings.autosaveDisabled)),
                   ],
                 ),
-                SettingsSwitch(
-                  title: DefterStrings.penPrediction,
-                  subtitle: DefterStrings.penPredictionSubtitle,
-                  icon: Symbols.timeline_rounded,
-                  pref: stows.penPrediction,
-                ),
                 SettingsSelection(
                   title: DefterStrings.stylusAction,
                   subtitle: DefterStrings.stylusActionSubtitle,

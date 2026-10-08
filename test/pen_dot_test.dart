@@ -39,7 +39,6 @@ void main() {
     stows.pressureAuto.value = false;
     stows.pressureCurve.value = stows.pressureCurve.defaultValue;
     stows.shapeHoldToSnap.value = false;
-    stows.penPrediction.value = false;
     stows.rulerMode.value = false;
     stows.angleGuide.value = false;
     stows.measureMode.value = false;
@@ -50,7 +49,6 @@ void main() {
     for (final stow in [
       stows.pressureAuto,
       stows.shapeHoldToSnap,
-      stows.penPrediction,
     ]) {
       stow.value = stow.defaultValue;
     }

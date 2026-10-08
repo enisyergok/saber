@@ -61,6 +61,7 @@ import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pen_assist.dart';
+import 'package:saber/data/tools/pen_boost.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
@@ -978,6 +979,7 @@ class EditorState extends State<Editor> {
     history.canRedo = false;
 
     if (currentTool is Pen) {
+      unawaited(PenBoost.start());
       ShapeSnap.redraw = page.redrawLiveInk;
       PenAssist.readoutAt.value = details.focalPoint;
       (currentTool as Pen).onDragStart(
@@ -1151,6 +1153,7 @@ class EditorState extends State<Editor> {
     final page = coreInfo.pages[dragPageIndex!];
     bool shouldSave = true;
     EraserCursor.at.value = null;
+    unawaited(PenBoost.stop());
     setState(() {
       if (currentTool is Pen) {
         final pen = currentTool as Pen;

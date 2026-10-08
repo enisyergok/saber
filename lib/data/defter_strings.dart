@@ -897,8 +897,6 @@ abstract class DefterStrings {
 
   static String get opacity => _tr ? 'Saydamlık' : 'Opacity';
 
-  // Pen prediction
-  static String get penPrediction => _tr ? 'Kalem tahmini' : 'Pen prediction';
   static String get pageSidebar =>
       _tr ? 'Sayfa paneli' : 'Page sidebar';
 
@@ -923,10 +921,6 @@ abstract class DefterStrings {
   static String get snapEndpointsSubtitle => _tr
       ? 'Çizgi uçları ve köşeler yakındaki şekillerin uçlarına oturur'
       : 'Line ends and corners snap to nearby shapes';
-
-  static String get penPredictionSubtitle => _tr
-      ? 'Hızlı yazarken çizginin kalemin ucundan geri kalmasını azaltır'
-      : 'Reduces the line trailing behind the pen tip when writing fast';
 
   // E-ink mode
   static String get eInkSection => _tr ? 'E-mürekkep modu' : 'E-ink mode';

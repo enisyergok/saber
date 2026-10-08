@@ -12,6 +12,8 @@ import androidx.core.content.FileProvider
 import java.io.File
 import android.os.Handler
 import android.os.Looper
+import android.os.PerformanceHintManager
+import android.os.Process
 import android.provider.Settings
 import android.view.InputDevice
 import android.view.KeyEvent
@@ -131,6 +133,60 @@ class MainActivity: FlutterActivity() {
         }
     }
 
+    /// While a pen stroke is being drawn, tells the system the app's
+    /// drawing threads have only a few milliseconds per frame, so it keeps
+    /// the processor and graphics chip at a speed that makes it (instead of
+    /// letting them idle down between short bursts, which makes some frames
+    /// late). Only a hint: the system may ignore it, and without it
+    /// everything works as before.
+    private var hintSession: PerformanceHintManager.Session? = null
+
+    private fun drawingThreads(): IntArray {
+        val ids = mutableListOf(Process.myPid())
+        try {
+            File("/proc/self/task").listFiles()?.forEach { dir ->
+                val name = try {
+                    File(dir, "comm").readText().trim()
+                } catch (_: Exception) {
+                    ""
+                }
+                if (name.endsWith(".ui") || name.endsWith(".raster")) {
+                    dir.name.toIntOrNull()?.let { ids.add(it) }
+                }
+            }
+        } catch (_: Exception) {
+        }
+        return ids.distinct().toIntArray()
+    }
+
+    private fun startPenBoost(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        return try {
+            hintSession?.close()
+            val manager = getSystemService(PerformanceHintManager::class.java)
+            hintSession = manager?.createHintSession(drawingThreads(), 6_000_000L)
+            hintSession != null
+        } catch (_: Throwable) {
+            hintSession = null
+            false
+        }
+    }
+
+    private fun reportPenFrame(micros: Long) {
+        try {
+            hintSession?.reportActualWorkDuration(micros * 1000L)
+        } catch (_: Throwable) {
+        }
+    }
+
+    private fun stopPenBoost() {
+        try {
+            hintSession?.close()
+        } catch (_: Throwable) {
+        }
+        hintSession = null
+    }
+
     /// Names and kinds of the input devices, to see whether the pen shows
     /// up as a device of its own.
     private fun describeInputDevices(): String {
@@ -183,6 +239,21 @@ class MainActivity: FlutterActivity() {
                         desiredBrightness =
                             (call.argument<Double>("value") ?: -1.0).toFloat()
                         setWindowBrightness(desiredBrightness)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/boost")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "start" -> result.success(startPenBoost())
+                    "report" -> {
+                        reportPenFrame((call.argument<Number>("micros") ?: 0).toLong())
+                        result.success(null)
+                    }
+                    "stop" -> {
+                        stopPenBoost()
                         result.success(null)
                     }
                     else -> result.notImplemented()

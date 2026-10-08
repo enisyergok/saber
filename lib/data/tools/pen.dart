@@ -11,7 +11,6 @@ import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pen_feel.dart';
-import 'package:saber/data/tools/pen_prediction.dart';
 import 'package:saber/data/tools/pressure_calibration.dart';
 import 'package:saber/data/tools/pressure_curve.dart';
 import 'package:saber/data/tools/pencil.dart';
@@ -196,8 +195,6 @@ class Pen extends Tool {
       page: page,
       toolId: toolId,
     );
-    PenPrediction.reset();
-    PenPrediction.tuneToRefreshRate(_displayRefreshRate());
     if (_ruler) {
       ShapeSnap.reset();
       onDragUpdate(position, pressure, at: at);
@@ -246,7 +243,7 @@ class Pen extends Tool {
   Offset _measuredAt = Offset.zero;
 
   /// The pen is at [position]. [at] is when it was there (the time stamp of
-  /// its event; see [PenPrediction.add]), if known.
+  /// its event), if known.
   void onDragUpdate(Offset position, double? pressure, {Duration? at}) {
     final stroke = currentStroke;
     if (_ruler && stroke != null) {
@@ -307,31 +304,7 @@ class Pen extends Tool {
     if (holdsToSnap && stows.shapeHoldToSnap.value) {
       ShapeSnap.onMove(position);
     }
-    if (stows.penPrediction.value && predictsAhead) {
-      PenPrediction.add(position, at ?? _clock.elapsed);
-    }
   }
-
-  /// Measures time between pen movements for [PenPrediction], for the pens
-  /// that are not told when an event happened.
-  static final _clock = Stopwatch()..start();
-
-  /// How often the screen the app is on refreshes, or 0 if that is not known
-  /// (there is no screen in a test).
-  static double _displayRefreshRate() {
-    try {
-      final views = WidgetsBinding.instance.platformDispatcher.views;
-      return views.isEmpty ? 0 : views.first.display.refreshRate;
-    } on Object {
-      return 0;
-    }
-  }
-
-  /// Whether the line is drawn a little ahead of the pen. Not for the
-  /// highlighter and pencil, which are drawn differently, nor the shape pen,
-  /// which turns the line into a shape.
-  bool get predictsAhead =>
-      toolId == .fountainPen || toolId == .ballpointPen;
 
   /// Whether holding the pen still after drawing a shape straightens it
   /// (see [ShapeSnap]). Not for the pencil, which is textured, nor the shape
@@ -344,7 +317,6 @@ class Pen extends Tool {
   Stroke? onDragEnd() {
     final stroke = currentStroke;
     currentStroke = null;
-    PenPrediction.reset();
     if (stroke == null) {
       ShapeSnap.reset();
       return null;

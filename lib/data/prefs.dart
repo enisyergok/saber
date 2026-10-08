@@ -197,17 +197,6 @@ class Stows {
     10000,
     volatile: !_isOnMainIsolate,
   );
-  /// Whether the line is drawn a little ahead of the pen tip while writing.
-  ///
-  /// (Its key changed when the prediction was rewritten: the first version
-  /// hardly ever worked, so many people had it turned off, and the new one
-  /// starts on for everyone. It can be turned off again in Settings.)
-  final penPrediction = PlainStow(
-    'penPredictionV2',
-    true,
-    volatile: !_isOnMainIsolate,
-  );
-
   /// Whether straight lines drawn with the shape pen get an arrowhead.
   final shapePenArrows = PlainStow(
     'shapePenArrows',
