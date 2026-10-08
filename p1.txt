@@ -1,0 +1,79 @@
+File modified during build. Build must be rerun.
+00:00 +0: loading /home/runner/work/saber/saber/test/image_crop_test.dart
+lib/components/canvas/image/pdf_editor_image.dart:27:11: Error: The return type of the method 'PdfEditorImage.crop' is 'PdfCrop', which does not match the return type, 'Rect', of the overridden method, 'EditorImage.crop'.
+ - 'PdfCrop' is from 'package:saber/data/pdf/pdf_crop.dart' ('lib/data/pdf/pdf_crop.dart').
+ - 'Rect' is from 'dart:ui'.
+Change to a subtype of 'Rect'.
+  PdfCrop crop;
+          ^
+lib/components/canvas/image/editor_image.dart:216:12: Context: This is the overridden method ('crop').
+  Rect get crop => _crop;
+           ^
+lib/components/canvas/image/pdf_editor_image.dart:27:11: Error: The field 'PdfEditorImage.crop' has type 'PdfCrop', which does not match the corresponding type, 'Rect', in the overridden setter, 'EditorImage.crop'.
+ - 'PdfCrop' is from 'package:saber/data/pdf/pdf_crop.dart' ('lib/data/pdf/pdf_crop.dart').
+ - 'Rect' is from 'dart:ui'.
+  PdfCrop crop;
+          ^
+lib/components/canvas/image/editor_image.dart:218:7: Context: This is the overridden method ('crop').
+  set crop(Rect crop) {
+      ^
+lib/components/canvas/canvas_image.dart:233:25: Error: 'LongPressGestureRecognizer' isn't a type.
+                        LongPressGestureRecognizer
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/components/canvas/canvas_image.dart:231:19: Error: The getter 'LongPressGestureRecognizer' isn't defined for the type '_CanvasImageState'.
+ - '_CanvasImageState' is from 'package:saber/components/canvas/canvas_image.dart' ('lib/components/canvas/canvas_image.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'LongPressGestureRecognizer'.
+                  LongPressGestureRecognizer:
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/components/canvas/canvas_image.dart:235:31: Error: The method 'LongPressGestureRecognizer' isn't defined for the type '_CanvasImageState'.
+ - '_CanvasImageState' is from 'package:saber/components/canvas/canvas_image.dart' ('lib/components/canvas/canvas_image.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'LongPressGestureRecognizer'.
+                        () => LongPressGestureRecognizer(
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/components/canvas/canvas_image.dart:239:40: Error: The setter 'onLongPress' isn't defined for the type 'Object?'.
+ - 'Object' is from 'dart:core'.
+Try correcting the name to the name of an existing setter, or defining a setter or field named 'onLongPress'.
+                            recognizer.onLongPress = () => active = true,
+                                       ^^^^^^^^^^^
+00:00 +0 -1: loading /home/runner/work/saber/saber/test/image_crop_test.dart [E]
+  Failed to load "/home/runner/work/saber/saber/test/image_crop_test.dart":
+  Compilation failed for testPath=/home/runner/work/saber/saber/test/image_crop_test.dart: lib/components/canvas/image/pdf_editor_image.dart:27:11: Error: The return type of the method 'PdfEditorImage.crop' is 'PdfCrop', which does not match the return type, 'Rect', of the overridden method, 'EditorImage.crop'.
+   - 'PdfCrop' is from 'package:saber/data/pdf/pdf_crop.dart' ('lib/data/pdf/pdf_crop.dart').
+   - 'Rect' is from 'dart:ui'.
+  Change to a subtype of 'Rect'.
+    PdfCrop crop;
+            ^
+  lib/components/canvas/image/editor_image.dart:216:12: Context: This is the overridden method ('crop').
+    Rect get crop => _crop;
+             ^
+  lib/components/canvas/image/pdf_editor_image.dart:27:11: Error: The field 'PdfEditorImage.crop' has type 'PdfCrop', which does not match the corresponding type, 'Rect', in the overridden setter, 'EditorImage.crop'.
+   - 'PdfCrop' is from 'package:saber/data/pdf/pdf_crop.dart' ('lib/data/pdf/pdf_crop.dart').
+   - 'Rect' is from 'dart:ui'.
+    PdfCrop crop;
+            ^
+  lib/components/canvas/image/editor_image.dart:218:7: Context: This is the overridden method ('crop').
+    set crop(Rect crop) {
+        ^
+  lib/components/canvas/canvas_image.dart:233:25: Error: 'LongPressGestureRecognizer' isn't a type.
+                          LongPressGestureRecognizer
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  lib/components/canvas/canvas_image.dart:231:19: Error: The getter 'LongPressGestureRecognizer' isn't defined for the type '_CanvasImageState'.
+   - '_CanvasImageState' is from 'package:saber/components/canvas/canvas_image.dart' ('lib/components/canvas/canvas_image.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'LongPressGestureRecognizer'.
+                    LongPressGestureRecognizer:
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  lib/components/canvas/canvas_image.dart:235:31: Error: The method 'LongPressGestureRecognizer' isn't defined for the type '_CanvasImageState'.
+   - '_CanvasImageState' is from 'package:saber/components/canvas/canvas_image.dart' ('lib/components/canvas/canvas_image.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'LongPressGestureRecognizer'.
+                          () => LongPressGestureRecognizer(
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  lib/components/canvas/canvas_image.dart:239:40: Error: The setter 'onLongPress' isn't defined for the type 'Object?'.
+   - 'Object' is from 'dart:core'.
+  Try correcting the name to the name of an existing setter, or defining a setter or field named 'onLongPress'.
+                              recognizer.onLongPress = () => active = true,
+                                         ^^^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /home/runner/work/saber/saber/test/image_crop_test.dart: loading /home/runner/work/saber/saber/test/image_crop_test.dart
