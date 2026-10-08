@@ -238,51 +238,6 @@ class CanvasPainter extends CustomPainter {
 
     // Current stroke always uses high quality
     canvas.drawPath(currentStroke!.highQualityPath, paint);
-
-    // The ink drawn from the stroke's outline ends a little behind the pen
-    // (the line is smoothed as it is drawn, and the first stretch of a stroke
-    // is not outlined at all). The last few points the pen really went
-    // through are drawn on top, as one line as wide as the ink there, so the
-    // ink reaches the pen's latest point. Nothing is guessed: it is only
-    // points the pen has been at.
-    final points = currentStroke!.points;
-    final bridged =
-        currentStroke!.toolId == .fountainPen ||
-        currentStroke!.toolId == .ballpointPen;
-    if (bridged && points.length > 1) {
-      final options = currentStroke!.options;
-      final pressure = points.last.pressure ?? 0.5;
-      // A stroke starts thin (pointed) and swells to its width over its
-      // first few points: the line over them does the same, so the start of
-      // the stroke does not change when the outline takes over.
-      final swell = min(1.0, points.length / 8);
-      final width =
-          2 *
-          options.size *
-          options.easing(
-            (0.5 - options.thinning * (0.5 - pressure))
-                .clamp(0.0, 1.0)
-                .toDouble(),
-          ) *
-          0.95 *
-          swell;
-      // Where ink is see-through, drawing over the same place twice would
-      // show: only the last segment is drawn then.
-      final opaque = color.a >= 0.999;
-      final first = opaque ? max(0, points.length - 4) : points.length - 2;
-      final tail = Path()..moveTo(points[first].dx, points[first].dy);
-      for (var i = first + 1; i < points.length; i++) {
-        tail.lineTo(points[i].dx, points[i].dy);
-      }
-      canvas.drawPath(
-        tail,
-        paint
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..strokeWidth = width,
-      );
-    }
   }
 
   void _drawLaserStroke(Canvas canvas, LaserStroke stroke) {
