@@ -42,7 +42,7 @@ class ImageCropDialog extends StatefulWidget {
   final EditorImage image;
 
   /// Called with the part to keep (unturned fractions, see
-  /// [EditorImage.crop]).
+  /// [EditorImage.cutout]).
   final void Function(Rect crop) onApply;
 
   @override
@@ -53,7 +53,7 @@ enum _Grip { move, left, top, right, bottom, topLeft, topRight, bottomLeft, bott
 
 class _ImageCropDialogState extends State<ImageCropDialog> {
   late Rect _shown = CropGeometry.toShown(
-    widget.image.crop,
+    widget.image.cutout,
     widget.image.quarterTurns,
   );
   _Grip? _grip;
@@ -97,7 +97,7 @@ class _ImageCropDialogState extends State<ImageCropDialog> {
     if (grip == null) return;
     final dx = delta.dx / box.width;
     final dy = delta.dy / box.height;
-    const least = EditorImage.minCrop;
+    const least = EditorImage.minCut;
     var l = _shown.left, t = _shown.top, r = _shown.right, b = _shown.bottom;
     switch (grip) {
       case _Grip.move:

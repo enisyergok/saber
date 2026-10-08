@@ -40,22 +40,22 @@ void main() {
   group('A picture that is cut:', () {
     test('starts whole', () {
       final image = picture();
-      expect(image.isCropped, isFalse);
-      expect(image.crop, EditorImage.wholePicture);
-      expect(image.toJson(OrderedAssetCache()).containsKey('cl'), isFalse);
+      expect(image.isCut, isFalse);
+      expect(image.cutout, EditorImage.wholePicture);
+      expect(image.toJson(OrderedAssetCache()).containsKey('kl'), isFalse);
     });
 
     test('keeps the part that is left where and as large as it was', () {
       final image = picture();
       // The right half.
-      image.cropTo(const Rect.fromLTRB(0.5, 0, 1, 1));
-      expect(image.isCropped, isTrue);
+      image.cutoutTo(const Rect.fromLTRB(0.5, 0, 1, 1));
+      expect(image.isCut, isTrue);
       expectRect(image.dstRect, const Rect.fromLTWH(300, 300, 200, 200));
       // Then the lower half of that.
-      image.cropTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      image.cutoutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
       expectRect(image.dstRect, const Rect.fromLTWH(300, 400, 200, 100));
       // Opening it up to whole again gives the first box back.
-      image.cropTo(EditorImage.wholePicture);
+      image.cutoutTo(EditorImage.wholePicture);
       expectRect(image.dstRect, const Rect.fromLTWH(100, 300, 400, 200));
     });
 
@@ -63,7 +63,7 @@ void main() {
       for (var turns = 1; turns < 4; turns++) {
         final image = picture()..rotateQuarter(turns);
         final whole = image.dstRect;
-        image.cropTo(const Rect.fromLTRB(0.25, 0, 1, 0.5));
+        image.cutoutTo(const Rect.fromLTRB(0.25, 0, 1, 0.5));
         final cut = image.dstRect;
         // The same share of the box, whatever the turn.
         final unturnedWidth = turns.isOdd ? cut.height : cut.width;
@@ -76,68 +76,68 @@ void main() {
           isTrue,
           reason: 'turns $turns',
         );
-        image.cropTo(EditorImage.wholePicture);
+        image.cutoutTo(EditorImage.wholePicture);
         expectRect(image.dstRect, whole);
       }
     });
 
     test('a sliver or something outside the picture is refused', () {
       final image = picture();
-      image.cropTo(const Rect.fromLTRB(0, 0, 0.01, 1));
-      image.cropTo(const Rect.fromLTRB(-0.1, 0, 1, 1));
-      image.cropTo(const Rect.fromLTRB(0, 0, 1.2, 1));
-      expect(image.isCropped, isFalse);
+      image.cutoutTo(const Rect.fromLTRB(0, 0, 0.01, 1));
+      image.cutoutTo(const Rect.fromLTRB(-0.1, 0, 1, 1));
+      image.cutoutTo(const Rect.fromLTRB(0, 0, 1.2, 1));
+      expect(image.isCut, isFalse);
       expect(image.dstRect, const Rect.fromLTWH(100, 300, 400, 200));
     });
 
     test('is told to the history once, from before the first cut', () {
       final image = picture();
-      image.cropTo(const Rect.fromLTRB(0.5, 0, 1, 1));
-      image.cropTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
-      expect(image.hasUnreportedCrop, isTrue);
-      final change = image.takeUnreportedCrop()!;
+      image.cutoutTo(const Rect.fromLTRB(0.5, 0, 1, 1));
+      image.cutoutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      expect(image.hasUnreportedCut, isTrue);
+      final change = image.takeUnreportedCut()!;
       expect(change.previous, EditorImage.wholePicture);
       expect(change.current, const Rect.fromLTRB(0.5, 0.5, 1, 1));
-      expect(image.takeUnreportedCrop(), isNull);
-      expect(image.hasUnreportedCrop, isFalse);
+      expect(image.takeUnreportedCut(), isNull);
+      expect(image.hasUnreportedCut, isFalse);
 
       // A cut that is put back is no change.
-      image.cropTo(EditorImage.wholePicture);
-      image.cropTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
-      expect(image.takeUnreportedCrop(), isNull);
+      image.cutoutTo(EditorImage.wholePicture);
+      image.cutoutTo(const Rect.fromLTRB(0.5, 0.5, 1, 1));
+      expect(image.takeUnreportedCut(), isNull);
     });
 
     test('is saved, read back and copied', () {
-      final image = picture()..cropTo(const Rect.fromLTRB(0.1, 0.2, 0.9, 0.7));
+      final image = picture()..cutTo(const Rect.fromLTRB(0.1, 0.2, 0.9, 0.7));
       final json = image.toJson(OrderedAssetCache());
-      expect(json['cl'], 0.1);
-      expect(json['ct'], 0.2);
-      expect(json['cr'], 0.9);
-      expect(json['cb'], 0.7);
+      expect(json['kl'], 0.1);
+      expect(json['kt'], 0.2);
+      expect(json['kr'], 0.9);
+      expect(json['kb'], 0.7);
       final again = EditorImage.fromJson(
         json,
         inlineAssets: [pngBytes],
         sbnPath: '/x',
         assetCache: cache,
       );
-      expectRect(again.crop, const Rect.fromLTRB(0.1, 0.2, 0.9, 0.7));
+      expectRect(again.cutout, const Rect.fromLTRB(0.1, 0.2, 0.9, 0.7));
       expect(again.dstRect, image.dstRect);
-      expectRect(image.copy().crop, image.crop);
+      expectRect(image.copy().cutout, image.cutout);
     });
 
     test('a saved cut that makes no sense is ignored', () {
       final json = picture().toJson(OrderedAssetCache())
-        ..['cl'] = 0.9
-        ..['ct'] = 0.0
-        ..['cr'] = 0.92
-        ..['cb'] = 1.0;
+        ..['kl'] = 0.9
+        ..['kt'] = 0.0
+        ..['kr'] = 0.92
+        ..['kb'] = 1.0;
       final read = EditorImage.fromJson(
         json,
         inlineAssets: [pngBytes],
         sbnPath: '/x',
         assetCache: cache,
       );
-      expect(read.isCropped, isFalse);
+      expect(read.isCut, isFalse);
     });
   });
 

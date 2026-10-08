@@ -665,8 +665,8 @@ class EditorState extends State<Editor> {
           for (final image in item.images) {
             final turns = item.imageTurns;
             if (turns != null) image.quarterTurns -= turns;
-            final cut = item.imageCrop;
-            if (cut != null) image.crop = cut.previous;
+            final cut = item.imageCut;
+            if (cut != null) image.cutout = cut.previous;
             image.dstRect = .fromLTRB(
               image.dstRect.left - item.offset!.left,
               image.dstRect.top - item.offset!.top,
@@ -787,7 +787,7 @@ class EditorState extends State<Editor> {
               -item.offset!.bottom,
             ),
             imageTurns: item.imageTurns == null ? null : -item.imageTurns!,
-            imageCrop: item.imageCrop?.reverse(),
+            imageCut: item.imageCut?.reverse(),
           ),
         );
       case .transform:
@@ -1400,7 +1400,7 @@ class EditorState extends State<Editor> {
   void onMoveImage(EditorImage image, Rect offset) {
     // A picture that was turned was given a new box as well.
     final turns = image.takeUnreportedTurns();
-    final cut = image.takeUnreportedCrop();
+    final cut = image.takeUnreportedCut();
     history.recordChange(
       EditorHistoryItem(
         type: .move,
@@ -1409,7 +1409,7 @@ class EditorState extends State<Editor> {
         images: [image],
         offset: offset,
         imageTurns: turns == 0 ? null : turns,
-        imageCrop: cut,
+        imageCut: cut,
       ),
     );
     // setState to update undo button

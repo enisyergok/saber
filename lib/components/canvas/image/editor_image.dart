@@ -149,19 +149,19 @@ sealed class EditorImage extends ChangeNotifier {
     }
     final turns = json['r'];
     if (turns is int) image._quarterTurns = turns % 4;
-    final cropLeft = json['cl'], cropTop = json['ct'];
-    final cropRight = json['cr'], cropBottom = json['cb'];
-    if (cropLeft is num &&
-        cropTop is num &&
-        cropRight is num &&
-        cropBottom is num) {
+    final cutLeft = json['kl'], cutTop = json['kt'];
+    final cutRight = json['kr'], cutBottom = json['kb'];
+    if (cutLeft is num &&
+        cutTop is num &&
+        cutRight is num &&
+        cutBottom is num) {
       final saved = Rect.fromLTRB(
-        cropLeft.toDouble(),
-        cropTop.toDouble(),
-        cropRight.toDouble(),
-        cropBottom.toDouble(),
+        cutLeft.toDouble(),
+        cutTop.toDouble(),
+        cutRight.toDouble(),
+        cutBottom.toDouble(),
       );
-      if (isValidCrop(saved)) image._crop = saved;
+      if (isValidCut(saved)) image._cut = saved;
     }
     return image;
   }
@@ -185,11 +185,11 @@ sealed class EditorImage extends ChangeNotifier {
     if (naturalSize.width != 0) 'nw': naturalSize.width,
     if (naturalSize.height != 0) 'nh': naturalSize.height,
     if (quarterTurns != 0) 'r': quarterTurns,
-    if (isCropped) ...{
-      'cl': crop.left,
-      'ct': crop.top,
-      'cr': crop.right,
-      'cb': crop.bottom,
+    if (isCut) ...{
+      'kl': cutout.left,
+      'kt': cutout.top,
+      'kr': cutout.right,
+      'kb': cutout.bottom,
     },
   };
 
@@ -197,46 +197,46 @@ sealed class EditorImage extends ChangeNotifier {
   static const wholePicture = Rect.fromLTRB(0, 0, 1, 1);
 
   /// The least of the picture a crop may leave, as a fraction of each side.
-  static const minCrop = 0.05;
+  static const minCut = 0.05;
 
-  /// Whether [crop] is a part of the picture that can be shown: inside it,
+  /// Whether [cutout] is a part of the picture that can be shown: inside it,
   /// and not a sliver.
-  static bool isValidCrop(Rect crop) =>
+  static bool isValidCut(Rect crop) =>
       crop.left >= 0 &&
       crop.top >= 0 &&
       crop.right <= 1 &&
       crop.bottom <= 1 &&
-      crop.width >= minCrop - 1e-9 &&
-      crop.height >= minCrop - 1e-9;
+      crop.width >= minCut - 1e-9 &&
+      crop.height >= minCut - 1e-9;
 
   /// The part of the picture that is shown, as fractions of the picture's
   /// own (unturned) width and height. [dstRect] is the box of just that
   /// part: cutting a picture shows the same ink in the same place and
   /// leaves the rest out.
-  Rect get crop => _crop;
-  Rect _crop = wholePicture;
-  set crop(Rect crop) {
-    if (crop == _crop) return;
-    _crop = crop;
+  Rect get cutout => _cut;
+  Rect _cut = wholePicture;
+  set cutout(Rect cutout) {
+    if (cutout == _cut) return;
+    _cut = cutout;
     notifyListeners();
   }
 
-  bool get isCropped => _crop != wholePicture;
+  bool get isCut => _cut != wholePicture;
 
-  /// What [crop] was before the cuts that the history has not been told
+  /// What [cutout] was before the cuts that the history has not been told
   /// about yet.
-  Rect? _unreportedCropFrom;
+  Rect? _unreportedCutFrom;
 
-  bool get hasUnreportedCrop =>
-      _unreportedCropFrom != null && _unreportedCropFrom != _crop;
+  bool get hasUnreportedCut =>
+      _unreportedCutFrom != null && _unreportedCutFrom != _cut;
 
   /// Cuts the picture down to [next] (fractions of the whole picture, in
-  /// its own unturned frame; see [crop]). The picture stays where it is:
+  /// its own unturned frame; see [cutout]). The picture stays where it is:
   /// the part that is left keeps its place and its scale on the page, and
   /// the box shrinks (or grows, if a cut is being undone) to fit it.
-  void cropTo(Rect next) {
-    if (!isValidCrop(next) || next == _crop) return;
-    final old = _crop;
+  void cutTo(Rect next) {
+    if (!isValidCut(next) || next == _cut) return;
+    final old = _cut;
     final turns = _quarterTurns;
     // The box in the picture's own frame (not turned).
     final width = turns.isOdd ? dstRect.height : dstRect.width;
@@ -257,19 +257,19 @@ sealed class EditorImage extends ChangeNotifier {
     };
     final part = Rect.fromPoints(turned(x0, y0), turned(x1, y1));
 
-    _unreportedCropFrom ??= old;
-    _crop = next;
+    _unreportedCutFrom ??= old;
+    _cut = next;
     // Also tells who listens.
     dstRect = part.shift(dstRect.topLeft);
   }
 
-  /// The cuts made with [cropTo] since this was last asked, for the
+  /// The cuts made with [cutTo] since this was last asked, for the
   /// history item of the change that is being recorded.
-  Change<Rect>? takeUnreportedCrop() {
-    final from = _unreportedCropFrom;
-    _unreportedCropFrom = null;
-    if (from == null || from == _crop) return null;
-    return Change(previous: from, current: _crop);
+  Change<Rect>? takeUnreportedCut() {
+    final from = _unreportedCutFrom;
+    _unreportedCutFrom = null;
+    if (from == null || from == _cut) return null;
+    return Change(previous: from, current: _cut);
   }
 
   /// How many quarter turns clockwise the picture is shown turned (0 to

@@ -256,7 +256,7 @@ class PdfEditorImage extends EditorImage {
     isThumbnail: isThumbnail,
     crop: crop,
   ).._quarterTurns = _quarterTurns
-    .._crop = _crop;
+    .._cut = _cut;
 
   @override
   void dispose() {

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:defer_pointer/defer_pointer.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -176,11 +177,11 @@ class _CanvasImageState extends State<CanvasImage> {
       context: context,
       builder: (_) => ImageCropDialog(
         image: image,
-        onApply: (crop) {
+        onApply: (cutout) {
           final before = image.dstRect;
-          setState(() => image.cropTo(crop));
+          setState(() => image.cutTo(cutout));
           final after = image.dstRect;
-          if (!image.hasUnreportedCrop) return;
+          if (!image.hasUnreportedCut) return;
           image.onMoveImage?.call(
             image,
             .fromLTRB(
@@ -325,7 +326,7 @@ class _CanvasImageState extends State<CanvasImage> {
                             child: _Cut(
                               crop: widget.isBackground
                                   ? EditorImage.wholePicture
-                                  : widget.image.crop,
+                                  : widget.image.cutout,
                               child: widget.image.buildImageWidget(
                                 context: context,
                                 overrideBoxFit: widget.overrideBoxFit,

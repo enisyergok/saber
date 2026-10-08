@@ -223,6 +223,6 @@ class SvgEditorImage extends EditorImage {
       naturalSize: naturalSize,
       isThumbnail: isThumbnail,
     ).._quarterTurns = _quarterTurns
-    .._crop = _crop;
+    .._cut = _cut;
   }
 }

@@ -254,5 +254,5 @@ class PngEditorImage extends EditorImage {
     thumbnailBytes: thumbnailBytes,
     isThumbnail: isThumbnail,
   ).._quarterTurns = _quarterTurns
-    .._crop = _crop;
+    .._cut = _cut;
 }
