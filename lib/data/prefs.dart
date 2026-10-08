@@ -198,8 +198,12 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
   /// Whether the line is drawn a little ahead of the pen tip while writing.
+  ///
+  /// (Its key changed when the prediction was rewritten: the first version
+  /// hardly ever worked, so many people had it turned off, and the new one
+  /// starts on for everyone. It can be turned off again in Settings.)
   final penPrediction = PlainStow(
-    'penPrediction',
+    'penPredictionV2',
     true,
     volatile: !_isOnMainIsolate,
   );
