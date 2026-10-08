@@ -241,28 +241,56 @@ class CanvasPainter extends CustomPainter {
     // Current stroke always uses high quality
     canvas.drawPath(currentStroke!.highQualityPath, paint);
 
-    // A short guess of where the pen is heading, so the line doesn't trail
-    // behind a fast-moving tip. It is only drawn, never part of the stroke.
-    final tip = PenPrediction.tip;
+    // The ink drawn from the stroke's outline ends a little behind the
+    // pen (the line is smoothed as it is drawn), and the pen is a little
+    // further along than the last point by the time the screen shows it.
+    // The last few points and a short guess of where the pen is heading
+    // are drawn on top, as one line as wide as the ink there: neither is
+    // part of the stroke, only drawn.
     final points = currentStroke!.points;
-    if (tip != null && points.isNotEmpty && stows.penPrediction.value) {
-      // Along the curve the pen is following, not straight out of it.
-      final bend = PenPrediction.bend;
-      final start = points.last;
-      final ahead = Path()..moveTo(start.dx, start.dy);
-      if (bend == null) {
-        ahead.lineTo(tip.dx, tip.dy);
-      } else {
-        ahead.quadraticBezierTo(bend.dx, bend.dy, tip.dx, tip.dy);
+    final predicted =
+        currentStroke!.toolId == .fountainPen ||
+        currentStroke!.toolId == .ballpointPen;
+    if (predicted && points.isNotEmpty && stows.penPrediction.value) {
+      final tip = PenPrediction.tip;
+      final options = currentStroke!.options;
+      final pressure = points.last.pressure ?? 0.5;
+      final width =
+          2 *
+          options.size *
+          options.easing(
+            (0.5 - options.thinning * (0.5 - pressure))
+                .clamp(0.0, 1.0)
+                .toDouble(),
+          ) *
+          0.95;
+      // Where ink is see-through, drawing over the same place twice would
+      // show: only the part beyond the last point is drawn then.
+      final opaque = color.a >= 0.999;
+      final first = opaque ? max(0, points.length - 4) : points.length - 1;
+      final ahead = Path()..moveTo(points[first].dx, points[first].dy);
+      for (var i = first + 1; i < points.length; i++) {
+        ahead.lineTo(points[i].dx, points[i].dy);
       }
-      canvas.drawPath(
-        ahead,
-        paint
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..strokeWidth = currentStroke!.options.size * 0.9,
-      );
+      if (tip != null) {
+        // Along the curve the pen is following, not straight out of it.
+        final bend = PenPrediction.bend;
+        if (bend == null) {
+          ahead.lineTo(tip.dx, tip.dy);
+        } else {
+          ahead.quadraticBezierTo(bend.dx, bend.dy, tip.dx, tip.dy);
+        }
+      }
+      if (tip != null || points.length > 1) {
+        canvas.drawPath(
+          ahead,
+          paint
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round
+            ..strokeWidth = width,
+        );
+      }
     }
   }
 

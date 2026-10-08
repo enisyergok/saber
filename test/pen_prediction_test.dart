@@ -252,6 +252,10 @@ void main() {
     });
   });
 
+  test('the prediction is on unless it is turned off', () {
+    expect(stows.penPrediction.defaultValue, isTrue);
+  });
+
   group('The horizon follows the screen:', () {
     tearDown(() => PenPrediction.horizon = PenPrediction.defaultHorizon);
 
