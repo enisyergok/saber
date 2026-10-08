@@ -53,7 +53,24 @@ jobs:
 
       - name: Probe tests
         run: |
-          timeout 240 flutter test --no-pub --reporter expanded test/image_crop_test.dart 2>&1 | tail -n 40 || true
-          echo ===== actions
-          timeout 420 flutter test --no-pub --reporter expanded test/image_actions_test.dart 2>&1 | tail -n 60 || true
-          echo ===== done
+          timeout 240 flutter test --no-pub --reporter expanded test/image_crop_test.dart > p1.txt 2>&1 || true
+                    timeout 420 flutter test --no-pub --reporter expanded test/image_actions_test.dart > p2.txt 2>&1 || true
+          
+      - name: Publish
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          results="$RUNNER_TEMP/check-results"
+          mkdir -p "$results"
+          tail -n 80 p1.txt > "$results/p1.txt" || true
+          tail -n 120 p2.txt > "$results/p2.txt" || true
+          echo "$GITHUB_SHA" > "$results/commit.txt"
+          cd "$results"
+          branch="check-results-${GITHUB_REF_NAME//\//-}"
+          git init -q -b "$branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "probe results"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
