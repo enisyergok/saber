@@ -3480,7 +3480,13 @@ class EditorState extends State<Editor> {
     if (report == null || !mounted) return;
     showDialog<void>(
       context: context,
-      builder: (_) => PenLatencyDialog(text: report.toText()),
+      builder: (_) => PenLatencyDialog(
+        text:
+            '${report.toText()}\n\n'
+            'Not: ${coreInfo.pages.getOrNull(currentPageIndex)?.strokes.length ?? 0} '
+            'çizgi bu sayfada, hızlı canlı çizgi '
+            '${stows.penOverlay.value ? 'açık' : 'kapalı'}.',
+      ),
     );
   }
 

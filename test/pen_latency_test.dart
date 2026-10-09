@@ -161,4 +161,27 @@ void main() {
     final text = simulate(prediction: false).toText();
     expect(text, contains('bu kayıtta çizim yok'));
   });
+
+  test('one lucky frame does not make every age look longer', () {
+    final recorder = PenLatencyRecorder()..start(0);
+    const offset = 1000000000; // the event clock is far from the frame clock
+    for (var i = 0; i < 400; i++) {
+      final frame = 100000 + i * 16667;
+      // The pen's event is 5 ms older than the frame, except once, when
+      // it looks 45 ms fresher than that.
+      final lucky = i == 50 ? 45000 : 0;
+      recorder.onPointerMove(
+        eventUs: frame - 5000 + offset + lucky,
+        arrivalUs: frame - 4000,
+        x: i.toDouble(),
+        y: 0,
+        kind: 'stylus',
+      );
+      recorder.onFrame(frame);
+      recorder.onFrameCost(spanUs: 10000, buildUs: 3000, rasterUs: 5000);
+    }
+    final report = recorder.finish(prediction: false);
+    expect(report.clocksDiffer, isTrue);
+    expect(report.ageMs.p50, lessThan(2));
+  });
 }
