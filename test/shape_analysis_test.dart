@@ -354,6 +354,62 @@ void main() {
       expect(guess.points, hasLength(4));
     });
 
+    test('a tilted rectangle comes back with the sides that were drawn', () {
+      final guess = ShapeAnalysis.analyze(
+        _along(_rectangle(180, 90, 30 * pi / 180), Random(6), closed: true),
+      )!;
+      expect(guess.kind, ShapeKind.polygon);
+      final sides = [
+        for (var i = 0; i < 4; i++)
+          (guess.points[(i + 1) % 4] - guess.points[i]).distance,
+      ]..sort();
+      expect(sides[0], closeTo(90, 8));
+      expect(sides[3], closeTo(180, 8));
+    });
+
+    test('an almost level ellipse is made level', () {
+      final guess = ShapeAnalysis.analyze(
+        _ellipse(Random(7), 110, 60, 2 * pi / 180),
+      )!;
+      expect(guess.kind, ShapeKind.ellipse);
+      expect(guess.rotation, 0);
+      expect(guess.radiusX, closeTo(110, 6));
+      expect(guess.radiusY, closeTo(60, 6));
+    });
+
+    test('an arc comes back with the radius that was drawn', () {
+      const radius = 120.0;
+      final rng = Random(8);
+      final stroke = [
+        for (var i = 0; i <= 40; i++)
+          Offset(300, 300) +
+              Offset.fromDirection(-pi + 1.8 * i / 40, radius) +
+              Offset(_jitter(rng, 0.8), _jitter(rng, 0.8)),
+      ];
+      final guess = ShapeAnalysis.analyze(stroke)!;
+      expect(guess.kind, ShapeKind.curve);
+      final centre = const Offset(300, 300);
+      final radii = [for (final p in guess.points) (p - centre).distance];
+      final mean = radii.reduce((a, b) => a + b) / radii.length;
+      expect(mean, closeTo(radius, 6));
+      final spread = radii.reduce(max) - radii.reduce(min);
+      expect(spread, lessThan(1.5));
+    });
+
+    test('a heart and a scribble are left alone', () {
+      final heart = [
+        for (var i = 0; i < 100; i++)
+          () {
+            final t = 2 * pi * i / 100;
+            return Offset(
+              300 + 80 * sin(t) * sin(t) * sin(t),
+              300 - 5 * (13 * cos(t) - 5 * cos(2 * t) - 2 * cos(3 * t) - cos(4 * t)),
+            );
+          }(),
+      ];
+      expect(ShapeAnalysis.analyze(heart), isNull);
+    });
+
     test('a polygon outline is closed, an ellipse outline too', () {
       final triangle = ShapeAnalysis.analyze(
         _along(_regular(3, 90, 0.3), Random(4), closed: true),
