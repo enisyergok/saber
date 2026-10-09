@@ -110,7 +110,10 @@ class PenLatencyRecorder {
     final medianAge = _percentile(rawAgesMs, 50);
     final clocksDiffer = rawAgesMs.isNotEmpty &&
         (medianAge < -50 || medianAge > 1000);
-    final shiftMs = clocksDiffer ? rawAgesMs.reduce(math.min) : 0.0;
+    // Not the very smallest age: a single frame that happened to start
+    // right after an event would make every other age look that much
+    // longer. The 2nd percentile stands for "the freshest".
+    final shiftMs = clocksDiffer ? _percentile(rawAgesMs, 2) : 0.0;
     final agesMs = rawAgesMs.map((e) => e - shiftMs);
 
     return PenLatencyReport(
