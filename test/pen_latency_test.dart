@@ -165,7 +165,7 @@ void main() {
   test('one lucky frame does not make every age look longer', () {
     final recorder = PenLatencyRecorder()..start(0);
     const offset = 1000000000; // the event clock is far from the frame clock
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 400; i++) {
       final frame = 100000 + i * 16667;
       // The pen's event is 5 ms older than the frame, except once, when
       // it looks 45 ms fresher than that.
