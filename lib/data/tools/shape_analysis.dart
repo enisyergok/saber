@@ -138,10 +138,76 @@ abstract class ShapeAnalysis {
     if (diagonal < minSize || length <= 0) return null;
 
     final gap = (points.first - points.last).distance;
-    final closed = gap <= 0.18 * length;
-    return closed
-        ? _closed(_closeLoop(points), diagonal)
-        : _open(points, length, diagonal);
+    if (gap > 0.18 * length) {
+      // An open stroke, unless a tail or a hook at an end is all that keeps
+      // it from closing.
+      final open = _open(points, length, diagonal);
+      if (open != null) return open;
+    }
+    return _closedTrimmed(points, diagonal);
+  }
+
+  /// How much of the stroke's length may be trimmed off each end, to get
+  /// rid of a flick where the pen came down or a hook where it was lifted.
+  static const _trims = [0.0, 0.04, 0.08];
+
+  /// A trimmed reading has to beat the untrimmed one by this much (shares
+  /// of the stroke's size), plus [_trimPrice] for every share trimmed.
+  static const _trimMargin = 0.004;
+  static const _trimPrice = 0.01;
+
+  /// A trimmed stroke has to be nearly convex: trimming must not turn a
+  /// heart into a blob.
+  static const _trimmedConvexShare = 0.97;
+
+  /// The best reading of [points] as a closed shape, trying the stroke as
+  /// it is and with its ends trimmed. The stroke as it is wins unless a
+  /// trimmed one is clearly better.
+  static ShapeGuess? _closedTrimmed(List<Offset> points, double size) {
+    _Model? untrimmed;
+    _Model? best;
+    var bestScore = double.infinity;
+    for (final start in _trims) {
+      for (final end in _trims) {
+        final part = _trimEnds(points, start, end);
+        if (part.length < 8) continue;
+        final gap = (part.first - part.last).distance;
+        if (gap > 0.18 * _pathLength(part)) continue;
+        final isWhole = start == 0 && end == 0;
+        final model = _closed(
+          _closeLoop(part),
+          size,
+          convexShare: isWhole ? _convexShare : _trimmedConvexShare,
+        );
+        if (model == null) continue;
+        if (isWhole) {
+          untrimmed = model;
+          continue;
+        }
+        final score = model.score + _trimMargin + _trimPrice * (start + end);
+        if (score < bestScore) {
+          bestScore = score;
+          best = model;
+        }
+      }
+    }
+    if (untrimmed == null) return best?.guess;
+    if (best != null && bestScore < untrimmed.score) return best.guess;
+    return untrimmed.guess;
+  }
+
+  /// [points] without [start] of the path length at the start and [end] of
+  /// it at the end.
+  static List<Offset> _trimEnds(List<Offset> points, double start, double end) {
+    if (start == 0 && end == 0) return points;
+    final total = _pathLength(points);
+    var walked = 0.0, low = 0, high = points.length - 1;
+    for (var i = 1; i < points.length; i++) {
+      walked += (points[i] - points[i - 1]).distance;
+      if (walked < start * total) low = i;
+      if (walked <= (1 - end) * total) high = i;
+    }
+    return points.sublist(low, high + 1);
   }
 
   // -- closing a loop -------------------------------------------------------
@@ -257,7 +323,11 @@ abstract class ShapeAnalysis {
 
   // -- closed strokes -------------------------------------------------------
 
-  static ShapeGuess? _closed(List<Offset> stroke, double size) {
+  static _Model? _closed(
+    List<Offset> stroke,
+    double size, {
+    double convexShare = _convexShare,
+  }) {
     final ring = _smooth(
       _resample(stroke, _ringSize, closed: true),
       closed: true,
@@ -265,7 +335,7 @@ abstract class ShapeAnalysis {
     );
     final n = ring.length;
     final window = max(2, n ~/ 24);
-    if (_turningShare(ring, max(3, n ~/ 12)) < _convexShare) return null;
+    if (_turningShare(ring, max(3, n ~/ 12)) < convexShare) return null;
 
     final models = <_Model>[];
 
@@ -320,7 +390,7 @@ abstract class ShapeAnalysis {
     models.removeWhere((m) => m.average > _acceptAverage || m.worst > _acceptWorst);
     if (models.isEmpty) return null;
     models.sort((a, b) => a.score.compareTo(b.score));
-    return models.first.guess;
+    return models.first;
   }
 
   /// How much of the way round a closed stroke it turns the same way: 1

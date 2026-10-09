@@ -396,6 +396,47 @@ void main() {
       expect(spread, lessThan(1.5));
     });
 
+    test('a flick where the pen came down does not stop a circle', () {
+      var found = 0;
+      for (var seed = 0; seed < 20; seed++) {
+        final circle = _ellipse(Random(seed), 80, 80, 0);
+        final k = max(3, circle.length ~/ 25);
+        final flicked = [
+          for (var i = 0; i < circle.length; i++)
+            i < k
+                ? circle[i] + (circle[i] - const Offset(300, 300)) * 0.35 * (1 - i / k)
+                : circle[i],
+        ];
+        if (ShapeAnalysis.analyze(flicked)?.kind == ShapeKind.circle) found++;
+      }
+      expect(found, greaterThanOrEqualTo(17));
+    });
+
+    test('a hook where the pen was lifted does not stop a triangle', () {
+      var found = 0;
+      for (var seed = 0; seed < 20; seed++) {
+        final triangle = _along(
+          _regular(3, 90, 0.3),
+          Random(seed),
+          closed: true,
+        );
+        final k = max(3, triangle.length ~/ 16);
+        final hooked = [
+          for (var i = 0; i < triangle.length; i++)
+            i >= triangle.length - k
+                ? triangle[i] +
+                      (const Offset(300, 300) - triangle[i]) *
+                          (0.5 * (i - (triangle.length - k) + 1) / k)
+                : triangle[i],
+        ];
+        final guess = ShapeAnalysis.analyze(hooked);
+        if (guess?.kind == ShapeKind.polygon && guess!.points.length == 3) {
+          found++;
+        }
+      }
+      expect(found, greaterThanOrEqualTo(15));
+    });
+
     test('a heart and a scribble are left alone', () {
       final heart = [
         for (var i = 0; i < 100; i++)
