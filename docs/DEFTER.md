@@ -95,3 +95,16 @@ saklanır (şifrelenmez, eşitlenmez).
 - E-mürekkep modunda renk seçicideki kalem renkleri gerçek renkleriyle kalır (seçilen rengi tanımak için); sayfada gri görünürler.
 - Resim ve PDF için gri tona çevirme çizim sırasında yapılır (ek bellek kullanmaz); gerçek dithering (nokta serpme) yoktur, çünkü 8 bit LCD üzerinde yalnızca gren katardı.
 - Uygulama depodaki yedek (fallback) anahtarla imzalanıyor; kendi anahtarına geçmek uygulamayı silip yeniden kurmayı gerektirir. Şimdilik bırakıldı.
+
+
+## Hızlı canlı çizgi (deneysel, varsayılan kapalı)
+
+Ayarlar → Kalem: "Hızlı canlı çizgi". Açıkken Android, yazarken kalemin gerçek
+noktalarını Flutter'ın kare hattını beklemeden, ekranın üstündeki ayrı bir
+yüzeye (`InkOverlay.kt`) kendi iş parçacığında çizer. Tahmin ya da düzeltme
+yoktur. Renk, kalınlık, basınç tablosu ve başlangıç sivriliği `PenOverlay`
+üzerinden Flutter'dan verilir; çizgi bitince Flutter asıl çizgiyi kendisi
+çizer ve iki kare sonra katman temizlenir (`PenOverlay.clearSoon`, Android
+tarafında 700 ms'lik yedek temizlik). Saydam renkli, cetvelli, hat kalemi,
+fosforlu kalem ve şekil kalemi için kapalıdır. Kalem düğmesine basılıyken ve
+tuval dışında başlayan çizgilerde çizmez.

@@ -69,6 +69,29 @@ class MainActivity: FlutterActivity() {
 
     private var inputChannel: MethodChannel? = null
 
+    /// Draws the pen's line straight to the screen while it is written (see
+    /// [InkOverlay]). Only created once the app asks for it.
+    private var ink: InkOverlay? = null
+
+    private fun inkConfig(arguments: Any?): InkOverlay.Config? {
+        val map = arguments as? Map<*, *> ?: return null
+        fun number(key: String): Float =
+            (map[key] as? Number)?.toFloat() ?: 0f
+        val table = (map["pressure"] as? List<*>)?.map { (it as? Number)?.toFloat() ?: 0.5f }
+            ?: listOf(0.5f)
+        return InkOverlay.Config(
+            color = (map["color"] as? Number)?.toInt() ?: return null,
+            sizePx = number("size"),
+            thinning = number("thinning"),
+            taperPx = number("taper"),
+            pressure = table.toFloatArray(),
+            left = number("left"),
+            top = number("top"),
+            right = number("right"),
+            bottom = number("bottom"),
+        )
+    }
+
     /// The key code HONOR/HUAWEI pens send for their double tap. Flutter has
     /// no name for it, so it is handed to the app by hand.
     private val penDoubleTapKeyCode = 718
@@ -111,6 +134,7 @@ class MainActivity: FlutterActivity() {
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         recordMotion("TOUCH", event)
         askForPenEventsAtOnce(event)
+        ink?.onTouch(event)
         return super.dispatchTouchEvent(event)
     }
 
@@ -257,6 +281,25 @@ class MainActivity: FlutterActivity() {
                         result.success(null)
                     }
                     else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/ink")
+            .setMethodCallHandler { call, result ->
+                try {
+                    when (call.method) {
+                        "config" -> {
+                            val config = inkConfig(call.arguments)
+                            if (ink == null && config != null) ink = InkOverlay(this)
+                            result.success(ink?.setConfig(config) ?: false)
+                        }
+                        "clear" -> {
+                            ink?.clear()
+                            result.success(null)
+                        }
+                        else -> result.notImplemented()
+                    }
+                } catch (_: Throwable) {
+                    result.success(false)
                 }
             }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/camera")
