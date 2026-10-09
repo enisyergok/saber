@@ -11,7 +11,7 @@ enum ShapeKind { line, circle, ellipse, rectangle, polygon, curve }
 /// - [ShapeKind.rectangle]: an axis-aligned [rect].
 /// - [ShapeKind.polygon]: [points] holds the corners, without repeating the
 ///   first one.
-/// - [ShapeKind.curve]: [points] holds a smoothed version of the stroke.
+/// - [ShapeKind.curve]: [points] holds the points of a circular arc.
 class ShapeGuess {
   const ShapeGuess({
     required this.kind,
@@ -63,24 +63,68 @@ class ShapeGuess {
 /// Recognises lines, circles, ellipses, rectangles, polygons and arcs in
 /// hand-drawn strokes.
 ///
-/// Everything here works on plain points, so it is easy to test. The stroke
-/// is resampled, smoothed and its corners found from how sharply it turns.
+/// Everything here works on plain points, so it is easy to test.
+///
+/// A stroke is not matched against templates. Each shape it might be is
+/// *fitted* to it, the way a draughtsman would trace it: an ellipse, a
+/// rectangle (tilted or not), a triangle, a pentagon, a hexagon, a straight
+/// line, a circular arc. Every fit is measured by how far the stroke strays
+/// from the fitted outline, and the shape that explains the stroke best,
+/// with a small price for every extra corner so that a wobbly curve is not
+/// "explained" by a polygon with many sides, wins. A stroke that no shape
+/// explains well, or that wanders (loops, notches, waves), is left alone.
 abstract class ShapeAnalysis {
   /// Strokes smaller than this (the diagonal of their bounding box, in page
   /// units) are never turned into shapes: they are writing, not diagrams.
   static const minSize = 40.0;
 
-  /// How many points the stroke is resampled to.
-  static const _samples = 64;
-
-  /// Turning sharper than this over the corner window counts as a corner.
-  static const _cornerAngle = 28 * pi / 180;
-
-  /// Turning gentler than this counts as part of a straight side.
-  static const _straightAngle = 15 * pi / 180;
-
   /// The most corners a polygon can have.
   static const maxCorners = 6;
+
+  /// How many points a closed stroke is resampled to.
+  static const _ringSize = 96;
+
+  /// A price for a model, as a share of the stroke's size, added to how far
+  /// the stroke strays from it: for an ellipse, for each corner of a polygon
+  /// beyond two, and for a rectangle.
+  static const _priceEllipse = 0.0025;
+  static const _priceCorner = 0.0006;
+  static const _priceRectangle = 0.0003;
+
+  /// Polygons and rectangles are believed more than their raw fit says:
+  /// a hand-drawn corner is rounder than a corner, so a polygon always
+  /// fits a little worse than the ink of someone who meant a polygon.
+  static const _polygonBias = 0.75;
+  static const _rectangleBias = 0.55;
+
+  /// A closed shape is only accepted if the stroke strays from it by no
+  /// more than this on average, and at the worst point (shares of the
+  /// stroke's size).
+  static const _acceptAverage = 0.026;
+  static const _acceptWorst = 0.085;
+
+  /// A closed stroke has to turn the same way throughout, at least this
+  /// much of the time, to be a shape (a heart or a star does not).
+  static const _convexShare = 0.83;
+
+  /// An ellipse whose long side is less than this many times the short
+  /// side is a circle.
+  static const _circleRatio = 1.12;
+
+  /// A rectangle whose sides are within this of level and upright is made
+  /// exactly so; so is an ellipse within [_ellipseAxisSnap].
+  static const _axisSnap = 8 * pi / 180;
+  static const _ellipseAxisSnap = 5 * pi / 180;
+
+  /// Four corners are a rectangle if the angles are right angles, give or
+  /// take this, and opposite sides run parallel, give or take that.
+  static const _rightAngleSlack = 16.0; // degrees
+  static const _parallelSlack = 12 * pi / 180;
+
+  /// A side of a polygon is at least this share of its perimeter, and a
+  /// corner turns the stroke by at least this many degrees.
+  static const _shortestSide = 0.07;
+  static const _leastTurn = 22.0;
 
   /// Looks at [raw] (the points of a stroke, in order) and returns the shape
   /// it most likely was, or null when it doesn't look like a shape.
@@ -96,12 +140,19 @@ abstract class ShapeAnalysis {
     final gap = (points.first - points.last).distance;
     final closed = gap <= 0.18 * length;
     return closed
-        ? _closed(_trimOverlap(points), diagonal)
-        : _open(points, length);
+        ? _closed(_closeLoop(points), diagonal)
+        : _open(points, length, diagonal);
   }
 
-  /// A loop that overshoots its start is cut where it comes closest to it.
-  static List<Offset> _trimOverlap(List<Offset> points) {
+  // -- closing a loop -------------------------------------------------------
+
+  /// A loop that overshoots its start is cut where it crosses its own
+  /// beginning, or if it never does, where it comes closest to it.
+  static List<Offset> _closeLoop(List<Offset> points) {
+    return _cutAtCrossing(points) ?? _cutAtNearest(points);
+  }
+
+  static List<Offset> _cutAtNearest(List<Offset> points) {
     final n = points.length;
     var best = n - 1;
     var bestDistance = (points.first - points.last).distance;
@@ -115,9 +166,43 @@ abstract class ShapeAnalysis {
     return points.sublist(0, best + 1);
   }
 
+  /// The loop from where the stroke's end crosses its start to the crossing
+  /// again, or null if the end never crosses the start.
+  static List<Offset>? _cutAtCrossing(List<Offset> points) {
+    final n = points.length;
+    if (n < 12) return null;
+    final total = _pathLength(points);
+    final along = List<double>.filled(n, 0);
+    for (var i = 1; i < n; i++) {
+      along[i] = along[i - 1] + (points[i] - points[i - 1]).distance;
+    }
+    for (var i = 0; i < n - 1; i++) {
+      if (along[i] < 0.6 * total) continue;
+      for (var j = 0; j < n - 1; j++) {
+        if (along[j + 1] > 0.4 * total) break;
+        final hit = _crossing(points[i], points[i + 1], points[j], points[j + 1]);
+        if (hit != null) {
+          return [hit, ...points.sublist(j + 1, i + 1), hit];
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Where the segments a-b and c-d cross, or null.
+  static Offset? _crossing(Offset a, Offset b, Offset c, Offset d) {
+    final r = b - a, s = d - c;
+    final denominator = r.dx * s.dy - r.dy * s.dx;
+    if (denominator.abs() < 1e-12) return null;
+    final t = ((c.dx - a.dx) * s.dy - (c.dy - a.dy) * s.dx) / denominator;
+    final u = ((c.dx - a.dx) * r.dy - (c.dy - a.dy) * r.dx) / denominator;
+    if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+    return a + r * t;
+  }
+
   // -- open strokes ---------------------------------------------------------
 
-  static ShapeGuess? _open(List<Offset> points, double length) {
+  static ShapeGuess? _open(List<Offset> points, double length, double size) {
     final first = points.first, last = points.last;
     final chord = (last - first).distance;
     if (chord < minSize * 0.8) return null;
@@ -130,101 +215,275 @@ abstract class ShapeAnalysis {
       return ShapeGuess(kind: ShapeKind.line, points: [first, last]);
     }
 
-    // An arc: turns the same way throughout, with no sharp corners.
-    final smooth = _smooth(_resample(points, 48, closed: false), closed: false);
-    const window = 3;
-    final turning = _turning(smooth, window, closed: false);
-    var signed = 0.0, absolute = 0.0, sharpest = 0.0;
-    for (final angle in turning) {
-      signed += angle;
-      absolute += angle.abs();
-      sharpest = max(sharpest, angle.abs());
-    }
-    if (sharpest > 40 * pi / 180) return null;
-    if (absolute <= 0 || signed.abs() / absolute < 0.85) return null;
-    if (signed.abs() < 0.45) return null;
+    // An arc: part of a circle that the stroke follows, turning the same
+    // way throughout.
+    final path = _resample(points, 64, closed: false);
+    final circle = _circleFit(path);
+    if (circle == null) return null;
+    final (center, radius) = circle;
+    if (radius > 20 * size) return null;
 
-    final curve = [...smooth]
-      ..[0] = first
-      ..[smooth.length - 1] = last;
-    return ShapeGuess(kind: ShapeKind.curve, points: curve);
+    var squares = 0.0, worst = 0.0;
+    for (final p in path) {
+      final off = ((p - center).distance - radius).abs();
+      squares += off * off;
+      worst = max(worst, off);
+    }
+    final average = sqrt(squares / path.length);
+
+    final start = (path.first - center).direction;
+    var previous = start, sweep = 0.0, travelled = 0.0;
+    for (var i = 1; i < path.length; i++) {
+      final angle = (path[i] - center).direction;
+      final step = _wrapAngle(angle - previous);
+      sweep += step;
+      travelled += step.abs();
+      previous = angle;
+    }
+    if (sweep.abs() < 0.5 || sweep.abs() > 5.6) return null;
+    if (sweep.abs() / (travelled + 1e-9) <= 0.92) return null;
+    if (average > 0.022 * radius + 0.003 * size) return null;
+    if (worst > 0.07 * radius + 0.01 * size) return null;
+
+    final count = max(12, (sweep.abs() / 0.1).floor());
+    return ShapeGuess(
+      kind: ShapeKind.curve,
+      points: [
+        for (var i = 0; i <= count; i++)
+          center + Offset.fromDirection(start + sweep * i / count, radius),
+      ],
+    );
   }
 
   // -- closed strokes -------------------------------------------------------
 
-  static ShapeGuess? _closed(List<Offset> points, double diagonal) {
-    final ring = _smooth(_resample(points, _samples, closed: true), closed: true);
-    const window = _samples ~/ 16;
-    final turning = _turning(ring, window, closed: true);
-    final corners = _pickCorners(turning, window);
+  static ShapeGuess? _closed(List<Offset> stroke, double size) {
+    final ring = _smooth(
+      _resample(stroke, _ringSize, closed: true),
+      closed: true,
+      passes: 1,
+    );
+    final n = ring.length;
+    final window = max(2, n ~/ 24);
+    if (_turningShare(ring, max(3, n ~/ 12)) < _convexShare) return null;
 
-    var straight = 0;
-    for (final angle in turning) {
-      if (angle.abs() < _straightAngle) straight++;
-    }
-    final straightShare = straight / turning.length;
+    final models = <_Model>[];
 
-    var cornerTurn = 0.0;
-    for (final i in corners) {
-      cornerTurn += turning[i].abs();
+    // An ellipse (or a circle).
+    final ellipse = _ellipseFit(ring);
+    if (ellipse != null) {
+      var squares = 0.0, worst = 0.0;
+      for (final p in ring) {
+        final d = ellipse.distanceTo(p);
+        squares += d * d;
+        worst = max(worst, d);
+      }
+      final average = sqrt(squares / n);
+      if (ellipse.b / ellipse.a >= 0.15 && ellipse.a >= 10) {
+        models.add(
+          _Model(
+            _ellipseGuess(ellipse),
+            average / size,
+            worst / size,
+            average / size + _priceEllipse,
+          ),
+        );
+      }
     }
-    final meanCorner = corners.isEmpty ? 0.0 : cornerTurn / corners.length;
 
-    final fit = _ellipseFit(ring, turning);
-    ShapeGuess? polygon;
-    if (corners.length >= 3 &&
-        corners.length <= maxCorners &&
-        straightShare >= 0.3 &&
-        meanCorner >= 38 * pi / 180) {
-      polygon = _polygon(ring, corners, diagonal);
+    // Polygons with three to six corners.
+    final corners = _cornerCandidates(ring, window, 10 * pi / 180);
+    final polygons = <int, _Polygon>{};
+    for (var k = 3; k <= maxCorners; k++) {
+      final polygon = _fitPolygon(ring, corners, k, size);
+      if (polygon != null) polygons[k] = polygon;
     }
 
-    // A clearly smooth outline is an ellipse, even one with tight ends.
-    if (polygon != null && fit != null && fit.mean <= 0.02 && fit.worst <= 0.05) {
-      polygon = null;
+    final fourCorners = polygons[4];
+    final rectangle = fourCorners == null
+        ? null
+        : _rectangleFrom(ring, fourCorners, size);
+    if (rectangle != null) models.add(rectangle);
+
+    for (final MapEntry(key: k, value: polygon) in polygons.entries) {
+      if (k == 4 && rectangle != null) continue;
+      models.add(
+        _Model(
+          ShapeGuess(kind: ShapeKind.polygon, points: polygon.corners),
+          polygon.average / size,
+          polygon.worst / size,
+          _polygonBias * polygon.average / size + _priceCorner * (k - 2),
+        ),
+      );
     }
-    if (polygon != null) return polygon;
-    if (fit != null && fit.mean <= 0.08 && fit.worst <= 0.22) return fit.guess;
-    return null;
+
+    models.removeWhere((m) => m.average > _acceptAverage || m.worst > _acceptWorst);
+    if (models.isEmpty) return null;
+    models.sort((a, b) => a.score.compareTo(b.score));
+    return models.first.guess;
   }
 
-  /// Picks the sharpest turns, at least [window] samples apart.
-  static List<int> _pickCorners(List<double> turning, int window) {
-    final n = turning.length;
-    final order = [
-      for (var i = 0; i < n; i++)
-        if (turning[i].abs() >= _cornerAngle) i,
-    ]..sort((a, b) => turning[b].abs().compareTo(turning[a].abs()));
-
-    final accepted = <int>[];
-    for (final i in order) {
-      final farEnough = accepted.every((j) {
-        final d = (i - j).abs();
-        return min(d, n - d) >= window;
-      });
-      if (farEnough) accepted.add(i);
+  /// How much of the way round a closed stroke it turns the same way: 1
+  /// for a convex shape, much less for a figure with notches or loops.
+  static double _turningShare(List<Offset> ring, int window) {
+    var signed = 0.0, absolute = 0.0;
+    for (var i = 0; i < ring.length; i++) {
+      final angle = _turnAt(ring, i, window);
+      signed += angle;
+      absolute += angle.abs();
     }
-    return accepted..sort();
+    return absolute > 0 ? signed.abs() / absolute : 0;
   }
 
-  /// The polygon through [corners]: each side is a straight line fitted to
-  /// the stroke between two corners, and each corner is where two lines meet.
-  static ShapeGuess? _polygon(
+  static double _turnAt(List<Offset> ring, int i, int window) {
+    final n = ring.length;
+    final v1 = ring[i] - ring[(i - window) % n];
+    final v2 = ring[(i + window) % n] - ring[i];
+    return atan2(v1.dx * v2.dy - v1.dy * v2.dx, v1.dx * v2.dx + v1.dy * v2.dy);
+  }
+
+  /// The places along [ring] where it turns sharply (the local maxima of
+  /// how much it turns), at least [window] points apart.
+  static List<int> _cornerCandidates(
     List<Offset> ring,
-    List<int> corners,
-    double diagonal,
+    int window,
+    double leastTurn,
   ) {
     final n = ring.length;
-    final k = corners.length;
+    final turn = [for (var i = 0; i < n; i++) _turnAt(ring, i, window).abs()];
+    final found = <int>[];
+    for (var i = 0; i < n; i++) {
+      if (turn[i] < leastTurn) continue;
+      var isPeak = true;
+      for (var d = -window; d <= window; d++) {
+        if (d != 0 && turn[i] < turn[(i + d) % n]) {
+          isPeak = false;
+          break;
+        }
+      }
+      if (!isPeak) continue;
+      if (found.every((j) => min((i - j) % n, (j - i) % n) >= window)) {
+        found.add(i);
+      }
+    }
+    return found;
+  }
 
-    // One fitted line per side, as (point on line, direction).
+  /// The best [k]-cornered polygon through some of the [candidates], as
+  /// the corners where its sides meet, or null if there is none worth
+  /// having (too few corners to choose from, sides that are tiny, or
+  /// corners that hardly turn).
+  static _Polygon? _fitPolygon(
+    List<Offset> ring,
+    List<int> candidates,
+    int k,
+    double size,
+  ) {
+    final chosen = _bestCorners(ring, candidates, k);
+    if (chosen == null) return null;
+    final corners = _meetingPoints(ring, chosen, size);
+    if (corners == null) return null;
+
+    var perimeter = 0.0, shortest = double.infinity;
+    for (var i = 0; i < k; i++) {
+      final side = (corners[(i + 1) % k] - corners[i]).distance;
+      perimeter += side;
+      shortest = min(shortest, side);
+    }
+    if (perimeter <= 0 || shortest < _shortestSide * perimeter) return null;
+    for (final angle in _interiorAngles(corners)) {
+      if (180 - angle < _leastTurn) return null;
+    }
+
+    var squares = 0.0, worst = 0.0;
+    for (final p in ring) {
+      var nearest = double.infinity;
+      for (var i = 0; i < k; i++) {
+        nearest = min(
+          nearest,
+          _segmentDistance(p, corners[i], corners[(i + 1) % k]),
+        );
+      }
+      squares += nearest * nearest;
+      worst = max(worst, nearest);
+    }
+    return _Polygon(corners, sqrt(squares / ring.length), worst);
+  }
+
+  /// The [k] of the [candidates] at which cutting [ring] into [k] straight
+  /// chords leaves the least distance between the ring and the chords
+  /// (dynamic programming round the ring).
+  static List<int>? _bestCorners(List<Offset> ring, List<int> candidates, int k) {
+    final m = candidates.length;
+    if (m < k) return null;
+    final n = ring.length;
+
+    final cost = List.generate(m, (_) => List<double>.filled(m, 0));
+    for (var a = 0; a < m; a++) {
+      for (var b = 0; b < m; b++) {
+        if (a == b) continue;
+        final from = candidates[a], to = candidates[b];
+        final steps = (to - from) % n;
+        var sum = 0.0;
+        for (var s = 1; s < steps; s++) {
+          final d = _segmentDistance(ring[(from + s) % n], ring[from], ring[to]);
+          sum += d * d;
+        }
+        cost[a][b] = sum;
+      }
+    }
+
+    var bestCost = double.infinity;
+    List<int>? best;
+    for (var start = 0; start < m; start++) {
+      final order = [for (var d = 0; d < m; d++) (start + d) % m];
+      final table = List.generate(k, (_) => List<double>.filled(m, double.infinity));
+      final parent = List.generate(k, (_) => List<int>.filled(m, -1));
+      table[0][0] = 0;
+      for (var q = 1; q < k; q++) {
+        for (var b = q; b < m; b++) {
+          for (var a = q - 1; a < b; a++) {
+            if (table[q - 1][a] == double.infinity) continue;
+            final value = table[q - 1][a] + cost[order[a]][order[b]];
+            if (value < table[q][b]) {
+              table[q][b] = value;
+              parent[q][b] = a;
+            }
+          }
+        }
+      }
+      for (var b = k - 1; b < m; b++) {
+        if (table[k - 1][b] == double.infinity) continue;
+        final total = table[k - 1][b] + cost[order[b]][order[0]];
+        if (total < bestCost) {
+          bestCost = total;
+          final sequence = <int>[b];
+          var q = k - 1, at = b;
+          while (q > 0) {
+            at = parent[q][at];
+            sequence.add(at);
+            q--;
+          }
+          best = [for (final x in sequence.reversed) candidates[order[x]]];
+        }
+      }
+    }
+    return best;
+  }
+
+  /// The corners of the polygon whose sides are straight lines fitted to
+  /// the stretches of [ring] between the corners [at]: each corner is
+  /// where two neighbouring lines meet.
+  static List<Offset>? _meetingPoints(List<Offset> ring, List<int> at, double size) {
+    final n = ring.length;
+    final k = at.length;
     final sides = <(Offset, Offset)>[];
     for (var s = 0; s < k; s++) {
-      final from = corners[s];
-      final to = corners[(s + 1) % k];
-      final count = (to - from + n) % n;
+      final from = at[s];
+      final to = at[(s + 1) % k];
+      final count = (to - from) % n;
       if (count < 3) return null;
-      final skip = max(1, count ~/ 4);
+      final skip = max(1, count ~/ 5);
       final samples = <Offset>[
         for (var i = skip; i <= count - skip; i++) ring[(from + i) % n],
       ];
@@ -235,91 +494,139 @@ abstract class ShapeAnalysis {
       }
       sides.add(_fitLine(samples));
     }
-
-    final vertices = <Offset>[];
+    final corners = <Offset>[];
     for (var c = 0; c < k; c++) {
-      final before = sides[(c - 1 + k) % k];
-      final after = sides[c];
-      var vertex = _intersect(before, after);
-      final fallback = ring[corners[c]];
-      if (vertex == null || (vertex - fallback).distance > 0.25 * diagonal) {
-        vertex = fallback;
+      var corner = _intersect(sides[(c - 1 + k) % k], sides[c]);
+      final fallback = ring[at[c]];
+      if (corner == null || (corner - fallback).distance > 0.2 * size) {
+        corner = fallback;
       }
-      vertices.add(vertex);
+      corners.add(corner);
     }
-
-    // Sides must not be tiny, and the polygon must follow the stroke.
-    var perimeter = 0.0;
-    for (var i = 0; i < k; i++) {
-      perimeter += (vertices[(i + 1) % k] - vertices[i]).distance;
-    }
-    if (perimeter <= 0) return null;
-    for (var i = 0; i < k; i++) {
-      if ((vertices[(i + 1) % k] - vertices[i]).distance < 0.08 * perimeter) {
-        return null;
-      }
-    }
-    var worst = 0.0;
-    for (final p in ring) {
-      var nearest = double.infinity;
-      for (var i = 0; i < k; i++) {
-        nearest = min(
-          nearest,
-          _segmentDistance(p, vertices[i], vertices[(i + 1) % k]),
-        );
-      }
-      worst = max(worst, nearest);
-    }
-    if (worst > 0.07 * diagonal) return null;
-
-    if (k == 4) {
-      final rect = _axisAlignedRectangle(vertices);
-      if (rect != null) {
-        return ShapeGuess(kind: ShapeKind.rectangle, rect: rect);
-      }
-    }
-    return ShapeGuess(kind: ShapeKind.polygon, points: vertices);
+    return corners;
   }
 
-  /// The rectangle for four [vertices] if they form one with sides that are
-  /// (nearly) horizontal and vertical, otherwise null.
-  static Rect? _axisAlignedRectangle(List<Offset> vertices) {
-    final sinLimit = sin(8 * pi / 180);
+  /// The inside angles (degrees) of a polygon at each of its corners.
+  static List<double> _interiorAngles(List<Offset> corners) {
+    final k = corners.length;
+    return [
+      for (var i = 0; i < k; i++)
+        () {
+          final a = corners[(i - 1 + k) % k] - corners[i];
+          final b = corners[(i + 1) % k] - corners[i];
+          final la = a.distance, lb = b.distance;
+          if (la == 0 || lb == 0) return 0.0;
+          final c = ((a.dx * b.dx + a.dy * b.dy) / (la * lb)).clamp(-1.0, 1.0);
+          return acos(c) * 180 / pi;
+        }(),
+    ];
+  }
+
+  // -- rectangles -----------------------------------------------------------
+
+  /// The rectangle that four corners are, if they form one: right angles
+  /// (give or take [_rightAngleSlack]) and opposite sides parallel. Fitted
+  /// to the stroke as a whole, and made level or upright if it nearly is.
+  static _Model? _rectangleFrom(List<Offset> ring, _Polygon four, double size) {
+    final corners = four.corners;
+    for (final angle in _interiorAngles(corners)) {
+      if ((angle - 90).abs() > _rightAngleSlack) return null;
+    }
+    final directions = [
+      for (var i = 0; i < 4; i++)
+        (corners[(i + 1) % 4] - corners[i]).direction,
+    ];
+    double apart(double a, double b) => (pi - _wrapAngle(a - b).abs()).abs();
+    if (max(apart(directions[0], directions[2]), apart(directions[1], directions[3])) >
+        _parallelSlack) {
+      return null;
+    }
+
+    // The tilt of the sides, taken round the quarter turn.
+    var sumCos = 0.0, sumSin = 0.0;
     for (var i = 0; i < 4; i++) {
-      final side = vertices[(i + 1) % 4] - vertices[i];
-      final next = vertices[(i + 2) % 4] - vertices[(i + 1) % 4];
-      final length = side.distance, nextLength = next.distance;
-      if (length <= 0 || nextLength <= 0) return null;
-      // Corners are right angles.
-      final cosAngle = (side.dx * next.dx + side.dy * next.dy) /
-          (length * nextLength);
-      if (cosAngle.abs() > 0.2) return null;
-      // Sides run along an axis.
-      if (min(side.dx.abs(), side.dy.abs()) / length > sinLimit) return null;
+      final side = corners[(i + 1) % 4] - corners[i];
+      final length = side.distance;
+      sumCos += cos(4 * side.direction) * length;
+      sumSin += sin(4 * side.direction) * length;
     }
-    var left = vertices.first.dx, right = left;
-    var top = vertices.first.dy, bottom = top;
-    for (final v in vertices) {
-      left = min(left, v.dx);
-      right = max(right, v.dx);
-      top = min(top, v.dy);
-      bottom = max(bottom, v.dy);
+    final fit = _rectangleFit(ring, atan2(sumSin, sumCos) / 4);
+
+    final quarters = (fit.tilt / (pi / 2)).round();
+    final slack = fit.tilt - quarters * (pi / 2);
+    if (slack.abs() <= _axisSnap) {
+      // Level and upright.
+      final swapped = quarters.isOdd;
+      final width = swapped ? fit.height : fit.width;
+      final height = swapped ? fit.width : fit.height;
+      var squares = 0.0, worst = 0.0;
+      for (final p in ring) {
+        final d = _rectangleDistance(
+          p,
+          fit.center,
+          fit.width,
+          fit.height,
+          quarters * (pi / 2),
+        );
+        squares += d * d;
+        worst = max(worst, d);
+      }
+      final average = sqrt(squares / ring.length);
+      return _Model(
+        ShapeGuess(
+          kind: ShapeKind.rectangle,
+          rect: Rect.fromCenter(center: fit.center, width: width, height: height),
+        ),
+        average / size,
+        worst / size,
+        _rectangleBias * average / size + _priceRectangle,
+      );
     }
-    return Rect.fromLTRB(left, top, right, bottom);
+
+    var squares = 0.0, worst = 0.0;
+    for (final p in ring) {
+      final d = _rectangleDistance(p, fit.center, fit.width, fit.height, fit.tilt);
+      squares += d * d;
+      worst = max(worst, d);
+    }
+    final average = sqrt(squares / ring.length);
+    final c = cos(fit.tilt), s = sin(fit.tilt);
+    Offset corner(double x, double y) =>
+        fit.center + Offset(x * c - y * s, x * s + y * c);
+    final hw = fit.width / 2, hh = fit.height / 2;
+    return _Model(
+      ShapeGuess(
+        kind: ShapeKind.polygon,
+        points: [corner(-hw, -hh), corner(hw, -hh), corner(hw, hh), corner(-hw, hh)],
+      ),
+      average / size,
+      worst / size,
+      _rectangleBias * average / size + _priceRectangle,
+    );
   }
 
-  /// The ellipse that best fits a closed loop that turns the same way
-  /// throughout, and how far the loop strays from it. Null if the loop
-  /// can't be an ellipse at all.
-  static _EllipseFit? _ellipseFit(List<Offset> ring, List<double> turning) {
-    var signed = 0.0, absolute = 0.0;
-    for (final angle in turning) {
-      signed += angle;
-      absolute += angle.abs();
-    }
-    if (absolute <= 0 || signed.abs() / absolute < 0.85) return null;
+  /// How far [p] is from the outline of the rectangle of [width] by
+  /// [height] about [center], turned by [tilt].
+  static double _rectangleDistance(
+    Offset p,
+    Offset center,
+    double width,
+    double height,
+    double tilt,
+  ) {
+    final c = cos(tilt), s = sin(tilt);
+    final dx = p.dx - center.dx, dy = p.dy - center.dy;
+    final u = (dx * c + dy * s).abs();
+    final v = (-dx * s + dy * c).abs();
+    final qx = u - width / 2, qy = v - height / 2;
+    final outside = sqrt(max(qx, 0) * max(qx, 0) + max(qy, 0) * max(qy, 0));
+    final inside = min(max(qx, qy), 0.0);
+    return (outside + inside).abs();
+  }
 
-    // Principal axes of the points.
+  /// The rectangle that best fits [ring], starting from one tilted by
+  /// [tilt0].
+  static _RectangleFit _rectangleFit(List<Offset> ring, double tilt0) {
     var mx = 0.0, my = 0.0;
     for (final p in ring) {
       mx += p.dx;
@@ -327,6 +634,75 @@ abstract class ShapeAnalysis {
     }
     mx /= ring.length;
     my /= ring.length;
+    final c = cos(tilt0), s = sin(tilt0);
+    var minU = double.infinity, maxU = -double.infinity;
+    var minV = double.infinity, maxV = -double.infinity;
+    for (final p in ring) {
+      final u = (p.dx - mx) * c + (p.dy - my) * s;
+      final v = -(p.dx - mx) * s + (p.dy - my) * c;
+      minU = min(minU, u);
+      maxU = max(maxU, u);
+      minV = min(minV, v);
+      maxV = max(maxV, v);
+    }
+    final cu = (maxU + minU) / 2, cv = (maxV + minV) / 2;
+    final start = [
+      mx + cu * c - cv * s,
+      my + cu * s + cv * c,
+      maxU - minU,
+      maxV - minV,
+      tilt0,
+    ];
+    final x = _levenbergMarquardt(
+      (x) => [
+        for (final p in ring)
+          _rectangleDistance(p, Offset(x[0], x[1]), x[2].abs(), x[3].abs(), x[4]),
+      ],
+      start,
+      iterations: 40,
+    );
+    return _RectangleFit(Offset(x[0], x[1]), x[2].abs(), x[3].abs(), x[4]);
+  }
+
+  // -- ellipses and circles -------------------------------------------------
+
+  static ShapeGuess _ellipseGuess(_EllipseFit e) {
+    if (e.a / e.b < _circleRatio) {
+      final radius = (e.a + e.b) / 2;
+      return ShapeGuess(
+        kind: ShapeKind.circle,
+        center: e.center,
+        radiusX: radius,
+        radiusY: radius,
+      );
+    }
+    // Level or upright if it nearly is.
+    var tilt = e.tilt;
+    final quarters = (tilt / (pi / 2)).round();
+    if ((tilt - quarters * (pi / 2)).abs() <= _ellipseAxisSnap) {
+      tilt = quarters.isEven ? 0 : pi / 2;
+    }
+    return ShapeGuess(
+      kind: ShapeKind.ellipse,
+      center: e.center,
+      radiusX: e.a,
+      radiusY: e.b,
+      rotation: tilt,
+    );
+  }
+
+  /// The ellipse that best fits [ring] (long side first), found by
+  /// adjusting an ellipse set up from the stroke's principal axes until
+  /// the distance to it is as small as it gets. Null if that fails.
+  static _EllipseFit? _ellipseFit(List<Offset> ring) {
+    final n = ring.length;
+    var mx = 0.0, my = 0.0;
+    for (final p in ring) {
+      mx += p.dx;
+      my += p.dy;
+    }
+    mx /= n;
+    my /= n;
     var sxx = 0.0, syy = 0.0, sxy = 0.0;
     for (final p in ring) {
       final dx = p.dx - mx, dy = p.dy - my;
@@ -335,57 +711,220 @@ abstract class ShapeAnalysis {
       sxy += dx * dy;
     }
     final rotation = 0.5 * atan2(2 * sxy, sxx - syy);
-    final cosR = cos(rotation), sinR = sin(rotation);
-
-    // Extent along each axis.
+    final c = cos(rotation), s = sin(rotation);
     var minU = double.infinity, maxU = -double.infinity;
     var minV = double.infinity, maxV = -double.infinity;
     for (final p in ring) {
-      final dx = p.dx - mx, dy = p.dy - my;
-      final u = dx * cosR + dy * sinR;
-      final v = -dx * sinR + dy * cosR;
+      final u = (p.dx - mx) * c + (p.dy - my) * s;
+      final v = -(p.dx - mx) * s + (p.dy - my) * c;
       minU = min(minU, u);
       maxU = max(maxU, u);
       minV = min(minV, v);
       maxV = max(maxV, v);
     }
     final a = (maxU - minU) / 2, b = (maxV - minV) / 2;
-    if (a < 12 || b < 12) return null;
-    if (min(a, b) / max(a, b) < 0.15) return null;
-    final centerU = (maxU + minU) / 2, centerV = (maxV + minV) / 2;
-    final center = Offset(
-      mx + centerU * cosR - centerV * sinR,
-      my + centerU * sinR + centerV * cosR,
-    );
+    if (a < 1 || b < 1) return null;
+    final cu = (maxU + minU) / 2, cv = (maxV + minV) / 2;
 
-    // How far the stroke strays from the fitted ellipse.
-    var total = 0.0, worst = 0.0;
-    for (final p in ring) {
-      final dx = p.dx - center.dx, dy = p.dy - center.dy;
-      final u = (dx * cosR + dy * sinR) / a;
-      final v = (-dx * sinR + dy * cosR) / b;
-      final off = (sqrt(u * u + v * v) - 1).abs();
-      total += off;
-      worst = max(worst, off);
+    final x = _levenbergMarquardt(
+      (x) => [for (final p in ring) _ellipseResidual(p, x)],
+      [mx + cu * c - cv * s, my + cu * s + cv * c, a, b, rotation],
+      iterations: 40,
+    );
+    var long = x[2].abs(), short = x[3].abs(), tilt = x[4];
+    if (!long.isFinite || !short.isFinite || !tilt.isFinite || short <= 0) {
+      return null;
     }
-    final guess = max(a, b) / min(a, b) < 1.15
-        ? ShapeGuess(
-            kind: ShapeKind.circle,
-            center: center,
-            radiusX: (a + b) / 2,
-            radiusY: (a + b) / 2,
-          )
-        : ShapeGuess(
-            kind: ShapeKind.ellipse,
-            center: center,
-            radiusX: a,
-            radiusY: b,
-            rotation: rotation,
-          );
-    return _EllipseFit(guess, total / ring.length, worst);
+    if (short > long) {
+      final swap = long;
+      long = short;
+      short = swap;
+      tilt += pi / 2;
+    }
+    tilt = (tilt + pi / 2) % pi - pi / 2;
+    return _EllipseFit(Offset(x[0], x[1]), long, short, tilt);
+  }
+
+  /// An (approximate) distance from [p] to the ellipse in [x]: centre x and
+  /// y, the two radii and the tilt.
+  static double _ellipseResidual(Offset p, List<double> x) {
+    final a = x[2].abs() + 1e-6, b = x[3].abs() + 1e-6;
+    final c = cos(x[4]), s = sin(x[4]);
+    final dx = p.dx - x[0], dy = p.dy - x[1];
+    final u = dx * c + dy * s, v = -dx * s + dy * c;
+    final f = (u / a) * (u / a) + (v / b) * (v / b);
+    final gx = 2 * u / (a * a), gy = 2 * v / (b * b);
+    return (f - 1) / (sqrt(gx * gx + gy * gy) + 1e-9);
+  }
+
+  /// The circle (centre, radius) that best fits [points].
+  static (Offset, double)? _circleFit(List<Offset> points) {
+    final n = points.length;
+    var mx = 0.0, my = 0.0;
+    for (final p in points) {
+      mx += p.dx;
+      my += p.dy;
+    }
+    mx /= n;
+    my /= n;
+    var suu = 0.0, suv = 0.0, svv = 0.0;
+    var suuu = 0.0, svvv = 0.0, suvv = 0.0, svuu = 0.0;
+    for (final p in points) {
+      final u = p.dx - mx, v = p.dy - my;
+      suu += u * u;
+      suv += u * v;
+      svv += v * v;
+      suuu += u * u * u;
+      svvv += v * v * v;
+      suvv += u * v * v;
+      svuu += v * u * u;
+    }
+    final determinant = suu * svv - suv * suv;
+    if (determinant.abs() < 1e-9) return null;
+    final uc = (svv * (suuu + suvv) - suv * (svvv + svuu)) / (2 * determinant);
+    final vc = (suu * (svvv + svuu) - suv * (suuu + suvv)) / (2 * determinant);
+    var radius = 0.0;
+    for (final p in points) {
+      radius += (p - Offset(mx + uc, my + vc)).distance;
+    }
+    radius /= n;
+
+    final x = _levenbergMarquardt(
+      (x) => [
+        for (final p in points) (p - Offset(x[0], x[1])).distance - x[2],
+      ],
+      [mx + uc, my + vc, radius],
+      iterations: 15,
+    );
+    if (!x.every((v) => v.isFinite) || x[2].abs() <= 0) return null;
+    return (Offset(x[0], x[1]), x[2].abs());
+  }
+
+  // -- numerical fitting ----------------------------------------------------
+
+  /// Adjusts [start] until the sum of the squares of [residual] is as small
+  /// as it gets (Levenberg-Marquardt, with a numerical Jacobian: the
+  /// models here have five numbers at most).
+  static List<double> _levenbergMarquardt(
+    List<double> Function(List<double>) residual,
+    List<double> start, {
+    int iterations = 30,
+  }) {
+    var x = List<double>.of(start);
+    var r = residual(x);
+    var cost = _sumOfSquares(r);
+    var damping = 1e-2;
+    final n = x.length;
+    for (var iteration = 0; iteration < iterations; iteration++) {
+      final jacobian = <List<double>>[];
+      for (var j = 0; j < n; j++) {
+        final h = 1e-4 * max(1.0, x[j].abs());
+        final shifted = List<double>.of(x)..[j] += h;
+        final rj = residual(shifted);
+        jacobian.add([for (var i = 0; i < r.length; i++) (rj[i] - r[i]) / h]);
+      }
+      final normal = List.generate(
+        n,
+        (a) => [
+          for (var b = 0; b < n; b++)
+            () {
+              var sum = 0.0;
+              for (var i = 0; i < r.length; i++) {
+                sum += jacobian[a][i] * jacobian[b][i];
+              }
+              return sum;
+            }(),
+        ],
+      );
+      final gradient = [
+        for (var a = 0; a < n; a++)
+          () {
+            var sum = 0.0;
+            for (var i = 0; i < r.length; i++) {
+              sum += jacobian[a][i] * r[i];
+            }
+            return sum;
+          }(),
+      ];
+
+      var improved = false;
+      for (var attempt = 0; attempt < 6; attempt++) {
+        final damped = [
+          for (var a = 0; a < n; a++)
+            [
+              for (var b = 0; b < n; b++)
+                normal[a][b] + (a == b ? damping * (normal[a][a] + 1e-9) : 0),
+            ],
+        ];
+        final step = _solve(damped, [for (final g in gradient) -g]);
+        if (step == null) {
+          damping *= 10;
+          continue;
+        }
+        final next = [for (var i = 0; i < n; i++) x[i] + step[i]];
+        final rn = residual(next);
+        final cn = _sumOfSquares(rn);
+        if (cn.isFinite && cn < cost) {
+          x = next;
+          r = rn;
+          cost = cn;
+          damping = max(damping / 3, 1e-9);
+          improved = true;
+          break;
+        }
+        damping *= 4;
+      }
+      if (!improved) break;
+    }
+    return x;
+  }
+
+  static double _sumOfSquares(List<double> values) {
+    var sum = 0.0;
+    for (final v in values) {
+      sum += v * v;
+    }
+    return sum;
+  }
+
+  /// Solves a x = b by Gaussian elimination, or null if a is singular.
+  static List<double>? _solve(List<List<double>> a, List<double> b) {
+    final n = b.length;
+    final m = [
+      for (var i = 0; i < n; i++) [...a[i], b[i]],
+    ];
+    for (var col = 0; col < n; col++) {
+      var pivot = col;
+      for (var r = col + 1; r < n; r++) {
+        if (m[r][col].abs() > m[pivot][col].abs()) pivot = r;
+      }
+      if (m[pivot][col].abs() < 1e-14) return null;
+      final swap = m[col];
+      m[col] = m[pivot];
+      m[pivot] = swap;
+      for (var r = col + 1; r < n; r++) {
+        final factor = m[r][col] / m[col][col];
+        for (var c = col; c <= n; c++) {
+          m[r][c] -= factor * m[col][c];
+        }
+      }
+    }
+    final x = List<double>.filled(n, 0);
+    for (var r = n - 1; r >= 0; r--) {
+      var sum = m[r][n];
+      for (var k = r + 1; k < n; k++) {
+        sum -= m[r][k] * x[k];
+      }
+      x[r] = sum / m[r][r];
+    }
+    return x.every((v) => v.isFinite) ? x : null;
   }
 
   // -- geometry helpers -----------------------------------------------------
+
+  /// [angle] brought into -pi..pi.
+  static double _wrapAngle(double angle) =>
+      (angle + pi) % (2 * pi) - pi;
 
   static List<Offset> _dedupe(List<Offset> points) {
     final result = <Offset>[];
@@ -469,33 +1008,6 @@ abstract class ShapeAnalysis {
     return current;
   }
 
-  /// How much the path turns at each point (radians, signed), comparing the
-  /// direction [window] points before with the direction [window] after.
-  static List<double> _turning(
-    List<Offset> points,
-    int window, {
-    required bool closed,
-  }) {
-    final n = points.length;
-    final result = List<double>.filled(n, 0);
-    for (var i = 0; i < n; i++) {
-      var before = i - window, after = i + window;
-      if (closed) {
-        before = (before % n + n) % n;
-        after = after % n;
-      } else if (before < 0 || after >= n) {
-        continue;
-      }
-      final v1 = points[i] - points[before];
-      final v2 = points[after] - points[i];
-      result[i] = atan2(
-        v1.dx * v2.dy - v1.dy * v2.dx,
-        v1.dx * v2.dx + v1.dy * v2.dy,
-      );
-    }
-    return result;
-  }
-
   /// Distance from [p] to the infinite line through [a] and [b].
   static double _lineDistance(Offset p, Offset a, Offset b) {
     final d = b - a;
@@ -549,11 +1061,41 @@ abstract class ShapeAnalysis {
   }
 }
 
-/// An ellipse fitted to a stroke, with how far the stroke strays from it
-/// (as a fraction of the radius): on average and at the worst point.
-class _EllipseFit {
-  const _EllipseFit(this.guess, this.mean, this.worst);
+/// A shape fitted to a closed stroke, with how far the stroke strays from
+/// it (as shares of the stroke's size) on average and at the worst point,
+/// and the score that decides between shapes (lower is better).
+class _Model {
+  const _Model(this.guess, this.average, this.worst, this.score);
 
   final ShapeGuess guess;
-  final double mean, worst;
+  final double average, worst, score;
+}
+
+/// A polygon fitted to a closed stroke: its corners, and how far the stroke
+/// strays from it on average and at worst (page units).
+class _Polygon {
+  const _Polygon(this.corners, this.average, this.worst);
+
+  final List<Offset> corners;
+  final double average, worst;
+}
+
+class _EllipseFit {
+  const _EllipseFit(this.center, this.a, this.b, this.tilt);
+
+  final Offset center;
+
+  /// The long and the short radius, and the tilt of the long one.
+  final double a, b, tilt;
+
+  /// An (approximate) distance from [p] to the outline.
+  double distanceTo(Offset p) =>
+      ShapeAnalysis._ellipseResidual(p, [center.dx, center.dy, a, b, tilt]).abs();
+}
+
+class _RectangleFit {
+  const _RectangleFit(this.center, this.width, this.height, this.tilt);
+
+  final Offset center;
+  final double width, height, tilt;
 }
