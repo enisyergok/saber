@@ -63,6 +63,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(calls, ['clear']);
+    // A widget test must hand this back before it ends.
+    debugDefaultTargetPlatformOverride = null;
   });
 
   test('where the overlay is off, nothing is sent', () async {
