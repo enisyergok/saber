@@ -296,6 +296,11 @@ class MainActivity: FlutterActivity() {
                             ink?.clear()
                             result.success(null)
                         }
+                        "statsReset" -> {
+                            ink?.resetStats()
+                            result.success(null)
+                        }
+                        "stats" -> result.success(ink?.stats())
                         else -> result.notImplemented()
                     }
                 } catch (_: Throwable) {

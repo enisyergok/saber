@@ -9,6 +9,7 @@ import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -54,6 +55,8 @@ class InkOverlay(private val activity: Activity) : SurfaceHolder.Callback {
         val x0: Float, val y0: Float, val r0: Float,
         val x1: Float, val y1: Float, val r1: Float,
         val color: Int,
+        /// When the pen was at the end point (uptime, milliseconds).
+        val at: Long,
     )
 
     private var view: SurfaceView? = null
@@ -192,7 +195,7 @@ class InkOverlay(private val activity: Activity) : SurfaceHolder.Callback {
         lastX = event.x + shiftX
         lastY = event.y + shiftY
         lastRadius = radiusAt(config, event.pressure, 0f)
-        push(lastX, lastY, lastRadius, lastX, lastY, lastRadius, config.color)
+        push(lastX, lastY, lastRadius, lastX, lastY, lastRadius, config.color, event.eventTime)
     }
 
     private fun addAll(event: MotionEvent) {
@@ -200,16 +203,16 @@ class InkOverlay(private val activity: Activity) : SurfaceHolder.Callback {
         for (h in 0 until event.historySize) {
             add(
                 event.getHistoricalX(h) + shiftX, event.getHistoricalY(h) + shiftY,
-                event.getHistoricalPressure(h), config,
+                event.getHistoricalPressure(h), config, event.getHistoricalEventTime(h),
             )
         }
-        add(event.x + shiftX, event.y + shiftY, event.pressure, config)
+        add(event.x + shiftX, event.y + shiftY, event.pressure, config, event.eventTime)
     }
 
-    private fun add(x: Float, y: Float, pressure: Float, config: Config) {
+    private fun add(x: Float, y: Float, pressure: Float, config: Config, at: Long) {
         run += hypot(x - lastX, y - lastY)
         val r = radiusAt(config, pressure, run)
-        push(lastX, lastY, lastRadius, x, y, r, config.color)
+        push(lastX, lastY, lastRadius, x, y, r, config.color, at)
         lastX = x
         lastY = y
         lastRadius = r
@@ -228,8 +231,9 @@ class InkOverlay(private val activity: Activity) : SurfaceHolder.Callback {
 
     private fun push(
         x0: Float, y0: Float, r0: Float, x1: Float, y1: Float, r1: Float, color: Int,
+        at: Long,
     ) {
-        pending.add(Segment(x0, y0, r0, x1, y1, r1, color))
+        pending.add(Segment(x0, y0, r0, x1, y1, r1, color, at))
         dirty = true
         if (scheduled.compareAndSet(false, true)) handler.post(drawRunnable)
     }
@@ -290,6 +294,35 @@ class InkOverlay(private val activity: Activity) : SurfaceHolder.Callback {
         } finally {
             holder.unlockCanvasAndPost(canvas)
         }
+        val posted = SystemClock.uptimeMillis()
+        synchronized(delays) {
+            for (s in segments) {
+                if (delays.size >= 20000) break
+                delays.add((posted - s.at).coerceAtLeast(0))
+            }
+        }
+    }
+
+    /// How long each drawn point took from the pen's event to the picture
+    /// being handed to the screen (milliseconds), for the latency report.
+    private val delays = ArrayList<Long>()
+
+    fun resetStats() {
+        synchronized(delays) { delays.clear() }
+    }
+
+    /// Count, median, 95th percentile and worst of those delays, or null if
+    /// nothing was drawn since the last reset.
+    fun stats(): Map<String, Any>? {
+        val sorted = synchronized(delays) { delays.sorted() }
+        if (sorted.isEmpty()) return null
+        fun at(p: Int) = sorted[((sorted.size - 1) * p / 100)].toDouble()
+        return mapOf(
+            "count" to sorted.size,
+            "p50" to at(50),
+            "p95" to at(95),
+            "max" to sorted.last().toDouble(),
+        )
     }
 
     private fun drawSegment(canvas: Canvas, s: Segment) {

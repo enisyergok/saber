@@ -1,3 +1,4 @@
+import 'dart:async' show unawaited;
 import 'dart:ui' show FrameTiming;
 
 import 'package:flutter/foundation.dart';
@@ -28,6 +29,7 @@ class PenLatencyProbe {
   void start() {
     if (recording.value) return;
     _recorder = PenLatencyRecorder()..start(_clock.elapsedMicroseconds);
+    unawaited(_inkCall('statsReset'));
     if (!_frameHooked) {
       // Persistent callbacks can't be removed: this one does nothing
       // while there is no recording.
@@ -52,7 +54,29 @@ class PenLatencyProbe {
       prediction: false,
       displayHz: _displayHz(),
       displayModes: await _displayModes(),
+      overlay: await _overlayStats(),
     );
+  }
+
+  static const _ink = MethodChannel('defter/ink');
+
+  Future<Object?> _inkCall(String method) async {
+    try {
+      return await _ink.invokeMethod<Object?>(method);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// What the fast live ink measured during the recording, if it drew.
+  Future<Map<String, double>?> _overlayStats() async {
+    final raw = await _inkCall('stats');
+    if (raw is! Map) return null;
+    return {
+      for (final e in raw.entries)
+        if (e.key is String && e.value is num)
+          e.key! as String: (e.value! as num).toDouble(),
+    };
   }
 
   /// The display modes reported by the Android side, if available.

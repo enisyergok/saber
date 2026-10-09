@@ -11,6 +11,7 @@ PenLatencyReport simulate({
   bool prediction = true,
   int slowEvery = 0,
   int clockOffsetUs = 0,
+  Map<String, double>? overlay,
 }) {
   final recorder = PenLatencyRecorder()..start(0);
   final end = seconds * 1000000;
@@ -36,7 +37,11 @@ PenLatencyReport simulate({
       rasterUs: 5000,
     );
   }
-  return recorder.finish(prediction: prediction, displayHz: 120);
+  return recorder.finish(
+    prediction: prediction,
+    displayHz: 120,
+    overlay: overlay,
+  );
 }
 
 void main() {
@@ -140,5 +145,20 @@ void main() {
     expect(text, contains('Yazılım gecikmesi'));
     expect(text, contains('gerisinde'));
     expect(text, contains('120 Hz'));
+  });
+
+  test('the fast live ink is reported next to the normal path', () {
+    final text = simulate(
+      prediction: false,
+      overlay: {'count': 500, 'p50': 6, 'p95': 14, 'max': 30},
+    ).toText();
+    expect(text, contains('Hızlı canlı çizgi (olay → ekran belleği)'));
+    expect(text, contains('ortanca 6.0 ms'));
+    expect(text, contains('normal yol'));
+  });
+
+  test('without the fast live ink the report says so', () {
+    final text = simulate(prediction: false).toText();
+    expect(text, contains('bu kayıtta çizim yok'));
   });
 }
