@@ -426,9 +426,7 @@ void main() {
             i >= triangle.length - k
                 ? triangle[i] +
                       (const Offset(300, 300) - triangle[i]) *
-                          0.5 *
-                          (i - (triangle.length - k) + 1) /
-                          k
+                          (0.5 * (i - (triangle.length - k) + 1) / k)
                 : triangle[i],
         ];
         final guess = ShapeAnalysis.analyze(hooked);
