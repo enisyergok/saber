@@ -62,6 +62,10 @@ import 'package:saber/data/tools/laser_pointer.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pen_boost.dart';
+import 'package:saber/data/tools/pen_feel.dart';
+import 'package:saber/data/tools/pen_overlay.dart';
+import 'package:saber/data/tools/pressure_calibration.dart';
+import 'package:saber/data/tools/pressure_curve.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/components/editor/pen_latency_dialog.dart';
 import 'package:saber/components/eink/eink_refresh.dart';
@@ -269,6 +273,8 @@ class EditorState extends State<Editor> {
   void initState() {
     DynamicMaterialApp.addFullscreenListener(_setState);
     _transformationController.addListener(_scheduleVisiblePageUpdate);
+    _transformationController.addListener(_queuePenOverlaySync);
+    stows.penOverlay.addListener(_queuePenOverlaySync);
     OpenTabs.paths.addListener(_setState);
     stows.editorPageSidebar.addListener(_setState);
     stows.penProbe.addListener(_setState);
@@ -1164,6 +1170,7 @@ class EditorState extends State<Editor> {
     bool shouldSave = true;
     EraserCursor.at.value = null;
     unawaited(PenBoost.stop());
+    PenOverlay.clearSoon();
     setState(() {
       if (currentTool is Pen) {
         final pen = currentTool as Pen;
@@ -2521,8 +2528,90 @@ class EditorState extends State<Editor> {
     }
   }
 
+  bool _overlaySyncQueued = false;
+
+  /// Tells the Android side how the pen draws now (colour, width, pressure),
+  /// so that it can draw the line as it is written (see [PenOverlay]).
+  void _queuePenOverlaySync() {
+    if (_overlaySyncQueued || !PenOverlay.isSupported) return;
+    _overlaySyncQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _overlaySyncQueued = false;
+      if (!mounted) return;
+      PenOverlay.sync(_penOverlayConfig());
+    });
+  }
+
+  /// How the pen's next line is drawn, or null if the fast live ink does not
+  /// apply (it is off, another tool is in use, the pen draws something the
+  /// overlay can't show).
+  Map<String, Object?>? _penOverlayConfig() {
+    if (!stows.penOverlay.value) return null;
+    if (ModalRoute.of(context)?.isCurrent == false) return null;
+    final tool = currentTool;
+    if (tool is! Pen) return null;
+    final kind = tool.kind;
+    if (kind == null || kind == PenKind.calligraphy) return null;
+    if (stows.rulerMode.value) return null;
+    // A see-through colour would show through twice.
+    final argb = tool.color.toARGB32();
+    if (argb >>> 24 != 0xFF) return null;
+
+    RenderBox? pageBox;
+    for (final page in coreInfo.pages) {
+      pageBox = page.renderBox;
+      if (pageBox != null && pageBox.hasSize) break;
+      pageBox = null;
+    }
+    final area = _canvasGestureDetectorKey.currentContext?.findRenderObject();
+    if (pageBox == null || area is! RenderBox || !area.hasSize) return null;
+    final ratio = MediaQuery.devicePixelRatioOf(context);
+    final unit =
+        (pageBox.localToGlobal(const Offset(1, 0)) -
+                pageBox.localToGlobal(Offset.zero))
+            .distance *
+        ratio;
+    if (!unit.isFinite || unit <= 0) return null;
+
+    final options = tool.strokeOptions;
+    final taper = options.start.taperEnabled
+        ? (options.start.customTaper ?? options.size)
+        : 0.0;
+
+    // The pressure each raw pressure becomes, as the pen works it out.
+    final curve = PressureCurve.parse(stows.pressureCurve.value);
+    final flat = stows.pressureAuto.value && PressureCalibration.isFlat;
+    final pressures = <double>[
+      for (var i = 0; i < PenOverlay.pressureSteps; i++)
+        if (!tool.pressureEnabled || flat)
+          0.5
+        else
+          curve.map(
+            stows.pressureAuto.value
+                ? PressureCalibration.map(i / (PenOverlay.pressureSteps - 1))
+                : i / (PenOverlay.pressureSteps - 1),
+          ),
+    ];
+
+    final topLeft = area.localToGlobal(Offset.zero) * ratio;
+    final bottomRight = area.localToGlobal(area.size.bottomRight(Offset.zero)) *
+        ratio;
+    return {
+      'color': argb,
+      'size': options.size * unit,
+      'thinning': options.thinning,
+      'taper': taper * unit,
+      'pressure': pressures,
+      'left': topLeft.dx,
+      'top': topLeft.dy,
+      'right': bottomRight.dx,
+      'bottom': bottomRight.dy,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    _queuePenOverlaySync();
     final colorScheme = ColorScheme.of(context);
     final platform = Theme.of(context).platform;
     final isToolbarVertical =
@@ -3795,6 +3884,9 @@ class EditorState extends State<Editor> {
     stows.penProbe.removeListener(_setState);
     _visiblePageIndex.removeListener(_onVisiblePageChanged);
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
+    _transformationController.removeListener(_queuePenOverlaySync);
+    stows.penOverlay.removeListener(_queuePenOverlaySync);
+    PenOverlay.sync(null);
     OpenTabs.paths.removeListener(_setState);
 
     _delayedSaveTimer?.cancel();

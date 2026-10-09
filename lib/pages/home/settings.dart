@@ -670,6 +670,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   pref: stows.penProbe,
                 ),
                 SettingsSwitch(
+                  title: DefterStrings.penOverlay,
+                  subtitle: DefterStrings.penOverlaySubtitle,
+                  icon: Symbols.bolt_rounded,
+                  pref: stows.penOverlay,
+                ),
+                SettingsSwitch(
                   title: DefterStrings.holdToSnap,
                   subtitle: DefterStrings.holdToSnapSubtitle,
                   icon: Symbols.gesture_rounded,

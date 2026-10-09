@@ -214,6 +214,14 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Draw the pen's line straight to the screen on Android while it is
+  /// written (see PenOverlay). Off until it has been tried on the device.
+  final penOverlay = PlainStow(
+    'penOverlay',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   final shapeHoldToSnap = PlainStow(
     'shapeHoldToSnap',
     true,

@@ -907,6 +907,11 @@ abstract class DefterStrings {
   // Shapes
   static String get holdToSnap =>
       _tr ? 'Bekleyince şekli düzelt' : 'Hold to snap shapes';
+  static String get penOverlay =>
+      _tr ? 'Hızlı canlı çizgi (deneysel)' : 'Fast live ink (experimental)';
+  static String get penOverlaySubtitle => _tr
+      ? 'Yazarken çizgiyi doğrudan ekrana çizer; kalem gecikmesini azaltır. Tahmin yapmaz'
+      : 'Draws the line straight to the screen while writing, for less lag. Predicts nothing';
   static String get holdToSnapSubtitle => _tr
       ? 'Bir şekil çizip kalemi bekletince çizgi düzgün şekle dönüşür'
       : 'Draw a shape and hold the pen still to straighten it';
