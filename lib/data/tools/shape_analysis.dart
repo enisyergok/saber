@@ -156,11 +156,15 @@ abstract class ShapeAnalysis {
   static const _trimMargin = 0.004;
   static const _trimPrice = 0.01;
 
+  /// A trimmed stroke has to be nearly convex: trimming must not turn a
+  /// heart into a blob.
+  static const _trimmedConvexShare = 0.97;
+
   /// The best reading of [points] as a closed shape, trying the stroke as
   /// it is and with its ends trimmed. The stroke as it is wins unless a
   /// trimmed one is clearly better.
   static ShapeGuess? _closedTrimmed(List<Offset> points, double size) {
-    _Model? whole;
+    _Model? untrimmed;
     _Model? best;
     var bestScore = double.infinity;
     for (final start in _trims) {
@@ -169,10 +173,15 @@ abstract class ShapeAnalysis {
         if (part.length < 8) continue;
         final gap = (part.first - part.last).distance;
         if (gap > 0.18 * _pathLength(part)) continue;
-        final model = _closed(_closeLoop(part), size);
+        final isWhole = start == 0 && end == 0;
+        final model = _closed(
+          _closeLoop(part),
+          size,
+          convexShare: isWhole ? _convexShare : _trimmedConvexShare,
+        );
         if (model == null) continue;
-        if (start == 0 && end == 0) {
-          whole = model;
+        if (isWhole) {
+          untrimmed = model;
           continue;
         }
         final score = model.score + _trimMargin + _trimPrice * (start + end);
@@ -182,9 +191,9 @@ abstract class ShapeAnalysis {
         }
       }
     }
-    if (whole == null) return best?.guess;
-    if (best != null && bestScore < whole.score) return best.guess;
-    return whole.guess;
+    if (untrimmed == null) return best?.guess;
+    if (best != null && bestScore < untrimmed.score) return best.guess;
+    return untrimmed.guess;
   }
 
   /// [points] without [start] of the path length at the start and [end] of
@@ -314,7 +323,11 @@ abstract class ShapeAnalysis {
 
   // -- closed strokes -------------------------------------------------------
 
-  static _Model? _closed(List<Offset> stroke, double size) {
+  static _Model? _closed(
+    List<Offset> stroke,
+    double size, {
+    double convexShare = _convexShare,
+  }) {
     final ring = _smooth(
       _resample(stroke, _ringSize, closed: true),
       closed: true,
@@ -322,7 +335,7 @@ abstract class ShapeAnalysis {
     );
     final n = ring.length;
     final window = max(2, n ~/ 24);
-    if (_turningShare(ring, max(3, n ~/ 12)) < _convexShare) return null;
+    if (_turningShare(ring, max(3, n ~/ 12)) < convexShare) return null;
 
     final models = <_Model>[];
 
