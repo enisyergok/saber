@@ -76,6 +76,7 @@ class PenLatencyRecorder {
     required bool prediction,
     double? displayHz,
     String? displayModes,
+    Map<String, double>? overlay,
   }) {
     // Time between consecutive pen events (ignoring pauses between strokes).
     final intervals = <double>[];
@@ -115,6 +116,7 @@ class PenLatencyRecorder {
     return PenLatencyReport(
       clocksDiffer: clocksDiffer,
       displayModes: displayModes,
+      overlay: overlay,
       seconds: (_endedAtUs - _startedAtUs) / 1e6,
       events: _eventUs.length,
       kinds: _kinds.toList()..sort(),
@@ -173,6 +175,7 @@ class PenLatencyReport {
   const PenLatencyReport({
     required this.clocksDiffer,
     required this.displayModes,
+    this.overlay,
     required this.seconds,
     required this.events,
     required this.kinds,
@@ -198,6 +201,11 @@ class PenLatencyReport {
 
   /// The display modes the device offers and the one in use, if known.
   final String? displayModes;
+
+  /// How long the fast live ink took from the pen's event to the picture
+  /// handed to the screen (count, p50, p95, max in milliseconds), if it
+  /// drew anything during the recording.
+  final Map<String, double>? overlay;
 
   final double seconds;
   final int events;
@@ -317,6 +325,31 @@ class PenLatencyReport {
       'Hızlı çizgide kalem hızı ${fastSpeed.toStringAsFixed(0)} px/sn → '
       'çizgi ucu kalemin yaklaşık ${trailPx.toStringAsFixed(0)} px gerisinde',
     );
+    final fast = overlay;
+    if (fast != null && fast['count'] != null && fast['count']! > 0) {
+      final p50 = fast['p50'] ?? 0;
+      b.writeln('');
+      b.writeln(
+        'Hızlı canlı çizgi (olay → ekran belleği): ortanca ${ms(p50)} ms, '
+        '%95 ${ms(fast['p95'] ?? 0)} ms, en çok ${ms(fast['max'] ?? 0)} ms '
+        '(${fast['count']!.toStringAsFixed(0)} nokta)',
+      );
+      b.writeln(
+        'Ekrana yansıma dahil tahmin (+1 kare = ${ms(frameIntervalMs)} ms): '
+        '${ms(p50 + frameIntervalMs)} ms (normal yol: ${ms(totalLatencyMs)} ms)',
+      );
+      b.writeln(
+        'Hızlı çizgide çizgi ucu kalemin yaklaşık '
+        '${(fastSpeed * (p50 + frameIntervalMs) / 1000).toStringAsFixed(0)} px '
+        'gerisinde (normal yolda ${trailPx.toStringAsFixed(0)} px)',
+      );
+    } else {
+      b.writeln('');
+      b.writeln(
+        'Hızlı canlı çizgi: bu kayıtta çizim yok (ayar kapalı ya da kalem '
+        'bu yolu kullanmıyor).',
+      );
+    }
     b.write(
       'Not: ekran panelinin ve sistem katmanının kendi gecikmesi bu '
       'sayıya dahil değildir.',
