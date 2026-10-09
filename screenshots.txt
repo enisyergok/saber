@@ -1,0 +1,54 @@
+
+::group::✅ Passing tests
+✅ Defter screens: library
+✅ Defter screens: new_notebook
+✅ Defter screens: templates
+✅ Defter screens: home
+✅ Defter screens: home_accent_yellow
+✅ Defter screens: home_accent_black
+✅ Defter screens: wizard_template
+✅ Defter screens: wizard_cover
+✅ Defter screens: wizard_size
+✅ Defter screens: wizard_folder
+✅ Defter screens: wizard_summary
+✅ Defter screens: gallery_planner
+✅ Defter screens: gallery_engineering
+✅ Defter screens: gallery_diagram
+✅ Defter screens: pen_panel
+✅ Defter screens: pen_lines
+✅ Defter screens: recent
+✅ Defter screens: editor
+✅ Defter screens: benchmark_note
+✅ Defter screens: editor_pages
+✅ Defter screens: editor_sidebar
+✅ Defter screens: editor_shape_selected
+✅ Defter screens: cmp_blank_normal
+✅ Defter screens: cmp_blank_eink
+✅ Defter screens: cmp_handwriting_normal
+✅ Defter screens: cmp_handwriting_eink
+✅ Defter screens: cmp_photo_normal
+✅ Defter screens: cmp_photo_eink
+✅ Defter screens: cmp_pdf_normal
+✅ Defter screens: cmp_pdf_eink
+✅ Defter screens: eink_library
+✅ Defter screens: eink_settings
+✅ Defter screens: eink_new_notebook
+✅ Defter screens: eraser_cuts
+✅ Defter screens: display_rate
+::endgroup::
+::group::✅ Defter screens: pdf_import
+Helvetica has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+::endgroup::
+::group::✅ Passing tests
+✅ Defter screens: image_actions
+::endgroup::
+::group::✅ Defter screens: pdf_picker
+Helvetica has no Unicode support see https://github.com/DavBfr/dart_pdf/wiki/Fonts-Management
+::endgroup::
+::group::✅ Passing tests
+✅ Defter screens: pdf_remove_dialog
+✅ Defter screens: backup_page
+✅ Defter screens: versions_dialog
+::endgroup::
+
+🎉 41 tests passed.

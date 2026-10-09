@@ -1,0 +1,329 @@
+Analyzing saber...                                              
+
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • lib/components/canvas/_canvas_background_painter.dart:414:7 • prefer_const_declarations
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • lib/components/canvas/_canvas_background_painter.dart:506:7 • prefer_const_declarations
+   info • Use 'isEven' rather than '% 2'. Try using 'isEven' • lib/components/canvas/_canvas_background_painter.dart:625:29 • use_is_even_rather_than_modulo
+   info • Use 'isEven' rather than '% 2'. Try using 'isEven' • lib/components/canvas/_canvas_background_painter.dart:626:29 • use_is_even_rather_than_modulo
+   info • Use 'isOdd' rather than '% 2'. Try using 'isOdd' • lib/components/canvas/_canvas_background_painter.dart:630:17 • use_is_even_rather_than_modulo
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/components/canvas/_canvas_painter.dart:4:8 • unnecessary_import
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/canvas/_canvas_painter.dart:18:1 • directives_ordering
+   info • The import of 'package:vector_math/vector_math_64.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/components/canvas/_circle_stroke.dart:9:8 • unnecessary_import
+   info • The import of 'package:vector_math/vector_math_64.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/components/canvas/_rectangle_stroke.dart:7:8 • unnecessary_import
+   info • The import of 'package:vector_math/vector_math_64.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/components/canvas/_stroke.dart:14:8 • unnecessary_import
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/canvas/_stroke.dart:15:1 • directives_ordering
+warning • The declaration '_getOnyxColor' isn't referenced. Try removing the declaration of '_getOnyxColor' • lib/components/canvas/canvas.dart:48:9 • unused_element
+warning • The declaration '_getOnyxWidth' isn't referenced. Try removing the declaration of '_getOnyxWidth' • lib/components/canvas/canvas.dart:56:10 • unused_element
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/canvas/canvas_gesture_detector.dart:11:1 • directives_ordering
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/canvas/canvas_image.dart:126:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/canvas_image.dart:677:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/eraser_cursor.dart:9:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/eraser_cursor.dart:43:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/canvas/image/editor_image.dart:278:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/canvas/image/editor_image.dart:288:3 • omit_obvious_property_types
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/canvas/inner_canvas.dart:16:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/canvas/inner_canvas.dart:19:1 • directives_ordering
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/canvas/inner_canvas.dart:74:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/interactive_canvas.dart:1231:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/interactive_canvas.dart:1248:3 • unnecessary_type_name_in_constructor
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/components/canvas/measure_readout.dart:2:8 • unnecessary_import
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/measure_readout.dart:14:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/canvas/measure_readout.dart:126:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor/editor_tab_strip.dart:6:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor/page_menu.dart:10:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor/page_sidebar.dart:10:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor/pen_latency_dialog.dart:7:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_actions.dart:16:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_bar.dart:20:9 • unnecessary_type_name_in_constructor
+warning • The operand can't be 'null', so the condition is always 'false'. Try removing the condition, an enclosing condition, or the whole conditional statement • lib/components/editor_gn/gn_bar.dart:154:43 • unnecessary_null_comparison
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_bar.dart:336:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_bar.dart:373:9 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/editor_gn/gn_overlay.dart:16:1 • directives_ordering
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_overlay.dart:37:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_overlay.dart:333:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_overlay.dart:363:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_overlay.dart:398:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_palette.dart:8:9 • unnecessary_type_name_in_constructor
+   info • Static method should be a constructor. Try converting the method into a constructor • lib/components/editor_gn/gn_palette.dart:24:20 • prefer_constructors_over_static_methods
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_profiles.dart:15:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_profiles.dart:168:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_settings.dart:29:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_settings.dart:1096:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_settings.dart:1131:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_settings.dart:1234:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_settings.dart:1309:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/editor_gn/gn_pen_settings.dart:1373:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/eink/eink_refresh.dart:16:3 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/eink/eink_refresh.dart:29:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/eink/eink_refresh_overlay.dart:19:14 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/favorite_note_button.dart:9:9 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/home/new_note_button.dart:4:1 • directives_ordering
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/new_notebook_dialog.dart:16:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:31:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:63:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:110:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/notebook_cover.dart:149:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/paper_thumb.dart:11:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/paper_thumb.dart:103:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/home/paper_thumb.dart:176:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/navbar/home_sidebar.dart:19:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/navbar/home_sidebar.dart:357:9 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/settings/app_info.dart:5:1 • directives_ordering
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • lib/components/settings/settings_sentry.dart:10:5 • prefer_const_declarations
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/settings/stylus_test_dialog.dart:13:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/settings/stylus_test_dialog.dart:23:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/settings/stylus_test_dialog.dart:34:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/settings/stylus_test_dialog.dart:295:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/theming/defter_design.dart:301:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/theming/defter_design.dart:352:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/theming/defter_design.dart:393:14 • omit_obvious_property_types
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/toolbar/editor_bottom_sheet.dart:16:1 • directives_ordering
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/components/toolbar/editor_bottom_sheet.dart:633:29 • use_build_context_synchronously
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/editor_bottom_sheet.dart:742:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/editor_page_grid.dart:11:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/editor_page_grid.dart:160:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/handwriting_index_dialog.dart:12:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/handwriting_index_dialog.dart:37:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/handwriting_index_dialog.dart:38:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/handwriting_index_dialog.dart:39:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/image_crop_dialog.dart:36:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/image_crop_dialog.dart:208:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/note_versions_dialog.dart:11:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/note_versions_dialog.dart:249:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/pdf_crop_dialog.dart:7:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/pdf_crop_dialog.dart:28:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/pdf_crop_dialog.dart:124:9 • unnecessary_type_name_in_constructor
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart'. Try removing the import directive • lib/components/toolbar/pdf_picker_dialog.dart:5:8 • unnecessary_import
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/pdf_picker_dialog.dart:168:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/pdf_picker_dialog.dart:173:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/pdf_picker_dialog.dart:175:3 • omit_obvious_property_types
+   info • Use 'DecoratedBox' rather than a 'Container' with only a 'Decoration'. Try replacing the 'Container' with a 'DecoratedBox' • lib/components/toolbar/pdf_picker_dialog.dart:444:24 • use_decorated_box
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/pdf_picker_dialog.dart:720:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/pdf_tools_dialog.dart:9:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/pdf_tools_dialog.dart:25:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/pdf_tools_dialog.dart:26:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:14:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:135:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:207:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/components/toolbar/quick_style_bar.dart:252:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/recognize_dialog.dart:28:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/components/toolbar/recordings_dialog.dart:25:3 • omit_obvious_property_types
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/components/toolbar/toolbar.dart:10:1 • directives_ordering
+   info • Use of an async 'dart:io' method. Try using the synchronous version of the method • lib/data/audio/note_recordings.dart:71:26 • avoid_slow_async_io
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:38:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:48:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:95:11 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:128:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:143:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:168:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/note_backup.dart:209:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:10:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:19:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:28:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:57:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:73:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:102:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:423:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/backup/zip_file.dart:437:11 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/benchmark/pen_latency.dart:23:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/benchmark/pen_latency.dart:24:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/benchmark/pen_latency.dart:25:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/benchmark/pen_latency.dart:26:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/benchmark/pen_latency.dart:157:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/benchmark/pen_latency.dart:159:11 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/benchmark/pen_latency.dart:178:9 • unnecessary_type_name_in_constructor
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/scheduler.dart'. Try removing the import directive • lib/data/benchmark/pen_latency_probe.dart:2:8 • unnecessary_import
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/widgets.dart'. Try removing the import directive • lib/data/benchmark/pen_latency_probe.dart:4:8 • unnecessary_import
+warning • Unused import: 'package:saber/data/prefs.dart'. Try removing the import directive • lib/data/benchmark/pen_latency_probe.dart:10:8 • unused_import
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/benchmark/pen_latency_probe.dart:17:3 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/benchmark/pen_latency_probe.dart:26:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/covers/cover_designs.dart:12:9 • unnecessary_type_name_in_constructor
+   info • Use of an async 'dart:io' method. Try using the synchronous version of the method • lib/data/editor/note_assets.dart:50:17 • avoid_slow_async_io
+   info • Use of an async 'dart:io' method. Try using the synchronous version of the method • lib/data/editor/note_assets.dart:87:24 • avoid_slow_async_io
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/editor/note_cover.dart:22:3 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/editor/page.dart:298:14 • omit_obvious_property_types
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/data/file_manager/file_manager.dart:19:1 • directives_ordering
+   info • Unnecessary 'const' keyword in an enum constructor. Try removing the keyword • lib/data/notebooks/notebook_spec.dart:23:3 • unnecessary_const_in_enum_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/notebooks/notebook_spec.dart:23:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/notebooks/notebook_spec.dart:59:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/notebooks/paper_templates.dart:87:9 • unnecessary_type_name_in_constructor
+   info • Uncancelled instance of 'StreamSubscription'. Try invoking 'cancel' in the function in which the 'StreamSubscription' was created • lib/data/open_tabs.dart:15:45 • cancel_subscriptions
+   info • Static method should be a constructor. Try converting the method into a constructor • lib/data/pdf/pdf_crop.dart:81:18 • prefer_constructors_over_static_methods
+   info • Use of an async 'dart:io' method. Try using the synchronous version of the method • lib/data/pdf/pdf_import.dart:71:18 • avoid_slow_async_io
+   info • Use of an async 'dart:io' method. Try using the synchronous version of the method • lib/data/pdf/pdf_import.dart:146:50 • avoid_slow_async_io
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • lib/data/pdf/pdf_pick.dart:59:32 • prefer_const_constructors
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/pdf/pdf_pick.dart:74:9 • unnecessary_type_name_in_constructor
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • lib/data/routes.dart:36:10 • prefer_const_declarations
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/handwriting_text.dart:15:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/handwriting_text.dart:28:11 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/search/handwriting_text.dart:55:10 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/handwriting_text.dart:151:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/handwriting_text.dart:157:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/note_search.dart:11:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/note_search.dart:45:11 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/note_search.dart:56:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/search/note_search.dart:82:3 • unnecessary_type_name_in_constructor
+   info • Static method should be a constructor. Try converting the method into a constructor • lib/data/search/note_search.dart:87:30 • prefer_constructors_over_static_methods
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/ink_eraser.dart:10:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/ink_eraser.dart:26:3 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/ink_eraser.dart:29:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/ink_eraser.dart:49:3 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/data/tools/pen.dart:11:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/data/tools/pen.dart:16:1 • directives_ordering
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen.dart:227:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen.dart:231:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen.dart:232:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen.dart:241:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen.dart:242:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen_assist.dart:191:16 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/pen_boost.dart:15:3 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/pen_boost.dart:19:10 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/pen_overlay.dart:16:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/pen_styles.dart:122:3 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/pen_styles.dart:144:11 • unnecessary_type_name_in_constructor
+   info • Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' • lib/data/tools/pen_styles.dart:311:11 • use_null_aware_elements
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/pressure_curve.dart:8:9 • unnecessary_type_name_in_constructor
+   info • Static method should be a constructor. Try converting the method into a constructor • lib/data/tools/pressure_curve.dart:54:24 • prefer_constructors_over_static_methods
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/shape_analysis.dart:16:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/shape_analysis.dart:1138:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/shape_analysis.dart:1147:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/shape_analysis.dart:1154:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/shape_analysis.dart:1167:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/shape_snap.dart:105:10 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/shape_snap.dart:108:10 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/shape_snap.dart:119:16 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/shape_snap.dart:124:10 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/shape_snap.dart:127:10 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/stylus_action.dart:49:10 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/tools/stylus_action.dart:70:3 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/stylus_action.dart:76:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/data/tools/stylus_action.dart:77:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/versions/note_versions.dart:19:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/data/versions/note_versions.dart:151:9 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/main.dart:16:1 • directives_ordering
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/ask_notes.dart:21:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/backup.dart:17:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/backup.dart:29:11 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/backup.dart:69:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/backup.dart:118:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/backup.dart:546:9 • unnecessary_type_name_in_constructor
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/scheduler.dart'. Try removing the import directive • lib/pages/benchmark.dart:3:8 • unnecessary_import
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/benchmark.dart:8:1 • directives_ordering
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/benchmark.dart:23:9 • unnecessary_type_name_in_constructor
+   info • Use an 'if' element to conditionally add elements. Try using an 'if' element rather than a conditional expression • lib/pages/benchmark.dart:245:7 • prefer_if_elements_to_conditional_expressions
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/display_rate.dart:270:3 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:52:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:58:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:60:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:69:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:70:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:72:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:75:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:77:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:82:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:86:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:87:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/editor/editor.dart:94:1 • directives_ordering
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/editor/editor.dart:247:3 • omit_obvious_property_types
+   info • Use 'isNotEmpty' rather than negating the result of 'isEmpty'. Try rewriting the expression to use 'isNotEmpty' • lib/pages/editor/editor.dart:347:38 • prefer_is_not_empty
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/editor/editor.dart:845:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/editor/editor.dart:1700:3 • omit_obvious_property_types
+   info • Use 'isNotEmpty' rather than negating the result of 'isEmpty'. Try rewriting the expression to use 'isNotEmpty' • lib/pages/editor/editor.dart:2264:35 • prefer_is_not_empty
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/editor/editor.dart:2531:3 • omit_obvious_property_types
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/favorites.dart:11:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/handwriting_settings.dart:19:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/handwriting_settings.dart:20:3 • omit_obvious_property_types
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • lib/pages/handwriting_settings.dart:22:3 • omit_obvious_property_types
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/home/browse.dart:16:1 • directives_ordering
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/home/dashboard.dart:26:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/home/dashboard.dart:50:9 • unnecessary_type_name_in_constructor
+   info • Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' • lib/pages/home/dashboard.dart:280:19 • use_null_aware_elements
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/home/dashboard.dart:663:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/home/new_notebook_wizard.dart:18:9 • unnecessary_type_name_in_constructor
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/home/recent_notes.dart:10:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/home/settings.dart:19:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • lib/pages/home/settings.dart:32:1 • directives_ordering
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/home/template_gallery.dart:11:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/search.dart:12:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • lib/pages/trash.dart:10:9 • unnecessary_type_name_in_constructor
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/arrow_test.dart:27:20 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/arrow_test.dart:65:28 • use_named_constants
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • test/benchmarks/eink_benchmarks_test.dart:142:5 • prefer_const_declarations
+   info • The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/services.dart'. Try removing the import directive • test/defter_screens_test.dart:10:8 • unnecessary_import
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:11:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:24:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:26:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:29:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:32:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:36:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:40:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:42:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:46:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:49:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:51:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:53:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:54:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:55:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:57:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:58:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:61:1 • directives_ordering
+   info • Sort directive sections alphabetically. Try sorting the directives • test/defter_screens_test.dart:65:1 • directives_ordering
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/defter_screens_test.dart:402:11 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/defter_screens_test.dart:414:11 • prefer_const_constructors
+   info • Unnecessary type name in a constructor. Try removing the type name • test/defter_screens_test.dart:810:9 • unnecessary_type_name_in_constructor
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/defter_screens_test.dart:921:19 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/defter_screens_test.dart:986:15 • use_named_constants
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/defter_screens_test.dart:986:63 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/defter_screens_test.dart:988:16 • use_named_constants
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/defter_screens_test.dart:989:9 • prefer_const_constructors
+   info • Unnecessary type name in a constructor. Try removing the type name • test/defter_screens_test.dart:1027:9 • unnecessary_type_name_in_constructor
+   info • Unnecessary type name in a constructor. Try removing the type name • test/defter_screens_test.dart:1218:9 • unnecessary_type_name_in_constructor
+   info • The type annotation isn't needed because it is obvious. Try removing the type annotation • test/eink_app_test.dart:19:3 • omit_obvious_property_types
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/eink_widgets_test.dart:125:17 • prefer_const_constructors
+   info • Empty class bodies should be written using a ';' rather than '{}'. Try replacing the class body with ';' • test/eink_widgets_test.dart:414:57 • empty_container_bodies
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/folder_changes_test.dart:162:9 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/ink_eraser_test.dart:109:9 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/ink_eraser_test.dart:120:9 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/ink_eraser_test.dart:122:9 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/ink_eraser_test.dart:128:9 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/ink_eraser_test.dart:137:17 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/measure_readout_test.dart:34:9 • use_named_constants
+   info • Sort directive sections alphabetically. Try sorting the directives • test/note_cover_test.dart:12:1 • directives_ordering
+   info • Unnecessary type name in a constructor. Try removing the type name • test/note_opening_test.dart:344:9 • unnecessary_type_name_in_constructor
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • test/pdf_crop_test.dart:51:7 • prefer_const_declarations
+   info • Unnecessary use of string interpolation. Try replacing the string literal with the variable name • test/pdf_import_test.dart:276:40 • unnecessary_string_interpolations
+   info • Unnecessary use of string interpolation. Try replacing the string literal with the variable name • test/pdf_import_test.dart:395:40 • unnecessary_string_interpolations
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pdf_pick_test.dart:368:31 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pdf_pick_test.dart:393:31 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pdf_pick_test.dart:399:31 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pdf_pick_test.dart:407:13 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pdf_pick_test.dart:428:31 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pdf_pick_test.dart:618:29 • use_named_constants
+   info • Unnecessary use of string interpolation. Try replacing the string literal with the variable name • test/pdf_pick_test.dart:687:40 • unnecessary_string_interpolations
+   info • Unnecessary use of string interpolation. Try replacing the string literal with the variable name • test/pdf_removal_test.dart:454:40 • unnecessary_string_interpolations
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/pen_assist_test.dart:293:22 • use_named_constants
+   info • The import of 'dart:ui' is unnecessary because all of the used elements are also provided by the import of 'package:flutter_test/flutter_test.dart'. Try removing the import directive • test/pen_feel_test.dart:2:8 • unnecessary_import
+   info • The import of 'package:flutter/material.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter_test/flutter_test.dart'. Try removing the import directive • test/pen_tools_test.dart:3:8 • unnecessary_import
+   info • The import of 'package:flutter/material.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter_test/flutter_test.dart'. Try removing the import directive • test/shape_analysis_test.dart:3:8 • unnecessary_import
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_analysis_test.dart:67:5 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_analysis_test.dart:80:7 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_analysis_test.dart:213:14 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_analysis_test.dart:228:26 • use_named_constants
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_analysis_test.dart:243:17 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_analysis_test.dart:261:13 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_analysis_test.dart:275:13 • use_named_constants
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_analysis_test.dart:302:15 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_analysis_test.dart:327:43 • use_named_constants
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_analysis_test.dart:385:11 • prefer_const_constructors
+   info • Use 'const' for final variables initialized to a constant value. Try replacing 'final' with 'const' • test/shape_analysis_test.dart:391:7 • prefer_const_declarations
+   info • Use an 'if' element to conditionally add elements. Try using an 'if' element rather than a conditional expression • test/shape_analysis_test.dart:406:13 • prefer_if_elements_to_conditional_expressions
+   info • Use an 'if' element to conditionally add elements. Try using an 'if' element rather than a conditional expression • test/shape_analysis_test.dart:426:13 • prefer_if_elements_to_conditional_expressions
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_snap_test.dart:51:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_snap_test.dart:51:53 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_snap_test.dart:54:47 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_snap_test.dart:73:9 • prefer_const_constructors
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_snap_test.dart:97:22 • use_named_constants
+   info • Use the constant 'Offset.zero' rather than a constructor returning the same object. Try using 'Offset.zero' • test/shape_snap_test.dart:98:35 • use_named_constants
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_snap_test.dart:113:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation • test/shape_snap_test.dart:195:15 • prefer_const_constructors
+
+325 issues found. (ran in 32.3s)
