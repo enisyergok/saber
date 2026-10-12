@@ -107,6 +107,33 @@ class PenFanGeometry {
     return inward;
   }
 
+  /// Whether the fan opening toward [dir] from [button] stays inside
+  /// [screen] (less [margin]).
+  static bool fitsOnScreen(
+    Offset button,
+    Size screen,
+    double dir, {
+    double margin = 8,
+  }) => _fits(
+    PenFanGeometry(direction: dir),
+    button,
+    Rect.fromLTWH(margin, margin, screen.width - 2 * margin,
+        screen.height - 2 * margin),
+  );
+
+  /// Where the button has to be for the whole fan to fit: [button] itself
+  /// when it already fits, otherwise the nearest point on the way to the
+  /// middle of the screen that does.
+  static Offset fitPosition(Offset button, Size screen, {double margin = 8}) {
+    final middle = Offset(screen.width / 2, screen.height / 2);
+    for (var i = 0; i <= 40; i++) {
+      final p = Offset.lerp(button, middle, i / 40)!;
+      final dir = bestDirection(p, screen, margin: margin);
+      if (fitsOnScreen(p, screen, dir, margin: margin)) return p;
+    }
+    return middle;
+  }
+
   static bool _fits(PenFanGeometry g, Offset button, Rect bounds) {
     for (var k = 0; k <= 6; k++) {
       final a = g.start + span * k / 6;

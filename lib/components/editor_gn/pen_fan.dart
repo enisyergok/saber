@@ -89,7 +89,9 @@ class _PenFanState extends State<PenFan> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final pos = _position(size);
+    final home = _position(size);
+    // While open the button moves aside if the fan would run off screen.
+    final pos = _open ? PenFanGeometry.fitPosition(home, size) : home;
     final colors = ColorScheme.of(context);
     final tool = widget.actions.tool;
     final current = tool is Pen ? tool.color : null;
@@ -144,7 +146,9 @@ class _PenFanState extends State<PenFan> {
               ),
             ),
           ),
-        Positioned(
+        AnimatedPositioned(
+          duration: animate ? const Duration(milliseconds: 150) : Duration.zero,
+          curve: Curves.easeOutCubic,
           left: pos.dx - PenFanGeometry.buttonRadius,
           top: pos.dy - PenFanGeometry.buttonRadius,
           child: _button(colors, tool, current),

@@ -46,6 +46,14 @@ void main() {
     }
   });
 
+  test('a button with room keeps its place', () {
+    const screen = Size(1200, 1800);
+    expect(
+      PenFanGeometry.fitPosition(const Offset(600, 900), screen),
+      const Offset(600, 900),
+    );
+  });
+
   test('the fan opens toward the middle of the screen', () {
     const screen = Size(1200, 1800);
     final left = PenFanGeometry.bestDirection(const Offset(100, 900), screen);
@@ -63,11 +71,12 @@ void main() {
       const Offset(1160, 1760),
       const Offset(600, 40),
     ]) {
-      final dir = PenFanGeometry.bestDirection(p, screen);
+      final fitted = PenFanGeometry.fitPosition(p, screen);
+      final dir = PenFanGeometry.bestDirection(fitted, screen);
       final geo = PenFanGeometry(direction: dir);
       for (var k = 0; k <= 6; k++) {
         final a = geo.start + PenFanGeometry.span * k / 6;
-        final q = p + Offset.fromDirection(a, PenFanGeometry.toolOuter);
+        final q = fitted + Offset.fromDirection(a, PenFanGeometry.toolOuter);
         expect(q.dx, inInclusiveRange(0, screen.width), reason: '$p $k');
         expect(q.dy, inInclusiveRange(0, screen.height), reason: '$p $k');
       }
