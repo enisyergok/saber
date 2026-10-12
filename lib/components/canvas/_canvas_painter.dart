@@ -148,7 +148,8 @@ class CanvasPainter extends CustomPainter {
     for (final stroke in strokes) {
       if (stroke.toolId != .highlighter) continue;
 
-      final color = _ink(stroke.color.withValues(alpha: 1));
+      final plain = stroke.color.withValues(alpha: 1);
+      final color = eInk != null ? eInk!.mapHighlighter(plain) : _ink(plain);
 
       if (color != lastColor) {
         // new layer for each color

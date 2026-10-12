@@ -285,6 +285,21 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Grey steps for pens in e-ink mode: 0 = smooth, otherwise the count
+  /// (16 or 8).
+  final eInkGrayLevels = PlainStow(
+    'eInkGrayLevels',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Page turns show the full dark-light flash in e-ink mode.
+  final eInkFlashPageTurns = PlainStow(
+    'eInkFlashPageTurns',
+    false,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// How bright the app's window is while e-ink mode is on:
   /// 0 = leave it to the system, 1 = 70%, 2 = 50%, 3 = 35%.
   final eInkBrightness = PlainStow(

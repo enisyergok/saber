@@ -101,6 +101,8 @@ class DynamicMaterialAppState extends State<DynamicMaterialApp>
       inkDarkness: useValueListenable(stows.eInkInkDarkness),
       texture: useValueListenable(stows.eInkTexture),
       refreshEffect: useValueListenable(stows.eInkRefreshEffect),
+      grayLevels: useValueListenable(stows.eInkGrayLevels),
+      flashPageTurns: useValueListenable(stows.eInkFlashPageTurns),
     );
 
     // E-ink mode: one grey paper theme whatever the system theme and accent

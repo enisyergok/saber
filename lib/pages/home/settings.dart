@@ -551,6 +551,26 @@ class _SettingsPageState extends State<SettingsPage> {
                     icon: Symbols.refresh_rounded,
                     pref: stows.eInkRefreshEffect,
                   ),
+                  SettingsSwitch(
+                    title: DefterStrings.eInkFlashPageTurns,
+                    subtitle: DefterStrings.eInkFlashPageTurnsSubtitle,
+                    icon: Symbols.flash_on_rounded,
+                    pref: stows.eInkFlashPageTurns,
+                  ),
+                  SettingsSelection(
+                    title: DefterStrings.eInkGrayLevels,
+                    subtitle: DefterStrings.eInkGrayLevelsSubtitle,
+                    icon: Symbols.contrast_rounded,
+                    pref: stows.eInkGrayLevels,
+                    options: [
+                      ToggleButtonsOption(
+                        0,
+                        Text(DefterStrings.eInkGraySmooth),
+                      ),
+                      const ToggleButtonsOption(16, Text('16')),
+                      const ToggleButtonsOption(8, Text('8')),
+                    ],
+                  ),
                   SettingsSelection(
                     title: DefterStrings.eInkBrightness,
                     subtitle: DefterStrings.eInkBrightnessSubtitle,

@@ -17,6 +17,8 @@ class EInkStyle {
     this.inkDarkness = 0.8,
     this.texture = 0.3,
     this.refreshEffect = true,
+    this.grayLevels = 0,
+    this.flashPageTurns = false,
   });
 
   /// 0 = neutral grey-white paper, 1 = warm cream paper.
@@ -30,6 +32,14 @@ class EInkStyle {
 
   /// Whether page turns and "refresh page" show the short e-ink refresh.
   final bool refreshEffect;
+
+  /// How many grey steps pens use: 0 = smooth (any grey), otherwise that
+  /// many evenly spaced greys, like the limited tones of an e-ink panel.
+  final int grayLevels;
+
+  /// Whether page turns show the full dark-light flash (as a real panel
+  /// does) instead of the faint grey one.
+  final bool flashPageTurns;
 
   static const _paperNeutral = Color(0xFFEEEEEC);
   static const _paperWarm = Color(0xFFEBE3CE);
@@ -68,7 +78,32 @@ class EInkStyle {
   /// A pen colour as it shows on screen: grey, dark for dark colours.
   /// Transparency is kept (highlighters stay see-through).
   Color mapInk(Color color) {
-    final level = _inkLevel + (_lightestInk - _inkLevel) * luma(color);
+    final level = _inkLevel + (_lightestInk - _inkLevel) * _step(luma(color));
+    return Color.from(
+      alpha: color.a,
+      red: level / 255,
+      green: level / 255,
+      blue: level / 255,
+    );
+  }
+
+  /// Rounds a brightness (0-1) to one of [grayLevels] steps (kept as is
+  /// when [grayLevels] is below 2).
+  double _step(double t) {
+    if (grayLevels < 2) return t;
+    final last = grayLevels - 1;
+    return (t * last).round() / last;
+  }
+
+  static const _highlighterDark = 112.0;
+  static const _highlighterLight = 168.0;
+
+  /// A highlighter colour as it shows: a mid grey (never near-black, so the
+  /// writing under it stays readable, never so light that it vanishes).
+  Color mapHighlighter(Color color) {
+    final level =
+        _highlighterDark +
+        (_highlighterLight - _highlighterDark) * _step(luma(color));
     return Color.from(
       alpha: color.a,
       red: level / 255,
@@ -147,11 +182,15 @@ class EInkStyle {
     double? inkDarkness,
     double? texture,
     bool? refreshEffect,
+    int? grayLevels,
+    bool? flashPageTurns,
   }) => EInkStyle(
     paperWarmth: paperWarmth ?? this.paperWarmth,
     inkDarkness: inkDarkness ?? this.inkDarkness,
     texture: texture ?? this.texture,
     refreshEffect: refreshEffect ?? this.refreshEffect,
+    grayLevels: grayLevels ?? this.grayLevels,
+    flashPageTurns: flashPageTurns ?? this.flashPageTurns,
   );
 
   @override
@@ -160,9 +199,18 @@ class EInkStyle {
       other.paperWarmth == paperWarmth &&
       other.inkDarkness == inkDarkness &&
       other.texture == texture &&
-      other.refreshEffect == refreshEffect;
+      other.refreshEffect == refreshEffect &&
+      other.grayLevels == grayLevels &&
+      other.flashPageTurns == flashPageTurns;
 
   @override
   int get hashCode =>
-      Object.hash(paperWarmth, inkDarkness, texture, refreshEffect);
+      Object.hash(
+        paperWarmth,
+        inkDarkness,
+        texture,
+        refreshEffect,
+        grayLevels,
+        flashPageTurns,
+      );
 }

@@ -949,6 +949,17 @@ abstract class DefterStrings {
       : 'A light refresh when turning pages. Never while writing; off when "reduce motion" is on.';
   static String get eInkRefreshPage =>
       _tr ? 'Sayfayı yenile' : 'Refresh page';
+  static String get eInkGrayLevels =>
+      _tr ? 'Sınırlı gri tonlar' : 'Limited grey tones';
+  static String get eInkGrayLevelsSubtitle => _tr
+      ? 'Kalem renkleri birkaç gri basamağa yuvarlanır, e-mürekkep paneli gibi.'
+      : 'Pen colours snap to a few grey steps, like an e-ink panel.';
+  static String get eInkGraySmooth => _tr ? 'Yumuşak' : 'Smooth';
+  static String get eInkFlashPageTurns =>
+      _tr ? 'Sayfa geçişinde tam yenileme' : 'Full refresh on page turns';
+  static String get eInkFlashPageTurnsSubtitle => _tr
+      ? 'Sayfa çevirince siyah-beyaz flaş. Yenileme efekti açıkken çalışır.'
+      : 'A dark-light flash when turning pages. Works when the refresh effect is on.';
   static String get eInkBrightness =>
       _tr ? 'Uygulama parlaklığı' : 'App brightness';
   static String get eInkBrightnessSubtitle => _tr
