@@ -401,6 +401,19 @@ abstract class DefterStrings {
   static String get recognizeNote => _tr
       ? 'Seçilen yazı görüntü olarak OpenRouter\'a gönderilir.'
       : 'The selected writing is sent to OpenRouter as a picture.';
+  static String get inkOnDevice =>
+      _tr ? 'Cihazda oku (internetsiz)' : 'Read on the device (offline)';
+  static String get inkOnDeviceSubtitle => _tr
+      ? 'Yazı Google ML Kit ile telefonda/tablette okunur; hiçbir şey dışarı gitmez. Dil modeli bir kez indirilir. Okunamazsa ve anahtar varsa OpenRouter denenir.'
+      : 'Writing is read on the device with Google ML Kit; nothing leaves it. The language model is downloaded once. If that fails and a key is set, OpenRouter is tried.';
+  static String get inkLanguage => _tr ? 'Yazı dili' : 'Writing language';
+  static String get inkCheckModel =>
+      _tr ? 'Dil modelini indir / kontrol et' : 'Download / check language model';
+  static String get inkModelReady =>
+      _tr ? 'Dil modeli hazır, internet gerekmeden okunur.' : 'The language model is ready; reading works offline.';
+  static String inkModelFailed(String why) => _tr
+      ? 'Dil modeli indirilemedi (ilk indirme için internet gerekir): $why'
+      : 'Could not download the language model (the first download needs the internet): $why';
   static String get copy => _tr ? 'Kopyala' : 'Copy';
   static String get copied => _tr ? 'Kopyalandı' : 'Copied';
   static String get close => _tr ? 'Kapat' : 'Close';

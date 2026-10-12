@@ -172,6 +172,21 @@ class Stows {
     'google/gemini-3.8-flash',
     volatile: !_isOnMainIsolate,
   );
+
+  /// Read handwriting on the device (Google ML Kit), without the internet
+  /// once the language model has been downloaded.
+  final handwritingOnDevice = PlainStow(
+    'handwritingOnDevice',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// The language of the on-device handwriting model (BCP-47).
+  final handwritingInkLang = PlainStow<String>(
+    'handwritingInkLang',
+    'tr',
+    volatile: !_isOnMainIsolate,
+  );
   final editorFingerDrawing = PlainStow(
     'editorFingerDrawing',
     true,

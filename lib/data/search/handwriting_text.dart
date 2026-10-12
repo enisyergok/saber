@@ -184,12 +184,14 @@ abstract class HandwritingIndexer {
   /// stops with [HandwritingIndexCancelled] when [isCancelled] says so.
   static Future<NoteHandwriting> index(
     EditorCoreInfo note, {
-    required Future<String> Function(Uint8List png) recognize,
+    Future<String> Function(Uint8List png)? recognize,
+    Future<String> Function(List<Stroke> strokes)? recognizeStrokes,
     void Function(HandwritingIndexProgress progress)? onProgress,
     bool Function()? isCancelled,
     int Function()? nowMs,
     int maxChunks = HandwritingIndexer.maxChunks,
   }) async {
+    assert(recognize != null || recognizeStrokes != null);
     final chunksPerPage = [
       for (final page in note.pages)
         bandChunks<Stroke>(
@@ -210,10 +212,15 @@ abstract class HandwritingIndexer {
         if (isCancelled?.call() ?? false) {
           throw const HandwritingIndexCancelled();
         }
-        final png = await HandwritingRecognizer.renderStrokes(chunk);
-        if (png != null) {
-          final text = (await recognize(png)).trim();
+        if (recognizeStrokes != null) {
+          final text = (await recognizeStrokes(chunk)).trim();
           if (text.isNotEmpty) lines.add(text);
+        } else {
+          final png = await HandwritingRecognizer.renderStrokes(chunk);
+          if (png != null) {
+            final text = (await recognize!(png)).trim();
+            if (text.isNotEmpty) lines.add(text);
+          }
         }
         onProgress?.call(HandwritingIndexProgress(++done, total));
       }

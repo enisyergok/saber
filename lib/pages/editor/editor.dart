@@ -2736,7 +2736,8 @@ class EditorState extends State<Editor> {
           recognizeSelection: () {
             final select = currentTool as Select;
             if (!select.doneSelecting) return;
-            if (stows.openRouterApiKey.value.trim().isEmpty) {
+            if (!stows.handwritingOnDevice.value &&
+                stows.openRouterApiKey.value.trim().isEmpty) {
               ScaffoldMessenger.maybeOf(context)?.showSnackBar(
                 SnackBar(content: Text(DefterStrings.recognizeNoKey)),
               );

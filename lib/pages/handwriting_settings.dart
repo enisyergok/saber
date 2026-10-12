@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
+import 'package:saber/data/ocr/ink_recognizer.dart';
 import 'package:saber/data/prefs.dart';
 
 /// The OpenRouter key and model used to read handwriting.
@@ -20,12 +21,41 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
   bool _testing = false;
   String? _testResult;
   bool _testOk = false;
+  bool _onDevice = stows.handwritingOnDevice.value;
+  String _inkLang = stows.handwritingInkLang.value;
+  bool _checkingModel = false;
+  String? _modelResult;
+  bool _modelOk = false;
 
   @override
   void dispose() {
     _key.dispose();
     _model.dispose();
     super.dispose();
+  }
+
+  Future<void> _checkModel() async {
+    setState(() {
+      _checkingModel = true;
+      _modelResult = null;
+    });
+    var ok = false;
+    String message;
+    try {
+      await InkRecognizer.ensureModel(_inkLang);
+      ok = true;
+      message = DefterStrings.inkModelReady;
+    } on HandwritingException catch (e) {
+      message = e.message;
+    } catch (e) {
+      message = '$e';
+    }
+    if (!mounted) return;
+    setState(() {
+      _checkingModel = false;
+      _modelOk = ok;
+      _modelResult = message;
+    });
   }
 
   Future<void> _test() async {
@@ -76,6 +106,58 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(DefterStrings.inkOnDevice),
+            subtitle: Text(DefterStrings.inkOnDeviceSubtitle),
+            value: _onDevice,
+            onChanged: (v) {
+              setState(() => _onDevice = v);
+              stows.handwritingOnDevice.value = v;
+            },
+          ),
+          if (_onDevice) ...[
+            const SizedBox(height: 8),
+            Text(DefterStrings.inkLanguage),
+            const SizedBox(height: 8),
+            SegmentedButton<String>(
+              segments: [
+                for (final e in InkRecognizer.languages.entries)
+                  ButtonSegment(value: e.key, label: Text(e.value)),
+              ],
+              selected: {_inkLang},
+              onSelectionChanged: (v) {
+                setState(() {
+                  _inkLang = v.first;
+                  _modelResult = null;
+                });
+                stows.handwritingInkLang.value = v.first;
+              },
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _checkingModel ? null : _checkModel,
+              icon: _checkingModel
+                  ? const SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Symbols.download_rounded),
+              label: Text(DefterStrings.inkCheckModel),
+            ),
+            if (_modelResult != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _modelResult!,
+                style: TextStyle(
+                  color: _modelOk
+                      ? ColorScheme.of(context).primary
+                      : ColorScheme.of(context).error,
+                ),
+              ),
+            ],
+          ],
+          const SizedBox(height: 20),
           Text(DefterStrings.recognizeNote),
           const SizedBox(height: 20),
           TextField(
