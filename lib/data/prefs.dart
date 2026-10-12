@@ -315,6 +315,17 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// The round pen button that opens the tool and colour fan.
+  final penFan = PlainStow(
+    'penFan',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Where the pen button sits, as fractions of the screen.
+  final penFanX = PlainStow('penFanX', 0.06, volatile: !_isOnMainIsolate);
+  final penFanY = PlainStow('penFanY', 0.42, volatile: !_isOnMainIsolate);
+
   /// Shows the pen latency recording button in the editor.
   final penProbe = PlainStow(
     'penProbe',
