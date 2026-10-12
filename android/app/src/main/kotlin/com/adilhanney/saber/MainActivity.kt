@@ -44,6 +44,7 @@ class MainActivity: FlutterActivity() {
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
+        CrashLog.install(this)
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -263,6 +264,21 @@ class MainActivity: FlutterActivity() {
                         desiredBrightness =
                             (call.argument<Double>("value") ?: -1.0).toFloat()
                         setWindowBrightness(desiredBrightness)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/crash")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "read" -> result.success(CrashLog.read(this))
+                    "clear" -> {
+                        CrashLog.clear(this)
+                        result.success(null)
+                    }
+                    "mark" -> {
+                        CrashLog.mark(this, call.argument<String>("text") ?: "")
                         result.success(null)
                     }
                     else -> result.notImplemented()

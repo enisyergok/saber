@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:google_mlkit_digital_ink_recognition/google_mlkit_digital_ink_recognition.dart'
     as mlkit;
 import 'package:saber/components/canvas/_stroke.dart';
+import 'package:saber/data/crash_log.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
 
@@ -85,9 +86,15 @@ abstract class InkRecognizer {
   /// Makes sure the model for [language] is on the device.
   static Future<void> ensureModel(String language) async {
     try {
+      await CrashLog.mark('dil modeli: kontrol basliyor ($language)');
       final manager = mlkit.DigitalInkRecognizerModelManager();
-      if (await manager.isModelDownloaded(language)) return;
+      if (await manager.isModelDownloaded(language)) {
+        await CrashLog.mark('dil modeli: zaten indirilmis');
+        return;
+      }
+      await CrashLog.mark('dil modeli: indirme basliyor');
       final ok = await manager.downloadModel(language);
+      await CrashLog.mark('dil modeli: indirme bitti ($ok)');
       if (!ok) {
         throw HandwritingException(DefterStrings.inkModelFailed('?'));
       }
@@ -107,6 +114,7 @@ abstract class InkRecognizer {
       throw HandwritingException(DefterStrings.recognizeNoStrokes);
     }
     await ensureModel(language);
+    await CrashLog.mark('okuma basliyor ($language, ${strokes.length} cizgi)');
     final recognizer = mlkit.DigitalInkRecognizer(languageCode: language);
     try {
       final lines = <String>[];
@@ -131,6 +139,7 @@ abstract class InkRecognizer {
           if (text.isNotEmpty) lines.add(text);
         }
       }
+      await CrashLog.mark('okuma bitti');
       return lines.join('\n');
     } on HandwritingException {
       rethrow;

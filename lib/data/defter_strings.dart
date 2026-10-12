@@ -414,6 +414,9 @@ abstract class DefterStrings {
   static String inkModelFailed(String why) => _tr
       ? 'Dil modeli indirilemedi (ilk indirme için internet gerekir): $why'
       : 'Could not download the language model (the first download needs the internet): $why';
+  static String get crashLogShow =>
+      _tr ? 'Son çökme kaydını göster' : 'Show the last crash record';
+  static String get crashLogClear => _tr ? 'Kaydı temizle' : 'Clear the record';
   static String get copy => _tr ? 'Kopyala' : 'Copy';
   static String get copied => _tr ? 'Kopyalandı' : 'Copied';
   static String get close => _tr ? 'Kapat' : 'Close';
