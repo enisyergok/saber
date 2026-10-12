@@ -48,6 +48,11 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
+            // R8 broke a library's own random generator (its seed guard)
+            // and closed the app when the handwriting language model was
+            // asked for, so the code is not shrunk or renamed.
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
         debug {
             signingConfig = signingConfigs.getByName("release")
