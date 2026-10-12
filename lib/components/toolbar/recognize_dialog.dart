@@ -26,6 +26,8 @@ class RecognizeDialog extends StatefulWidget {
 class _RecognizeDialogState extends State<RecognizeDialog> {
   final _controller = TextEditingController();
   bool _loading = true;
+  int _done = 0;
+  int _total = 0;
   String? _error;
 
   @override
@@ -42,7 +44,17 @@ class _RecognizeDialogState extends State<RecognizeDialog> {
 
   Future<void> _run() async {
     try {
-      final text = await HandwritingService.recognizeStrokes(widget.strokes);
+      final text = await HandwritingService.recognizeStrokes(
+        widget.strokes,
+        onProgress: (done, total) {
+          if (mounted) {
+            setState(() {
+              _done = done;
+              _total = total;
+            });
+          }
+        },
+      );
       if (!mounted) return;
       setState(() {
         _controller.text = text;
@@ -53,6 +65,12 @@ class _RecognizeDialogState extends State<RecognizeDialog> {
       if (!mounted) return;
       setState(() {
         _error = e.message;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = '$e';
         _loading = false;
       });
     }
@@ -68,9 +86,15 @@ class _RecognizeDialogState extends State<RecognizeDialog> {
             ? Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const LinearProgressIndicator(),
+                  LinearProgressIndicator(
+                    value: _total > 0 ? _done / _total : null,
+                  ),
                   const SizedBox(height: 16),
-                  Text(DefterStrings.recognizing),
+                  Text(
+                    _total > 0
+                        ? '${DefterStrings.recognizing} $_done/$_total'
+                        : DefterStrings.recognizing,
+                  ),
                 ],
               )
             : _error != null
