@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
+import 'package:saber/data/ocr/handwriting_service.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/search/handwriting_text.dart';
 import 'package:saber/data/search/note_search.dart';
@@ -15,7 +16,8 @@ class HandwritingIndexDialog extends StatefulWidget {
 
   /// True when the handwriting was added to search.
   static Future<bool?> show(BuildContext context, EditorCoreInfo note) {
-    if (stows.openRouterApiKey.value.trim().isEmpty) {
+    if (!stows.handwritingOnDevice.value &&
+        stows.openRouterApiKey.value.trim().isEmpty) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(content: Text(DefterStrings.recognizeNoKey)),
       );
@@ -49,11 +51,7 @@ class _HandwritingIndexDialogState extends State<HandwritingIndexDialog> {
     try {
       final result = await HandwritingIndexer.index(
         widget.note,
-        recognize: (png) => HandwritingRecognizer.recognize(
-          png,
-          apiKey: stows.openRouterApiKey.value,
-          model: stows.handwritingModel.value,
-        ),
+        recognizeStrokes: HandwritingService.recognizeStrokes,
         isCancelled: () => _cancelled,
         onProgress: (p) {
           if (mounted) setState(() => _done = p.done);

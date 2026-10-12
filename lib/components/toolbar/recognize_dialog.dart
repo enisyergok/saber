@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
-import 'package:saber/data/prefs.dart';
+import 'package:saber/data/ocr/handwriting_service.dart';
 
 /// Reads the handwriting of [strokes] and shows the text, which can be
 /// edited and copied.
@@ -42,13 +42,7 @@ class _RecognizeDialogState extends State<RecognizeDialog> {
 
   Future<void> _run() async {
     try {
-      final png = await HandwritingRecognizer.renderStrokes(widget.strokes);
-      if (png == null) throw HandwritingException(DefterStrings.recognizeNoStrokes);
-      final text = await HandwritingRecognizer.recognize(
-        png,
-        apiKey: stows.openRouterApiKey.value,
-        model: stows.handwritingModel.value,
-      );
+      final text = await HandwritingService.recognizeStrokes(widget.strokes);
       if (!mounted) return;
       setState(() {
         _controller.text = text;
