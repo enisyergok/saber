@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:google_mlkit_digital_ink_recognition/google_mlkit_digital_ink_recognition.dart'
@@ -106,9 +107,12 @@ abstract class InkRecognizer {
   }
 
   /// The text of [strokes], one line of text per line of writing.
+  static const lineTimeout = Duration(seconds: 25);
+
   static Future<String> recognize(
     List<Stroke> strokes, {
     required String language,
+    void Function(int done, int total)? onProgress,
   }) async {
     if (strokes.isEmpty) {
       throw HandwritingException(DefterStrings.recognizeNoStrokes);
@@ -118,7 +122,12 @@ abstract class InkRecognizer {
     final recognizer = mlkit.DigitalInkRecognizer(languageCode: language);
     try {
       final lines = <String>[];
-      for (final line in groupLines<Stroke>(strokes, (s) => s.bounds)) {
+      final groups = groupLines<Stroke>(strokes, (s) => s.bounds);
+      var done = 0;
+      var failed = 0;
+      Object? lastError;
+      onProgress?.call(0, groups.length);
+      for (final line in groups) {
         final ink = mlkit.Ink();
         final points = inkPoints([
           for (final s in line) [for (final p in s.points) Offset(p.x, p.y)],
@@ -132,14 +141,46 @@ abstract class InkRecognizer {
                     mlkit.StrokePoint(x: p.x, y: p.y, t: p.t),
                 ],
         ];
-        if (ink.strokes.isEmpty) continue;
-        final candidates = await recognizer.recognize(ink);
-        if (candidates.isNotEmpty) {
-          final text = candidates.first.text.trim();
-          if (text.isNotEmpty) lines.add(text);
+        if (ink.strokes.isEmpty) {
+          onProgress?.call(++done, groups.length);
+          continue;
         }
+        final pointCount = ink.strokes.fold<int>(
+          0,
+          (sum, s) => sum + s.points.length,
+        );
+        final started = DateTime.now();
+        await CrashLog.mark(
+          'satir ${done + 1}/${groups.length}: ${ink.strokes.length} cizgi, '
+          '$pointCount nokta',
+        );
+        try {
+          final candidates = await recognizer
+              .recognize(ink)
+              .timeout(lineTimeout);
+          if (candidates.isNotEmpty) {
+            final text = candidates.first.text.trim();
+            if (text.isNotEmpty) lines.add(text);
+          }
+          await CrashLog.mark(
+            'satir ${done + 1} tamam: '
+            '${DateTime.now().difference(started).inMilliseconds} ms',
+          );
+        } on TimeoutException {
+          failed++;
+          lastError = 'zaman asimi (${lineTimeout.inSeconds} sn)';
+          await CrashLog.mark('satir ${done + 1}: zaman asimi');
+        } catch (e) {
+          failed++;
+          lastError = e;
+          await CrashLog.mark('satir ${done + 1}: hata $e');
+        }
+        onProgress?.call(++done, groups.length);
       }
-      await CrashLog.mark('okuma bitti');
+      await CrashLog.mark('okuma bitti ($failed satir okunamadi)');
+      if (lines.isEmpty && failed > 0) {
+        throw HandwritingException('$lastError');
+      }
       return lines.join('\n');
     } on HandwritingException {
       rethrow;

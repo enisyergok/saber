@@ -7,7 +7,10 @@ import 'package:saber/data/prefs.dart';
 /// Reads handwriting the way the settings ask: on the device first, and
 /// with OpenRouter (when a key is set) if that is off or fails.
 abstract class HandwritingService {
-  static Future<String> recognizeStrokes(List<Stroke> strokes) async {
+  static Future<String> recognizeStrokes(
+    List<Stroke> strokes, {
+    void Function(int done, int total)? onProgress,
+  }) async {
     if (strokes.isEmpty) {
       throw HandwritingException(DefterStrings.recognizeNoStrokes);
     }
@@ -17,6 +20,7 @@ abstract class HandwritingService {
         return await InkRecognizer.recognize(
           strokes,
           language: stows.handwritingInkLang.value,
+          onProgress: onProgress,
         );
       } on HandwritingException {
         if (key.isEmpty) rethrow;
