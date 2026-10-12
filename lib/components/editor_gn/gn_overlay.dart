@@ -14,6 +14,7 @@ import 'package:saber/components/toolbar/color_bar.dart';
 import 'package:saber/components/toolbar/export_bar.dart';
 import 'package:saber/components/toolbar/note_link_dialog.dart';
 import 'package:saber/components/editor_gn/gn_pen_settings.dart';
+import 'package:saber/components/editor_gn/pen_fan.dart';
 import 'package:saber/components/toolbar/quick_style_bar.dart';
 import 'package:saber/components/toolbar/selection_bar.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
@@ -118,6 +119,14 @@ class _GnOverlayState extends State<GnOverlay> {
             ),
           ),
           if (panel != GnPanel.none) _panelAt(context, panel, actions),
+          if (!widget.spec.readOnly && !widget.spec.textEditing)
+            Positioned.fill(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: stows.penFan,
+                builder: (context, on, _) =>
+                    on ? PenFan(actions: actions) : const SizedBox.shrink(),
+              ),
+            ),
         ],
       ),
     );

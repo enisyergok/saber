@@ -907,6 +907,13 @@ abstract class DefterStrings {
   // Shapes
   static String get holdToSnap =>
       _tr ? 'Bekleyince şekli düzelt' : 'Hold to snap shapes';
+  static String get penFanSetting =>
+      _tr ? 'Yelpaze kalem düğmesi' : 'Fan pen button';
+  static String get penFanSettingSubtitle => _tr
+      ? 'Sayfada istediğin yere sürüklenen yuvarlak düğme; dokununca kalemler ve renkler yelpaze gibi açılır'
+      : 'A round button you can drag anywhere on the page; tap it to open the pens and colours as a fan';
+  static String get penFanButton =>
+      _tr ? 'Kalem ve renk yelpazesi' : 'Pen and colour fan';
   static String get penOverlay =>
       _tr ? 'Hızlı canlı çizgi (deneysel)' : 'Fast live ink (experimental)';
   static String get penOverlaySubtitle => _tr
