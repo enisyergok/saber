@@ -41,12 +41,20 @@ class _EInkRefreshOverlayState extends State<EInkRefreshOverlay>
     final style = EInkScope.maybeOf(context);
     if (style == null || !style.refreshEffect) return;
     if (MediaQuery.disableAnimationsOf(context)) return;
-    _controller.duration = switch (EInkRefresh.instance.kind) {
+    _controller.duration = switch (_effectiveKind(style)) {
       EInkRefreshKind.full => const Duration(milliseconds: 560),
       _ => const Duration(milliseconds: 280),
     };
     _controller.forward(from: 0);
     setState(() {});
+  }
+
+  /// A page turn is shown as the full flash when the style asks for it.
+  EInkRefreshKind _effectiveKind(EInkStyle style) {
+    final kind = EInkRefresh.instance.kind ?? EInkRefreshKind.pageTurn;
+    return kind == EInkRefreshKind.pageTurn && style.flashPageTurns
+        ? EInkRefreshKind.full
+        : kind;
   }
 
   @override
@@ -66,7 +74,7 @@ class _EInkRefreshOverlayState extends State<EInkRefreshOverlay>
                 animation: _controller,
                 builder: (context, _) => CustomPaint(
                   painter: EInkRefreshPainter(
-                    kind: EInkRefresh.instance.kind ?? EInkRefreshKind.pageTurn,
+                    kind: _effectiveKind(style),
                     t: _controller.value,
                     style: style,
                   ),

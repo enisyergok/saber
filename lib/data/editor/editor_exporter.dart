@@ -52,6 +52,7 @@ abstract class EditorExporter {
       paperWarmth: stows.eInkPaperWarmth.value,
       inkDarkness: stows.eInkInkDarkness.value,
       texture: stows.eInkTexture.value,
+      grayLevels: stows.eInkGrayLevels.value,
     );
   }
 

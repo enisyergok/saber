@@ -207,4 +207,49 @@ void main() {
       expect(EInkService.brightnessFor(eInkOn: true, setting: -5), -1);
     });
   });
+
+  group('grey steps and highlighter', () {
+    test('smooth by default: many different greys', () {
+      const style = EInkStyle();
+      final levels = {
+        for (var i = 0; i <= 20; i++)
+          _r(style.mapInk(Color.from(alpha: 1, red: i / 20, green: i / 20, blue: i / 20))),
+      };
+      expect(levels.length, greaterThan(16));
+    });
+
+    test('16 steps give at most 16 greys, 8 give at most 8', () {
+      for (final n in [16, 8]) {
+        final style = EInkStyle(grayLevels: n);
+        final levels = {
+          for (var i = 0; i <= 100; i++)
+            _r(style.mapInk(Color.from(alpha: 1, red: i / 100, green: i / 100, blue: i / 100))),
+        };
+        expect(levels.length, lessThanOrEqualTo(n));
+        expect(levels.length, greaterThan(n ~/ 2));
+      }
+    });
+
+    test('black stays the ink colour with steps', () {
+      const style = EInkStyle(grayLevels: 8);
+      expect(style.mapInk(const Color(0xFF000000)), style.ink);
+    });
+
+    test('highlighter is a mid grey whatever its colour', () {
+      const style = EInkStyle();
+      for (final c in [const Color(0xFF000000), const Color(0xFFFFFF00), const Color(0xFFFFFFFF)]) {
+        final g = _r(style.mapHighlighter(c));
+        expect(g, inInclusiveRange(100, 180));
+      }
+      expect(_r(style.mapHighlighter(const Color(0xFFFFFF00))),
+          greaterThan(_r(style.mapHighlighter(const Color(0xFF0000FF)))));
+    });
+
+    test('equality and copyWith include the new settings', () {
+      expect(const EInkStyle(grayLevels: 8), isNot(const EInkStyle()));
+      expect(const EInkStyle(flashPageTurns: true), isNot(const EInkStyle()));
+      expect(const EInkStyle().copyWith(grayLevels: 16).grayLevels, 16);
+      expect(const EInkStyle().copyWith(flashPageTurns: true).flashPageTurns, isTrue);
+    });
+  });
 }
