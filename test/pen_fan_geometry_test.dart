@@ -22,7 +22,7 @@ void main() {
     expect(g.hit(const Offset(-100, 0)), isNull); // behind the button
     expect(g.hit(const Offset(75, 0) + const Offset(0, 0.0)), isNotNull);
     // between the rings
-    expect(g.hit(const Offset(100, 0)), isNull);
+    expect(g.hit(const Offset(134, 0)), isNull);
   });
 
   test('works for any direction, including across the 0/2pi seam', () {
@@ -34,6 +34,15 @@ void main() {
       for (var i = 0; i < geo.colorCount; i++) {
         expect(geo.hit(geo.colorCenter(i)), FanColor(i), reason: 'dir $k col $i');
       }
+    }
+  });
+
+  test('neighbouring colour cells are at least 24 px apart', () {
+    for (var i = 1; i < g.colorCount; i++) {
+      expect(
+        (g.colorCenter(i) - g.colorCenter(i - 1)).distance,
+        greaterThanOrEqualTo(24),
+      );
     }
   });
 

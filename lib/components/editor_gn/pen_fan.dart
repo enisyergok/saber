@@ -156,11 +156,11 @@ class _PenFanState extends State<PenFan> {
   List<Widget> _toolIcons() {
     final a = widget.actions;
     return [
-      UniIcon(a.writingPen.icon, size: 26),
-      const Icon(Pencil.pencilIcon, size: 26),
-      const Icon(Highlighter.highlighterIcon, size: 26),
-      const Icon(ShapePen.shapePenIcon, size: 26),
-      const Icon(Symbols.ink_eraser_rounded, size: 26),
+      UniIcon(a.writingPen.icon, size: 30),
+      const Icon(Pencil.pencilIcon, size: 30),
+      const Icon(Highlighter.highlighterIcon, size: 30),
+      const Icon(ShapePen.shapePenIcon, size: 30),
+      const Icon(Symbols.ink_eraser_rounded, size: 30),
     ];
   }
 
@@ -273,10 +273,10 @@ class _FanBody extends StatelessWidget {
               ),
               for (var i = 0; i < geometry.toolCount; i++)
                 Positioned(
-                  left: center.dx + geometry.toolCenter(i).dx - 16,
-                  top: center.dy + geometry.toolCenter(i).dy - 16,
-                  width: 32,
-                  height: 32,
+                  left: center.dx + geometry.toolCenter(i).dx - 18,
+                  top: center.dy + geometry.toolCenter(i).dy - 18,
+                  width: 36,
+                  height: 36,
                   child: IgnorePointer(
                     child: IconTheme(
                       data: IconThemeData(
@@ -379,7 +379,7 @@ class _FanPainter extends CustomPainter {
           c +
           Offset.fromDirection(
             mid,
-            (PenFanGeometry.toolInner + PenFanGeometry.toolOuter) / 2 - 24,
+            (PenFanGeometry.toolInner + PenFanGeometry.toolOuter) / 2 - 28,
           );
       canvas.drawCircle(under, 2.5, Paint()..color = scheme.primary);
     }
@@ -387,14 +387,14 @@ class _FanPainter extends CustomPainter {
     for (var i = 0; i < g.colorCount; i++) {
       final color = _colorOf(i);
       final p = c + g.colorCenter(i);
-      canvas.drawCircle(p, 11, Paint()..color = color);
+      canvas.drawCircle(p, 10.5, Paint()..color = color);
       final chosen =
           selectedColor != null &&
           selectedColor!.withAlpha(255).toARGB32() == color.toARGB32();
       if (chosen) {
         canvas.drawCircle(
           p,
-          15,
+          15.5,
           Paint()
             ..style = PaintingStyle.stroke
             ..strokeWidth = 2.5

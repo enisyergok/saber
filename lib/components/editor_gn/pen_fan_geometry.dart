@@ -41,13 +41,13 @@ class PenFanGeometry {
   final int colorCount;
 
   static const buttonRadius = 28.0;
-  static const colorInner = 44.0;
-  static const colorOuter = 98.0;
-  static const toolInner = 102.0;
-  static const toolOuter = 172.0;
+  static const colorInner = 52.0;
+  static const colorOuter = 132.0;
+  static const toolInner = 136.0;
+  static const toolOuter = 214.0;
 
   /// How wide the fan is.
-  static const span = 110 * math.pi / 180;
+  static const span = 140 * math.pi / 180;
 
   double get start => direction - span / 2;
 
