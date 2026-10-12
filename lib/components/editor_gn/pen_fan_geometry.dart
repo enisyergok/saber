@@ -64,6 +64,18 @@ class PenFanGeometry {
     (colorInner + colorOuter) / 2,
   );
 
+  /// The centre of a tool cell at the (possibly fractional) cell position
+  /// [slot], so rings can be drawn part-way through a turn.
+  Offset toolAt(double slot) => Offset.fromDirection(
+    start + span * (slot + 0.5) / toolCount,
+    (toolInner + toolOuter) / 2,
+  );
+
+  Offset colorAt(double slot) => Offset.fromDirection(
+    start + span * (slot + 0.5) / colorCount,
+    (colorInner + colorOuter) / 2,
+  );
+
   /// What [p] (relative to the button's centre) lands on, or null.
   FanHit? hit(Offset p) {
     final r = p.distance;
@@ -83,6 +95,15 @@ class PenFanGeometry {
       return FanColor((a / span * colorCount).floor().clamp(0, colorCount - 1));
     }
     return null;
+  }
+
+  /// Whether [p] (relative to the button's centre) is on the fan at all,
+  /// rings and the thin gap between them.
+  bool inside(Offset p) {
+    final r = p.distance;
+    if (r < colorInner || r > toolOuter) return false;
+    return FanRing.angleDelta(start + span / 2, p.direction).abs() <=
+        span / 2;
   }
 
   /// The direction that opens the fan toward the middle of the screen
@@ -150,3 +171,75 @@ class PenFanGeometry {
     return d > math.pi ? 2 * math.pi - d : d;
   }
 }
+
+/// The rotating rings: [count] cells show a window onto a longer list of
+/// [n] things that goes round and round.
+abstract class FanRing {
+  /// [i] wrapped into 0 to n-1.
+  static int wrap(int i, int n) => ((i % n) + n) % n;
+
+  /// Which item the cell [slot] shows when the ring is turned by [offset]
+  /// (rounded to a whole cell).
+  static int itemAt(double offset, int n, int slot) =>
+      wrap(offset.round() + slot, n);
+
+  /// The cell (0 to count-1) that shows item [index], or null when it is
+  /// out of view.
+  static int? slotOf(double offset, int n, int count, int index) {
+    final slot = wrap(index - offset.round(), n);
+    return slot < count ? slot : null;
+  }
+
+  /// [offset] turned, if needed, so item [index] is in view (in the middle
+  /// where there is room).
+  static double reveal(double offset, int n, int count, int index) {
+    if (slotOf(offset, n, count, index) != null) return offset;
+    return (index - count ~/ 2).toDouble();
+  }
+
+  /// How far a drag of [radians] along a ring of [count] cells spread over
+  /// [span] turns it, in cells. Dragging forward moves the cells with the
+  /// finger, so the offset goes down.
+  static double turnBy(double radians, int count, double span) =>
+      -radians / (span / count);
+
+  /// The smallest turn (-pi to pi) from angle [a] to angle [b].
+  static double angleDelta(double a, double b) {
+    var d = (b - a) % (2 * math.pi);
+    if (d > math.pi) d -= 2 * math.pi;
+    if (d < -math.pi) d += 2 * math.pi;
+    return d;
+  }
+}
+
+/// The colours the colour ring goes through: greys first, then each hue in
+/// a dark, a pure and a light shade, so neighbours look alike.
+const penFanColors = <Color>[
+  Color(0xFF111827),
+  Color(0xFF6B7280),
+  Color(0xFF9CA3AF),
+  Color(0xFF7F1D1D),
+  Color(0xFFDC2626),
+  Color(0xFFF87171),
+  Color(0xFFC2410C),
+  Color(0xFFF97316),
+  Color(0xFFFDBA74),
+  Color(0xFFA16207),
+  Color(0xFFFBBF24),
+  Color(0xFFFDE047),
+  Color(0xFF4D7C0F),
+  Color(0xFF16A34A),
+  Color(0xFF86EFAC),
+  Color(0xFF0F766E),
+  Color(0xFF14B8A6),
+  Color(0xFF0369A1),
+  Color(0xFF2563EB),
+  Color(0xFF93C5FD),
+  Color(0xFF4338CA),
+  Color(0xFF8B5CF6),
+  Color(0xFFC4B5FD),
+  Color(0xFF9D174D),
+  Color(0xFFEC4899),
+  Color(0xFFF9A8D4),
+  Color(0xFF78350F),
+];

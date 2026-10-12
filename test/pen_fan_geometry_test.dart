@@ -82,4 +82,57 @@ void main() {
       }
     }
   });
+
+  group('rotating rings', () {
+    test('wrap keeps indices in range, also going backwards', () {
+      expect(FanRing.wrap(-1, 27), 26);
+      expect(FanRing.wrap(27, 27), 0);
+      expect(FanRing.wrap(30, 27), 3);
+    });
+
+    test('cells show a window onto the list', () {
+      expect([for (var s = 0; s < 5; s++) FanRing.itemAt(0, 8, s)],
+          [0, 1, 2, 3, 4]);
+      expect([for (var s = 0; s < 5; s++) FanRing.itemAt(6, 8, s)],
+          [6, 7, 0, 1, 2]);
+      expect([for (var s = 0; s < 5; s++) FanRing.itemAt(-1, 8, s)],
+          [7, 0, 1, 2, 3]);
+    });
+
+    test('slotOf finds an item that is in view and null otherwise', () {
+      expect(FanRing.slotOf(0, 8, 5, 3), 3);
+      expect(FanRing.slotOf(0, 8, 5, 6), isNull);
+      expect(FanRing.slotOf(6, 8, 5, 1), 3);
+    });
+
+    test('reveal brings a hidden item into view', () {
+      final o = FanRing.reveal(0, 27, 9, 20);
+      expect(FanRing.slotOf(o, 27, 9, 20), isNotNull);
+      expect(FanRing.reveal(0, 27, 9, 4), 0); // already in view
+    });
+
+    test('dragging forward turns the cells with the finger', () {
+      // a drag by one cell's width moves the offset by one cell
+      final cell = PenFanGeometry.span / 9;
+      expect(FanRing.turnBy(cell, 9, PenFanGeometry.span), closeTo(-1, 1e-9));
+      expect(FanRing.turnBy(-cell, 9, PenFanGeometry.span), closeTo(1, 1e-9));
+    });
+
+    test('angleDelta takes the short way round the seam', () {
+      expect(FanRing.angleDelta(3.0, -3.0), closeTo(2 * math.pi - 6, 1e-9));
+      expect(FanRing.angleDelta(-3.0, 3.0), closeTo(6 - 2 * math.pi, 1e-9));
+    });
+
+    test('the colour list is as long as the ring expects', () {
+      expect(penFanColors.length, 27);
+      expect(penFanColors.toSet().length, 27);
+    });
+
+    test('inside covers both rings and the gap, not the rest', () {
+      expect(g.inside(g.colorCenter(4)), isTrue);
+      expect(g.inside(const Offset(134, 0)), isTrue);
+      expect(g.inside(const Offset(10, 0)), isFalse);
+      expect(g.inside(const Offset(-100, 0)), isFalse);
+    });
+  });
 }
