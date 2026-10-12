@@ -41,13 +41,13 @@ class PenFanGeometry {
   final int colorCount;
 
   static const buttonRadius = 28.0;
-  static const colorInner = 44.0;
-  static const colorOuter = 98.0;
-  static const toolInner = 102.0;
-  static const toolOuter = 172.0;
+  static const colorInner = 52.0;
+  static const colorOuter = 132.0;
+  static const toolInner = 136.0;
+  static const toolOuter = 214.0;
 
   /// How wide the fan is.
-  static const span = 110 * math.pi / 180;
+  static const span = 140 * math.pi / 180;
 
   double get start => direction - span / 2;
 
@@ -105,6 +105,33 @@ class PenFanGeometry {
       if (_fits(PenFanGeometry(direction: dir), button, bounds)) return dir;
     }
     return inward;
+  }
+
+  /// Whether the fan opening toward [dir] from [button] stays inside
+  /// [screen] (less [margin]).
+  static bool fitsOnScreen(
+    Offset button,
+    Size screen,
+    double dir, {
+    double margin = 8,
+  }) => _fits(
+    PenFanGeometry(direction: dir),
+    button,
+    Rect.fromLTWH(margin, margin, screen.width - 2 * margin,
+        screen.height - 2 * margin),
+  );
+
+  /// Where the button has to be for the whole fan to fit: [button] itself
+  /// when it already fits, otherwise the nearest point on the way to the
+  /// middle of the screen that does.
+  static Offset fitPosition(Offset button, Size screen, {double margin = 8}) {
+    final middle = Offset(screen.width / 2, screen.height / 2);
+    for (var i = 0; i <= 40; i++) {
+      final p = Offset.lerp(button, middle, i / 40)!;
+      final dir = bestDirection(p, screen, margin: margin);
+      if (fitsOnScreen(p, screen, dir, margin: margin)) return p;
+    }
+    return middle;
   }
 
   static bool _fits(PenFanGeometry g, Offset button, Rect bounds) {
