@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:saber/data/crash_log.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/ocr/handwriting_recognizer.dart';
 import 'package:saber/data/ocr/ink_recognizer.dart';
@@ -26,12 +27,19 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
   bool _checkingModel = false;
   String? _modelResult;
   bool _modelOk = false;
+  String? _crashText;
 
   @override
   void dispose() {
     _key.dispose();
     _model.dispose();
     super.dispose();
+  }
+
+  Future<void> _showCrashLog() async {
+    final text = await CrashLog.read();
+    if (!mounted) return;
+    setState(() => _crashText = text.isEmpty ? '-' : text);
   }
 
   Future<void> _checkModel() async {
@@ -145,6 +153,24 @@ class _HandwritingSettingsPageState extends State<HandwritingSettingsPage> {
                   : const Icon(Symbols.download_rounded),
               label: Text(DefterStrings.inkCheckModel),
             ),
+            TextButton.icon(
+              onPressed: _showCrashLog,
+              icon: const Icon(Symbols.bug_report_rounded),
+              label: Text(DefterStrings.crashLogShow),
+            ),
+            if (_crashText != null) ...[
+              SelectableText(
+                _crashText!,
+                style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await CrashLog.clear();
+                  if (mounted) setState(() => _crashText = null);
+                },
+                child: Text(DefterStrings.crashLogClear),
+              ),
+            ],
             if (_modelResult != null) ...[
               const SizedBox(height: 8),
               Text(
