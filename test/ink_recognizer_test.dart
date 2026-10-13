@@ -25,6 +25,19 @@ void main() {
       expect(lines.last.map((r) => r.top), [300, 304]);
     });
 
+    test('descender loops stay with their line', () {
+      final items = [
+        at(0, 100),
+        at(30, 100),
+        Rect.fromLTWH(60, 125, 20, 25), // loop of a y, lower than the rest
+        at(90, 102),
+        at(0, 300),
+      ];
+      final lines = groupLines<Rect>(items, (r) => r);
+      expect(lines, hasLength(2));
+      expect(lines.first, hasLength(4));
+    });
+
     test('drawing order is kept inside a line', () {
       final items = [at(90, 100), at(0, 102), at(40, 99)];
       final lines = groupLines<Rect>(items, (r) => r);

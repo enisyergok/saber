@@ -28,7 +28,7 @@ List<List<T>> groupLines<T>(List<T> items, Rect Function(T) bounds) {
       final mean = sum / current.length;
       final sorted = [...heights]..sort();
       final typical = sorted[sorted.length ~/ 2].clamp(12.0, 400.0);
-      if ((rect.center.dy - mean).abs() > typical * 0.8) {
+      if ((rect.center.dy - mean).abs() > typical * 1.4) {
         lines.add(current);
         current = <int>[];
         sum = 0;
@@ -155,8 +155,19 @@ abstract class InkRecognizer {
           '$pointCount nokta',
         );
         try {
+          final box = line
+              .map((s) => s.bounds)
+              .reduce((a, b) => a.expandToInclude(b));
           final candidates = await recognizer
-              .recognize(ink)
+              .recognize(
+                ink,
+                context: mlkit.DigitalInkRecognitionContext(
+                  writingArea: mlkit.WritingArea(
+                    width: box.width.clamp(1.0, 100000.0),
+                    height: box.height.clamp(1.0, 100000.0),
+                  ),
+                ),
+              )
               .timeout(lineTimeout);
           if (candidates.isNotEmpty) {
             final text = candidates.first.text.trim();
