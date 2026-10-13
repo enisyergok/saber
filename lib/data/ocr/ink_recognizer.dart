@@ -187,7 +187,14 @@ abstract class InkRecognizer {
     } catch (e) {
       throw HandwritingException('$e');
     } finally {
-      await recognizer.close();
+      // Closing can hang on some devices; the text is already read, so
+      // never make the result wait for it.
+      unawaited(
+        recognizer
+            .close()
+            .timeout(const Duration(seconds: 3))
+            .then<void>((_) {}, onError: (_) {}),
+      );
     }
   }
 }
