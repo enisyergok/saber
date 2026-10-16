@@ -9,9 +9,14 @@ import 'package:flutter/services.dart';
 /// drawing.
 ///
 /// The Android side draws the pen's real points as they arrive, in the
-/// colour and width this class tells it the pen has. When the stroke is
-/// done the app draws it itself, as always, and this clears the overlay.
-/// Nothing is predicted. Where the overlay can't be made, nothing changes.
+/// colour and width this class tells it the pen has: into the front buffer
+/// (the buffer the screen is showing) where the device allows it, otherwise
+/// on a plain surface above the app. With `predict` on it also draws a short
+/// piece ahead of the pen where a Kalman filter guesses the pen is heading;
+/// that piece is redrawn with every point, removed when the pen lifts and
+/// never saved. When the stroke is done the app draws it itself, as always,
+/// and this clears the overlay. Where the overlay can't be made, nothing
+/// changes.
 class PenOverlay {
   PenOverlay._();
 

@@ -933,8 +933,13 @@ abstract class DefterStrings {
   static String get penOverlay =>
       _tr ? 'Hızlı canlı çizgi (deneysel)' : 'Fast live ink (experimental)';
   static String get penOverlaySubtitle => _tr
-      ? 'Yazarken çizgiyi doğrudan ekrana çizer; kalem gecikmesini azaltır. Tahmin yapmaz'
-      : 'Draws the line straight to the screen while writing, for less lag. Predicts nothing';
+      ? 'Yazarken çizgiyi doğrudan ekranın gösterdiği belleğe (ön tampon) çizer; kalem gecikmesini azaltır'
+      : 'Draws the line straight into the buffer the screen is showing (front buffer) while writing, for less lag';
+  static String get penPredict =>
+      _tr ? 'Kalem tahmini' : 'Pen prediction';
+  static String get penPredictSubtitle => _tr
+      ? 'Hızlı canlı çizgi açıkken çizgiyi kalemin biraz önüne, kalemin gideceği yere çizer (Kalman). Tahmin edilen parça kaydedilmez, kalem kalkınca silinir'
+      : 'With fast live ink on, draws the line slightly ahead of the pen, where it is heading (Kalman). The guessed part is never saved and goes away when the pen lifts';
   static String get holdToSnapSubtitle => _tr
       ? 'Bir şekil çizip kalemi bekletince çizgi düzgün şekle dönüşür'
       : 'Draw a shape and hold the pen still to straighten it';

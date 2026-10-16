@@ -90,6 +90,7 @@ class MainActivity: FlutterActivity() {
             top = number("top"),
             right = number("right"),
             bottom = number("bottom"),
+            predict = map["predict"] as? Boolean ?: false,
         )
     }
 

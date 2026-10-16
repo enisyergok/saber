@@ -275,6 +275,7 @@ class EditorState extends State<Editor> {
     _transformationController.addListener(_scheduleVisiblePageUpdate);
     _transformationController.addListener(_queuePenOverlaySync);
     stows.penOverlay.addListener(_queuePenOverlaySync);
+    stows.penPredict.addListener(_queuePenOverlaySync);
     OpenTabs.paths.addListener(_setState);
     stows.editorPageSidebar.addListener(_setState);
     stows.penProbe.addListener(_setState);
@@ -2606,6 +2607,7 @@ class EditorState extends State<Editor> {
       'top': topLeft.dy,
       'right': bottomRight.dx,
       'bottom': bottomRight.dy,
+      'predict': stows.penPredict.value,
     };
   }
 
@@ -3486,7 +3488,8 @@ class EditorState extends State<Editor> {
             '${report.toText()}\n\n'
             'Not: ${coreInfo.pages.getOrNull(currentPageIndex)?.strokes.length ?? 0} '
             'çizgi bu sayfada, hızlı canlı çizgi '
-            '${stows.penOverlay.value ? 'açık' : 'kapalı'}.',
+            '${stows.penOverlay.value ? 'açık' : 'kapalı'}, kalem tahmini '
+            '${stows.penPredict.value ? 'açık' : 'kapalı'}.',
       ),
     );
   }
@@ -3893,6 +3896,7 @@ class EditorState extends State<Editor> {
     _transformationController.removeListener(_scheduleVisiblePageUpdate);
     _transformationController.removeListener(_queuePenOverlaySync);
     stows.penOverlay.removeListener(_queuePenOverlaySync);
+    stows.penPredict.removeListener(_queuePenOverlaySync);
     PenOverlay.sync(null);
     OpenTabs.paths.removeListener(_setState);
 

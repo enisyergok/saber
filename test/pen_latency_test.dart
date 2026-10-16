@@ -157,6 +157,38 @@ void main() {
     expect(text, contains('normal yol'));
   });
 
+  test('the fast live ink says how it drew and whether it predicted', () {
+    final front = simulate(
+      prediction: false,
+      overlay: {
+        'count': 500,
+        'p50': 4,
+        'p95': 9,
+        'max': 20,
+        'frontBuffer': 1,
+        'predictedFrames': 120,
+      },
+    ).toText();
+    expect(front, contains('Çizim yolu: ön tampon'));
+    expect(front, contains('+½ kare'));
+    expect(front, contains('Canlı çizgide tahmin (Kalman): 120 karede'));
+
+    final surface = simulate(
+      prediction: false,
+      overlay: {
+        'count': 500,
+        'p50': 6,
+        'p95': 14,
+        'max': 30,
+        'frontBuffer': 0,
+        'frontUnsupported': 1,
+      },
+    ).toText();
+    expect(surface, contains('ön tampon bu cihazda çalışmadı'));
+    expect(surface, contains('+1 kare'));
+    expect(surface, contains('Canlı çizgide tahmin (Kalman): bu kayıtta kullanılmadı'));
+  });
+
   test('without the fast live ink the report says so', () {
     final text = simulate(prediction: false).toText();
     expect(text, contains('bu kayıtta çizim yok'));

@@ -331,6 +331,11 @@ class PenLatencyReport {
     final fast = overlay;
     if (fast != null && fast['count'] != null && fast['count']! > 0) {
       final p50 = fast['p50'] ?? 0;
+      final front = (fast['frontBuffer'] ?? 0) > 0;
+      // A picture in the front buffer shows as the screen passes over it:
+      // half a refresh later on average. Through the plain surface it waits
+      // for the next refresh.
+      final showMs = front ? frameIntervalMs / 2 : frameIntervalMs;
       b.writeln('');
       b.writeln(
         'Hızlı canlı çizgi (olay → ekran belleği): ortanca ${ms(p50)} ms, '
@@ -338,13 +343,29 @@ class PenLatencyReport {
         '(${fast['count']!.toStringAsFixed(0)} nokta)',
       );
       b.writeln(
-        'Ekrana yansıma dahil tahmin (+1 kare = ${ms(frameIntervalMs)} ms): '
-        '${ms(p50 + frameIntervalMs)} ms (normal yol: ${ms(totalLatencyMs)} ms)',
+        front
+            ? 'Çizim yolu: ön tampon (ekranın gösterdiği bellek)'
+            : (fast['frontUnsupported'] ?? 0) > 0
+            ? 'Çizim yolu: ayrı yüzey (ön tampon bu cihazda çalışmadı)'
+            : 'Çizim yolu: ayrı yüzey',
+      );
+      final predicted = fast['predictedFrames'] ?? 0;
+      b.writeln(
+        predicted > 0
+            ? 'Canlı çizgide tahmin (Kalman): ${predicted.toStringAsFixed(0)} '
+                  'karede çizgi kalemin önüne uzatıldı (kaydedilmez)'
+            : 'Canlı çizgide tahmin (Kalman): bu kayıtta kullanılmadı',
+      );
+      b.writeln(
+        'Ekrana yansıma dahil tahmin '
+        '(+${front ? '½' : '1'} kare = ${ms(showMs)} ms): '
+        '${ms(p50 + showMs)} ms (normal yol: ${ms(totalLatencyMs)} ms)',
       );
       b.writeln(
         'Hızlı çizgide çizgi ucu kalemin yaklaşık '
-        '${(fastSpeed * (p50 + frameIntervalMs) / 1000).toStringAsFixed(0)} px '
-        'gerisinde (normal yolda ${trailPx.toStringAsFixed(0)} px)',
+        '${(fastSpeed * (p50 + showMs) / 1000).toStringAsFixed(0)} px '
+        'gerisinde (normal yolda ${trailPx.toStringAsFixed(0)} px'
+        '${predicted > 0 ? '; tahmin bu farkın bir kısmını kapatır' : ''})',
       );
     } else {
       b.writeln('');

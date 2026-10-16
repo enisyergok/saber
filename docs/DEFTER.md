@@ -24,7 +24,7 @@ Marj (eski adıyla Defter), Saber Notes'un (Flutter) çatalıdır. Tablet için 
 | Ad ve simge | Uygulamanın adı Marj'dır (sayfa kenarındaki boşluk; kenar notu). Simge: kâğıdın kenar çizgisinin üzerine yazılmış bir M — mürekkep mavisi zemin, beyaz M, mercan rengi kenar çizgisi. Aynı işaret uygulamanın içinde, kenar çubuğundaki adın yanında da durur. Ad değişikliği yalnızca görünen addır: uygulama kimliği, notlar, ayarlar ve yedek biçimi aynıdır; "Defter" adıyla alınmış yedekler aynen geri yüklenir. Yeni yedek dosyaları `Marj-yedek-…zip` adını alır. |
 | Kapak | Not defterinin kapağı yalnızca ana ekrandaki kartında görünür; sayfalardan biri değildir, notun içinde yalnızca kâğıt vardır. Kapak, yeni defter ekranında ya da not açıkken Alt menü > Kapak bölümünden seçilir (ilk kutu: kapaksız); defterin adı kapağın üzerine yazılır ve defter yeniden adlandırılınca kapaktaki ad da değişir. Kapak notun dosyasında saklanır (yedeğe ve dışa aktarılan nota girer). Kapağı ilk sayfası olan eski defterler ilk açılışta kendiliğinden çevrilir: kapak sayfası sayfalardan çıkar, küçük bir resmi kart kapağı olur; diğer sayfalar, yazılar ve resimler yerinde kalır. |
 | Sayfalar | Sayfa silme ve çoğaltma: soldaki sayfa şeridinde ve Sayfalar penceresinde her sayfanın altındaki "..." düğmesi; ayrıca Alt menü > "N. sayfayı sil". Silinen sayfa üzerindekilerle birlikte gider, sonraki sayfalar yukarı kayar; "Geri al" (çıkan bildirimde ya da geri al düğmesinde) sayfayı geri getirir. Sonradan eklenip boş bırakılan sayfalar da, sondaki boş sayfa da silinebilir. Defterde her zaman bir sayfa kalır: kalan tek sayfa silinirse yerine boş bir sayfa gelir. |
-| Kalem | (devamı) Kalem çift dokunuşu eylemi (Ayarlar), kalem sinyali testi, kalem gecikme ölçümü (Ayarlar > Kalem gecikme ölçümü; editörde kayıt düğmesi: yeni üst çubukta mikrofonun yanında, eski çubukta sağ üstte) Nokta: kalemle bir yere dokunup kaldırmak (kalem genişliğinin bir buçuk katından kısa her iz) kalemin kendi genişliğinde yuvarlak bir nokta bırakır; daha sert basılırsa daha büyük olur, daha küçük olmaz. Dokunuş, kalem kayda değer bir basınç bildiremeden bittiği ve sivri uçlu kalemde bu kadar kısa bir çizgi yalnızca iki sivri uçtan ibaret olduğu için, geldiği gibi çizilen nokta görünmeyecek kadar küçük kalıyordu. Vurgulayıcı ve şekil kalemi bunun dışındadır. Gecikme: çizgi kalemin ucundan iki üç kare geride kalır (60 Hz'de 35–45 ms; hızlı yazıda 15–20 birim). Kalem tahmini kaldırıldı (ucu eğilip düzeliyor, yazma hissini bozuyordu); hiçbir şey tahmin edilmez. Canlı çizgiye ek hiçbir şey çizilmez (ne tahmin ne de son noktaları kapatan ek çizgi): ekranda görünen, kaydedilecek çizginin aynısıdır. Kalem çizerken Android'e performans ipucu verilir (PerformanceHintManager, 'defter/boost'; kare süreleri bildirilir, işlemci/GPU kareler arasında yavaşlamasın); desteklenmiyorsa hiçbir şey değişmez. Android'de kalem olayları kareyi beklemeden iletilir (requestUnbufferedDispatch, yalnızca kalem; parmak aynı). Sınır: ekranın kendi yenileme hızı (60 Hz iken en az iki kare ≈ 33 ms) ve panelin tepki süresi yazılımla kaldırılamaz. |
+| Kalem | (devamı) Kalem çift dokunuşu eylemi (Ayarlar), kalem sinyali testi, kalem gecikme ölçümü (Ayarlar > Kalem gecikme ölçümü; editörde kayıt düğmesi: yeni üst çubukta mikrofonun yanında, eski çubukta sağ üstte) Nokta: kalemle bir yere dokunup kaldırmak (kalem genişliğinin bir buçuk katından kısa her iz) kalemin kendi genişliğinde yuvarlak bir nokta bırakır; daha sert basılırsa daha büyük olur, daha küçük olmaz. Dokunuş, kalem kayda değer bir basınç bildiremeden bittiği ve sivri uçlu kalemde bu kadar kısa bir çizgi yalnızca iki sivri uçtan ibaret olduğu için, geldiği gibi çizilen nokta görünmeyecek kadar küçük kalıyordu. Vurgulayıcı ve şekil kalemi bunun dışındadır. Gecikme: çizgi kalemin ucundan iki üç kare geride kalır (60 Hz'de 35–45 ms; hızlı yazıda 15–20 birim). Flutter'ın kendi canlı çizgisinde tahmin yoktur (eski basit tahmin ucu eğip düzelttiği için kaldırıldı); orada ekranda görünen, kaydedilecek çizginin aynısıdır. Tahmin yalnızca "Hızlı canlı çizgi" katmanında, ayrı bir ayarla (Kalem tahmini, Kalman) vardır; aşağıya bakınız. Kalem çizerken Android'e performans ipucu verilir (PerformanceHintManager, 'defter/boost'; kare süreleri bildirilir, işlemci/GPU kareler arasında yavaşlamasın); desteklenmiyorsa hiçbir şey değişmez. Android'de kalem olayları kareyi beklemeden iletilir (requestUnbufferedDispatch, yalnızca kalem; parmak aynı). Sınır: ekranın kendi yenileme hızı (60 Hz iken en az iki kare ≈ 33 ms) ve panelin tepki süresi yazılımla kaldırılamaz. |
 | Ana sayfa | Tablette açılış ekranı: kenar çubuğu (Ana Sayfa, Notlarım, Planlayıcılar, Şablonlar, Favoriler, Son Kullanılanlar, Beyaz Tahta, Çöp Kutusu, Ayarlar, klasörler), üstte arama ve eylemler (Yeni Not, Şablondan Oluştur, PDF İçe Aktar, Görüntü Ekle, Klasör Oluştur), son açılan notlar, klasörler ve içlerindeki öğe sayısı, şablon türleri. Ayarlar > "Yeni ana sayfa" ile kapatılır; telefonda eski görünüm kalır. |
 | Yeni defter | Altı adım: şablon (78 kâğıt, türlere göre), kapak (36 kapak, türlere göre, adın yazılı önizlemesi), boyut ve yön (Standart, A4, A5, B5, Letter, Kare; dikey/yatay) ile kâğıt rengi, ad, klasör, özet. Her adımda "Oluştur" ile varsayılanlarla hemen açılabilir. |
 | Şablon galerileri | Planlayıcı, mühendislik ve diyagram şablonları konu başlıklarına göre (yıllık, finans, sağlık…; teknik çizim, elektrik-elektronik, mekanik…; akış, zihin haritası, analiz…). Yeni kâğıtlar: milimetrik, devre şeması, PCB ızgarası, blok diyagram, Gantt, ölçüm tablosu, hiyerarşi, ok şeması, ilişki şeması, akademik/hedef/finans/öğrenci planlayıcı, ruh hali takibi, hesap defteri. |
@@ -100,11 +100,39 @@ saklanır (şifrelenmez, eşitlenmez).
 ## Hızlı canlı çizgi (deneysel, varsayılan kapalı)
 
 Ayarlar → Kalem: "Hızlı canlı çizgi". Açıkken Android, yazarken kalemin gerçek
-noktalarını Flutter'ın kare hattını beklemeden, ekranın üstündeki ayrı bir
-yüzeye (`InkOverlay.kt`) kendi iş parçacığında çizer. Tahmin ya da düzeltme
-yoktur. Renk, kalınlık, basınç tablosu ve başlangıç sivriliği `PenOverlay`
-üzerinden Flutter'dan verilir; çizgi bitince Flutter asıl çizgiyi kendisi
-çizer ve iki kare sonra katman temizlenir (`PenOverlay.clearSoon`, Android
-tarafında 700 ms'lik yedek temizlik). Saydam renkli, cetvelli, hat kalemi,
-fosforlu kalem ve şekil kalemi için kapalıdır. Kalem düğmesine basılıyken ve
-tuval dışında başlayan çizgilerde çizmez.
+noktalarını Flutter'ın kare hattını beklemeden, kendi iş parçacığında, uygulamanın
+üstündeki ayrı bir katmana çizer (`InkOverlay.kt`). İki çizim yolu vardır, çalışan
+ilki kullanılır:
+
+1. **Ön tampon** (Android 10+, `androidx.graphics:graphics-core`
+   `LowLatencyCanvasView`): noktalar ekranın o anda gösterdiği belleğe çizilir;
+   gösterilmeyi bekleyen tampon kuyruğu (2–3 kare) atlanır. Notewise de aynı
+   kütüphaneyi kullanır. Cihaz gereken tampon türünü yapamıyorsa, iki çizgi boyunca
+   ön tampon hiç çizmezse ya da ön tampon iş parçacığı bir kez uygulamayı
+   kapatırsa (`files/ink_front_buffer_crashed` işareti) bir sonraki çizgiden ya da
+   açılıştan itibaren 2. yol kullanılır.
+2. **Ayrı yüzey** (eski yol): uygulamanın üstünde kendi `SurfaceView`'ı; en çok bir
+   kare geride. Her resimde katman baştan çizilir (yüzeyin verdiği tampon birkaç
+   resim eski olabilir).
+
+**Kalem tahmini** (Ayarlar → Kalem → "Kalem tahmini", varsayılan açık; yalnızca hızlı
+canlı çizgi açıkken etkilidir): `androidx.input:input-motionprediction` Kalman
+süzgeci, kalemin resim ekrana ulaştığında nerede olacağını tahmin eder (en çok
+32 ms ileri; kalem dönerken ya da yavaşlarken daha az). Tahmin edilen parça
+kalemin son gerçek noktasından başlar, en çok kalem genişliğinin 4 katı (en az
+48 px) uzunluktadır, kalemin son kalınlığıyla çizilir, her yeni noktada silinip
+yeniden çizilir, kalem kalkınca kaldırılır ve kaydedilen çizgiye hiçbir zaman
+girmez. Android 14+ cihazlarda kütüphane, cihaz destekliyorsa sistemin kendi
+tahmincisini kullanır.
+
+Renk, kalınlık, basınç tablosu, başlangıç sivriliği ve tahmin ayarı `PenOverlay`
+üzerinden Flutter'dan verilir; çizgi bitince Flutter asıl çizgiyi kendisi çizer ve
+iki kare sonra katman temizlenir (`PenOverlay.clearSoon`, Android tarafında 700
+ms'lik yedek temizlik). Saydam renkli, cetvelli, hat kalemi, fosforlu kalem ve
+şekil kalemi için kapalıdır. Kalem düğmesine basılıyken ve tuval dışında başlayan
+çizgilerde çizmez. Kalem gecikme ölçümü raporu hangi çizim yolunun kullanıldığını
+ve tahminin kaç karede çizildiğini yazar.
+
+Sınır: ön tampona çizimde ekran, belleği tararken yeni çizilen parçanın yarısını
+bir karede, yarısını sonrakinde gösterebilir (çok kısa süreli yırtılma); panelin
+kendi tepki süresi yazılımla kaldırılamaz.

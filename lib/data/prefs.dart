@@ -237,6 +237,15 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// With the fast live ink on: draw the line a little ahead of the pen,
+  /// where a Kalman filter guesses the pen will be when the picture reaches
+  /// the screen. Only shown on the overlay, never saved (see PenOverlay).
+  final penPredict = PlainStow(
+    'penPredict',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   final shapeHoldToSnap = PlainStow(
     'shapeHoldToSnap',
     true,
