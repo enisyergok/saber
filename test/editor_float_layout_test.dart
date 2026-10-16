@@ -45,7 +45,7 @@ void main() {
 
   test('the controls take one row less on a wide screen', () {
     expect(
-      FloatEditorBar.reservedHeight(1280),
+      FloatEditorBar.reservedHeight(1500),
       lessThan(FloatEditorBar.reservedHeight(800)),
     );
   });

@@ -2879,10 +2879,7 @@ class EditorState extends State<Editor> {
         spec: toolbarSpec,
         topBar: DynamicMaterialApp.isFullscreen
             ? null
-            : FloatEditorBar(
-                from: _gnEditorBar(toolbarSpec),
-                onBack: () => Navigator.of(context).maybePop(),
-              ),
+            : FloatEditorBar(from: _gnEditorBar(toolbarSpec)),
         child: Column(
           children: [
             Expanded(child: canvas),

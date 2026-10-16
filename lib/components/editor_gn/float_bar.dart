@@ -33,10 +33,9 @@ import 'package:saber/i18n/strings.g.dart';
 /// two. It takes everything it needs from the [GnEditorBar] description
 /// [from], so that both layouts do exactly the same things.
 class FloatEditorBar extends StatelessWidget {
-  const FloatEditorBar({super.key, required this.from, required this.onBack});
+  const FloatEditorBar({super.key, required this.from});
 
   final GnEditorBar from;
-  final VoidCallback onBack;
 
   /// The height of a capsule, the size of the buttons in it, and the space
   /// around capsules.
@@ -45,7 +44,7 @@ class FloatEditorBar extends StatelessWidget {
   static const spacing = 8.0;
 
   /// From this width on, all three capsules fit in one row.
-  static const oneRowWidth = 1000.0;
+  static const oneRowWidth = 1400.0;
 
   /// How far down from under the status bar the controls reach on a screen
   /// [width] wide: the capsules and the quick options strip under the tool
@@ -75,17 +74,13 @@ class FloatEditorBar extends StatelessWidget {
     if (width >= oneRowWidth) {
       layout = SizedBox(
         height: capsuleHeight,
-        child: Stack(
-          alignment: Alignment.center,
+        child: Row(
           children: [
-            Align(alignment: AlignmentDirectional.centerStart, child: nav),
-            Align(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: width * 0.5),
-                child: tools,
-              ),
-            ),
-            Align(alignment: AlignmentDirectional.centerEnd, child: end),
+            nav,
+            const SizedBox(width: spacing),
+            Expanded(child: Center(child: tools)),
+            const SizedBox(width: spacing),
+            end,
           ],
         ),
       );
@@ -94,9 +89,10 @@ class FloatEditorBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(child: nav),
-              const Spacer(),
+              const SizedBox(width: spacing),
               end,
             ],
           ),
@@ -118,14 +114,10 @@ class FloatEditorBar extends StatelessWidget {
     final tabs = from.paths;
     return _Capsule(
       children: [
-        _CapsuleButton(
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          icon: const Icon(Symbols.arrow_back_rounded),
-          onPressed: onBack,
-        ),
+        // Back once saved (a save button while there are changes).
         SaveIndicator(savingState: from.savingState, triggerSave: from.triggerSave),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 200),
+          constraints: const BoxConstraints(maxWidth: 170),
           child: TextButton(
             key: const Key('floatNoteName'),
             onPressed: from.onRename,
@@ -211,7 +203,6 @@ class FloatEditorBar extends StatelessWidget {
 
     final penSelected = actions.isPen;
     return _Capsule(
-      scrolls: true,
       children: [
         _CapsuleButton(
           tooltip: t.editor.toolbar.undo,
@@ -386,12 +377,9 @@ class FloatEditorBar extends StatelessWidget {
 
 /// A rounded capsule floating over the page, holding a row of buttons.
 class _Capsule extends StatelessWidget {
-  const _Capsule({required this.children, this.scrolls = false});
+  const _Capsule({required this.children});
 
   final List<Widget> children;
-
-  /// Whether the row scrolls sideways when it doesn't fit.
-  final bool scrolls;
 
   @override
   Widget build(BuildContext context) {
@@ -401,9 +389,11 @@ class _Capsule extends StatelessWidget {
       child: FloatingPanel.pill(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: scrolls
-              ? SingleChildScrollView(scrollDirection: Axis.horizontal, child: row)
-              : row,
+          // Scrolls sideways where it doesn't fit (narrow screens).
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: row,
+          ),
         ),
       ),
     );
