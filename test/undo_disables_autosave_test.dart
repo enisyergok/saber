@@ -28,6 +28,9 @@ void main() {
       await tester.pumpWidget(
         TranslationProvider(child: MaterialApp(home: Editor())),
       );
+      // The floating controls (with the save indicator) are put over the
+      // page one frame after the editor is built.
+      await tester.pump();
       editorState = tester.state<EditorState>(find.byType(Editor));
       expect(editorState.coreInfo.readOnly, isFalse);
 
@@ -65,6 +68,9 @@ void main() {
       await tester.pumpWidget(
         TranslationProvider(child: MaterialApp(home: Editor())),
       );
+      // The floating controls (with the save indicator) are put over the
+      // page one frame after the editor is built.
+      await tester.pump();
       editorState = tester.state<EditorState>(find.byType(Editor));
       expect(editorState.coreInfo.readOnly, isFalse);
 

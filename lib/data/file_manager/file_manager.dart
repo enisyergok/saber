@@ -78,11 +78,15 @@ class FileManager {
     File file,
     List<int> bytes, {
     required bool keepBackup,
+    Future<void>? before,
   }) {
     final previous = _pendingWrites[file.path] ?? Future<void>.value();
     final next = previous
         .catchError((_) {}) // a failed earlier write must not block this one
         .then((_) async {
+          // Work this write needs first (its folder): it runs at once, but
+          // the write itself keeps its place in the queue.
+          if (before != null) await before;
           final temp = File('${file.path}.tmp');
           final handle = await temp.open(mode: FileMode.write);
           try {
@@ -312,15 +316,24 @@ class FileManager {
     log.fine('Writing to $filePath');
     NoteVersions.noteWritten(filePath);
 
-    await _saveFileAsRecentlyAccessed(filePath);
-
     final file = getFile(filePath);
-    await _createFileDirectory(filePath);
+    // The write takes its place in the file's queue right now, before
+    // anything is awaited: otherwise two saves of the same note close
+    // together could reach the queue in the wrong order, and the older
+    // content would be written last.
+    final prepared = () async {
+      await _saveFileAsRecentlyAccessed(filePath);
+      await _createFileDirectory(filePath);
+    }();
+    // Its error (if any) is handed on by the write; only keep it from
+    // being reported as unhandled while the write waits its turn.
+    unawaited(prepared.catchError((Object _) {}));
     Future writeFuture = Future.wait([
       _writeAtomically(
         file,
         toWrite,
         keepBackup: filePath.endsWith(Editor.extension),
+        before: prepared,
       ).then((_) async {
         if (lastModified != null) await file.setLastModified(lastModified);
       }),
