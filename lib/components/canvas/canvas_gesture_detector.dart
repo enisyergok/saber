@@ -38,11 +38,16 @@ class CanvasGestureDetector extends StatefulWidget {
     required this.pageBuilder,
     required this.placeholderPageBuilder,
     required this.isTextEditing,
+    this.topInset = 0,
     TransformationController? transformationController,
   }) : _transformationController =
            transformationController ?? TransformationController();
 
   final String filePath;
+
+  /// Extra room above the first page, for controls that float over the
+  /// top of the page area (the floating editor layout).
+  final double topInset;
 
   final bool Function(ScaleStartDetails scaleDetails) isDrawGesture;
   final ValueChanged<ScaleEndDetails>? onInteractionEnd;
@@ -580,6 +585,7 @@ class CanvasGestureDetectorState extends State<CanvasGestureDetector> {
                       placeholderPageBuilder: widget.placeholderPageBuilder,
                       boundingBox: _axisAlignedBoundingBox(viewport),
                       containerWidth: containerBounds.maxWidth,
+                      topInset: widget.topInset,
                     );
                   },
                 );
@@ -653,6 +659,7 @@ class _PagesBuilder extends StatelessWidget {
     required this.placeholderPageBuilder,
     required this.boundingBox,
     required this.containerWidth,
+    this.topInset = 0,
   });
 
   final List<EditorPage> pages;
@@ -661,15 +668,17 @@ class _PagesBuilder extends StatelessWidget {
   placeholderPageBuilder;
   final Rect boundingBox;
   final double containerWidth;
+  final double topInset;
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
+      if (topInset > 0) SizedBox(height: topInset),
       const SizedBox.square(dimension: Editor.gapBetweenPages),
       const SizedBox.square(dimension: Editor.gapBetweenPages),
     ];
 
-    double topOfPage = Editor.gapBetweenPages * 2;
+    double topOfPage = topInset + Editor.gapBetweenPages * 2;
     for (int pageIndex = 0; pageIndex < pages.length; pageIndex++) {
       final page = pages[pageIndex];
       final pageWidth = min(

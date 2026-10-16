@@ -133,6 +133,15 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// With [editorGnLayout]: the floating layout instead of the top bar. The
+  /// page fills the screen and the controls float over it in capsules (see
+  /// FloatEditorBar).
+  final editorFloatingBar = PlainStow(
+    'editorFloatingBar',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   final editorToolbarAlignment = PlainStow(
     'editorToolbarAlignment',
     AxisDirection.up,

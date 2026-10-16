@@ -7,6 +7,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/editor_gn/gn_actions.dart';
 import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
+import 'package:saber/components/editor_gn/float_bar.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
 import 'package:saber/components/theming/uni_icon.dart';
@@ -40,10 +41,17 @@ class GnOverlay extends StatefulWidget {
     required this.controller,
     required this.spec,
     required this.child,
+    this.topBar,
   });
 
   final GnController controller;
   final Toolbar spec;
+
+  /// The floating layout's controls (see FloatEditorBar), drawn at the top
+  /// over the page; null for the layout with the top bar. With them the
+  /// tool's options hang centred under the tool box instead of from the
+  /// left of the bar, and undo and redo are in the tool box.
+  final Widget? topBar;
 
   /// The page area.
   final Widget child;
@@ -79,7 +87,10 @@ class _GnOverlayState extends State<GnOverlay> {
   Widget _content(BuildContext context) {
     final controller = widget.controller;
     final actions = GnActions(widget.spec, controller);
-    final strip = _strip(context, actions);
+    final floating = widget.topBar != null;
+    final strip = floating && !controller.quickControls
+        ? null
+        : _strip(context, actions);
     final panel = controller.panel;
     return Positioned.fill(
       child: Stack(
@@ -92,7 +103,32 @@ class _GnOverlayState extends State<GnOverlay> {
                 onTap: controller.close,
               ),
             ),
-          Positioned(
+          if (floating)
+            Positioned(
+              top: MediaQuery.viewPaddingOf(context).top + FloatEditorBar.spacing,
+              left: FloatEditorBar.spacing + MediaQuery.viewPaddingOf(context).left,
+              right: FloatEditorBar.spacing + MediaQuery.viewPaddingOf(context).right,
+              child: widget.topBar!,
+            ),
+          if (floating && strip != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              child: CompositedTransformFollower(
+                link: controller.barLink,
+                targetAnchor: Alignment.bottomCenter,
+                followerAnchor: Alignment.topCenter,
+                offset: const Offset(0, FloatEditorBar.spacing),
+                showWhenUnlinked: false,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width - 24,
+                  ),
+                  child: strip,
+                ),
+              ),
+            ),
+          if (!floating) Positioned(
             top: 0,
             left: 0,
             child: CompositedTransformFollower(
@@ -118,7 +154,8 @@ class _GnOverlayState extends State<GnOverlay> {
               ),
             ),
           ),
-          if (panel != GnPanel.none) _panelAt(context, panel, actions),
+          if (panel != GnPanel.none)
+            _panelAt(context, panel, actions, stripShown: strip != null),
           if (!widget.spec.readOnly && !widget.spec.textEditing)
             Positioned.fill(
               child: ValueListenableBuilder<bool>(
@@ -179,9 +216,11 @@ class _GnOverlayState extends State<GnOverlay> {
       );
     } else if (tool is Pen) {
       final currentColor = tool.color;
+      final floating = widget.topBar != null;
       content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (!floating) ...[
           _PenChip(
             selected: actions.isPen,
             tooltip: actions.writingPen.name,
@@ -206,6 +245,7 @@ class _GnOverlayState extends State<GnOverlay> {
             onTap: actions.toggleShape,
             child: const Icon(ShapePen.shapePenIcon, size: 24),
           ),
+          ],
           QuickStyleBar(
             pen: tool,
             currentColor: currentColor,
@@ -221,6 +261,14 @@ class _GnOverlayState extends State<GnOverlay> {
               onPressed: () => widget.controller.toggle(GnPanel.color),
             ),
           ),
+          if (floating)
+            IconButton(
+              key: const Key('floatPenDetails'),
+              tooltip: DefterStrings.floatPenDetails,
+              icon: Icon(Symbols.tune_rounded, color: colors.onSurface),
+              isSelected: widget.controller.panel == GnPanel.penSettings,
+              onPressed: () => widget.controller.toggle(GnPanel.penSettings),
+            ),
         ],
       );
     } else if (tool is Eraser) {
@@ -245,7 +293,13 @@ class _GnOverlayState extends State<GnOverlay> {
     );
   }
 
-  Widget _panelAt(BuildContext context, GnPanel panel, GnActions actions) {
+  Widget _panelAt(
+    BuildContext context,
+    GnPanel panel,
+    GnActions actions, {
+    required bool stripShown,
+  }) {
+    final floating = widget.topBar != null;
     final controller = widget.controller;
     final spec = widget.spec;
     final rightSide = panel == GnPanel.export || panel == GnPanel.more;
@@ -260,12 +314,22 @@ class _GnOverlayState extends State<GnOverlay> {
           left: 0,
           child: CompositedTransformFollower(
             link: controller.barLink,
-            targetAnchor: Alignment.bottomLeft,
-            followerAnchor: Alignment.topLeft,
-            offset: const Offset(12, 8),
+            targetAnchor: floating ? Alignment.bottomCenter : Alignment.bottomLeft,
+            followerAnchor: floating ? Alignment.topCenter : Alignment.topLeft,
+            // In the floating layout: under the tool box, and under the
+            // tool's options when they are shown.
+            offset: floating
+                ? Offset(
+                    0,
+                    FloatEditorBar.spacing +
+                        (stripShown
+                            ? FloatEditorBar.capsuleHeight + FloatEditorBar.spacing
+                            : 0),
+                  )
+                : const Offset(12, 8),
             showWhenUnlinked: false,
             child: Appear(
-              alignment: Alignment.topLeft,
+              alignment: floating ? Alignment.topCenter : Alignment.topLeft,
               child: GnPenSettings(
               getTool: () => spec.currentTool,
               setTool: spec.setTool,
@@ -280,7 +344,11 @@ class _GnOverlayState extends State<GnOverlay> {
                 280.0,
                 MediaQuery.sizeOf(context).height -
                     MediaQuery.viewPaddingOf(context).vertical -
-                    GnEditorBar.contentHeight -
+                    (floating
+                        ? FloatEditorBar.reservedHeight(
+                            MediaQuery.sizeOf(context).width,
+                          )
+                        : GnEditorBar.contentHeight) -
                     20,
               ),
               ),

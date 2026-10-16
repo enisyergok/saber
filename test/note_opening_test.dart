@@ -226,9 +226,11 @@ void main() {
       tester,
     ) async {
       stows.editorGnLayout.value = true;
-      addTearDown(
-        () => stows.editorGnLayout.value = stows.editorGnLayout.defaultValue,
-      );
+      stows.editorFloatingBar.value = false;
+      addTearDown(() {
+        stows.editorGnLayout.value = stows.editorGnLayout.defaultValue;
+        stows.editorFloatingBar.value = stows.editorFloatingBar.defaultValue;
+      });
       await tester.pumpWidget(
         cardApp(
           built: [],
@@ -259,6 +261,34 @@ void main() {
         const Size(800, 600 - GnEditorBar.contentHeight),
       );
 
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('the floating layout has no band: the picture fills the '
+        'screen', (tester) async {
+      stows.editorGnLayout.value = true;
+      stows.editorFloatingBar.value = true;
+      addTearDown(() {
+        stows.editorGnLayout.value = stows.editorGnLayout.defaultValue;
+        stows.editorFloatingBar.value = stows.editorFloatingBar.defaultValue;
+      });
+      await tester.pumpWidget(
+        cardApp(
+          built: [],
+          picture: const ColoredBox(
+            key: ValueKey('picture'),
+            color: Colors.teal,
+          ),
+        ),
+      );
+      await tester.tap(find.text('card'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(
+        tester.getSize(find.byKey(const ValueKey('picture'))),
+        const Size(800, 600),
+      );
       await tester.pumpAndSettle();
     });
 

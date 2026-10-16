@@ -438,6 +438,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   pref: stows.editorGnLayout,
                 ),
                 SettingsSwitch(
+                  title: DefterStrings.floatLayout,
+                  subtitle: DefterStrings.floatLayoutSubtitle,
+                  icon: Symbols.toolbar_rounded,
+                  pref: stows.editorFloatingBar,
+                ),
+                SettingsSwitch(
                   title: DefterStrings.homeDashboard,
                   subtitle: DefterStrings.homeDashboardSubtitle,
                   icon: Symbols.space_dashboard_rounded,

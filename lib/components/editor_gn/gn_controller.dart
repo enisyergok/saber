@@ -26,6 +26,16 @@ class GnController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Whether the quick options of the tool in use hang under the tool box
+  /// (floating layout, see FloatEditorBar).
+  bool quickControls = true;
+
+  void toggleQuickControls() {
+    quickControls = !quickControls;
+    if (!quickControls && _panel == GnPanel.color) _panel = GnPanel.none;
+    notifyListeners();
+  }
+
   void close() {
     if (_panel == GnPanel.none) return;
     _panel = GnPanel.none;

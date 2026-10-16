@@ -133,8 +133,11 @@ class _NoteSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The floating layout has no bar: the page fills the screen.
     final showsBar =
-        stows.editorGnLayout.value && !DynamicMaterialApp.isFullscreen;
+        stows.editorGnLayout.value &&
+        !stows.editorFloatingBar.value &&
+        !DynamicMaterialApp.isFullscreen;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

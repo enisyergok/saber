@@ -935,6 +935,16 @@ abstract class DefterStrings {
   static String get penOverlaySubtitle => _tr
       ? 'Yazarken çizgiyi doğrudan ekranın gösterdiği belleğe (ön tampon) çizer; kalem gecikmesini azaltır'
       : 'Draws the line straight into the buffer the screen is showing (front buffer) while writing, for less lag';
+  static String get floatQuickControls =>
+      _tr ? 'Hızlı ayarlar' : 'Quick options';
+  static String get floatPenDetails =>
+      _tr ? 'Kalem ayarları' : 'Pen settings';
+  static String get floatTabs => _tr ? 'Açık notlar' : 'Open notes';
+  static String get floatLayout =>
+      _tr ? 'Yüzen araç kutusu' : 'Floating tool box';
+  static String get floatLayoutSubtitle => _tr
+      ? 'Sayfa tüm ekranı kaplar; araçlar üstte yüzen kapsüllerde, seçili aracın ayarları hemen altında'
+      : 'The page fills the screen; the tools float in capsules at the top, with the options of the tool in use right under them';
   static String get penPredict =>
       _tr ? 'Kalem tahmini' : 'Pen prediction';
   static String get penPredictSubtitle => _tr

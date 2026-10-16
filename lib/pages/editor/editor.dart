@@ -74,6 +74,7 @@ import 'package:saber/components/canvas/measure_readout.dart';
 import 'package:saber/components/toolbar/pdf_crop_dialog.dart';
 import 'package:saber/components/toolbar/note_versions_dialog.dart';
 import 'package:saber/components/toolbar/pdf_tools_dialog.dart';
+import 'package:saber/components/editor_gn/float_bar.dart';
 import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
 import 'package:saber/components/editor_gn/gn_overlay.dart';
@@ -2638,6 +2639,7 @@ class EditorState extends State<Editor> {
       initialPageIndex: coreInfo.initialPageIndex,
       pageBuilder: pageBuilder,
       isTextEditing: () => currentTool == Tool.textEditing,
+      topInset: _floatingTopInset,
       placeholderPageBuilder: (BuildContext context, int pageIndex) {
         return Canvas(
           path: coreInfo.filePath,
@@ -2868,9 +2870,27 @@ class EditorState extends State<Editor> {
     );
 
     final useGn = stows.editorGnLayout.value;
+    final floating = useGn && stows.editorFloatingBar.value;
 
     final Widget body;
-    if (useGn) {
+    if (floating) {
+      body = GnOverlay(
+        controller: _gn,
+        spec: toolbarSpec,
+        topBar: DynamicMaterialApp.isFullscreen
+            ? null
+            : FloatEditorBar(
+                from: _gnEditorBar(toolbarSpec),
+                onBack: () => Navigator.of(context).maybePop(),
+              ),
+        child: Column(
+          children: [
+            Expanded(child: canvas),
+            readonlyBanner,
+          ],
+        ),
+      );
+    } else if (useGn) {
       body = GnOverlay(
         controller: _gn,
         spec: toolbarSpec,
@@ -2935,7 +2955,7 @@ class EditorState extends State<Editor> {
         );
       },
       child: Scaffold(
-        appBar: DynamicMaterialApp.isFullscreen
+        appBar: DynamicMaterialApp.isFullscreen || floating
             ? null
             : useGn
             ? _gnBar(toolbarSpec)
@@ -3284,12 +3304,28 @@ class EditorState extends State<Editor> {
 
   final _gn = GnController();
 
+  /// Room above the first page in the floating layout, so that the page
+  /// starts under its controls (the page still scrolls under them).
+  double get _floatingTopInset {
+    if (!stows.editorGnLayout.value || !stows.editorFloatingBar.value) return 0;
+    if (DynamicMaterialApp.isFullscreen) return 0;
+    return MediaQuery.viewPaddingOf(context).top +
+        FloatEditorBar.reservedHeight(MediaQuery.sizeOf(context).width);
+  }
+
   /// The top bar of the Goodnotes-style layout (see [GnEditorBar]).
   PreferredSizeWidget _gnBar(Toolbar spec) {
     final top = MediaQuery.paddingOf(context).top;
     return PreferredSize(
       preferredSize: Size.fromHeight(GnEditorBar.contentHeight + top),
-      child: GnEditorBar(
+      child: _gnEditorBar(spec),
+    );
+  }
+
+  /// What the top bar and the floating layout do (see [GnEditorBar] and
+  /// [FloatEditorBar]).
+  GnEditorBar _gnEditorBar(Toolbar spec) {
+    return GnEditorBar(
         controller: _gn,
         spec: spec,
         paths: _usesTabs ? OpenTabs.paths.value : const [],
@@ -3336,8 +3372,7 @@ class EditorState extends State<Editor> {
         visiblePage: _visiblePageIndex,
         pageCount: coreInfo.pages.length,
         onPages: showPageGrid,
-      ),
-    );
+      );
   }
 
   Future<void> _showRenameDialog() async {
