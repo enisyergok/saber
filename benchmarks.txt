@@ -1,0 +1,22 @@
+BENCH colour mapping
+BENCH eink_mapInk_100000_calls_ms=12.89
+BENCH finished strokes layer, 1000 strokes
+BENCH dry_layer_1000_strokes_ms normal=1.18 eink=2.06
+BENCH finished strokes layer, 5000 strokes
+BENCH dry_layer_5000_strokes_ms normal=5.19 eink=5.72
+BENCH live layer while writing, 2000 points
+BENCH live_layer_per_frame_ms normal=0.01 eink=0.01
+BENCH page background drawn to pixels
+BENCH page_background_raster_1000x1400_ms normal=5.59 eink_with_grain=16.05
+BENCH stroke outline while drawing
+BENCH outline_100_points_ms=6.5
+BENCH outline_500_points_ms=46.7
+BENCH outline_2000_points_ms=585.0
+BENCH eraser sweep
+BENCH eraser_sweep_200_moves_1000_strokes_ms=2.6
+BENCH eraser_sweep_200_moves_10000_strokes_ms=43.2
+BENCH eraser_sweep_200_moves_50000_strokes_ms=164.8
+BENCH serialize
+BENCH serialize_1000_strokes_1_pages_ms=25.1 bytes=577989
+BENCH serialize_10000_strokes_1_pages_ms=270.3 bytes=5788989
+BENCH serialize_30000_strokes_100_pages_ms=832.9 bytes=17332951
