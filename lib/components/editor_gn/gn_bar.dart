@@ -357,7 +357,9 @@ class _ToolButton extends StatelessWidget {
         isSelected: selected,
         onPressed: onPressed,
         style: IconButton.styleFrom(
-          foregroundColor: palette.onHeader,
+          foregroundColor: selected
+              ? palette.selectedToolForeground
+              : palette.onHeader,
           disabledForegroundColor: palette.onHeader.withValues(alpha: 0.4),
           backgroundColor: selected ? palette.selectedTool : Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

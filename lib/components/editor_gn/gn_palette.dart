@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:saber/components/eink/eink_scope.dart';
-import 'package:saber/components/theming/defter_design.dart';
 
-/// The colours of the editor's top bar: dark blue like the notebook apps it
-/// follows, or plain grey in e-ink mode.
+/// The colours of the editor's document chrome: quiet paper surfaces with a
+/// clear accent for the active tool, or plain grey in e-ink mode.
 class GnPalette {
   const GnPalette({
     required this.header,
     required this.onHeader,
     required this.activeTab,
     required this.selectedTool,
+    required this.selectedToolForeground,
   });
 
   final Color header;
@@ -21,6 +21,9 @@ class GnPalette {
   /// Behind the selected tool button.
   final Color selectedTool;
 
+  /// The ink used by the selected tool button.
+  final Color selectedToolForeground;
+
   static GnPalette of(BuildContext context) {
     final colors = ColorScheme.of(context);
     if (EInkScope.maybeOf(context) != null) {
@@ -29,16 +32,21 @@ class GnPalette {
         onHeader: colors.onSurface,
         activeTab: colors.surface,
         selectedTool: colors.onSurface.withValues(alpha: 0.14),
+        selectedToolForeground: colors.onSurface,
       );
     }
-    // The accent, deep enough to carry white icons: the same ink as the
-    // main buttons, a few shades down.
-    final header = DefterDesign.headerOf(colors);
+    // Goodnotes keeps the document chrome quiet and lets the selected tool
+    // carry the accent. Marj keeps its ink blue in the active state instead
+    // of making the whole editor header a heavy colour block.
+    final header = colors.brightness == Brightness.light
+        ? colors.surfaceContainerLow
+        : colors.surfaceContainerHigh;
     return GnPalette(
       header: header,
-      onHeader: Colors.white,
-      activeTab: Color.lerp(header, Colors.white, 0.14)!,
-      selectedTool: const Color(0x33FFFFFF),
+      onHeader: colors.onSurface,
+      activeTab: colors.surface,
+      selectedTool: colors.primaryContainer,
+      selectedToolForeground: colors.onPrimaryContainer,
     );
   }
 }
