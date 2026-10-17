@@ -44,6 +44,10 @@ class EditorPage extends ChangeNotifier implements HasSize {
   FragmentShader get pencilShader => _pencilShader ??= PencilShader.create();
   FragmentShader? _pencilShader;
 
+  FragmentShader get creativeBrushShader =>
+      _creativeBrushShader ??= CreativeBrushShader.create();
+  FragmentShader? _creativeBrushShader;
+
   final List<Stroke> strokes;
   final List<LaserStroke> laserStrokes;
   final List<EditorImage> images;
@@ -310,6 +314,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
     quill.dispose();
     _liveInk.dispose();
     _pencilShader?.dispose();
+    _creativeBrushShader?.dispose();
     isRendered = false;
     for (final image in images) {
       image.dispose();
@@ -327,6 +332,7 @@ class EditorPage extends ChangeNotifier implements HasSize {
   void disposeClonedData() {
     quill.dispose();
     _pencilShader?.dispose();
+    _creativeBrushShader?.dispose();
     isRendered = false;
     super.dispose();
   }

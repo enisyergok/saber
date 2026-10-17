@@ -98,6 +98,7 @@ Future<void> appRunner(List<String> args) async {
     stows.allowInsecureConnections.waitUntilRead(),
     StylusProfile.init(),
     PencilShader.init(),
+    CreativeBrushShader.init(),
     Printing.info().then((info) {
       Editor.canRasterPdf = info.canRaster;
     }),

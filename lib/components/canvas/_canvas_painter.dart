@@ -195,6 +195,13 @@ class CanvasPainter extends CustomPainter {
           paint.color = Color.lerp(background, color, 0.6)!;
         }
       }
+      if (stroke.creativeBrush) {
+        paint.color = Colors.white;
+        paint.shader = page.creativeBrushShader
+          ..setFloat(0, color.r)
+          ..setFloat(1, color.g)
+          ..setFloat(2, color.b);
+      }
 
       late final shapePaint = Paint()
         ..color = paint.color
@@ -235,6 +242,13 @@ class CanvasPainter extends CustomPainter {
         ..setFloat(1, color.g)
         ..setFloat(2, color.b);
       paint.maskFilter = _getPencilMaskFilter(currentStroke!.options.size);
+    }
+    if (currentStroke!.creativeBrush) {
+      paint.color = Colors.white;
+      paint.shader = page.creativeBrushShader
+        ..setFloat(0, color.r)
+        ..setFloat(1, color.g)
+        ..setFloat(2, color.b);
     }
 
     // Current stroke always uses high quality
@@ -358,16 +372,27 @@ class CanvasPainter extends CustomPainter {
 
     final scaleHandle = SelectionTransform.scaleHandlePosition(bounds);
     canvas.drawRect(
-      Rect.fromCenter(center: scaleHandle, width: radius * 2, height: radius * 2),
+      Rect.fromCenter(
+        center: scaleHandle,
+        width: radius * 2,
+        height: radius * 2,
+      ),
       fill,
     );
     canvas.drawRect(
-      Rect.fromCenter(center: scaleHandle, width: radius * 2, height: radius * 2),
+      Rect.fromCenter(
+        center: scaleHandle,
+        width: radius * 2,
+        height: radius * 2,
+      ),
       ring,
     );
 
     if (SelectionTransform.canRotate(selection)) {
-      final rotateHandle = SelectionTransform.rotateHandlePosition(bounds, scale);
+      final rotateHandle = SelectionTransform.rotateHandlePosition(
+        bounds,
+        scale,
+      );
       canvas.drawLine(Offset(bounds.center.dx, bounds.top), rotateHandle, ring);
       canvas.drawCircle(rotateHandle, radius, fill);
       canvas.drawCircle(rotateHandle, radius, ring);

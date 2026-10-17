@@ -31,6 +31,7 @@ class Stroke {
   int pageIndex;
   HasSize page;
   final ToolId toolId;
+  final bool creativeBrush;
 
   static const defaultColor = Colors.black;
   static const defaultPressureEnabled = true;
@@ -88,7 +89,10 @@ class Stroke {
   void transform(Matrix4 matrix) {
     for (var i = 0; i < points.length; i++) {
       final point = points[i];
-      final moved = MatrixUtils.transformPoint(matrix, Offset(point.x, point.y));
+      final moved = MatrixUtils.transformPoint(
+        matrix,
+        Offset(point.x, point.y),
+      );
       points[i] = PointVector(moved.dx, moved.dy, point.pressure);
     }
     options.size *= scaleOfMatrix(matrix);
@@ -117,6 +121,7 @@ class Stroke {
     required this.pageIndex,
     required this.page,
     required this.toolId,
+    this.creativeBrush = false,
   });
 
   factory fromJson(
@@ -196,6 +201,7 @@ class Stroke {
       pageIndex: pageIndex,
       page: page,
       toolId: toolId,
+      creativeBrush: json['cb'] == true,
     )..points.addAll(points);
   }
   Map<String, dynamic> toJson() {
@@ -210,6 +216,7 @@ class Stroke {
       'ty': toolId.id,
       'pe': pressureEnabled,
       'c': color.toARGB32(),
+      if (creativeBrush) 'cb': true,
     }..addAll(options.toJson());
   }
 
@@ -485,8 +492,7 @@ class Stroke {
     double angle = 0.45, // about 26 degrees
   }) {
     final back = (tail - tip).direction;
-    Offset wing(double a) =>
-        tip + Offset.fromDirection(back + a, headLength);
+    Offset wing(double a) => tip + Offset.fromDirection(back + a, headLength);
     return (wing(angle), wing(-angle));
   }
 
@@ -503,7 +509,8 @@ class Stroke {
     final headLength = min(max(options.size * 6, 18.0), length * 0.4);
     final (left, right) = arrowHead(tail, tip, headLength: headLength);
     final pressure = points.first.pressure;
-    PointVector at(Offset o) => PointVector.fromOffset(offset: o, pressure: pressure);
+    PointVector at(Offset o) =>
+        PointVector.fromOffset(offset: o, pressure: pressure);
 
     points.clear();
     points
@@ -661,6 +668,7 @@ class Stroke {
     pageIndex: pageIndex,
     page: page,
     toolId: toolId,
+    creativeBrush: creativeBrush,
   )..points.addAll(points);
 
   // -- the ink as it is drawn ----------------------------------------------
@@ -726,7 +734,8 @@ class Stroke {
         } else {
           pressure = point.pressure;
         }
-        radius = size * options.easing(0.5 - options.thinning * (0.5 - pressure));
+        radius =
+            size * options.easing(0.5 - options.thinning * (0.5 - pressure));
       } else {
         radius = size / 2;
       }
@@ -799,6 +808,7 @@ class Stroke {
       pageIndex: like.pageIndex,
       page: like.page,
       toolId: like.toolId,
+      creativeBrush: like.creativeBrush,
     );
     PointVector at(InkPoint point) => PointVector(
       point.at.dx,
@@ -862,6 +872,7 @@ class Stroke {
       pageIndex: pageIndex,
       page: page,
       toolId: toolId,
+      creativeBrush: creativeBrush,
     );
     final pressure = points.isEmpty ? null : points.first.pressure;
     line.points
@@ -877,5 +888,5 @@ enum StrokeQuality(
   final int N,
 ) {
   low(4),
-  high(1),
+  high(1)
 }

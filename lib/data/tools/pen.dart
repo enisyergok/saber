@@ -218,6 +218,7 @@ class Pen extends Tool {
       pageIndex: pageIndex,
       page: page,
       toolId: toolId,
+      creativeBrush: creativeBrush,
     );
     if (_ruler) {
       ShapeSnap.reset();
