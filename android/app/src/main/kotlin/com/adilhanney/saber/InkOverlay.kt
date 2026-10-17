@@ -68,6 +68,26 @@ class InkOverlay(private val activity: Activity) {
         /// The name androidx.graphics gives the front buffer's thread.
         const val frontThreadName = "LowLatencyCanvasThread"
 
+        // Android's RuntimeShader version of the capsule SDF. The Canvas
+        // fallback above remains active on Android 9 and earlier.
+        const val CAPSULE_SHADER = """
+            uniform float2 uStart;
+            uniform float2 uEnd;
+            uniform float uRadiusStart;
+            uniform float uRadiusEnd;
+            uniform half4 uColor;
+
+            half4 main(float2 p) {
+                float2 ab = uEnd - uStart;
+                float denominator = max(dot(ab, ab), 0.0001);
+                float t = clamp(dot(p - uStart, ab) / denominator, 0.0, 1.0);
+                float radius = mix(uRadiusStart, uRadiusEnd, t);
+                float distanceToInk = distance(p, uStart + ab * t) - radius;
+                half alpha = 1.0 - smoothstep(-1.0, 1.0, distanceToInk);
+                return half4(uColor.rgb, uColor.a * alpha);
+            }
+        """
+
         var watching = false
     }
 
@@ -659,28 +679,6 @@ class InkOverlay(private val activity: Activity) {
             paint,
         )
         paint.shader = null
-    }
-
-    private companion object {
-        // Android's RuntimeShader version of the capsule SDF. The Canvas
-        // fallback above remains active on Android 9 and earlier.
-        const val CAPSULE_SHADER = """
-            uniform float2 uStart;
-            uniform float2 uEnd;
-            uniform float uRadiusStart;
-            uniform float uRadiusEnd;
-            uniform half4 uColor;
-
-            half4 main(float2 p) {
-                float2 ab = uEnd - uStart;
-                float denominator = max(dot(ab, ab), 0.0001);
-                float t = clamp(dot(p - uStart, ab) / denominator, 0.0, 1.0);
-                float radius = mix(uRadiusStart, uRadiusEnd, t);
-                float distanceToInk = distance(p, uStart + ab * t) - radius;
-                half alpha = 1.0 - smoothstep(-1.0, 1.0, distanceToInk);
-                return half4(uColor.rgb, uColor.a * alpha);
-            }
-        """
     }
 
     // -- front buffer ---------------------------------------------------------
