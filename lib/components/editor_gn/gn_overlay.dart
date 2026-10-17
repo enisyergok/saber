@@ -452,19 +452,26 @@ class _PenChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ColorScheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: IconButton(
-        tooltip: tooltip,
-        onPressed: onTap,
-        isSelected: selected,
-        style: IconButton.styleFrom(
-          foregroundColor: selected ? colors.primary : colors.onSurface,
-          backgroundColor: selected
-              ? colors.primary.withValues(alpha: 0.16)
-              : Colors.transparent,
+    return PressScale(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: IconButton(
+          tooltip: tooltip,
+          onPressed: onTap,
+          isSelected: selected,
+          style: IconButton.styleFrom(
+            fixedSize: const Size.square(DefterDesign.toolButtonSize),
+            minimumSize: const Size.square(DefterDesign.toolButtonSize),
+            foregroundColor: selected
+                ? DefterDesign.selectedToolForeground(colors)
+                : colors.onSurface,
+            backgroundColor: selected
+                ? DefterDesign.selectedToolBackground(colors)
+                : Colors.transparent,
+            shape: DefterDesign.toolButtonShape,
+          ),
+          icon: child,
         ),
-        icon: child,
       ),
     );
   }

@@ -179,6 +179,7 @@ class Pen extends Tool {
     _nibAt = position;
     _nibPressure = 0.5;
     _nibMoved = false;
+    _smoothedPressure = null;
     currentStroke = Stroke(
       color: color,
       pressureEnabled: pressureEnabled,
@@ -229,6 +230,7 @@ class Pen extends Tool {
   double _pathLength = 0;
   Offset _nibAt = Offset.zero;
   double _nibPressure = 0.5;
+  double? _smoothedPressure;
   bool _nibMoved = false;
   double _nibDirection = 0;
 
@@ -299,6 +301,10 @@ class Pen extends Tool {
       }
       pressure = (_nibPressure * (pressure == null ? 1 : 0.7 + 0.3 * pressure))
           .clamp(0.0, 1.0);
+    }
+    if (pressure != null) {
+      pressure = PenFeel.smoothPressure(pressure, _smoothedPressure);
+      _smoothedPressure = pressure;
     }
     currentStroke?.addPoint(position, pressure);
     if (holdsToSnap && stows.shapeHoldToSnap.value) {

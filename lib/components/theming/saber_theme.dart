@@ -68,6 +68,15 @@ abstract class SaberTheme {
         weight: 400,
         opticalSize: 24,
       ),
+      // Notebook tools are frequent, small targets. Keep their hit area
+      // generous even when the visible icon is compact.
+      iconButtonTheme: IconButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(Size(44, 44)),
+          tapTargetSize: MaterialTapTargetSize.padded,
+          shape: const WidgetStatePropertyAll(DefterDesign.toolButtonShape),
+        ),
+      ),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,

@@ -417,25 +417,29 @@ class _CapsuleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ColorScheme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 1),
-      child: IconButton(
-        tooltip: tooltip,
-        isSelected: selected,
-        onPressed: onPressed,
-        iconSize: 22,
-        style: IconButton.styleFrom(
-          fixedSize: const Size.square(FloatEditorBar.buttonSize),
-          minimumSize: const Size.square(FloatEditorBar.buttonSize),
-          padding: EdgeInsets.zero,
-          foregroundColor: selected ? colors.primary : colors.onSurface,
-          disabledForegroundColor: colors.onSurface.withValues(alpha: 0.35),
-          backgroundColor: selected
-              ? colors.primary.withValues(alpha: 0.16)
-              : Colors.transparent,
-          shape: const CircleBorder(),
+    return PressScale(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 1),
+        child: IconButton(
+          tooltip: tooltip,
+          isSelected: selected,
+          onPressed: onPressed,
+          iconSize: 22,
+          style: IconButton.styleFrom(
+            fixedSize: const Size.square(FloatEditorBar.buttonSize),
+            minimumSize: const Size.square(FloatEditorBar.buttonSize),
+            padding: EdgeInsets.zero,
+            foregroundColor: selected
+                ? DefterDesign.selectedToolForeground(colors)
+                : colors.onSurface,
+            disabledForegroundColor: colors.onSurface.withValues(alpha: 0.35),
+            backgroundColor: selected
+                ? DefterDesign.selectedToolBackground(colors)
+                : Colors.transparent,
+            shape: DefterDesign.toolButtonShape,
+          ),
+          icon: icon,
         ),
-        icon: icon,
       ),
     );
   }
@@ -450,11 +454,11 @@ class _Divider extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: SizedBox(
         width: 2,
-        height: 24,
+        height: 22,
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: ColorScheme.of(context).outlineVariant,
-            borderRadius: BorderRadius.circular(1),
+            borderRadius: BorderRadius.circular(2),
           ),
         ),
       ),

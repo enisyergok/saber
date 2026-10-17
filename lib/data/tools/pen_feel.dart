@@ -16,6 +16,16 @@ abstract class PenFeel {
   /// Spreads a raw stylus pressure (0..1) over the whole width range.
   static double pressure(double raw) => curve.map(raw);
 
+  /// Removes the tiny pressure jumps produced by some EMR pens without
+  /// making a deliberate pressure change feel delayed. Notewise's ink
+  /// resources use a similarly quiet pressure-to-width transition: the
+  /// stroke should widen continuously, not in visible steps.
+  static double smoothPressure(double current, double? previous) {
+    if (previous == null) return current.clamp(0.0, 1.0);
+    const response = 0.72;
+    return (previous + (current - previous) * response).clamp(0.0, 1.0);
+  }
+
   /// The angle the calligraphy pen's flat nib is held at: 45 degrees, so
   /// lines going up to the right are thin and those going down to the
   /// right are thick.

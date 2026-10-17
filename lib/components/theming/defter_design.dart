@@ -208,6 +208,28 @@ abstract class DefterDesign {
     borderRadius: BorderRadius.all(Radius.circular(radiusSheet)),
   );
 
+  // -- editor controls -----------------------------------------------------
+
+  /// The editor uses a slightly squarer shape than dialogs: it reads as a
+  /// tool button rather than a generic Material action. This is the same
+  /// visual distinction used by the canvas/toolbox resources we extracted
+  /// from Notewise.
+  static const radiusTool = 12.0;
+  static const toolButtonSize = 40.0;
+  static const toolButtonShape = RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(radiusTool)),
+  );
+
+  /// A selected tool is deliberately a tint, not a heavy filled button. It
+  /// keeps the page visible and makes the active pen easy to find in a dense
+  /// toolbox.
+  static Color selectedToolBackground(ColorScheme colors) =>
+      colors.primary.withValues(
+        alpha: colors.brightness == .dark ? 0.28 : 0.14,
+      );
+
+  static Color selectedToolForeground(ColorScheme colors) => colors.primary;
+
   // -- depth ----------------------------------------------------------------
 
   /// The shadow of what floats over the page (tool strips, menus).

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/extensions/color_extensions.dart';
 import 'package:saber/data/prefs.dart';
@@ -219,26 +220,29 @@ class _ColorDot extends StatelessWidget {
     final colorScheme = ColorScheme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3),
-      child: InkResponse(
-        onTap: onTap,
-        radius: 20,
-        child: Container(
-          width: 28,
-          height: 28,
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: selected ? colorScheme.primary : Colors.transparent,
-              width: 2,
-            ),
-          ),
-          child: DecoratedBox(
+      child: PressScale(
+        pressedScale: 0.92,
+        child: InkResponse(
+          onTap: onTap,
+          radius: 20,
+          child: Container(
+            width: 32,
+            height: 32,
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: color,
               border: Border.all(
-                color: colorScheme.onSurface.withValues(alpha: 0.2),
+                color: selected ? colorScheme.primary : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color,
+                border: Border.all(
+                  color: colorScheme.onSurface.withValues(alpha: 0.2),
+                ),
               ),
             ),
           ),
@@ -272,11 +276,11 @@ class _SizeDot extends StatelessWidget {
           onTap: onTap,
           radius: 20,
           child: Container(
-            width: 30,
-            height: 30,
+            width: 32,
+            height: 32,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(DefterDesign.radiusTool),
               color: selected
                   ? colorScheme.primary.withValues(alpha: 0.16)
                   : Colors.transparent,
