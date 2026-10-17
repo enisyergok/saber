@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:collapsible/collapsible.dart';
 import 'package:file_picker/file_picker.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' as flutter_quill;
 import 'package:go_router/go_router.dart';
@@ -28,6 +30,7 @@ import 'package:saber/components/editor/editor_tab_strip.dart';
 import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/components/editor/page_sidebar.dart';
 import 'package:saber/components/editor/read_only_banner.dart';
+import 'package:saber/components/editor/zoom_box_overlay.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
@@ -157,6 +160,8 @@ class EditorState extends State<Editor> {
   late var coreInfo = EditorCoreInfo.placeholder;
 
   final _canvasGestureDetectorKey = GlobalKey<CanvasGestureDetectorState>();
+  final _canvasRepaintKey = GlobalKey();
+  ui.Image? _zoomBoxImage;
   final _transformationController = TransformationController();
   double get scrollY {
     final transformation = _transformationController.value;
@@ -2655,9 +2660,15 @@ class EditorState extends State<Editor> {
     // The page, with what the measuring tools read shown over it.
     final Widget canvas = Stack(
       children: [
-        Positioned.fill(child: pageArea),
+        Positioned.fill(
+          child: RepaintBoundary(key: _canvasRepaintKey, child: pageArea),
+        ),
         const Positioned.fill(child: IgnorePointer(child: EraserCursor())),
         const Positioned.fill(child: IgnorePointer(child: MeasureReadout())),
+        if (_zoomBoxImage case final image?)
+          Positioned.fill(
+            child: ZoomBoxOverlay(image: image, onClose: _closeZoomBox),
+          ),
       ],
     );
 
@@ -3715,11 +3726,46 @@ class EditorState extends State<Editor> {
     }
   }
 
+  void _openZoomBox() {
+    final renderObject = _canvasRepaintKey.currentContext?.findRenderObject();
+    if (renderObject is! RenderRepaintBoundary || !renderObject.hasSize) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final image = await renderObject.toImage(pixelRatio: 1);
+        if (!mounted) {
+          image.dispose();
+          return;
+        }
+        setState(() {
+          _zoomBoxImage?.dispose();
+          _zoomBoxImage = image;
+        });
+      } catch (error, stackTrace) {
+        log.warning('Could not capture the canvas for the zoom box', error, stackTrace);
+      }
+    });
+  }
+
+  void _closeZoomBox() {
+    if (_zoomBoxImage == null) return;
+    setState(() {
+      _zoomBoxImage?.dispose();
+      _zoomBoxImage = null;
+    });
+  }
+
   /// Inserts a small, editable vector template. These are deliberately made
   /// from normal Saber strokes instead of a bitmap, so selection, erasing,
   /// export and undo all continue to work.
   void _insertNotewiseTool(NotewiseInsertTool tool) {
     if (coreInfo.readOnly) return;
+    if (tool == NotewiseInsertTool.zoomBox) {
+      _openZoomBox();
+      return;
+    }
     final pageIndex = currentPageIndex;
     final page = coreInfo.pages[pageIndex];
     final w = page.size.width;
@@ -3880,28 +3926,6 @@ class EditorState extends State<Editor> {
           Offset(rect.left + 22, rect.top + 112),
           Offset(rect.left + rect.width * 0.4, rect.top + 112),
           color: const Color(0xFF64748B),
-          size: 2,
-        );
-      case NotewiseInsertTool.zoomBox:
-        final rect = Rect.fromLTWH(
-          w * 0.54,
-          h * 0.56,
-          math.min(w * 0.32, 300),
-          190,
-        );
-        strokes.add(
-          stroke(rectangle(rect), color: const Color(0xFF2563EB), size: 4),
-        );
-        line(
-          Offset(rect.center.dx, rect.top + 20),
-          Offset(rect.center.dx, rect.bottom - 20),
-          color: const Color(0xFF2563EB),
-          size: 2,
-        );
-        line(
-          Offset(rect.left + 20, rect.center.dy),
-          Offset(rect.right - 20, rect.center.dy),
-          color: const Color(0xFF2563EB),
           size: 2,
         );
     }
@@ -4120,6 +4144,7 @@ class EditorState extends State<Editor> {
 
   @override
   void dispose() {
+    _zoomBoxImage?.dispose();
     _holdTimer?.cancel();
     unawaited(_cleanUpAsync());
 
