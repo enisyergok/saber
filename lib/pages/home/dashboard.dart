@@ -216,13 +216,16 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final data = _data;
+    final horizontalPadding = MediaQuery.sizeOf(context).width >= 900
+        ? 32.0
+        : 16.0;
     return Scaffold(
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 24),
+          padding: EdgeInsets.fromLTRB(horizontalPadding, 18, horizontalPadding, 32),
           children: [
             _libraryHeader(context),
-            const SizedBox(height: 10),
+            const SizedBox(height: 22),
             _section(
               context,
               title: DefterStrings.navRecent,
@@ -232,13 +235,13 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               child: _recent(context, data),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _section(
               context,
               title: DefterStrings.folders,
               child: _folders(context, data),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _section(
               context,
               title: DefterStrings.navTemplates,
@@ -256,34 +259,30 @@ class _DashboardPageState extends State<DashboardPage> {
     Widget? action,
     required Widget child,
   }) {
-    final colors = ColorScheme.of(context);
-    return Material(
-      color: colors.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(18),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 40,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 36,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.1,
                     ),
                   ),
-                  if (action != null) action,
-                ],
-              ),
+                ),
+                if (action != null) action,
+              ],
             ),
-            child,
-          ],
-        ),
+          ),
+          child,
+        ],
       ),
     );
   }
@@ -306,107 +305,110 @@ class _DashboardPageState extends State<DashboardPage> {
           label: Text(label),
         );
 
-    return Material(
-      color: colors.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(DefterDesign.radiusSheet),
-        side: BorderSide(color: colors.outlineVariant),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    DefterStrings.navNotes,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.4,
-                    ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  DefterStrings.navNotes,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                IconButton(
-                  tooltip: DefterStrings.askNotes,
-                  icon: const Icon(Icons.auto_awesome_rounded),
-                  onPressed: () => _push(const AskNotesPage()),
-                ),
-                IconButton(
-                  tooltip: DefterStrings.navSettings,
-                  icon: const Icon(Symbols.settings_rounded),
-                  onPressed: () => context.go(HomeRoutes.routes[3].path),
-                ),
-              ],
-            ),
-            Text(
-              DefterStrings.heroTitle,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
               ),
+              IconButton(
+                tooltip: DefterStrings.askNotes,
+                icon: const Icon(Icons.auto_awesome_rounded),
+                onPressed: () => _push(const AskNotesPage()),
+              ),
+              IconButton(
+                tooltip: DefterStrings.navSettings,
+                icon: const Icon(Symbols.settings_rounded),
+                onPressed: () => context.go(HomeRoutes.routes[3].path),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            DefterStrings.heroTitle,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: colors.onSurfaceVariant,
             ),
-            const SizedBox(height: 12),
-            Material(
-              color: colors.surface,
+          ),
+          const SizedBox(height: 18),
+          Material(
+            color: colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
+            child: InkWell(
+              onTap: () => _push(const SearchPage()),
               borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
-              child: InkWell(
-                onTap: () => _push(const SearchPage()),
-                borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Symbols.search_rounded,
-                        size: 20,
-                        color: colors.onSurfaceVariant,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Symbols.search_rounded,
+                      size: 20,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        DefterStrings.searchNotes,
+                        style: TextStyle(color: colors.onSurfaceVariant),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          DefterStrings.searchNotes,
-                          style: TextStyle(color: colors.onSurfaceVariant),
-                        ),
-                      ),
-                      Icon(
-                        Symbols.tune_rounded,
-                        size: 18,
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
+                    ),
+                    Icon(
+                      Symbols.tune_rounded,
+                      size: 18,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                action(
-                  Symbols.add_rounded,
-                  DefterStrings.actionNewNote,
-                  _newNote,
-                ),
-                action(
-                  Symbols.dashboard_customize_rounded,
-                  DefterStrings.actionFromTemplate,
-                  () => _push(const TemplateGalleryPage()),
-                ),
-                OutlinedButton.icon(
-                  onPressed: _importPdf,
-                  icon: const Icon(Symbols.picture_as_pdf_rounded, size: 18),
-                  label: Text(DefterStrings.actionImportPdf),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              action(
+                Symbols.add_rounded,
+                DefterStrings.actionNewNote,
+                _newNote,
+              ),
+              action(
+                Symbols.dashboard_customize_rounded,
+                DefterStrings.actionFromTemplate,
+                () => _push(const TemplateGalleryPage()),
+              ),
+              OutlinedButton.icon(
+                onPressed: _importPdf,
+                icon: const Icon(Symbols.picture_as_pdf_rounded, size: 18),
+                label: Text(DefterStrings.actionImportPdf),
+              ),
+              OutlinedButton.icon(
+                onPressed: _addImage,
+                icon: const Icon(Symbols.image_rounded, size: 18),
+                label: Text(DefterStrings.actionAddImage),
+              ),
+              OutlinedButton.icon(
+                onPressed: _newFolder,
+                icon: const Icon(Symbols.create_new_folder_rounded, size: 18),
+                label: Text(DefterStrings.actionNewFolder),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

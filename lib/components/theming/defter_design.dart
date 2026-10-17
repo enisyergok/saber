@@ -190,13 +190,13 @@ abstract class DefterDesign {
   // -- shape ----------------------------------------------------------------
 
   /// Buttons, fields, chips, menu rows.
-  static const radiusControl = 12.0;
+  static const radiusControl = 10.0;
 
   /// Cards and tiles.
-  static const radiusCard = 16.0;
+  static const radiusCard = 14.0;
 
   /// Dialogs, sheets and floating panels.
-  static const radiusSheet = 24.0;
+  static const radiusSheet = 20.0;
 
   static const controlShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(radiusControl)),
@@ -214,7 +214,7 @@ abstract class DefterDesign {
   /// tool button rather than a generic Material action. This is the same
   /// visual distinction used by the canvas/toolbox resources we extracted
   /// from Notewise.
-  static const radiusTool = 12.0;
+  static const radiusTool = 10.0;
   static const toolButtonSize = 40.0;
   static const toolButtonShape = RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(radiusTool)),
@@ -238,14 +238,14 @@ abstract class DefterDesign {
       color: scheme.shadow.withValues(
         alpha: scheme.brightness == Brightness.light ? 0.10 : 0.45,
       ),
-      blurRadius: 18,
-      offset: const Offset(0, 6),
+      blurRadius: 14,
+      offset: const Offset(0, 4),
     ),
     BoxShadow(
       color: scheme.shadow.withValues(
         alpha: scheme.brightness == Brightness.light ? 0.05 : 0.25,
       ),
-      blurRadius: 3,
+      blurRadius: 2,
       offset: const Offset(0, 1),
     ),
   ];
