@@ -19,6 +19,7 @@ import 'package:logging/logging.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
+import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_asset_cache.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas.dart';
@@ -3928,6 +3929,9 @@ class EditorState extends State<Editor> {
           color: const Color(0xFF64748B),
           size: 2,
         );
+      case NotewiseInsertTool.zoomBox:
+        // Handled before the template switch by _openZoomBox().
+        break;
     }
 
     if (strokes.isEmpty) return;

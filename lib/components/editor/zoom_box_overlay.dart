@@ -45,7 +45,11 @@ class _ZoomBoxOverlayState extends State<ZoomBoxOverlay> {
       builder: (context, constraints) {
         final size = constraints.biggest;
         final center = _center ?? size.center(Offset.zero);
-        final rect = Rect.fromCenter(center: center, size: _boxSize);
+        final rect = Rect.fromCenter(
+          center: center,
+          width: _boxSize.width,
+          height: _boxSize.height,
+        );
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -99,7 +103,11 @@ class _ZoomBoxPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final box = Rect.fromCenter(center: center, size: boxSize);
+    final box = Rect.fromCenter(
+      center: center,
+      width: boxSize.width,
+      height: boxSize.height,
+    );
     final sourceSize = Size(
       box.width / magnification,
       box.height / magnification,
@@ -109,7 +117,11 @@ class _ZoomBoxPainter extends CustomPainter {
       center.dx.clamp(sourceSize.width / 2, imageSize.width - sourceSize.width / 2),
       center.dy.clamp(sourceSize.height / 2, imageSize.height - sourceSize.height / 2),
     );
-    final source = Rect.fromCenter(center: sourceCenter, size: sourceSize);
+    final source = Rect.fromCenter(
+      center: sourceCenter,
+      width: sourceSize.width,
+      height: sourceSize.height,
+    );
 
     final shadow = Paint()
       ..color = Colors.black.withValues(alpha: 0.28)
