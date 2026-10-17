@@ -106,6 +106,13 @@ abstract class DefterStrings {
   static String get penStablePrecisionSubtitle => _tr
       ? 'Kalem yavaşladığında küçük el hareketlerini daha doğru korur'
       : 'Preserves small hand movements more accurately when the pen slows';
+  static String get insertTools => _tr ? 'Ek araçlar' : 'Insert tools';
+  static String get toolTape => _tr ? 'Bant' : 'Tape';
+  static String get toolTable => _tr ? 'Tablo' : 'Table';
+  static String get toolStickyNote => _tr ? 'Yapışkan not' : 'Sticky note';
+  static String get toolSticker => _tr ? 'Çıkartma' : 'Sticker';
+  static String get toolWidget => _tr ? 'Widget kartı' : 'Widget card';
+  static String get toolZoomBox => _tr ? 'Yakınlaştırma kutusu' : 'Zoom box';
 
   static String get pressureAuto =>
       _tr ? 'Basıncı otomatik ayarla' : 'Adjust pressure automatically';

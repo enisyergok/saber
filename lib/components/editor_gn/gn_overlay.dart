@@ -1,4 +1,3 @@
-
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -23,6 +22,7 @@ import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/links/note_link.dart';
 import 'package:saber/data/prefs.dart';
+import 'package:saber/data/tools/notewise_tools.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen.dart';
@@ -105,9 +105,15 @@ class _GnOverlayState extends State<GnOverlay> {
             ),
           if (floating)
             Positioned(
-              top: MediaQuery.viewPaddingOf(context).top + FloatEditorBar.spacing,
-              left: FloatEditorBar.spacing + MediaQuery.viewPaddingOf(context).left,
-              right: FloatEditorBar.spacing + MediaQuery.viewPaddingOf(context).right,
+              top:
+                  MediaQuery.viewPaddingOf(context).top +
+                  FloatEditorBar.spacing,
+              left:
+                  FloatEditorBar.spacing +
+                  MediaQuery.viewPaddingOf(context).left,
+              right:
+                  FloatEditorBar.spacing +
+                  MediaQuery.viewPaddingOf(context).right,
               child: widget.topBar!,
             ),
           if (floating && strip != null)
@@ -128,32 +134,33 @@ class _GnOverlayState extends State<GnOverlay> {
                 ),
               ),
             ),
-          if (!floating) Positioned(
-            top: 0,
-            left: 0,
-            child: CompositedTransformFollower(
-              link: controller.barLink,
-              targetAnchor: Alignment.bottomLeft,
-              followerAnchor: Alignment.topLeft,
-              offset: const Offset(64, 8),
-              showWhenUnlinked: false,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: MediaQuery.sizeOf(context).width - 24,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _UndoRedo(spec: widget.spec),
-                    if (strip != null) ...[
-                      const SizedBox(width: 8),
-                      Flexible(child: strip),
+          if (!floating)
+            Positioned(
+              top: 0,
+              left: 0,
+              child: CompositedTransformFollower(
+                link: controller.barLink,
+                targetAnchor: Alignment.bottomLeft,
+                followerAnchor: Alignment.topLeft,
+                offset: const Offset(64, 8),
+                showWhenUnlinked: false,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width - 24,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _UndoRedo(spec: widget.spec),
+                      if (strip != null) ...[
+                        const SizedBox(width: 8),
+                        Flexible(child: strip),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
           if (panel != GnPanel.none)
             _panelAt(context, panel, actions, stripShown: strip != null),
           if (!widget.spec.readOnly && !widget.spec.textEditing)
@@ -221,30 +228,30 @@ class _GnOverlayState extends State<GnOverlay> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (!floating) ...[
-          _PenChip(
-            selected: actions.isPen,
-            tooltip: actions.writingPen.name,
-            onTap: actions.selectPen,
-            child: UniIcon(actions.writingPen.icon, size: 24),
-          ),
-          _PenChip(
-            selected: actions.isPencil,
-            tooltip: t.editor.pens.pencil,
-            onTap: actions.selectPencil,
-            child: const Icon(Pencil.pencilIcon, size: 24),
-          ),
-          _PenChip(
-            selected: actions.isHighlighter,
-            tooltip: t.editor.pens.highlighter,
-            onTap: actions.selectHighlighter,
-            child: const Icon(Highlighter.highlighterIcon, size: 24),
-          ),
-          _PenChip(
-            selected: actions.isShape,
-            tooltip: t.editor.pens.shapePen,
-            onTap: actions.toggleShape,
-            child: const Icon(ShapePen.shapePenIcon, size: 24),
-          ),
+            _PenChip(
+              selected: actions.isPen,
+              tooltip: actions.writingPen.name,
+              onTap: actions.selectPen,
+              child: UniIcon(actions.writingPen.icon, size: 24),
+            ),
+            _PenChip(
+              selected: actions.isPencil,
+              tooltip: t.editor.pens.pencil,
+              onTap: actions.selectPencil,
+              child: const Icon(Pencil.pencilIcon, size: 24),
+            ),
+            _PenChip(
+              selected: actions.isHighlighter,
+              tooltip: t.editor.pens.highlighter,
+              onTap: actions.selectHighlighter,
+              child: const Icon(Highlighter.highlighterIcon, size: 24),
+            ),
+            _PenChip(
+              selected: actions.isShape,
+              tooltip: t.editor.pens.shapePen,
+              onTap: actions.toggleShape,
+              child: const Icon(ShapePen.shapePenIcon, size: 24),
+            ),
           ],
           QuickStyleBar(
             pen: tool,
@@ -314,7 +321,9 @@ class _GnOverlayState extends State<GnOverlay> {
           left: 0,
           child: CompositedTransformFollower(
             link: controller.barLink,
-            targetAnchor: floating ? Alignment.bottomCenter : Alignment.bottomLeft,
+            targetAnchor: floating
+                ? Alignment.bottomCenter
+                : Alignment.bottomLeft,
             followerAnchor: floating ? Alignment.topCenter : Alignment.topLeft,
             // In the floating layout: under the tool box, and under the
             // tool's options when they are shown.
@@ -323,7 +332,8 @@ class _GnOverlayState extends State<GnOverlay> {
                     0,
                     FloatEditorBar.spacing +
                         (stripShown
-                            ? FloatEditorBar.capsuleHeight + FloatEditorBar.spacing
+                            ? FloatEditorBar.capsuleHeight +
+                                  FloatEditorBar.spacing
                             : 0),
                   )
                 : const Offset(12, 8),
@@ -331,26 +341,26 @@ class _GnOverlayState extends State<GnOverlay> {
             child: Appear(
               alignment: floating ? Alignment.topCenter : Alignment.topLeft,
               child: GnPenSettings(
-              getTool: () => spec.currentTool,
-              setTool: spec.setTool,
-              setColor: spec.setColor,
-              onClose: controller.close,
-              openColorPicker: () => controller.toggle(GnPanel.color),
-              toggleGrid: spec.toggleGrid,
-              gridOn: spec.gridOn,
-              // From under the bar (the panel hangs 8 below it) to just
-              // above the bottom of the screen.
-              maxHeight: math.max(
-                280.0,
-                MediaQuery.sizeOf(context).height -
-                    MediaQuery.viewPaddingOf(context).vertical -
-                    (floating
-                        ? FloatEditorBar.reservedHeight(
-                            MediaQuery.sizeOf(context).width,
-                          )
-                        : GnEditorBar.contentHeight) -
-                    20,
-              ),
+                getTool: () => spec.currentTool,
+                setTool: spec.setTool,
+                setColor: spec.setColor,
+                onClose: controller.close,
+                openColorPicker: () => controller.toggle(GnPanel.color),
+                toggleGrid: spec.toggleGrid,
+                gridOn: spec.gridOn,
+                // From under the bar (the panel hangs 8 below it) to just
+                // above the bottom of the screen.
+                maxHeight: math.max(
+                  280.0,
+                  MediaQuery.sizeOf(context).height -
+                      MediaQuery.viewPaddingOf(context).vertical -
+                      (floating
+                          ? FloatEditorBar.reservedHeight(
+                              MediaQuery.sizeOf(context).width,
+                            )
+                          : GnEditorBar.contentHeight) -
+                      20,
+                ),
               ),
             ),
           ),
@@ -387,7 +397,9 @@ class _GnOverlayState extends State<GnOverlay> {
       left: 0,
       child: CompositedTransformFollower(
         link: controller.links[panel]!,
-        targetAnchor: rightSide ? Alignment.bottomRight : Alignment.bottomCenter,
+        targetAnchor: rightSide
+            ? Alignment.bottomRight
+            : Alignment.bottomCenter,
         followerAnchor: rightSide ? Alignment.topRight : Alignment.topCenter,
         offset: const Offset(0, 8),
         showWhenUnlinked: false,
@@ -422,12 +434,16 @@ class _UndoRedo extends StatelessWidget {
             IconButton(
               tooltip: t.editor.toolbar.undo,
               icon: const Icon(Symbols.undo_rounded),
-              onPressed: !spec.readOnly && spec.isUndoPossible ? spec.undo : null,
+              onPressed: !spec.readOnly && spec.isUndoPossible
+                  ? spec.undo
+                  : null,
             ),
             IconButton(
               tooltip: t.editor.toolbar.redo,
               icon: const Icon(Symbols.redo_rounded),
-              onPressed: !spec.readOnly && spec.isRedoPossible ? spec.redo : null,
+              onPressed: !spec.readOnly && spec.isRedoPossible
+                  ? spec.redo
+                  : null,
             ),
           ],
         ),
@@ -493,39 +509,99 @@ class _MoreTools extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            dense: true,
-            leading: const Icon(Symbols.highlight_alt_rounded),
-            title: Text(t.editor.pens.laserPointer),
-            onTap: actions.selectLaser,
-          ),
-          if (!stows.hideFingerDrawingToggle.value)
-            ValueListenableBuilder(
-              valueListenable: stows.editorFingerDrawing,
-              builder: (context, value, _) => SwitchListTile(
-                dense: true,
-                secondary: const Icon(Symbols.touch_app_rounded),
-                title: Text(t.editor.toolbar.toggleFingerDrawing),
-                value: value,
-                onChanged: spec.readOnly
-                    ? null
-                    : (_) => spec.toggleFingerDrawing(),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              dense: true,
+              leading: const Icon(Symbols.highlight_alt_rounded),
+              title: Text(t.editor.pens.laserPointer),
+              onTap: actions.selectLaser,
+            ),
+            const Divider(height: 8),
+            ListTile(
+              dense: true,
+              leading: const Icon(Symbols.vertical_align_center_rounded),
+              title: Text(DefterStrings.insertTools),
+              subtitle: Text(
+                '${DefterStrings.toolTable}, ${DefterStrings.toolStickyNote}, ${DefterStrings.toolSticker}',
               ),
             ),
-          ListTile(
-            dense: true,
-            leading: const Icon(Symbols.fullscreen_rounded),
-            title: Text(t.editor.toolbar.fullscreen),
-            onTap: () {
-              controller.close();
-              DynamicMaterialApp.setFullscreen(true, updateSystem: true);
-            },
-          ),
-        ],
+            _insertToolTile(
+              actions,
+              NotewiseInsertTool.tape,
+              Symbols.sticky_note_2_rounded,
+              DefterStrings.toolTape,
+            ),
+            _insertToolTile(
+              actions,
+              NotewiseInsertTool.table,
+              Symbols.table_chart_rounded,
+              DefterStrings.toolTable,
+            ),
+            _insertToolTile(
+              actions,
+              NotewiseInsertTool.stickyNote,
+              Symbols.note_alt_rounded,
+              DefterStrings.toolStickyNote,
+            ),
+            _insertToolTile(
+              actions,
+              NotewiseInsertTool.sticker,
+              Symbols.stars_rounded,
+              DefterStrings.toolSticker,
+            ),
+            _insertToolTile(
+              actions,
+              NotewiseInsertTool.widget,
+              Symbols.dashboard_customize_rounded,
+              DefterStrings.toolWidget,
+            ),
+            _insertToolTile(
+              actions,
+              NotewiseInsertTool.zoomBox,
+              Symbols.zoom_in_map_rounded,
+              DefterStrings.toolZoomBox,
+            ),
+            if (!stows.hideFingerDrawingToggle.value)
+              ValueListenableBuilder(
+                valueListenable: stows.editorFingerDrawing,
+                builder: (context, value, _) => SwitchListTile(
+                  dense: true,
+                  secondary: const Icon(Symbols.touch_app_rounded),
+                  title: Text(t.editor.toolbar.toggleFingerDrawing),
+                  value: value,
+                  onChanged: spec.readOnly
+                      ? null
+                      : (_) => spec.toggleFingerDrawing(),
+                ),
+              ),
+            ListTile(
+              dense: true,
+              leading: const Icon(Symbols.fullscreen_rounded),
+              title: Text(t.editor.toolbar.fullscreen),
+              onTap: () {
+                controller.close();
+                DynamicMaterialApp.setFullscreen(true, updateSystem: true);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  Widget _insertToolTile(
+    GnActions actions,
+    NotewiseInsertTool tool,
+    IconData icon,
+    String title,
+  ) => ListTile(
+    dense: true,
+    leading: Icon(icon),
+    title: Text(title),
+    enabled: !spec.readOnly && spec.insertNotewiseTool != null,
+    onTap: () => actions.insertNotewiseTool(tool),
+  );
 }

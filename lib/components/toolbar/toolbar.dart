@@ -27,6 +27,7 @@ import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
+import 'package:saber/data/tools/notewise_tools.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/select.dart';
@@ -60,6 +61,7 @@ class Toolbar extends StatefulWidget {
     required this.exportAsPng,
     this.toggleGrid,
     this.gridOn = false,
+    this.insertNotewiseTool,
   });
 
   final bool readOnly;
@@ -103,6 +105,9 @@ class Toolbar extends StatefulWidget {
 
   /// Whether the page is on squared paper.
   final bool gridOn;
+
+  /// Inserts an editable canvas template such as a table or sticky note.
+  final ValueChanged<NotewiseInsertTool>? insertNotewiseTool;
 
   @override
   State<Toolbar> createState() => _ToolbarState();
@@ -678,18 +683,18 @@ class _ToolbarState extends State<Toolbar> {
         },
       ),
       child: Flex(
-      direction: isToolbarVertical ? Axis.horizontal : Axis.vertical,
-      textDirection: switch (stows.editorToolbarAlignment.value) {
-        AxisDirection.left => .rtl,
-        AxisDirection.right => .ltr,
-        _ => null,
-      },
-      verticalDirection: switch (stows.editorToolbarAlignment.value) {
-        AxisDirection.down => VerticalDirection.down,
-        AxisDirection.up => VerticalDirection.up,
-        _ => VerticalDirection.down,
-      },
-      children: bars,
+        direction: isToolbarVertical ? Axis.horizontal : Axis.vertical,
+        textDirection: switch (stows.editorToolbarAlignment.value) {
+          AxisDirection.left => .rtl,
+          AxisDirection.right => .ltr,
+          _ => null,
+        },
+        verticalDirection: switch (stows.editorToolbarAlignment.value) {
+          AxisDirection.down => VerticalDirection.down,
+          AxisDirection.up => VerticalDirection.up,
+          _ => VerticalDirection.down,
+        },
+        children: bars,
       ),
     );
   }

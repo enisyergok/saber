@@ -4,6 +4,7 @@ import 'package:saber/data/tools/_tool.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
+import 'package:saber/data/tools/notewise_tools.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/select.dart';
@@ -64,7 +65,8 @@ class GnActions {
     if (isShape) {
       spec.setTool(writingPen);
     } else {
-      if (Pen.currentPen is! ShapePen) controller.penBeforeShape = Pen.currentPen;
+      if (Pen.currentPen is! ShapePen)
+        controller.penBeforeShape = Pen.currentPen;
       spec.setTool(ShapePen());
     }
   }
@@ -82,5 +84,10 @@ class GnActions {
   void selectLaser() {
     controller.close();
     spec.setTool(LaserPointer.currentLaserPointer);
+  }
+
+  void insertNotewiseTool(NotewiseInsertTool tool) {
+    controller.close();
+    spec.insertNotewiseTool?.call(tool);
   }
 }

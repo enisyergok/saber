@@ -59,6 +59,7 @@ import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/ink_eraser.dart';
 import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/laser_pointer.dart';
+import 'package:saber/data/tools/notewise_tools.dart';
 import 'package:saber/data/tools/pen.dart';
 import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pen_boost.dart';
@@ -98,6 +99,7 @@ import 'package:saber/data/tools/shape_snap.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/home/whiteboard.dart';
 import 'package:sbn/canvas_background_pattern.dart';
+import 'package:sbn/tool_id.dart';
 import 'package:sbn/change.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
@@ -2687,6 +2689,7 @@ class EditorState extends State<Editor> {
         if (mounted) setState(() {});
       },
       currentTool: currentTool,
+      insertNotewiseTool: _insertNotewiseTool,
       duplicateSelection: () {
         final select = currentTool as Select;
         if (!select.doneSelecting) return;
@@ -3710,6 +3713,212 @@ class EditorState extends State<Editor> {
       case PageAction.delete:
         deletePage(pageIndex);
     }
+  }
+
+  /// Inserts a small, editable vector template. These are deliberately made
+  /// from normal Saber strokes instead of a bitmap, so selection, erasing,
+  /// export and undo all continue to work.
+  void _insertNotewiseTool(NotewiseInsertTool tool) {
+    if (coreInfo.readOnly) return;
+    final pageIndex = currentPageIndex;
+    final page = coreInfo.pages[pageIndex];
+    final w = page.size.width;
+    final h = page.size.height;
+    final strokes = <Stroke>[];
+
+    Stroke stroke(
+      List<Offset> points, {
+      Color color = const Color(0xFF202124),
+      double size = 3,
+      ToolId toolId = ToolId.fountainPen,
+      bool pressureEnabled = false,
+    }) {
+      final options = StrokeOptions(
+        size: size,
+        thinning: 0,
+        smoothing: 0,
+        streamline: 0,
+      )..isComplete = true;
+      options.start.taperEnabled = false;
+      options.end.taperEnabled = false;
+      final result = Stroke(
+        color: color,
+        pressureEnabled: pressureEnabled,
+        options: options,
+        pageIndex: pageIndex,
+        page: page,
+        toolId: toolId,
+      );
+      result.addPoints(points);
+      return result;
+    }
+
+    void line(Offset a, Offset b, {Color? color, double? size}) {
+      strokes.add(
+        stroke(
+          [a, b],
+          color: color ?? const Color(0xFF202124),
+          size: size ?? 3,
+        ),
+      );
+    }
+
+    List<Offset> rectangle(Rect rect) => [
+      rect.topLeft,
+      rect.topRight,
+      rect.bottomRight,
+      rect.bottomLeft,
+      rect.topLeft,
+    ];
+
+    switch (tool) {
+      case NotewiseInsertTool.tape:
+        strokes.add(
+          stroke(
+            [Offset(w * 0.15, h * 0.18), Offset(w * 0.75, h * 0.18)],
+            color: const Color(0x66FBBF24),
+            size: 54,
+            toolId: ToolId.highlighter,
+          ),
+        );
+      case NotewiseInsertTool.table:
+        final left = w * 0.12;
+        final top = h * 0.16;
+        final width = math.min(w * 0.76, 720.0);
+        final rowHeight = math.min(74.0, h * 0.07);
+        const columns = 4;
+        const rows = 5;
+        for (var column = 0; column <= columns; column++) {
+          final x = left + width * column / columns;
+          line(Offset(x, top), Offset(x, top + rowHeight * rows));
+        }
+        for (var row = 0; row <= rows; row++) {
+          final y = top + rowHeight * row;
+          line(Offset(left, y), Offset(left + width, y));
+        }
+      case NotewiseInsertTool.stickyNote:
+        final rect = Rect.fromLTWH(
+          w * 0.12,
+          h * 0.16,
+          math.min(w * 0.42, 360),
+          190,
+        );
+        strokes.add(
+          stroke(
+            [
+              Offset(rect.left + 3, rect.top + 28),
+              Offset(rect.right - 3, rect.top + 28),
+            ],
+            color: const Color(0x66FDE68A),
+            size: rect.height - 8,
+            toolId: ToolId.highlighter,
+          ),
+        );
+        strokes.add(
+          stroke(rectangle(rect), color: const Color(0xFF92400E), size: 3),
+        );
+        line(
+          Offset(rect.left + 22, rect.top + 72),
+          Offset(rect.right - 22, rect.top + 72),
+          color: const Color(0xFF92400E),
+          size: 2,
+        );
+        line(
+          Offset(rect.left + 22, rect.top + 104),
+          Offset(rect.right - 50, rect.top + 104),
+          color: const Color(0xFF92400E),
+          size: 2,
+        );
+      case NotewiseInsertTool.sticker:
+        final center = Offset(w * 0.72, h * 0.25);
+        final points = [
+          for (var i = 0; i <= 10; i++)
+            center +
+                Offset.fromDirection(
+                  -math.pi / 2 + i * math.pi / 5,
+                  i.isEven ? 92 : 42,
+                ),
+        ];
+        strokes.add(stroke(points, color: const Color(0xFF7C3AED), size: 5));
+        strokes.add(
+          stroke(
+            [center],
+            color: const Color(0xFFFBBF24),
+            size: 42,
+            toolId: ToolId.highlighter,
+          ),
+        );
+      case NotewiseInsertTool.widget:
+        final rect = Rect.fromLTWH(
+          w * 0.12,
+          h * 0.56,
+          math.min(w * 0.65, 580),
+          150,
+        );
+        strokes.add(
+          stroke(rectangle(rect), color: const Color(0xFF334155), size: 4),
+        );
+        line(
+          Offset(rect.left, rect.top + 40),
+          Offset(rect.right, rect.top + 40),
+          color: const Color(0xFF334155),
+          size: 3,
+        );
+        line(
+          Offset(rect.left + rect.width * 0.55, rect.top + 40),
+          Offset(rect.left + rect.width * 0.55, rect.bottom),
+          color: const Color(0xFF334155),
+          size: 3,
+        );
+        line(
+          Offset(rect.left + 22, rect.top + 82),
+          Offset(rect.left + rect.width * 0.45, rect.top + 82),
+          color: const Color(0xFF64748B),
+          size: 2,
+        );
+        line(
+          Offset(rect.left + 22, rect.top + 112),
+          Offset(rect.left + rect.width * 0.4, rect.top + 112),
+          color: const Color(0xFF64748B),
+          size: 2,
+        );
+      case NotewiseInsertTool.zoomBox:
+        final rect = Rect.fromLTWH(
+          w * 0.54,
+          h * 0.56,
+          math.min(w * 0.32, 300),
+          190,
+        );
+        strokes.add(
+          stroke(rectangle(rect), color: const Color(0xFF2563EB), size: 4),
+        );
+        line(
+          Offset(rect.center.dx, rect.top + 20),
+          Offset(rect.center.dx, rect.bottom - 20),
+          color: const Color(0xFF2563EB),
+          size: 2,
+        );
+        line(
+          Offset(rect.left + 20, rect.center.dy),
+          Offset(rect.right - 20, rect.center.dy),
+          color: const Color(0xFF2563EB),
+          size: 2,
+        );
+    }
+
+    if (strokes.isEmpty) return;
+    setState(() {
+      for (final newStroke in strokes) page.insertStroke(newStroke);
+      history.recordChange(
+        EditorHistoryItem(
+          type: .draw,
+          pageIndex: pageIndex,
+          strokes: strokes,
+          images: const [],
+        ),
+      );
+      autosaveAfterDelay();
+    });
   }
 
   void insertPageAfter(int pageIndex) => setState(() {
