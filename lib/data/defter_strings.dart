@@ -975,6 +975,7 @@ abstract class DefterStrings {
   static String get play => _tr ? 'Oynat' : 'Play';
   static String get pause => _tr ? 'Duraklat' : 'Pause';
   static String get delete => _tr ? 'Sil' : 'Delete';
+  static String get playbackSpeed => _tr ? 'Oynatma hızı' : 'Playback speed';
 
   // Sync status
   static String get syncStatus => _tr ? 'Senkron durumu' : 'Sync status';

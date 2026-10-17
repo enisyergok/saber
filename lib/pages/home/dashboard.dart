@@ -221,7 +221,7 @@ class _DashboardPageState extends State<DashboardPage> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 24),
           children: [
-            _hero(context),
+            _libraryHeader(context),
             const SizedBox(height: 10),
             _section(
               context,
@@ -282,6 +282,129 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             child,
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A quiet library header: search and creation actions stay together so
+  /// the notes remain the visual focus. It intentionally uses Marj's own
+  /// paper/ink language instead of reproducing another app's artwork.
+  Widget _libraryHeader(BuildContext context) {
+    final colors = ColorScheme.of(context);
+
+    Widget action(IconData icon, String label, VoidCallback onTap) =>
+        FilledButton.tonalIcon(
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            backgroundColor: colors.primaryContainer,
+            foregroundColor: colors.onPrimaryContainer,
+          ),
+          onPressed: onTap,
+          icon: Icon(icon, size: 18),
+          label: Text(label),
+        );
+
+    return Material(
+      color: colors.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(DefterDesign.radiusSheet),
+        side: BorderSide(color: colors.outlineVariant),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    DefterStrings.navNotes,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: DefterStrings.askNotes,
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  onPressed: () => _push(const AskNotesPage()),
+                ),
+                IconButton(
+                  tooltip: DefterStrings.navSettings,
+                  icon: const Icon(Symbols.settings_rounded),
+                  onPressed: () => context.go(HomeRoutes.routes[3].path),
+                ),
+              ],
+            ),
+            Text(
+              DefterStrings.heroTitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Material(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
+              child: InkWell(
+                onTap: () => _push(const SearchPage()),
+                borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Symbols.search_rounded,
+                        size: 20,
+                        color: colors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          DefterStrings.searchNotes,
+                          style: TextStyle(color: colors.onSurfaceVariant),
+                        ),
+                      ),
+                      Icon(
+                        Symbols.tune_rounded,
+                        size: 18,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                action(
+                  Symbols.add_rounded,
+                  DefterStrings.actionNewNote,
+                  _newNote,
+                ),
+                action(
+                  Symbols.dashboard_customize_rounded,
+                  DefterStrings.actionFromTemplate,
+                  () => _push(const TemplateGalleryPage()),
+                ),
+                OutlinedButton.icon(
+                  onPressed: _importPdf,
+                  icon: const Icon(Symbols.picture_as_pdf_rounded, size: 18),
+                  label: Text(DefterStrings.actionImportPdf),
+                ),
+              ],
+            ),
           ],
         ),
       ),

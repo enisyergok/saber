@@ -309,6 +309,9 @@ class _ToolbarState extends State<Toolbar> {
                 duplicateSelection: widget.duplicateSelection,
                 deleteSelection: widget.deleteSelection,
                 recognizeSelection: widget.recognizeSelection,
+                setColor: widget.setColor,
+                currentColor: currentColor,
+                invertColors: invert,
               ),
             },
           );

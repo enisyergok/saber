@@ -24,6 +24,7 @@ class _RecordingsDialogState extends State<RecordingsDialog> {
   List<NoteRecording> _recordings = const [];
   bool _recording = false;
   Duration _elapsed = Duration.zero;
+  double _playbackRate = 1.0;
   Timer? _timer;
   String? _error;
   String? _playingPath;
@@ -95,6 +96,7 @@ class _RecordingsDialogState extends State<RecordingsDialog> {
       setState(() => _playingPath = null);
       return;
     }
+    await _player.setPlaybackRate(_playbackRate);
     await _player.play(DeviceFileSource(recording.file.path));
     setState(() => _playingPath = recording.file.path);
   }
@@ -139,6 +141,35 @@ class _RecordingsDialogState extends State<RecordingsDialog> {
               const SizedBox(height: 8),
               Text(_error!),
             ],
+            Align(
+              alignment: Alignment.centerRight,
+              child: PopupMenuButton<double>(
+                tooltip: DefterStrings.playbackSpeed,
+                initialValue: _playbackRate,
+                onSelected: (rate) async {
+                  setState(() => _playbackRate = rate);
+                  await _player.setPlaybackRate(rate);
+                },
+                itemBuilder: (context) => [
+                  for (final rate in [0.75, 1.0, 1.25, 1.5, 2.0])
+                    PopupMenuItem<double>(
+                      value: rate,
+                      child: Text('${rate}×'),
+                    ),
+                ],
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Symbols.speed_rounded, size: 18),
+                      const SizedBox(width: 6),
+                      Text('${_playbackRate}×'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 12),
             Flexible(
               child: _recordings.isEmpty
