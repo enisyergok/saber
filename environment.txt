@@ -1,0 +1,15 @@
+commit: 518bd0e3258da39b5664f0e038c894c669f32ce3
+ANDROID_NDK=/usr/local/lib/android/sdk/ndk/29.0.14206865
+JAVA_HOME=/usr/lib/jvm/temurin-25-jdk-amd64
+-- ndk:
+27.3.13750724
+28.2.13676358
+29.0.14206865
+30.0.16248370
+-- java:
+JAVA_HOME_11_X64=/usr/lib/jvm/temurin-11-jdk-amd64
+JAVA_HOME_17_X64=/usr/lib/jvm/temurin-17-jdk-amd64
+JAVA_HOME_21_X64=/usr/lib/jvm/temurin-21-jdk-amd64
+JAVA_HOME_25_X64=/usr/lib/jvm/temurin-25-jdk-amd64
+JAVA_HOME_8_X64=/usr/lib/jvm/temurin-8-jdk-amd64
+-- image: ubuntu24 20261012.334.1
