@@ -21,6 +21,7 @@ enum FanToolId {
   ballpoint,
   brush,
   calligraphy,
+  creativeBrush,
   pencil,
   highlighter,
   shape,
@@ -68,20 +69,15 @@ List<_Slot> _slots(int count, int n, double offset, double reveal) {
     for (var k = 0; k <= count; k++)
       () {
         final p = k - frac;
-        final edge =
-            1 - (math.max(-p, p - (count - 1)) / 0.5).clamp(0.0, 1.0);
+        final edge = 1 - (math.max(-p, p - (count - 1)) / 0.5).clamp(0.0, 1.0);
         final appear = (reveal * count - p).clamp(0.0, 1.0);
-        return _Slot(
-          FanRing.wrap(base + k, n),
-          p,
-          math.min(edge, appear),
-        );
+        return _Slot(FanRing.wrap(base + k, n), p, math.min(edge, appear));
       }(),
   ];
 }
 
 class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
-  static const _toolCount = 8;
+  static const _toolCount = 9;
   static const _colorN = 27; // penFanColors.length
 
   late final AnimationController _unfold = AnimationController(
@@ -125,7 +121,8 @@ class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
   }
 
   bool get _animate =>
-      EInkScope.maybeOf(context) == null && !MediaQuery.disableAnimationsOf(context);
+      EInkScope.maybeOf(context) == null &&
+      !MediaQuery.disableAnimationsOf(context);
 
   // -- what is selected -----------------------------------------------------
 
@@ -139,6 +136,7 @@ class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
       PenStyle.ballpoint => FanToolId.ballpoint,
       PenStyle.brush => FanToolId.brush,
       PenStyle.calligraphy => FanToolId.calligraphy,
+      PenStyle.creativeBrush => FanToolId.creativeBrush,
       _ => FanToolId.fountain,
     };
   }
@@ -195,10 +193,12 @@ class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
       case FanToolId.ballpoint:
       case FanToolId.brush:
       case FanToolId.calligraphy:
+      case FanToolId.creativeBrush:
         final style = switch (id) {
           FanToolId.ballpoint => PenStyle.ballpoint,
           FanToolId.brush => PenStyle.brush,
           FanToolId.calligraphy => PenStyle.calligraphy,
+          FanToolId.creativeBrush => PenStyle.creativeBrush,
           _ => PenStyle.fountain,
         };
         final tool = a.tool;
@@ -277,7 +277,10 @@ class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
     _turning = null;
     if (ring == null) return;
     final r = math.max(_lastRel.distance, 1.0);
-    final t = Offset(-math.sin(_lastRel.direction), math.cos(_lastRel.direction));
+    final t = Offset(
+      -math.sin(_lastRel.direction),
+      math.cos(_lastRel.direction),
+    );
     final v = velocity.pixelsPerSecond;
     final angular = (v.dx * t.dx + v.dy * t.dy) / r;
     final cellsPerSecond = FanRing.turnBy(
@@ -286,7 +289,8 @@ class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
       PenFanGeometry.span,
     );
     final from = _offsetOf(ring);
-    final to = (from + (cellsPerSecond * 0.16).clamp(-8.0, 8.0)).roundToDouble();
+    final to = (from + (cellsPerSecond * 0.16).clamp(-8.0, 8.0))
+        .roundToDouble();
     _snapRing = ring;
     _snapFrom = from;
     _snapTo = to;
@@ -449,6 +453,7 @@ class _PenFanState extends State<PenFan> with TickerProviderStateMixin {
     FanToolId.ballpoint => UniIcon(Pen.ballpointPenIcon, size: size),
     FanToolId.brush => UniIcon(Pen.brushPenIcon, size: size),
     FanToolId.calligraphy => UniIcon(Pen.calligraphyPenIcon, size: size),
+    FanToolId.creativeBrush => UniIcon(Pen.creativeBrushIcon, size: size),
     FanToolId.pencil => Icon(Pencil.pencilIcon, size: size),
     FanToolId.highlighter => Icon(Highlighter.highlighterIcon, size: size),
     FanToolId.shape => Icon(ShapePen.shapePenIcon, size: size),
@@ -494,6 +499,7 @@ class _FanBody extends StatelessWidget {
         FanToolId.ballpoint => UniIcon(Pen.ballpointPenIcon, size: s),
         FanToolId.brush => UniIcon(Pen.brushPenIcon, size: s),
         FanToolId.calligraphy => UniIcon(Pen.calligraphyPenIcon, size: s),
+        FanToolId.creativeBrush => UniIcon(Pen.creativeBrushIcon, size: s),
         FanToolId.pencil => const Icon(Pencil.pencilIcon, size: s),
         FanToolId.highlighter => const Icon(
           Highlighter.highlighterIcon,
@@ -539,9 +545,7 @@ class _FanBody extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Positioned.fill(
-            child: CustomPaint(painter: painter),
-          ),
+          Positioned.fill(child: CustomPaint(painter: painter)),
           for (final s in tools)
             if (s.alpha > 0.01)
               Positioned(
@@ -652,7 +656,12 @@ class _FanPainter extends CustomPainter {
         PenFanGeometry.span * colorReveal,
       );
       _ringBackground(canvas, ring);
-      for (final s in _slots(g.colorCount, penFanColors.length, colorOffset, colorReveal)) {
+      for (final s in _slots(
+        g.colorCount,
+        penFanColors.length,
+        colorOffset,
+        colorReveal,
+      )) {
         if (s.alpha <= 0.01) continue;
         final p = c + g.colorAt(s.position);
         canvas.drawCircle(
@@ -684,7 +693,12 @@ class _FanPainter extends CustomPainter {
       );
       _ringBackground(canvas, ring);
       final cell = PenFanGeometry.span / g.toolCount;
-      for (final s in _slots(g.toolCount, FanToolId.values.length, toolOffset, toolReveal)) {
+      for (final s in _slots(
+        g.toolCount,
+        FanToolId.values.length,
+        toolOffset,
+        toolReveal,
+      )) {
         if (s.alpha <= 0.01 || s.index != selectedTool) continue;
         canvas.save();
         canvas.clipPath(ring);

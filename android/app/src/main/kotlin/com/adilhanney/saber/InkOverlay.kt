@@ -7,6 +7,7 @@ import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.RectF
+import android.graphics.RuntimeShader
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.os.Handler
@@ -173,6 +174,13 @@ class InkOverlay(private val activity: Activity) {
     private val strokeSegments = ArrayList<Segment>()
     private var drawnPrediction = noPrediction
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val capsuleShader: RuntimeShader? by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            RuntimeShader(CAPSULE_SHADER)
+        } else {
+            null
+        }
+    }
     private val path = Path()
     private val dirty = RectF()
     private val scratch = RectF()
@@ -596,6 +604,10 @@ class InkOverlay(private val activity: Activity) {
         x1: Float, y1: Float, r1: Float,
         color: Int,
     ) {
+        if (capsuleShader != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            drawShaderCapsule(canvas, x0, y0, r0, x1, y1, r1, color)
+            return
+        }
         paint.color = color
         canvas.drawCircle(x1, y1, r1, paint)
         val dx = x1 - x0
@@ -612,6 +624,63 @@ class InkOverlay(private val activity: Activity) {
         path.close()
         canvas.drawPath(path, paint)
         canvas.drawCircle(x0, y0, r0, paint)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun drawShaderCapsule(
+        canvas: Canvas,
+        x0: Float,
+        y0: Float,
+        r0: Float,
+        x1: Float,
+        y1: Float,
+        r1: Float,
+        color: Int,
+    ) {
+        val shader = capsuleShader ?: return
+        shader.setFloatUniform("uStart", x0, y0)
+        shader.setFloatUniform("uEnd", x1, y1)
+        shader.setFloatUniform("uRadiusStart", r0)
+        shader.setFloatUniform("uRadiusEnd", r1)
+        shader.setFloatUniform(
+            "uColor",
+            ((color shr 16) and 0xff) / 255f,
+            ((color shr 8) and 0xff) / 255f,
+            (color and 0xff) / 255f,
+            ((color ushr 24) and 0xff) / 255f,
+        )
+        paint.shader = shader
+        val pad = max(r0, r1) + 1f
+        canvas.drawRect(
+            min(x0, x1) - pad,
+            min(y0, y1) - pad,
+            max(x0, x1) + pad,
+            max(y0, y1) + pad,
+            paint,
+        )
+        paint.shader = null
+    }
+
+    private companion object {
+        // Android's RuntimeShader version of the capsule SDF. The Canvas
+        // fallback above remains active on Android 9 and earlier.
+        const val CAPSULE_SHADER = """
+            uniform float2 uStart;
+            uniform float2 uEnd;
+            uniform float uRadiusStart;
+            uniform float uRadiusEnd;
+            uniform half4 uColor;
+
+            half4 main(float2 p) {
+                float2 ab = uEnd - uStart;
+                float denominator = max(dot(ab, ab), 0.0001);
+                float t = clamp(dot(p - uStart, ab) / denominator, 0.0, 1.0);
+                float radius = mix(uRadiusStart, uRadiusEnd, t);
+                float distanceToInk = distance(p, uStart + ab * t) - radius;
+                half alpha = 1.0 - smoothstep(-1.0, 1.0, distanceToInk);
+                return half4(uColor.rgb, uColor.a * alpha);
+            }
+        """
     }
 
     // -- front buffer ---------------------------------------------------------

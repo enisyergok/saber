@@ -10,7 +10,15 @@ import 'package:saber/data/tools/pen_feel.dart';
 import 'package:saber/data/tools/pencil.dart';
 
 /// The six pens of the pen panel.
-enum PenStyle { fountain, ballpoint, brush, pencil, marker, calligraphy }
+enum PenStyle {
+  fountain,
+  ballpoint,
+  brush,
+  pencil,
+  marker,
+  calligraphy,
+  creativeBrush,
+}
 
 /// What the pen panel needs to know about each [PenStyle].
 abstract class PenStyles {
@@ -25,6 +33,7 @@ abstract class PenStyles {
       PenKind.ballpoint => PenStyle.ballpoint,
       PenKind.brush => PenStyle.brush,
       PenKind.calligraphy => PenStyle.calligraphy,
+      PenKind.creative => PenStyle.creativeBrush,
       null => null,
     };
   }
@@ -35,6 +44,7 @@ abstract class PenStyles {
     PenStyle.ballpoint => Pen.ballpointPen(),
     PenStyle.brush => Pen.brushPen(),
     PenStyle.calligraphy => Pen.calligraphyPen(),
+    PenStyle.creativeBrush => Pen.creativeBrushPen(),
     PenStyle.pencil => Pencil.currentPencil,
     PenStyle.marker => Highlighter.currentHighlighter,
   };
@@ -46,6 +56,7 @@ abstract class PenStyles {
     PenStyle.pencil => DefterStrings.stylePencil,
     PenStyle.marker => DefterStrings.styleMarker,
     PenStyle.calligraphy => DefterStrings.styleCalligraphy,
+    PenStyle.creativeBrush => DefterStrings.creativeBrush,
   };
 
   static Object icon(PenStyle style) => switch (style) {
@@ -55,6 +66,7 @@ abstract class PenStyles {
     PenStyle.pencil => Pencil.pencilIcon,
     PenStyle.marker => Highlighter.highlighterIcon,
     PenStyle.calligraphy => Pen.calligraphyPenIcon,
+    PenStyle.creativeBrush => Pen.creativeBrushIcon,
   };
 
   /// Whether the colour of [style] can be made see-through in the panel.
@@ -63,7 +75,9 @@ abstract class PenStyles {
       style != PenStyle.marker && style != PenStyle.pencil;
 
   static bool hasSharpness(PenStyle style) =>
-      style == PenStyle.fountain || style == PenStyle.brush;
+      style == PenStyle.fountain ||
+      style == PenStyle.brush ||
+      style == PenStyle.creativeBrush;
 
   static bool hasPressure(PenStyle style) => style != PenStyle.marker;
 
@@ -112,6 +126,13 @@ abstract class PenStyles {
         size: 10,
         sensitivity: 0.5,
         stabilization: plain.streamline,
+      ),
+      PenStyle.creativeBrush => PenProfile(
+        style: style,
+        size: 18,
+        sensitivity: 0.75,
+        sharpness: 0.7,
+        stabilization: 0.18,
       ),
     };
   }

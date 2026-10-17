@@ -108,6 +108,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     stows.lastBallpointPenOptions.notifyListeners();
     stows.lastBrushPenOptions.notifyListeners();
     stows.lastCalligraphyPenOptions.notifyListeners();
+    stows.lastCreativeBrushOptions.notifyListeners();
     stows.lastHighlighterOptions.notifyListeners();
     stows.lastPencilOptions.notifyListeners();
   }
@@ -228,7 +229,10 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     final screen = MediaQuery.sizeOf(context).width;
     final wide =
         screen >=
-        GnPenSettings.width + GnPenSettings.profilesWidth + GnPenSettings.gap + 24;
+        GnPenSettings.width +
+            GnPenSettings.profilesWidth +
+            GnPenSettings.gap +
+            24;
     final mainWidth = math.min(GnPenSettings.width, screen - 24);
 
     final profiles = GnPenProfiles(
@@ -265,10 +269,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
           _tools(context),
           const SizedBox(height: 10),
           _behaviours(context),
-          if (!wide) ...[
-            const SizedBox(height: 14),
-            profiles,
-          ],
+          if (!wide) ...[const SizedBox(height: 14), profiles],
         ],
       ),
     );
@@ -306,9 +307,9 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     );
   }
 
-  TextStyle? _sectionStyle(BuildContext context) => Theme.of(
-    context,
-  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600);
+  TextStyle? _sectionStyle(BuildContext context) =>
+      Theme.of(context).textTheme.titleSmall
+          ?.copyWith(fontWeight: FontWeight.w600);
 
   // -- header ---------------------------------------------------------------
 
@@ -318,9 +319,8 @@ class _GnPenSettingsState extends State<GnPenSettings> {
         Expanded(
           child: Text(
             DefterStrings.penSettingsTitle,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
         PopupMenuButton<int>(
@@ -457,7 +457,11 @@ class _GnPenSettingsState extends State<GnPenSettings> {
             ),
             IconButton(
               tooltip: DefterStrings.preview,
-              icon: Icon(collapsed ? Symbols.expand_more_rounded : Symbols.expand_less_rounded),
+              icon: Icon(
+                collapsed
+                    ? Symbols.expand_more_rounded
+                    : Symbols.expand_less_rounded,
+              ),
               onPressed: () => stows.penPreviewCollapsed.value = !collapsed,
             ),
           ],
@@ -702,7 +706,10 @@ class _GnPenSettingsState extends State<GnPenSettings> {
           onTap: () => setState(() {
             // Keep a see-through setting when picking another colour.
             final alpha = tool is Highlighter ? 1.0 : tool.color.a;
-            _setColor(tool, alpha >= 1 ? color : color.withValues(alpha: alpha));
+            _setColor(
+              tool,
+              alpha >= 1 ? color : color.withValues(alpha: alpha),
+            );
           }),
           child: Container(
             width: 26,
@@ -733,7 +740,10 @@ class _GnPenSettingsState extends State<GnPenSettings> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(DefterStrings.colorAndStyle, style: _sectionStyle(context)),
+                Text(
+                  DefterStrings.colorAndStyle,
+                  style: _sectionStyle(context),
+                ),
                 const SizedBox(height: 6),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,7 +762,9 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                       tooltip: DefterStrings.moreColors,
                       visualDensity: VisualDensity.compact,
                       icon: Icon(
-                        _moreColors ? Symbols.expand_less_rounded : Symbols.expand_more_rounded,
+                        _moreColors
+                            ? Symbols.expand_less_rounded
+                            : Symbols.expand_more_rounded,
                       ),
                       onPressed: () =>
                           setState(() => _moreColors = !_moreColors),
@@ -805,7 +817,10 @@ class _GnPenSettingsState extends State<GnPenSettings> {
                             decoration: BoxDecoration(
                               color: tool.color.withValues(alpha: 1),
                               shape: BoxShape.circle,
-                              border: Border.all(color: colors.surface, width: 2),
+                              border: Border.all(
+                                color: colors.surface,
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -864,7 +879,10 @@ class _GnPenSettingsState extends State<GnPenSettings> {
       _prefTile(
         context,
         pref: stows.measureMode,
-        icon: const RotatedBox(quarterTurns: 1, child: Icon(Symbols.height_rounded)),
+        icon: const RotatedBox(
+          quarterTurns: 1,
+          child: Icon(Symbols.height_rounded),
+        ),
         title: DefterStrings.toolMeasure,
         onChanged: (on) {
           if (!on) PenAssist.showReadout(null);
@@ -1115,7 +1133,10 @@ class PenGesturesDialog extends StatelessWidget {
             ListTile(
               title: Text(names[action]!),
               trailing: action.index == current
-                  ? Icon(Symbols.check_rounded, color: ColorScheme.of(context).primary)
+                  ? Icon(
+                      Symbols.check_rounded,
+                      color: ColorScheme.of(context).primary,
+                    )
                   : null,
               onTap: () => stows.stylusAction.value = action.index,
             ),
@@ -1162,8 +1183,7 @@ class PressureCurveEditor extends StatefulWidget {
     final width = size.width - 2 * padding;
     final height = size.height - 2 * padding;
     final point =
-        index ??
-        (((position.dx - padding) / width) * 4).round().clamp(1, 4);
+        index ?? (((position.dx - padding) / width) * 4).round().clamp(1, 4);
     final value = 1 - (position.dy - padding) / height;
     return curve.withPoint(point, value.clamp(0.0, 1.0));
   }
@@ -1343,7 +1363,8 @@ class PenPreviewPainter extends CustomPainter {
       final position = at(i);
       double? p;
       if (nib) {
-        final next = at(math.min(i + 1, n - 1)), before = at(math.max(i - 1, 0));
+        final next = at(math.min(i + 1, n - 1)),
+            before = at(math.max(i - 1, 0));
         p = PenFeel.nibPressure((next - before).direction);
       } else if (pressure) {
         p = 0.25 + 0.7 * math.sin(u * math.pi);
@@ -1390,7 +1411,8 @@ class PenSamplePainter extends CustomPainter {
       for (var i = 0; i < n; i++)
         PointVector(
           size.width * (0.04 + 0.92 * i / (n - 1)),
-          size.height * (0.5 + 0.22 * math.sin(i / (n - 1) * math.pi * 1.6 + 0.6)),
+          size.height *
+              (0.5 + 0.22 * math.sin(i / (n - 1) * math.pi * 1.6 + 0.6)),
           pressure,
         ),
     ];

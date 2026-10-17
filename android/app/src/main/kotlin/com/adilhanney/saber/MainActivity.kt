@@ -270,6 +270,19 @@ class MainActivity: FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/device")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "info" -> result.success(
+                        mapOf(
+                            "manufacturer" to Build.MANUFACTURER,
+                            "model" to Build.MODEL,
+                            "sdk" to Build.VERSION.SDK_INT,
+                        )
+                    )
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "defter/crash")
             .setMethodCallHandler { call, result ->
                 when (call.method) {

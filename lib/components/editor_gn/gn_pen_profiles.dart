@@ -45,9 +45,8 @@ class GnPenProfiles extends StatelessWidget {
             Expanded(
               child: Text(
                 DefterStrings.penProfiles,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
             IconButton(
@@ -187,6 +186,7 @@ class PenProfilePainter extends CustomPainter {
       PenStyle.ballpoint => PenKind.ballpoint,
       PenStyle.brush => PenKind.brush,
       PenStyle.calligraphy => PenKind.calligraphy,
+      PenStyle.creativeBrush => PenKind.creative,
       PenStyle.pencil || PenStyle.marker => null,
     };
     return kind == null
@@ -217,10 +217,8 @@ class PenProfilePainter extends CustomPainter {
     ];
     final polygon = getStroke(
       points,
-      options: optionsFor(profile).copyWith(
-        isComplete: true,
-        simulatePressure: false,
-      ),
+      options: optionsFor(profile)
+          .copyWith(isComplete: true, simulatePressure: false),
     );
     if (polygon.length < 3) return;
     canvas.drawPath(

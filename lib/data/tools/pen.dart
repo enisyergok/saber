@@ -19,7 +19,7 @@ import 'package:saber/i18n/strings.g.dart';
 import 'package:sbn/tool_id.dart';
 
 /// The pens that are stored as fountain pen lines.
-enum PenVariant { plain, brush, calligraphy }
+enum PenVariant { plain, brush, calligraphy, creative }
 
 class Pen extends Tool {
   @protected
@@ -77,6 +77,20 @@ class Pen extends Tool {
       toolId = .fountainPen,
       variant = PenVariant.calligraphy;
 
+  /// A creative brush profile that keeps the normal stroke format so older
+  /// Saber builds can still open notes made with it.
+  new creativeBrushPen()
+    : name = DefterStrings.creativeBrush,
+      sizeMin = 2,
+      sizeMax = 60,
+      sizeStep = 1,
+      icon = creativeBrushIcon,
+      options = stows.lastCreativeBrushOptions.value,
+      pressureEnabled = true,
+      color = Color(stows.lastFountainPenColor.value),
+      toolId = .fountainPen,
+      variant = PenVariant.creative;
+
   new ballpointPen()
     : name = t.editor.pens.ballpointPen,
       sizeMin = 1,
@@ -95,12 +109,15 @@ class Pen extends Tool {
   /// Whether this is the brush pen (see [Pen.brushPen]).
   bool get brush => variant == PenVariant.brush;
 
+  bool get creativeBrush => variant == PenVariant.creative;
+
   /// Which of the pen panel's writing pens this is, if any.
   PenKind? get kind => switch (toolId) {
     .fountainPen => switch (variant) {
       PenVariant.plain => PenKind.fountain,
       PenVariant.brush => PenKind.brush,
       PenVariant.calligraphy => PenKind.calligraphy,
+      PenVariant.creative => PenKind.creative,
     },
     .ballpointPen => PenKind.ballpoint,
     _ => null,
@@ -110,6 +127,7 @@ class Pen extends Tool {
   double get tipSharpness => switch (kind) {
     PenKind.fountain => stows.fountainTipSharpness.value,
     PenKind.brush => stows.brushTipSharpness.value,
+    PenKind.creative => stows.brushTipSharpness.value,
     _ => 0,
   };
   set tipSharpness(double value) {
@@ -117,6 +135,8 @@ class Pen extends Tool {
       case PenKind.fountain:
         stows.fountainTipSharpness.value = value;
       case PenKind.brush:
+        stows.brushTipSharpness.value = value;
+      case PenKind.creative:
         stows.brushTipSharpness.value = value;
       case PenKind.ballpoint:
       case PenKind.calligraphy:
@@ -146,6 +166,7 @@ class Pen extends Tool {
   static const ballpointPenIcon = Symbols.stylus_rounded;
   static const brushPenIcon = Symbols.brush_rounded;
   static const calligraphyPenIcon = Symbols.stylus_fountain_pen_rounded;
+  static const creativeBrushIcon = Symbols.auto_awesome_rounded;
 
   static Stroke? currentStroke;
   Color color;
@@ -204,7 +225,8 @@ class Pen extends Tool {
     _rawLow = double.infinity;
     _rawHigh = double.negativeInfinity;
     _rawCount = 0;
-    _fallback = pressureEnabled &&
+    _fallback =
+        pressureEnabled &&
         stows.pressureAuto.value &&
         PressureCalibration.isFlat;
     // Without usable pressure the width follows the pen's speed instead.
@@ -235,9 +257,8 @@ class Pen extends Tool {
   double _nibDirection = 0;
 
   /// The end of the ruled line being drawn towards [position].
-  Offset _ruledEnd(Offset position) => stows.angleGuide.value
-      ? PenAssist.snapAngle(_start, position)
-      : position;
+  Offset _ruledEnd(Offset position) =>
+      stows.angleGuide.value ? PenAssist.snapAngle(_start, position) : position;
 
   double _rawLow = double.infinity, _rawHigh = double.negativeInfinity;
   int _rawCount = 0;
@@ -303,7 +324,11 @@ class Pen extends Tool {
           .clamp(0.0, 1.0);
     }
     if (pressure != null) {
-      pressure = PenFeel.smoothPressure(pressure, _smoothedPressure);
+      pressure = PenFeel.smoothPressure(
+        pressure,
+        _smoothedPressure,
+        creative: creativeBrush,
+      );
       _smoothedPressure = pressure;
     }
     currentStroke?.addPoint(position, pressure);
@@ -411,6 +436,8 @@ class Pen extends Tool {
       defaultOptions.copyWith(size: 12, thinning: 0.5);
   static StrokeOptions get calligraphyPenOptions =>
       defaultOptions.copyWith(size: 10, thinning: 0.5);
+  static StrokeOptions get creativeBrushOptions =>
+      defaultOptions.copyWith(size: 18, thinning: 0.75, streamline: 0.18);
   static StrokeOptions get shapePenOptions =>
       defaultOptions.copyWith(smoothing: 0, streamline: 0);
   static StrokeOptions get highlighterOptions =>

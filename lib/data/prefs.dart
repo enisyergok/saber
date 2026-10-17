@@ -153,12 +153,9 @@ class Stows {
     true,
     volatile: !_isOnMainIsolate,
   );
+
   /// The radius of the eraser, in page units.
-  final eraserSize = PlainStow(
-    'eraserSize',
-    10.0,
-    volatile: !_isOnMainIsolate,
-  );
+  final eraserSize = PlainStow('eraserSize', 10.0, volatile: !_isOnMainIsolate);
 
   /// Whether the eraser rubs out only what it passes over (true) or takes
   /// away every stroke it touches as a whole (false).
@@ -221,6 +218,7 @@ class Stows {
     10000,
     volatile: !_isOnMainIsolate,
   );
+
   /// Whether straight lines drawn with the shape pen get an arrowhead.
   final shapePenArrows = PlainStow(
     'shapePenArrows',
@@ -250,9 +248,13 @@ class Stows {
   /// With the fast live ink on: draw the line a little ahead of the pen,
   /// where a Kalman filter guesses the pen will be when the picture reaches
   /// the screen. Only shown on the overlay, never saved (see PenOverlay).
-  final penPredict = PlainStow(
-    'penPredict',
-    true,
+  final penPredict = PlainStow('penPredict', true, volatile: !_isOnMainIsolate);
+
+  /// Forces the Huawei/M-Pencil pressure profile when the vendor ROM hides
+  /// its manufacturer name.
+  final huaweiPenMode = PlainStow(
+    'huaweiPenMode',
+    false,
     volatile: !_isOnMainIsolate,
   );
 
@@ -285,11 +287,7 @@ class Stows {
 
   /// E-ink mode: shows notes and the app on imitation paper in greys. It is
   /// only how things are displayed; notes keep their own colours.
-  final eInkMode = PlainStow(
-    'eInkMode',
-    false,
-    volatile: !_isOnMainIsolate,
-  );
+  final eInkMode = PlainStow('eInkMode', false, volatile: !_isOnMainIsolate);
 
   /// 0 = neutral paper, 1 = warm paper.
   final eInkPaperWarmth = PlainStow(
@@ -350,22 +348,14 @@ class Stows {
   );
 
   /// The round pen button that opens the tool and colour fan.
-  final penFan = PlainStow(
-    'penFan',
-    true,
-    volatile: !_isOnMainIsolate,
-  );
+  final penFan = PlainStow('penFan', true, volatile: !_isOnMainIsolate);
 
   /// Where the pen button sits, as fractions of the screen.
   final penFanX = PlainStow('penFanX', 0.06, volatile: !_isOnMainIsolate);
   final penFanY = PlainStow('penFanY', 0.42, volatile: !_isOnMainIsolate);
 
   /// Shows the pen latency recording button in the editor.
-  final penProbe = PlainStow(
-    'penProbe',
-    false,
-    volatile: !_isOnMainIsolate,
-  );
+  final penProbe = PlainStow('penProbe', false, volatile: !_isOnMainIsolate);
 
   /// What a stylus button press (the pen's double tap, for example) does.
   /// An index into `StylusAction.values`.
@@ -512,6 +502,12 @@ class Stows {
       lastCalligraphyPenOptions = PlainStow.json(
         'lastCalligraphyPenProperties',
         Pen.calligraphyPenOptions,
+        fromJson: _strokeOptionsFromJson,
+        volatile: !_isOnMainIsolate,
+      ),
+      lastCreativeBrushOptions = PlainStow.json(
+        'lastCreativeBrushProperties',
+        Pen.creativeBrushOptions,
         fromJson: _strokeOptionsFromJson,
         volatile: !_isOnMainIsolate,
       );

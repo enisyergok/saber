@@ -104,13 +104,7 @@ import 'package:super_clipboard/super_clipboard.dart';
 typedef _PhotoInfo = ({Uint8List bytes, String extension});
 
 class Editor extends StatefulWidget {
-  new({
-    super.key,
-    String? path,
-    this.customTitle,
-    this.pdfPath,
-    this.imagePath,
-  })
+  new({super.key, String? path, this.customTitle, this.pdfPath, this.imagePath})
     : initialPath = path != null
           ? Future.value(path)
           : FileManager.newFilePath('/'),
@@ -189,6 +183,7 @@ class EditorState extends State<Editor> {
           Pen.currentPen = switch (stows.lastPenVariant.value) {
             1 => Pen.brushPen(),
             2 => Pen.calligraphyPen(),
+            3 => Pen.creativeBrushPen(),
             _ => Pen.fountainPen(),
           };
         }
@@ -544,7 +539,9 @@ class EditorState extends State<Editor> {
   /// plus an extra blank page
   void createPage(int pageIndex) {
     while (pageIndex >= coreInfo.pages.length - 1) {
-      final page = EditorPage(size: _sizeForPageAfter(coreInfo.pages.length - 1));
+      final page = EditorPage(
+        size: _sizeForPageAfter(coreInfo.pages.length - 1),
+      );
       coreInfo.pages.add(page);
       listenToQuillChanges(page.quill, coreInfo.pages.length - 1);
     }
@@ -800,9 +797,7 @@ class EditorState extends State<Editor> {
         );
       case .transform:
         undo(
-          item.copyWith(
-            transform: SelectionTransform.inverse(item.transform!),
-          ),
+          item.copyWith(transform: SelectionTransform.inverse(item.transform!)),
         );
       case .reshape:
         undo(
@@ -882,6 +877,7 @@ class EditorState extends State<Editor> {
   int? dragPageIndex;
   PointerDeviceKind? currentPointerKind;
   double? currentPressure;
+
   /// The tool that was in use when a picture was tapped with a finger
   /// (which switches to the Select tool so that the picture can be moved
   /// and its buttons used). It is taken up again as soon as anything else
@@ -1124,8 +1120,7 @@ class EditorState extends State<Editor> {
         if (vertices != null && _activeVertex! < vertices.length) {
           vertices[_activeVertex!] = position;
           stroke.setVertexHandles(vertices);
-          select.selectResult.path = Path()
-            ..addRect(stroke.bounds.inflate(12));
+          select.selectResult.path = Path()..addRect(stroke.bounds.inflate(12));
         }
         page.redrawStrokes();
       } else if (select.doneSelecting && _activeHandle != null) {
@@ -1187,8 +1182,7 @@ class EditorState extends State<Editor> {
         // either of them on a line drawn straight is made straight, whether
         // or not lines are straightened otherwise; dimensions are for
         // circles and rectangles too, so those are recognised with them.
-        final technical =
-            stows.angleGuide.value || stows.dimensionMode.value;
+        final technical = stows.angleGuide.value || stows.dimensionMode.value;
         if (recognise &&
             ((stows.autoStraightenLines.value || technical) &&
                     newStroke.isStraightLine() ||
@@ -1290,9 +1284,7 @@ class EditorState extends State<Editor> {
               pageIndex: dragPageIndex!,
               strokes: [stroke],
               images: const [],
-              reshapeChange: {
-                stroke: Change(previous: before, current: after),
-              },
+              reshapeChange: {stroke: Change(previous: before, current: after)},
             ),
           );
           return;
@@ -2169,9 +2161,9 @@ class EditorState extends State<Editor> {
     );
     if (mounted) {
       setState(() {});
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(content: Text(DefterStrings.pdfPickTextAdded)),
-      );
+      ScaffoldMessenger.maybeOf(
+        context,
+      )?.showSnackBar(SnackBar(content: Text(DefterStrings.pdfPickTextAdded)));
     }
     return true;
   }
@@ -2596,8 +2588,8 @@ class EditorState extends State<Editor> {
     ];
 
     final topLeft = area.localToGlobal(Offset.zero) * ratio;
-    final bottomRight = area.localToGlobal(area.size.bottomRight(Offset.zero)) *
-        ratio;
+    final bottomRight =
+        area.localToGlobal(area.size.bottomRight(Offset.zero)) * ratio;
     return {
       'color': argb,
       'size': options.size * unit,
@@ -2675,184 +2667,184 @@ class EditorState extends State<Editor> {
     );
 
     final Toolbar toolbarSpec = Toolbar(
-          readOnly: coreInfo.readOnly,
-          setTool: (tool) {
-            if (tool is Eraser && currentTool is Eraser) {
-              // setTool(Eraser) is a special case to toggle the eraser on/off
-              tool = _lastNonEraserTool;
-            }
+      readOnly: coreInfo.readOnly,
+      setTool: (tool) {
+        if (tool is Eraser && currentTool is Eraser) {
+          // setTool(Eraser) is a special case to toggle the eraser on/off
+          tool = _lastNonEraserTool;
+        }
 
-            currentTool = tool;
+        currentTool = tool;
 
-            if (tool is Highlighter) {
-              Highlighter.currentHighlighter = tool;
-            } else if (tool is Pencil) {
-              Pencil.currentPencil = tool;
-            } else if (tool is Pen) {
-              Pen.currentPen = tool;
-            }
+        if (tool is Highlighter) {
+          Highlighter.currentHighlighter = tool;
+        } else if (tool is Pencil) {
+          Pencil.currentPencil = tool;
+        } else if (tool is Pen) {
+          Pen.currentPen = tool;
+        }
 
-            if (mounted) setState(() {});
-          },
-          currentTool: currentTool,
-          duplicateSelection: () {
+        if (mounted) setState(() {});
+      },
+      currentTool: currentTool,
+      duplicateSelection: () {
+        final select = currentTool as Select;
+        if (!select.doneSelecting) return;
+
+        setState(() {
+          final page = coreInfo.pages[select.selectResult.pageIndex];
+          final strokes = select.selectResult.strokes;
+          final images = select.selectResult.images;
+
+          const duplicationFeedbackOffset = Offset(25, -25);
+
+          final duplicatedStrokes = strokes.map((stroke) {
+            return stroke.copy()..shift(duplicationFeedbackOffset);
+          }).toList();
+
+          final duplicatedImages = images.map((image) {
+            return image.copy()
+              ..id = coreInfo.nextImageId++
+              ..dstRect.shift(duplicationFeedbackOffset);
+          }).toList();
+
+          page.strokes.addAll(duplicatedStrokes);
+          page.images.addAll(duplicatedImages);
+
+          select.selectResult = select.selectResult.copyWith(
+            strokes: duplicatedStrokes,
+            images: duplicatedImages,
+            path: select.selectResult.path.shift(duplicationFeedbackOffset),
+          );
+
+          history.recordChange(
+            EditorHistoryItem(
+              type: .draw,
+              pageIndex: select.selectResult.pageIndex,
+              strokes: duplicatedStrokes,
+              images: duplicatedImages,
+            ),
+          );
+          autosaveAfterDelay();
+        });
+      },
+      currentNotePath: coreInfo.filePath,
+      recognizeSelection: () {
+        final select = currentTool as Select;
+        if (!select.doneSelecting) return;
+        if (!stows.handwritingOnDevice.value &&
+            stows.openRouterApiKey.value.trim().isEmpty) {
+          ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            SnackBar(content: Text(DefterStrings.recognizeNoKey)),
+          );
+          return;
+        }
+        RecognizeDialog.show(context, List.of(select.selectResult.strokes));
+      },
+      deleteSelection: () {
+        final select = currentTool as Select;
+        if (!select.doneSelecting) {
+          return;
+        }
+
+        setState(() {
+          final page = coreInfo.pages[select.selectResult.pageIndex];
+          final strokes = select.selectResult.strokes;
+          final images = select.selectResult.images;
+
+          for (final stroke in strokes) {
+            page.strokes.remove(stroke);
+          }
+          for (final image in images) {
+            page.images.remove(image);
+          }
+
+          select.unselect();
+
+          history.recordChange(
+            EditorHistoryItem(
+              type: .erase,
+              pageIndex: strokes.first.pageIndex,
+              strokes: strokes,
+              images: images,
+            ),
+          );
+          autosaveAfterDelay();
+        });
+      },
+      setColor: (color) {
+        setState(() {
+          updateColorBar(color);
+
+          if (currentTool is Highlighter) {
+            (currentTool as Highlighter).color = color.withAlpha(
+              Highlighter.alpha,
+            );
+          } else if (currentTool is Pen) {
+            (currentTool as Pen).color = color;
+          } else if (currentTool is Select) {
+            // Changes color of selected strokes
             final select = currentTool as Select;
-            if (!select.doneSelecting) return;
-
-            setState(() {
-              final page = coreInfo.pages[select.selectResult.pageIndex];
+            if (select.doneSelecting) {
               final strokes = select.selectResult.strokes;
-              final images = select.selectResult.images;
 
-              const duplicationFeedbackOffset = Offset(25, -25);
-
-              final duplicatedStrokes = strokes.map((stroke) {
-                return stroke.copy()..shift(duplicationFeedbackOffset);
-              }).toList();
-
-              final duplicatedImages = images.map((image) {
-                return image.copy()
-                  ..id = coreInfo.nextImageId++
-                  ..dstRect.shift(duplicationFeedbackOffset);
-              }).toList();
-
-              page.strokes.addAll(duplicatedStrokes);
-              page.images.addAll(duplicatedImages);
-
-              select.selectResult = select.selectResult.copyWith(
-                strokes: duplicatedStrokes,
-                images: duplicatedImages,
-                path: select.selectResult.path.shift(duplicationFeedbackOffset),
-              );
-
-              history.recordChange(
-                EditorHistoryItem(
-                  type: .draw,
-                  pageIndex: select.selectResult.pageIndex,
-                  strokes: duplicatedStrokes,
-                  images: duplicatedImages,
-                ),
-              );
-              autosaveAfterDelay();
-            });
-          },
-          currentNotePath: coreInfo.filePath,
-          recognizeSelection: () {
-            final select = currentTool as Select;
-            if (!select.doneSelecting) return;
-            if (!stows.handwritingOnDevice.value &&
-                stows.openRouterApiKey.value.trim().isEmpty) {
-              ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                SnackBar(content: Text(DefterStrings.recognizeNoKey)),
-              );
-              return;
-            }
-            RecognizeDialog.show(context, List.of(select.selectResult.strokes));
-          },
-          deleteSelection: () {
-            final select = currentTool as Select;
-            if (!select.doneSelecting) {
-              return;
-            }
-
-            setState(() {
-              final page = coreInfo.pages[select.selectResult.pageIndex];
-              final strokes = select.selectResult.strokes;
-              final images = select.selectResult.images;
-
+              final colorChange = <Stroke, Change<Color>>{};
               for (final stroke in strokes) {
-                page.strokes.remove(stroke);
+                colorChange[stroke] = Change(
+                  previous: stroke.color,
+                  current: color,
+                );
+                stroke.color = color;
               }
-              for (final image in images) {
-                page.images.remove(image);
-              }
-
-              select.unselect();
 
               history.recordChange(
                 EditorHistoryItem(
-                  type: .erase,
+                  type: .changeColor,
                   pageIndex: strokes.first.pageIndex,
                   strokes: strokes,
-                  images: images,
+                  colorChange: colorChange,
+                  images: [],
                 ),
               );
               autosaveAfterDelay();
-            });
-          },
-          setColor: (color) {
-            setState(() {
-              updateColorBar(color);
-
-              if (currentTool is Highlighter) {
-                (currentTool as Highlighter).color = color.withAlpha(
-                  Highlighter.alpha,
-                );
-              } else if (currentTool is Pen) {
-                (currentTool as Pen).color = color;
-              } else if (currentTool is Select) {
-                // Changes color of selected strokes
-                final select = currentTool as Select;
-                if (select.doneSelecting) {
-                  final strokes = select.selectResult.strokes;
-
-                  final colorChange = <Stroke, Change<Color>>{};
-                  for (final stroke in strokes) {
-                    colorChange[stroke] = Change(
-                      previous: stroke.color,
-                      current: color,
-                    );
-                    stroke.color = color;
-                  }
-
-                  history.recordChange(
-                    EditorHistoryItem(
-                      type: .changeColor,
-                      pageIndex: strokes.first.pageIndex,
-                      strokes: strokes,
-                      colorChange: colorChange,
-                      images: [],
-                    ),
-                  );
-                  autosaveAfterDelay();
-                }
-              }
-            });
-          },
-          quillFocus: quillFocus,
-          textEditing: currentTool == Tool.textEditing,
-          toggleTextEditing: () => setState(() {
-            if (currentTool == Tool.textEditing) {
-              currentTool = Pen.currentPen;
-              for (final page in coreInfo.pages) {
-                // unselect text, but maintain cursor position
-                page.quill.controller.moveCursorToPosition(
-                  page.quill.controller.selection.extentOffset,
-                );
-                page.quill.focusNode.unfocus();
-              }
-            } else {
-              currentTool = Tool.textEditing;
-              quillFocus.value = coreInfo.pages[currentPageIndex].quill
-                ..focusNode.requestFocus();
             }
-          }),
-          undo: undo,
-          isUndoPossible: history.canUndo,
-          redo: redo,
-          isRedoPossible: history.canRedo,
-          toggleFingerDrawing: () {
-            stows.editorFingerDrawing.value = !stows.editorFingerDrawing.value;
-            lastSeenPointerCount = 0;
-          },
-          pickPhoto: _pickPhotos,
-          takePhoto: DeviceCamera.isAvailable ? takePhoto : null,
-          paste: paste,
-          exportAsSba: exportAsSba,
-          exportAsPdf: exportAsPdf,
-          exportAsPng: exportAsPng,
-          toggleGrid: coreInfo.readOnly ? null : toggleGrid,
-          gridOn: coreInfo.backgroundPattern == CanvasBackgroundPattern.grid,
+          }
+        });
+      },
+      quillFocus: quillFocus,
+      textEditing: currentTool == Tool.textEditing,
+      toggleTextEditing: () => setState(() {
+        if (currentTool == Tool.textEditing) {
+          currentTool = Pen.currentPen;
+          for (final page in coreInfo.pages) {
+            // unselect text, but maintain cursor position
+            page.quill.controller.moveCursorToPosition(
+              page.quill.controller.selection.extentOffset,
+            );
+            page.quill.focusNode.unfocus();
+          }
+        } else {
+          currentTool = Tool.textEditing;
+          quillFocus.value = coreInfo.pages[currentPageIndex].quill
+            ..focusNode.requestFocus();
+        }
+      }),
+      undo: undo,
+      isUndoPossible: history.canUndo,
+      redo: redo,
+      isRedoPossible: history.canRedo,
+      toggleFingerDrawing: () {
+        stows.editorFingerDrawing.value = !stows.editorFingerDrawing.value;
+        lastSeenPointerCount = 0;
+      },
+      pickPhoto: _pickPhotos,
+      takePhoto: DeviceCamera.isAvailable ? takePhoto : null,
+      paste: paste,
+      exportAsSba: exportAsSba,
+      exportAsPdf: exportAsPdf,
+      exportAsPng: exportAsPng,
+      toggleGrid: coreInfo.readOnly ? null : toggleGrid,
+      gridOn: coreInfo.backgroundPattern == CanvasBackgroundPattern.grid,
     );
 
     final Widget toolbar = Collapsible(
@@ -2995,8 +2987,7 @@ class EditorState extends State<Editor> {
                         selectedIcon: const Icon(Icons.view_sidebar_rounded),
                         isSelected: shown,
                         tooltip: DefterStrings.pageSidebar,
-                        onPressed: () =>
-                            stows.editorPageSidebar.value = !shown,
+                        onPressed: () => stows.editorPageSidebar.value = !shown,
                       ),
                     ),
                   ValueListenableBuilder(
@@ -3040,7 +3031,9 @@ class EditorState extends State<Editor> {
                       }
                       return IconButton(
                         icon: Icon(
-                          recording ? Icons.stop_circle_rounded : Symbols.speed_rounded,
+                          recording
+                              ? Icons.stop_circle_rounded
+                              : Symbols.speed_rounded,
                           color: recording ? Colors.red : null,
                         ),
                         tooltip: recording
@@ -3068,7 +3061,9 @@ class EditorState extends State<Editor> {
                           coreInfo.pages[pageIndex].bookmarked;
                       return IconButton(
                         icon: Icon(
-                          bookmarked ? Icons.bookmark_rounded : Symbols.bookmark_rounded,
+                          bookmarked
+                              ? Icons.bookmark_rounded
+                              : Symbols.bookmark_rounded,
                         ),
                         tooltip: DefterStrings.bookmark,
                         onPressed: coreInfo.readOnly
@@ -3323,53 +3318,52 @@ class EditorState extends State<Editor> {
   /// [FloatEditorBar]).
   GnEditorBar _gnEditorBar(Toolbar spec) {
     return GnEditorBar(
-        controller: _gn,
-        spec: spec,
-        paths: _usesTabs ? OpenTabs.paths.value : const [],
-        currentPath: _tabPath,
-        currentName: widget.customTitle ?? coreInfo.fileName,
-        onSelectTab: switchToTab,
-        onCloseTab: closeTab,
-        onNewTab: () => Navigator.of(context).maybePop(),
-        onRename: _showRenameDialog,
-        savingState: savingState,
-        triggerSave: saveToFile,
-        sidebarAvailable:
-            MediaQuery.sizeOf(context).width >= PageSidebar.minScreenWidth,
-        sidebarShown: stows.editorPageSidebar.value,
-        onToggleSidebar: () =>
-            stows.editorPageSidebar.value = !stows.editorPageSidebar.value,
-        onAskNotes: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => const AskNotesPage()),
-        ),
-        onAddPage: () => setState(() {
-          final currentPageIndex = this.currentPageIndex;
-          insertPageAfter(currentPageIndex);
-          CanvasGestureDetector.scrollToPage(
-            pageIndex: currentPageIndex + 1,
-            pages: coreInfo.pages,
-            screenWidth: _viewportWidth,
-            transformationController: _transformationController,
-          );
-        }),
-        onRecordings: () => showDialog<void>(
-          context: context,
-          builder: (_) => RecordingsDialog(notePath: coreInfo.filePath),
-        ),
-        showPenProbe: stows.penProbe.value,
-        onPenProbe: _togglePenProbe,
-        onMore: () => showModalBottomSheet(
-          context: context,
-          builder: (context) => bottomSheet(context),
-          isScrollControlled: true,
-          showDragHandle: true,
-          backgroundColor: ColorScheme.of(context).surface,
-          constraints: const BoxConstraints(maxWidth: 500),
-        ),
-        visiblePage: _visiblePageIndex,
-        pageCount: coreInfo.pages.length,
-        onPages: showPageGrid,
-      );
+      controller: _gn,
+      spec: spec,
+      paths: _usesTabs ? OpenTabs.paths.value : const [],
+      currentPath: _tabPath,
+      currentName: widget.customTitle ?? coreInfo.fileName,
+      onSelectTab: switchToTab,
+      onCloseTab: closeTab,
+      onNewTab: () => Navigator.of(context).maybePop(),
+      onRename: _showRenameDialog,
+      savingState: savingState,
+      triggerSave: saveToFile,
+      sidebarAvailable:
+          MediaQuery.sizeOf(context).width >= PageSidebar.minScreenWidth,
+      sidebarShown: stows.editorPageSidebar.value,
+      onToggleSidebar: () =>
+          stows.editorPageSidebar.value = !stows.editorPageSidebar.value,
+      onAskNotes: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => const AskNotesPage())),
+      onAddPage: () => setState(() {
+        final currentPageIndex = this.currentPageIndex;
+        insertPageAfter(currentPageIndex);
+        CanvasGestureDetector.scrollToPage(
+          pageIndex: currentPageIndex + 1,
+          pages: coreInfo.pages,
+          screenWidth: _viewportWidth,
+          transformationController: _transformationController,
+        );
+      }),
+      onRecordings: () => showDialog<void>(
+        context: context,
+        builder: (_) => RecordingsDialog(notePath: coreInfo.filePath),
+      ),
+      showPenProbe: stows.penProbe.value,
+      onPenProbe: _togglePenProbe,
+      onMore: () => showModalBottomSheet(
+        context: context,
+        builder: (context) => bottomSheet(context),
+        isScrollControlled: true,
+        showDragHandle: true,
+        backgroundColor: ColorScheme.of(context).surface,
+        constraints: const BoxConstraints(maxWidth: 500),
+      ),
+      visiblePage: _visiblePageIndex,
+      pageCount: coreInfo.pages.length,
+      onPages: showPageGrid,
+    );
   }
 
   Future<void> _showRenameDialog() async {

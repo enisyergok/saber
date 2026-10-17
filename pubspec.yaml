@@ -270,6 +270,7 @@ flutter:
 
   shaders:
     - shaders/pencil.frag
+    - shaders/ink_capsule.frag
 
 
 # ./scripts/generate_icons.sh

@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:perfect_freehand/perfect_freehand.dart';
+import 'package:saber/data/tools/stylus_profile.dart';
 import 'package:saber/data/tools/pressure_curve.dart';
 
 /// The writing pens whose line follows the settings of the pen panel.
-enum PenKind { fountain, ballpoint, brush, calligraphy }
+enum PenKind { fountain, ballpoint, brush, calligraphy, creative }
 
 /// How the pen panel's settings (pressure sensitivity, tip sharpness, the
 /// pressure curve) and the stylus' pressure become the shape of a line.
@@ -20,9 +21,13 @@ abstract class PenFeel {
   /// making a deliberate pressure change feel delayed. Notewise's ink
   /// resources use a similarly quiet pressure-to-width transition: the
   /// stroke should widen continuously, not in visible steps.
-  static double smoothPressure(double current, double? previous) {
+  static double smoothPressure(
+    double current,
+    double? previous, {
+    bool creative = false,
+  }) {
     if (previous == null) return current.clamp(0.0, 1.0);
-    const response = 0.72;
+    final response = creative ? 0.58 : StylusProfile.pressureResponse;
     return (previous + (current - previous) * response).clamp(0.0, 1.0);
   }
 
@@ -50,6 +55,7 @@ abstract class PenFeel {
       PenKind.brush => s == 0 ? 0 : 0.6 + 0.4 * s,
       // Here it is the contrast between thin and thick strokes.
       PenKind.calligraphy => s == 0 ? 0 : 0.5 + 0.5 * s,
+      PenKind.creative => s == 0 ? 0 : 0.72 + 0.28 * s,
     };
   }
 
@@ -66,6 +72,7 @@ abstract class PenFeel {
       PenKind.ballpoint => (0, 0),
       PenKind.brush => (size * 3 * s, size * 6 * s),
       PenKind.calligraphy => (0, 0),
+      PenKind.creative => (size * 2 * s, size * 5 * s),
     };
   }
 

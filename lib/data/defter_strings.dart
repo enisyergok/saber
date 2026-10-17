@@ -14,7 +14,8 @@ abstract class DefterStrings {
       _tr ? 'Tükenmez Kalem' : 'Ballpoint Pen';
   // -- pen settings panel --------------------------------------------------
   static String get penSettingsTitle => _tr ? 'Kalem Ayarları' : 'Pen Settings';
-  static String get calligraphyPen => _tr ? 'Kaligrafi Kalemi' : 'Calligraphy Pen';
+  static String get calligraphyPen =>
+      _tr ? 'Kaligrafi Kalemi' : 'Calligraphy Pen';
   static String get styleFountain => _tr ? 'Dolma Kalem' : 'Fountain';
   static String get styleBallpoint => _tr ? 'Tükenmez' : 'Ballpoint';
   static String get styleBrush => _tr ? 'Fırça' : 'Brush';
@@ -25,7 +26,8 @@ abstract class DefterStrings {
   static String get basicSettings => _tr ? 'Temel Ayarlar' : 'Basic Settings';
   static String get reset => _tr ? 'Sıfırla' : 'Reset';
   static String get opacityLabel => _tr ? 'Opaklık' : 'Opacity';
-  static String get tipSharpnessLabel => _tr ? 'Uç Keskinliği' : 'Tip Sharpness';
+  static String get tipSharpnessLabel =>
+      _tr ? 'Uç Keskinliği' : 'Tip Sharpness';
   static String get pressureSensitivityLabel =>
       _tr ? 'Basınç Duyarlılığı' : 'Pressure Sensitivity';
   static String get lineStabilizationLabel =>
@@ -66,11 +68,11 @@ abstract class DefterStrings {
   static String get profileDelete => _tr ? 'Sil' : 'Delete';
   static String get profilesRestore =>
       _tr ? 'Hazır profilleri geri yükle' : 'Restore the built-in profiles';
-  static String get resetPen =>
-      _tr ? 'Bu kalemi sıfırla' : 'Reset this pen';
+  static String get resetPen => _tr ? 'Bu kalemi sıfırla' : 'Reset this pen';
   static String get cancelWord => _tr ? 'Vazgeç' : 'Cancel';
   static String get myProfile => _tr ? 'Profilim' : 'My profile';
-  static String get customProfileHint => _tr ? 'Kendi ayarım' : 'My own settings';
+  static String get customProfileHint =>
+      _tr ? 'Kendi ayarım' : 'My own settings';
   static String get profileNotes => _tr ? 'Not Alma' : 'Note Taking';
   static String get profileNotesHint =>
       _tr ? 'Günlük kullanım için' : 'For everyday use';
@@ -80,7 +82,8 @@ abstract class DefterStrings {
   static String get profileSketch => _tr ? 'Çizim' : 'Sketching';
   static String get profileSketchHint =>
       _tr ? 'Yumuşak ve akıcı' : 'Soft and flowing';
-  static String get profileTechnical => _tr ? 'Teknik Çizim' : 'Technical Drawing';
+  static String get profileTechnical =>
+      _tr ? 'Teknik Çizim' : 'Technical Drawing';
   static String get profileTechnicalHint =>
       _tr ? 'Hassas ve stabil' : 'Precise and steady';
   static String get profileEngineering => _tr ? 'Mühendislik' : 'Engineering';
@@ -91,7 +94,13 @@ abstract class DefterStrings {
       _tr ? 'Vurgulama için' : 'For highlighting';
 
   static String get brushPen => _tr ? 'Fırça Uçlu Kalem' : 'Brush Pen';
+  static String get creativeBrush => _tr ? 'Yaratıcı Fırça' : 'Creative Brush';
   static String get penGestures => _tr ? 'Kalem hareketleri' : 'Pen gestures';
+  static String get huaweiPenMode =>
+      _tr ? 'Huawei Pen 2 modu' : 'Huawei Pen 2 mode';
+  static String get huaweiPenModeSubtitle => _tr
+      ? 'M-Pencil basınç geçişlerini kalibre eder'
+      : 'Tunes M-Pencil pressure transitions';
 
   static String get pressureAuto =>
       _tr ? 'Basıncı otomatik ayarla' : 'Adjust pressure automatically';
@@ -106,9 +115,8 @@ abstract class DefterStrings {
   static String get allPages => _tr ? 'Tümü' : 'All';
   static String get bookmarks => _tr ? 'Yer imleri' : 'Bookmarks';
   static String get bookmark => _tr ? 'Yer imi' : 'Bookmark';
-  static String get noBookmarks => _tr
-      ? 'Henüz yer imi eklenmiş sayfa yok'
-      : 'No bookmarked pages yet';
+  static String get noBookmarks =>
+      _tr ? 'Henüz yer imi eklenmiş sayfa yok' : 'No bookmarked pages yet';
   static String get editPages =>
       _tr ? 'Sayfaları düzenle ve sırala' : 'Edit and reorder pages';
   static String get thickness => _tr ? 'Kalınlık' : 'Thickness';
@@ -185,8 +193,7 @@ abstract class DefterStrings {
   static String get trashSubtitle => _tr
       ? 'Silinen notları geri al veya kalıcı olarak sil'
       : 'Restore deleted notes or remove them for good';
-  static String get trashEmpty =>
-      _tr ? 'Çöp kutusu boş' : 'The trash is empty';
+  static String get trashEmpty => _tr ? 'Çöp kutusu boş' : 'The trash is empty';
   static String get restore => _tr ? 'Geri al' : 'Restore';
   static String get deleteForever =>
       _tr ? 'Kalıcı olarak sil' : 'Delete forever';
@@ -210,8 +217,7 @@ abstract class DefterStrings {
   static String get search => _tr ? 'Ara' : 'Search';
   static String get searchHint =>
       _tr ? 'Not adı veya içerik ara' : 'Search note names and text';
-  static String get searchNoResults =>
-      _tr ? 'Sonuç bulunamadı' : 'No results';
+  static String get searchNoResults => _tr ? 'Sonuç bulunamadı' : 'No results';
   static String get searchIndexing =>
       _tr ? 'Notlar taranıyor…' : 'Indexing notes…';
 
@@ -219,18 +225,21 @@ abstract class DefterStrings {
   static String get eraserSize => _tr ? 'Silgi boyutu' : 'Eraser size';
 
   // Pen latency probe
-  static String get penProbe => _tr ? 'Kalem gecikme ölçümü' : 'Pen latency measurement';
+  static String get penProbe =>
+      _tr ? 'Kalem gecikme ölçümü' : 'Pen latency measurement';
   static String get penProbeSubtitle => _tr
       ? 'Editörde bir ölçüm düğmesi gösterir: kaydı başlat, kalemle yaz, durdur'
       : 'Shows a measure button in the editor: start, write with the pen, stop';
   static String get penProbeStart => _tr ? 'Ölçümü başlat' : 'Start measuring';
   static String get penProbeStop => _tr ? 'Ölçümü bitir' : 'Stop measuring';
-  static String get penProbeResult => _tr ? 'Gecikme ölçümü' : 'Latency measurement';
+  static String get penProbeResult =>
+      _tr ? 'Gecikme ölçümü' : 'Latency measurement';
   static String get penProbeCopy => _tr ? 'Kopyala' : 'Copy';
   static String get penProbeCopied => _tr ? 'Kopyalandı' : 'Copied';
 
   // Stylus button
-  static String get stylusAction => _tr ? 'Kalem çift dokunuşu' : 'Pen double tap';
+  static String get stylusAction =>
+      _tr ? 'Kalem çift dokunuşu' : 'Pen double tap';
   static String get stylusActionSubtitle => _tr
       ? 'Kalemin yan tuşuna ya da çift dokunuşuna basınca yapılacak iş'
       : 'What happens when the pen\'s side button or double tap is used';
@@ -245,7 +254,8 @@ abstract class DefterStrings {
   static String get stylusTestHint => _tr
       ? 'Kalemi aşağıdaki alana tutun ve çift dokunuşu ya da yan tuşu deneyin. Gelen her sinyal listelenir.'
       : 'Hold the pen over the area below and try the double tap or the side button. Every signal is listed.';
-  static String get stylusTestNothing => _tr ? 'Henüz sinyal yok' : 'No signals yet';
+  static String get stylusTestNothing =>
+      _tr ? 'Henüz sinyal yok' : 'No signals yet';
   static String get stylusTestDetected =>
       _tr ? 'Bu bir kalem tuşu sinyali' : 'This is a pen button signal';
   static String get stylusTestNative => _tr
@@ -261,13 +271,16 @@ abstract class DefterStrings {
   static String get stylusRedo => _tr ? 'Yinele' : 'Redo';
 
   // PDF
-  static String get pdfTools => _tr ? 'PDF: ara ve içindekiler' : 'PDF: search and contents';
-  static String get pdfSearchHint => _tr ? 'PDF içinde ara' : 'Search in the PDF';
+  static String get pdfTools =>
+      _tr ? 'PDF: ara ve içindekiler' : 'PDF: search and contents';
+  static String get pdfSearchHint =>
+      _tr ? 'PDF içinde ara' : 'Search in the PDF';
   static String get pdfNoText => _tr
       ? 'Bu PDF\'te aranabilir metin yok (taranmış olabilir)'
       : 'This PDF has no searchable text (it may be a scan)';
-  static String get pdfNoOutline =>
-      _tr ? 'Bu PDF\'te içindekiler listesi yok' : 'This PDF has no table of contents';
+  static String get pdfNoOutline => _tr
+      ? 'Bu PDF\'te içindekiler listesi yok'
+      : 'This PDF has no table of contents';
   static String get pdfContents => _tr ? 'İçindekiler' : 'Contents';
   static String get pdfSearch => _tr ? 'Ara' : 'Search';
   static String pdfPageLabel(int page) => _tr ? 'Sayfa $page' : 'Page $page';
@@ -282,8 +295,9 @@ abstract class DefterStrings {
   static String get pdfPickHint => _tr
       ? 'Sayfaları işaretleyip nota sayfa olarak alın, ya da kalemle sayfanın bir yerini çevreleyip yalnızca orayı resim veya metin olarak alın. İki parmakla yakınlaştırılır.'
       : 'Tick pages to take them as pages of the note, or mark a part of the page with the pen to take only that as a picture or as text. Two fingers zoom.';
-  static String get pdfPickReadingText =>
-      _tr ? 'Seçilen yerdeki metin okunuyor…' : 'Reading the text in the marked part…';
+  static String get pdfPickReadingText => _tr
+      ? 'Seçilen yerdeki metin okunuyor…'
+      : 'Reading the text in the marked part…';
   static String pdfPickTextFound(String text) =>
       _tr ? 'Metin: $text' : 'Text: $text';
   static String get pdfPickNoText => _tr
@@ -382,14 +396,17 @@ abstract class DefterStrings {
   static String get pdfCropTop => _tr ? 'Üst' : 'Top';
   static String get pdfCropRight => _tr ? 'Sağ' : 'Right';
   static String get pdfCropBottom => _tr ? 'Alt' : 'Bottom';
-  static String get pdfCropAllPages =>
-      _tr ? 'Aynı PDF\'in tüm sayfalarına uygula' : 'Apply to all pages of this PDF';
+  static String get pdfCropAllPages => _tr
+      ? 'Aynı PDF\'in tüm sayfalarına uygula'
+      : 'Apply to all pages of this PDF';
   static String get pdfCropApply => _tr ? 'Uygula' : 'Apply';
   static String get pdfCropReset => _tr ? 'Sıfırla' : 'Reset';
 
   // Handwriting recognition
-  static String get recognize => _tr ? 'Yazıyı metne çevir' : 'Convert handwriting to text';
-  static String get recognizing => _tr ? 'Yazı okunuyor…' : 'Reading handwriting…';
+  static String get recognize =>
+      _tr ? 'Yazıyı metne çevir' : 'Convert handwriting to text';
+  static String get recognizing =>
+      _tr ? 'Yazı okunuyor…' : 'Reading handwriting…';
   static String get recognizeNoKey => _tr
       ? 'Önce Ayarlar > El yazısı tanıma bölümünden OpenRouter anahtarını gir.'
       : 'First enter your OpenRouter key in Settings > Handwriting recognition.';
@@ -407,10 +424,12 @@ abstract class DefterStrings {
       ? 'Yazı Google ML Kit ile telefonda/tablette okunur; hiçbir şey dışarı gitmez. Dil modeli bir kez indirilir. Okunamazsa ve anahtar varsa OpenRouter denenir.'
       : 'Writing is read on the device with Google ML Kit; nothing leaves it. The language model is downloaded once. If that fails and a key is set, OpenRouter is tried.';
   static String get inkLanguage => _tr ? 'Yazı dili' : 'Writing language';
-  static String get inkCheckModel =>
-      _tr ? 'Dil modelini indir / kontrol et' : 'Download / check language model';
-  static String get inkModelReady =>
-      _tr ? 'Dil modeli hazır, internet gerekmeden okunur.' : 'The language model is ready; reading works offline.';
+  static String get inkCheckModel => _tr
+      ? 'Dil modelini indir / kontrol et'
+      : 'Download / check language model';
+  static String get inkModelReady => _tr
+      ? 'Dil modeli hazır, internet gerekmeden okunur.'
+      : 'The language model is ready; reading works offline.';
   static String inkModelFailed(String why) => _tr
       ? 'Dil modeli indirilemedi (ilk indirme için internet gerekir): $why'
       : 'Could not download the language model (the first download needs the internet): $why';
@@ -430,15 +449,17 @@ abstract class DefterStrings {
   static String get save => _tr ? 'Kaydet' : 'Save';
   static String get handwritingSettings =>
       _tr ? 'El yazısı tanıma' : 'Handwriting recognition';
-  static String get handwritingSettingsSubtitle => _tr
-      ? 'OpenRouter anahtarı ve model'
-      : 'OpenRouter key and model';
-  static String get apiKey => _tr ? 'OpenRouter API anahtarı' : 'OpenRouter API key';
+  static String get handwritingSettingsSubtitle =>
+      _tr ? 'OpenRouter anahtarı ve model' : 'OpenRouter key and model';
+  static String get apiKey =>
+      _tr ? 'OpenRouter API anahtarı' : 'OpenRouter API key';
   static String get modelName => _tr ? 'Model' : 'Model';
-  static String get resetDefault => _tr ? 'Varsayılana dön' : 'Reset to default';
+  static String get resetDefault =>
+      _tr ? 'Varsayılana dön' : 'Reset to default';
 
   // Goodnotes-style editor layout
-  static String get gnLayout => _tr ? 'Goodnotes tarzı arayüz' : 'Goodnotes-style editor';
+  static String get gnLayout =>
+      _tr ? 'Goodnotes tarzı arayüz' : 'Goodnotes-style editor';
   static String get gnLayoutSubtitle => _tr
       ? 'Koyu üst bar, sekmeler ve yüzen araç şeridi. Kapatınca eski araç çubuğuna dönülür.'
       : 'Dark top bar, tabs and a floating tool strip. Turn off to get the old toolbar back.';
@@ -458,8 +479,9 @@ abstract class DefterStrings {
   static String get pressureFlat => _tr
       ? 'Basınç değeri değişmiyor. Kalemi hafif ve sert bastırarak dene.'
       : 'The pressure value is not changing. Try pressing lightly and hard.';
-  static String get pressureWorks =>
-      _tr ? 'Basınç değişiyor: kalem basıncı bildiriyor.' : 'Pressure varies: the pen reports it.';
+  static String get pressureWorks => _tr
+      ? 'Basınç değişiyor: kalem basıncı bildiriyor.'
+      : 'Pressure varies: the pen reports it.';
   static String get paperColor => _tr ? 'Kâğıt rengi' : 'Paper colour';
 
   static String paperCategory(String? key) => switch (key) {
@@ -473,15 +495,19 @@ abstract class DefterStrings {
 
   // Paper templates
   static String get paperYearly => _tr ? 'Yıllık planlayıcı' : 'Yearly planner';
-  static String get paperClassSchedule => _tr ? 'Ders programı' : 'Class schedule';
+  static String get paperClassSchedule =>
+      _tr ? 'Ders programı' : 'Class schedule';
   static String get paperHabits => _tr ? 'Alışkanlık takibi' : 'Habit tracker';
   static String get paperBudget => _tr ? 'Bütçe planlayıcı' : 'Budget planner';
   static String get paperMeals => _tr ? 'Yemek planlayıcı' : 'Meal planner';
-  static String get paperTravel => _tr ? 'Seyahat planlayıcı' : 'Travel planner';
-  static String get paperProject => _tr ? 'Proje planlayıcı' : 'Project planner';
+  static String get paperTravel =>
+      _tr ? 'Seyahat planlayıcı' : 'Travel planner';
+  static String get paperProject =>
+      _tr ? 'Proje planlayıcı' : 'Project planner';
   static String get paperWater => _tr ? 'Su takibi' : 'Water tracker';
   static String get paperReading => _tr ? 'Kitap okuma takibi' : 'Reading log';
-  static String get paperShopping => _tr ? 'Alışveriş listesi' : 'Shopping list';
+  static String get paperShopping =>
+      _tr ? 'Alışveriş listesi' : 'Shopping list';
   static String get paperMindMap => _tr ? 'Zihin haritası' : 'Mind map';
   static String get paperConceptMap => _tr ? 'Kavram haritası' : 'Concept map';
   static String get paperFlowchart => _tr ? 'Akış şeması' : 'Flowchart';
@@ -500,7 +526,8 @@ abstract class DefterStrings {
   static String get paperMillimetre => _tr ? 'Milimetrik' : 'Millimetre';
   static String get paperCircuit => _tr ? 'Devre şeması' : 'Circuit';
   static String get paperPcb => _tr ? 'PCB ızgarası' : 'PCB grid';
-  static String get paperBlockDiagram => _tr ? 'Blok diyagram' : 'Block diagram';
+  static String get paperBlockDiagram =>
+      _tr ? 'Blok diyagram' : 'Block diagram';
   static String get paperGantt => _tr ? 'Gantt şeması' : 'Gantt chart';
   static String get paperMeasureTable =>
       _tr ? 'Ölçüm tablosu' : 'Measurement table';
@@ -510,10 +537,12 @@ abstract class DefterStrings {
       _tr ? 'İlişki şeması' : 'Relationship diagram';
   static String get paperAcademicPlanner =>
       _tr ? 'Akademik planlayıcı' : 'Academic planner';
-  static String get paperGoalPlanner => _tr ? 'Hedef planlayıcı' : 'Goal planner';
+  static String get paperGoalPlanner =>
+      _tr ? 'Hedef planlayıcı' : 'Goal planner';
   static String get paperFinancePlanner =>
       _tr ? 'Finans planlayıcı' : 'Finance planner';
-  static String get paperMoodTracker => _tr ? 'Ruh hali takibi' : 'Mood tracker';
+  static String get paperMoodTracker =>
+      _tr ? 'Ruh hali takibi' : 'Mood tracker';
   static String get paperStudentPlanner =>
       _tr ? 'Öğrenci planlayıcı' : 'Student planner';
   static String get paperLedger => _tr ? 'Hesap defteri' : 'Ledger';
@@ -563,8 +592,7 @@ abstract class DefterStrings {
   static String get noRecentNotes => _tr
       ? 'Henüz not yok. "Yeni Not" ile başlayın.'
       : 'No notes yet. Start with "New Note".';
-  static String get noFolders =>
-      _tr ? 'Henüz klasör yok.' : 'No folders yet.';
+  static String get noFolders => _tr ? 'Henüz klasör yok.' : 'No folders yet.';
   static String itemCount(int count) => _tr ? '$count öğe' : '$count items';
   static String templatesOf(String group) =>
       _tr ? '$group Şablonları' : '$group Templates';
@@ -581,8 +609,7 @@ abstract class DefterStrings {
       _tr
           ? 'Bu cihazda kamera uygulaması bulunamadı.'
           : 'No camera app was found on this device.',
-    'busy' =>
-      _tr ? 'Kamera zaten açık.' : 'The camera is already open.',
+    'busy' => _tr ? 'Kamera zaten açık.' : 'The camera is already open.',
     _ =>
       _tr
           ? 'Fotoğraf alınamadı. Lütfen yeniden deneyin.'
@@ -599,8 +626,7 @@ abstract class DefterStrings {
       _tr
           ? 'Dosya boş ya da içinde sayfa yok.'
           : 'The file is empty or has no pages.',
-    'notPdf' =>
-      _tr ? 'Bu dosya bir PDF değil.' : 'This file is not a PDF.',
+    'notPdf' => _tr ? 'Bu dosya bir PDF değil.' : 'This file is not a PDF.',
     'locked' =>
       _tr
           ? 'Bu PDF parola ile korunuyor. Parolasız bir kopyasını içe aktarın.'
@@ -678,7 +704,8 @@ abstract class DefterStrings {
   static String get topicProject => _tr ? 'Proje' : 'Project';
   static String get topicFood => _tr ? 'Yemek' : 'Food';
   static String get topicTravel => _tr ? 'Seyahat' : 'Travel';
-  static String get topicTechnical => _tr ? 'Teknik Çizim' : 'Technical Drawing';
+  static String get topicTechnical =>
+      _tr ? 'Teknik Çizim' : 'Technical Drawing';
   static String get topicElectronics =>
       _tr ? 'Elektrik-Elektronik' : 'Electronics';
   static String get topicMechanical => _tr ? 'Mekanik' : 'Mechanical';
@@ -734,8 +761,34 @@ abstract class DefterStrings {
   static String get labelEnd => _tr ? 'Bitiş' : 'End';
 
   static List<String> get months => _tr
-      ? const ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
-      : const ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      ? const [
+          'Ocak',
+          'Şubat',
+          'Mart',
+          'Nisan',
+          'Mayıs',
+          'Haziran',
+          'Temmuz',
+          'Ağustos',
+          'Eylül',
+          'Ekim',
+          'Kasım',
+          'Aralık',
+        ]
+      : const [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ];
   static String get labelYear => _tr ? 'Yıl' : 'Year';
   static String get labelHabit => _tr ? 'Alışkanlık' : 'Habit';
   static String get labelIncome => _tr ? 'Gelir' : 'Income';
@@ -759,7 +812,8 @@ abstract class DefterStrings {
   static String get labelRating => _tr ? 'Puan' : 'Rating';
   static String get labelSummary => _tr ? 'Özet' : 'Summary';
   static String get labelQuotes => _tr ? 'Alıntılar' : 'Quotes';
-  static String get labelShopping => _tr ? 'Alışveriş listesi' : 'Shopping list';
+  static String get labelShopping =>
+      _tr ? 'Alışveriş listesi' : 'Shopping list';
   static String get labelWater => _tr ? 'Su (bardak)' : 'Water (glasses)';
   static String get labelRecipe => _tr ? 'Tarif' : 'Recipe';
   static String get labelIngredients => _tr ? 'Malzemeler' : 'Ingredients';
@@ -785,8 +839,10 @@ abstract class DefterStrings {
   static String get paperThreeColumns => _tr ? 'Üç sütun' : 'Three columns';
   static String get paperFourColumns => _tr ? 'Dört sütun' : 'Four columns';
   static String get paperSideSplit => _tr ? 'Yan bölmeli' : 'Cue column';
-  static String get paperTopBottom => _tr ? 'Üst-alt bölmeli' : 'Top and bottom';
-  static String get paperVerticalSplit => _tr ? 'Dikey bölmeli' : 'Side by side';
+  static String get paperTopBottom =>
+      _tr ? 'Üst-alt bölmeli' : 'Top and bottom';
+  static String get paperVerticalSplit =>
+      _tr ? 'Dikey bölmeli' : 'Side by side';
   static String get paperSquareSplit => _tr ? 'Kare bölmeli' : 'Four boxes';
   static String get paperTitled => _tr ? 'Başlıklı' : 'With title';
   static String get paperBullets => _tr ? 'Madde işaretli' : 'Bullets';
@@ -797,8 +853,24 @@ abstract class DefterStrings {
 
   /// Labels printed on the planner templates.
   static List<String> get weekDays => _tr
-      ? const ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar']
-      : const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      ? const [
+          'Pazartesi',
+          'Salı',
+          'Çarşamba',
+          'Perşembe',
+          'Cuma',
+          'Cumartesi',
+          'Pazar',
+        ]
+      : const [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ];
   static List<String> get weekDaysShort => _tr
       ? const ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz']
       : const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -823,26 +895,29 @@ abstract class DefterStrings {
 
   // Handwriting search
   static String searchPage(int page) => _tr ? 's. $page' : 'p. $page';
-  static String get hwSection => _tr ? 'El yazısı araması' : 'Handwriting search';
+  static String get hwSection =>
+      _tr ? 'El yazısı araması' : 'Handwriting search';
   static String get hwAdd => _tr ? 'Aramaya ekle' : 'Add to search';
   static String get hwRefresh => _tr ? 'Aramayı yenile' : 'Refresh search text';
-  static String get hwNone =>
-      _tr ? 'El yazısı henüz aramaya eklenmedi' : 'Handwriting is not in search yet';
+  static String get hwNone => _tr
+      ? 'El yazısı henüz aramaya eklenmedi'
+      : 'Handwriting is not in search yet';
   static String get hwDone => _tr ? 'Aramaya eklendi' : 'Added to search';
   static String get hwOutdated => _tr
       ? 'Not o zamandan beri değişti; yenilemek için dokun'
       : 'The note changed since; tap to refresh';
-  static String get hwNoWriting =>
-      _tr ? 'Notta kalemle yazılmış bir şey yok' : 'There is no pen writing in this note';
+  static String get hwNoWriting => _tr
+      ? 'Notta kalemle yazılmış bir şey yok'
+      : 'There is no pen writing in this note';
   static String get hwConfirmTitle =>
       _tr ? 'El yazısı aramaya eklensin mi?' : 'Add handwriting to search?';
   static String hwConfirmBody(int pictures) => _tr
       ? 'Bu notun el yazısı $pictures parça halinde resim olarak OpenRouter\'a '
-          'gönderilir ve okunan metin yalnızca bu cihazda saklanır. Notun '
-          'kendisi değişmez. Eklendikten sonra arama çevrimdışı çalışır.'
+            'gönderilir ve okunan metin yalnızca bu cihazda saklanır. Notun '
+            'kendisi değişmez. Eklendikten sonra arama çevrimdışı çalışır.'
       : 'The handwriting of this note is sent to OpenRouter as $pictures '
-          'pictures and the text that comes back is kept only on this device. '
-          'The note itself is not changed. Searching works offline once added.';
+            'pictures and the text that comes back is kept only on this device. '
+            'The note itself is not changed. Searching works offline once added.';
   static String hwCapped(int max) => _tr
       ? 'Not çok uzun: yalnızca ilk $max parça okunur.'
       : 'This note is very long: only the first $max pieces are read.';
@@ -855,8 +930,9 @@ abstract class DefterStrings {
 
   // Ask my notes
   static String get askNotes => _tr ? 'Notlarıma sor' : 'Ask my notes';
-  static String get askHint =>
-      _tr ? 'Notlarında ne arıyorsun?' : 'What are you looking for in your notes?';
+  static String get askHint => _tr
+      ? 'Notlarında ne arıyorsun?'
+      : 'What are you looking for in your notes?';
   static String get askNoNotes => _tr
       ? 'Notlarında bununla ilgili bir şey bulamadım'
       : 'I found nothing about this in your notes';
@@ -910,15 +986,15 @@ abstract class DefterStrings {
       : 'Notes work offline; waiting files are sent when the internet returns.';
 
   // Arrows
-  static String get shapeArrows => _tr ? 'Çizgilere ok ucu' : 'Arrowheads on lines';
+  static String get shapeArrows =>
+      _tr ? 'Çizgilere ok ucu' : 'Arrowheads on lines';
   static String get shapeArrowsSubtitle => _tr
       ? 'Şekil kalemiyle çizdiğin düz çizgilerin ucuna ok ekler'
       : 'Adds an arrowhead to straight lines drawn with the shape pen';
 
   static String get opacity => _tr ? 'Saydamlık' : 'Opacity';
 
-  static String get pageSidebar =>
-      _tr ? 'Sayfa paneli' : 'Page sidebar';
+  static String get pageSidebar => _tr ? 'Sayfa paneli' : 'Page sidebar';
 
   // Shapes
   static String get holdToSnap =>
@@ -937,16 +1013,14 @@ abstract class DefterStrings {
       : 'Draws the line straight into the buffer the screen is showing (front buffer) while writing, for less lag';
   static String get floatQuickControls =>
       _tr ? 'Hızlı ayarlar' : 'Quick options';
-  static String get floatPenDetails =>
-      _tr ? 'Kalem ayarları' : 'Pen settings';
+  static String get floatPenDetails => _tr ? 'Kalem ayarları' : 'Pen settings';
   static String get floatTabs => _tr ? 'Açık notlar' : 'Open notes';
   static String get floatLayout =>
       _tr ? 'Yüzen araç kutusu' : 'Floating tool box';
   static String get floatLayoutSubtitle => _tr
       ? 'Sayfa tüm ekranı kaplar; araçlar üstte yüzen kapsüllerde, seçili aracın ayarları hemen altında'
       : 'The page fills the screen; the tools float in capsules at the top, with the options of the tool in use right under them';
-  static String get penPredict =>
-      _tr ? 'Kalem tahmini' : 'Pen prediction';
+  static String get penPredict => _tr ? 'Kalem tahmini' : 'Pen prediction';
   static String get penPredictSubtitle => _tr
       ? 'Hızlı canlı çizgi açıkken çizgiyi kalemin biraz önüne, kalemin gideceği yere çizer (Kalman). Tahmin edilen parça kaydedilmez, kalem kalkınca silinir'
       : 'With fast live ink on, draws the line slightly ahead of the pen, where it is heading (Kalman). The guessed part is never saved and goes away when the pen lifts';
@@ -975,18 +1049,15 @@ abstract class DefterStrings {
   static String get eInkModeSubtitle => _tr
       ? 'Uygulamayı ve notları gri tonlarda, kâğıt gibi gösterir. Yalnızca görünümdür; notların renkleri değişmez.'
       : 'Shows the app and notes in greys on paper. Only the view changes; the notes keep their colours.';
-  static String get eInkPaperWarmth =>
-      _tr ? 'Kâğıt sıcaklığı' : 'Paper warmth';
+  static String get eInkPaperWarmth => _tr ? 'Kâğıt sıcaklığı' : 'Paper warmth';
   static String get eInkInkDarkness =>
       _tr ? 'Mürekkep koyuluğu' : 'Ink darkness';
   static String get eInkTexture => _tr ? 'Kâğıt dokusu' : 'Paper texture';
-  static String get eInkRefresh =>
-      _tr ? 'Yenileme efekti' : 'Refresh effect';
+  static String get eInkRefresh => _tr ? 'Yenileme efekti' : 'Refresh effect';
   static String get eInkRefreshSubtitle => _tr
       ? 'Sayfa değişince hafif bir yenileme. Yazarken hiç çalışmaz; "hareketi azalt" açıksa kapalıdır.'
       : 'A light refresh when turning pages. Never while writing; off when "reduce motion" is on.';
-  static String get eInkRefreshPage =>
-      _tr ? 'Sayfayı yenile' : 'Refresh page';
+  static String get eInkRefreshPage => _tr ? 'Sayfayı yenile' : 'Refresh page';
   static String get eInkGrayLevels =>
       _tr ? 'Sınırlı gri tonlar' : 'Limited grey tones';
   static String get eInkGrayLevelsSubtitle => _tr
@@ -1063,12 +1134,32 @@ abstract class DefterStrings {
       : (assets == 0 ? 'No attachments' : '$assets attachments');
 
   static const _monthsTr = [
-    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
+    'Ocak',
+    'Şubat',
+    'Mart',
+    'Nisan',
+    'Mayıs',
+    'Haziran',
+    'Temmuz',
+    'Ağustos',
+    'Eylül',
+    'Ekim',
+    'Kasım',
+    'Aralık',
   ];
   static const _monthsEn = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   /// A point in time the way it is said: "Bugün 14:05", "Dün 09:30" or
@@ -1080,9 +1171,11 @@ abstract class DefterStrings {
         '${time.minute.toString().padLeft(2, '0')}';
     // From midnight to midnight, in hours: a day is 23 to 25 of them,
     // whichever way the clocks were changed.
-    final gap = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(time.year, time.month, time.day))
-        .inHours;
+    final gap = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime(time.year, time.month, time.day)).inHours;
     if (gap == 0) return _tr ? 'Bugün $clock' : 'Today $clock';
     if (gap > 0 && gap <= 25) return _tr ? 'Dün $clock' : 'Yesterday $clock';
     final month = (_tr ? _monthsTr : _monthsEn)[time.month - 1];
@@ -1113,14 +1206,15 @@ abstract class DefterStrings {
   static String get backupTooLargeToSave => _tr
       ? 'Bu yedek "Cihaza kaydet" için çok büyük. "Paylaş / gönder" ile dosya yöneticinize veya Drive\'a gönderin.'
       : 'This backup is too large for "Save to device". Use "Share / send" to hand it to your file manager or Drive.';
-  static String get backupWriting => _tr ? 'Yedek yazılıyor…' : 'Writing the backup…';
+  static String get backupWriting =>
+      _tr ? 'Yedek yazılıyor…' : 'Writing the backup…';
   static String get backupVerifying =>
       _tr ? 'Yedek doğrulanıyor…' : 'Checking the backup…';
   static String get backupRestoring =>
       _tr ? 'Notlar geri yükleniyor…' : 'Restoring notes…';
-  static String get backupReading => _tr ? 'Yedek okunuyor…' : 'Reading the backup…';
-  static String backupProgress(String done, String total) =>
-      '$done / $total';
+  static String get backupReading =>
+      _tr ? 'Yedek okunuyor…' : 'Reading the backup…';
+  static String backupProgress(String done, String total) => '$done / $total';
   static String get backupReady =>
       _tr ? 'Yedek hazır ve doğrulandı' : 'The backup is ready and checked';
   static String backupSummary(int notes, int recordings, String size) => _tr
@@ -1131,8 +1225,9 @@ abstract class DefterStrings {
       : 'Now save this file somewhere off the device. It sits in the app\'s temporary space and goes when a new backup is made or the system frees space.';
   static String backupLast(String when) =>
       _tr ? 'Son oluşturulan yedek: $when' : 'Last backup made: $when';
-  static String get backupNone =>
-      _tr ? 'Bu cihazda henüz yedek oluşturulmadı' : 'No backup has been made on this device yet';
+  static String get backupNone => _tr
+      ? 'Bu cihazda henüz yedek oluşturulmadı'
+      : 'No backup has been made on this device yet';
   static String get backupFileGone => _tr
       ? 'Dosyası artık geçici alanda değil; gerekirse yeniden oluşturun.'
       : 'Its file is no longer in the temporary space; make a new one if needed.';
@@ -1158,9 +1253,7 @@ abstract class DefterStrings {
       : '$n notes are damaged in the backup and were left out';
   static String backupError(String failure) => switch (failure) {
     'notABackup' =>
-      _tr
-          ? 'Bu dosya Marj yedeği değil.'
-          : 'This file is not a Marj backup.',
+      _tr ? 'Bu dosya Marj yedeği değil.' : 'This file is not a Marj backup.',
     'newerFormat' =>
       _tr
           ? 'Bu yedek uygulamanın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.'
@@ -1173,18 +1266,17 @@ abstract class DefterStrings {
       _tr
           ? 'Yedek alınırken notlar değişti. Lütfen yeniden deneyin.'
           : 'Notes changed while the backup was made. Please try again.',
-    _ =>
-      _tr
-          ? 'Dosya okunamadı veya yazılamadı. Boş yer kalmamış olabilir.'
-          : 'A file could not be read or written. The device may be out of space.',
+    _ => _tr ? 'Dosya okunamadı veya yazılamadı. Boş yer kalmamış olabilir.' : 'A file could not be read or written. The device may be out of space.',
   };
   static String get backupFailed =>
       _tr ? 'Yedek oluşturulamadı' : 'The backup could not be made';
   static String get restoreFailedTitle =>
       _tr ? 'Geri yüklenemedi' : 'Could not restore';
-  static String get versionsSection => _tr ? 'Sürüm geçmişi' : 'Version history';
-  static String get versionsSwitch =>
-      _tr ? 'Notların eski sürümlerini sakla' : 'Keep earlier versions of notes';
+  static String get versionsSection =>
+      _tr ? 'Sürüm geçmişi' : 'Version history';
+  static String get versionsSwitch => _tr
+      ? 'Notların eski sürümlerini sakla'
+      : 'Keep earlier versions of notes';
   static String versionsSize(String size) => _tr
       ? 'Saklanan sürümler cihazda $size yer kaplıyor'
       : 'The versions kept take $size on the device';
