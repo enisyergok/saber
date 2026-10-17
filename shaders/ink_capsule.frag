@@ -6,6 +6,8 @@ uniform vec2 uEnd;
 uniform float uRadius;
 uniform vec4 uColor;
 
+out vec4 fragColor;
+
 // Signed distance to a capsule. This is the same geometric primitive used by
 // modern low-latency ink renderers: one smooth shape joins two pen samples
 // without the visible gaps that overlapping circles can create.
