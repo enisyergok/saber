@@ -239,10 +239,11 @@ class Stows {
   );
 
   /// Draw the pen's line straight to the screen on Android while it is
-  /// written (see PenOverlay). Off until it has been tried on the device.
+  /// written (see PenOverlay). Enabled by default on Android: the overlay
+  /// has a SurfaceView fallback when front-buffer drawing is unavailable.
   final penOverlay = PlainStow(
     'penOverlay',
-    false,
+    Platform.isAndroid,
     volatile: !_isOnMainIsolate,
   );
 
