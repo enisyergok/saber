@@ -258,6 +258,14 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Reduces streamline once the nib has settled, preserving detail in slow
+  /// handwriting without making fast strokes feel delayed.
+  final penStablePrecision = PlainStow(
+    'penStablePrecision',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
   final shapeHoldToSnap = PlainStow(
     'shapeHoldToSnap',
     true,

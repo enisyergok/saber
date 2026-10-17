@@ -201,6 +201,8 @@ class Pen extends Tool {
     _nibPressure = 0.5;
     _nibMoved = false;
     _smoothedPressure = null;
+    _lastSampleAt = at;
+    _stableSamples = 0;
     currentStroke = Stroke(
       color: color,
       pressureEnabled: pressureEnabled,
@@ -253,6 +255,8 @@ class Pen extends Tool {
   Offset _nibAt = Offset.zero;
   double _nibPressure = 0.5;
   double? _smoothedPressure;
+  Duration? _lastSampleAt;
+  int _stableSamples = 0;
   bool _nibMoved = false;
   double _nibDirection = 0;
 
@@ -283,6 +287,7 @@ class Pen extends Tool {
       }
       return;
     }
+    _updateStablePrecision(position, at);
     if (usesAssists &&
         stroke != null &&
         (stows.measureMode.value || stows.angleGuide.value)) {
@@ -334,6 +339,27 @@ class Pen extends Tool {
     currentStroke?.addPoint(position, pressure);
     if (holdsToSnap && stows.shapeHoldToSnap.value) {
       ShapeSnap.onMove(position);
+    }
+  }
+
+  void _updateStablePrecision(Offset position, Duration? at) {
+    final stroke = currentStroke;
+    if (stroke == null || !stows.penStablePrecision.value || at == null) return;
+    final previousAt = _lastSampleAt;
+    final elapsed = previousAt == null ? 0 : (at - previousAt).inMicroseconds;
+    _lastSampleAt = at;
+    if (elapsed <= 0) return;
+    final distance = (position - _nibAt).distance;
+    final speed = distance / (elapsed / Duration.microsecondsPerSecond);
+    if (speed < 90) {
+      _stableSamples++;
+    } else {
+      _stableSamples = 0;
+    }
+    if (_stableSamples >= 3) {
+      stroke.options.streamline = (options.streamline * 0.35).clamp(0.0, 1.0);
+    } else {
+      stroke.options.streamline = options.streamline;
     }
   }
 

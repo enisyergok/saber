@@ -205,7 +205,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSubtitle(subtitle: t.settings.prefCategories.general),
                 SettingsDropdown(
                   title: t.settings.prefLabels.locale,
-                  icon: cupertino ? CupertinoIcons.globe : Symbols.language_rounded,
+                  icon: cupertino
+                      ? CupertinoIcons.globe
+                      : Symbols.language_rounded,
                   pref: stows.locale,
                   options: [
                     ToggleButtonsOption('', Text(t.settings.systemLanguage)),
@@ -228,8 +230,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBuilder: (i) {
                     if (i == ThemeMode.system.index)
                       return Symbols.brightness_auto_rounded;
-                    if (i == ThemeMode.light.index) return Icons.light_mode_rounded;
-                    if (i == ThemeMode.dark.index) return Icons.dark_mode_rounded;
+                    if (i == ThemeMode.light.index)
+                      return Icons.light_mode_rounded;
+                    if (i == ThemeMode.dark.index)
+                      return Icons.dark_mode_rounded;
                     return null;
                   },
                   pref: _SettingsStows.appTheme,
@@ -273,14 +277,20 @@ class _SettingsPageState extends State<SettingsPage> {
                         return defaultTargetPlatform.index;
                       return TargetPlatform.android.index;
                     }(), UniIcon(materialIcon, semanticLabel: 'Material')),
-                    ToggleButtonsOption(() {
-                      // Hack to allow screenshot golden tests
-                      if (kDebugMode && stows.platform.value.isCupertino)
-                        return stows.platform.value.index;
-                      if (usesCupertinoByDefault)
-                        return defaultTargetPlatform.index;
-                      return TargetPlatform.iOS.index;
-                    }(), const Icon(Icons.apple_rounded, semanticLabel: 'Cupertino')),
+                    ToggleButtonsOption(
+                      () {
+                        // Hack to allow screenshot golden tests
+                        if (kDebugMode && stows.platform.value.isCupertino)
+                          return stows.platform.value.index;
+                        if (usesCupertinoByDefault)
+                          return defaultTargetPlatform.index;
+                        return TargetPlatform.iOS.index;
+                      }(),
+                      const Icon(
+                        Icons.apple_rounded,
+                        semanticLabel: 'Cupertino',
+                      ),
+                    ),
                     ToggleButtonsOption(
                       () {
                         if (usesYaruByDefault)
@@ -489,7 +499,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsSwitch(
                   title: t.settings.prefLabels.editorAutoInvert,
                   iconBuilder: (b) {
-                    return b ? Icons.invert_colors_on_rounded : Symbols.invert_colors_off_rounded;
+                    return b
+                        ? Icons.invert_colors_on_rounded
+                        : Symbols.invert_colors_off_rounded;
                   },
                   pref: stows.editorAutoInvert,
                 ),
@@ -718,6 +730,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitle: DefterStrings.huaweiPenModeSubtitle,
                   icon: Symbols.edit_rounded,
                   pref: stows.huaweiPenMode,
+                ),
+                SettingsSwitch(
+                  title: DefterStrings.penStablePrecision,
+                  subtitle: DefterStrings.penStablePrecisionSubtitle,
+                  icon: Symbols.gps_fixed_rounded,
+                  pref: stows.penStablePrecision,
                 ),
                 SettingsSwitch(
                   title: DefterStrings.holdToSnap,

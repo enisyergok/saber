@@ -101,6 +101,11 @@ abstract class DefterStrings {
   static String get huaweiPenModeSubtitle => _tr
       ? 'M-Pencil basınç geçişlerini kalibre eder'
       : 'Tunes M-Pencil pressure transitions';
+  static String get penStablePrecision =>
+      _tr ? 'Sabit çizgide hassasiyet' : 'Stable-stroke precision';
+  static String get penStablePrecisionSubtitle => _tr
+      ? 'Kalem yavaşladığında küçük el hareketlerini daha doğru korur'
+      : 'Preserves small hand movements more accurately when the pen slows';
 
   static String get pressureAuto =>
       _tr ? 'Basıncı otomatik ayarla' : 'Adjust pressure automatically';
