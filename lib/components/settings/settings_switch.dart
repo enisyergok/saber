@@ -63,19 +63,10 @@ class _SettingsSwitchState extends State<SettingsSwitch> {
           duration: const Duration(milliseconds: 100),
           child: UniIcon(icon, key: ValueKey(icon)),
         ),
-        title: Text(
-          widget.title,
-          style: TextStyle(
-            fontSize: 18,
-            fontStyle: widget.pref.value != widget.pref.defaultValue
-                ? FontStyle.italic
-                : null,
-          ),
-        ),
-        subtitle: Text(
-          widget.subtitle ?? '',
-          style: const TextStyle(fontSize: 13),
-        ),
+        title: Text(widget.title, style: TextStyle(fontSize: 16)),
+        subtitle: widget.subtitle == null
+            ? null
+            : Text(widget.subtitle!, style: const TextStyle(fontSize: 13)),
         value: widget.pref.value,
         onChanged: (bool value) {
           widget.pref.value = value;

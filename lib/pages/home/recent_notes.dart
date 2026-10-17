@@ -6,6 +6,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:saber/components/home/delete_note_button.dart';
+import 'package:saber/components/home/library_header.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/pages/search.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/components/home/export_note_button.dart';
 import 'package:saber/components/home/masonry_files.dart';
@@ -18,7 +21,6 @@ import 'package:saber/components/theming/saber_theme.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
-import 'package:saber/i18n/strings.g.dart';
 
 class const RecentPage({super.key}) extends StatefulHookWidget {
   @override
@@ -110,28 +112,21 @@ class _RecentPageState extends State<RecentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.of(context);
     final platform = Theme.of(context).platform;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverPadding(
-            padding: const .only(bottom: 8),
-            sliver: SliverAppBar(
-              pinned: true,
-              scrolledUnderElevation: 1,
-              centerTitle: false,
-              title: Text(
-                t.home.titles.home,
-                style: TextStyle(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
+          SliverToBoxAdapter(
+            child: LibraryHeader(
+              title: DefterStrings.navRecent,
+              onSearch: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const SearchPage()),
               ),
               actions: const [SyncingButton()],
             ),
           ),
+          const SliverToBoxAdapter(child: Divider(height: 1)),
           if (failed) ...[
             const SliverSafeArea(sliver: SliverToBoxAdapter(child: Welcome())),
           ] else ...[

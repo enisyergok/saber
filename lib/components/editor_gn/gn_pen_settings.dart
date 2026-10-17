@@ -56,7 +56,7 @@ class GnPenSettings extends StatefulWidget {
   final double maxHeight;
 
   /// The width of the settings and of the list of profiles next to it.
-  static const width = 560.0;
+  static const width = 480.0;
   static const profilesWidth = 250.0;
   static const gap = 10.0;
 
@@ -94,6 +94,7 @@ class GnPenSettings extends StatefulWidget {
 
 class _GnPenSettingsState extends State<GnPenSettings> {
   var _moreColors = false;
+  var _section = 0;
   late List<PenProfile> _profiles = PenProfiles.load();
 
   @override
@@ -227,12 +228,6 @@ class _GnPenSettingsState extends State<GnPenSettings> {
     if (tool is! Pen) return const SizedBox.shrink();
     final style = PenStyles.of(tool);
     final screen = MediaQuery.sizeOf(context).width;
-    final wide =
-        screen >=
-        GnPenSettings.width +
-            GnPenSettings.profilesWidth +
-            GnPenSettings.gap +
-            24;
     final mainWidth = math.min(GnPenSettings.width, screen - 24);
 
     final profiles = GnPenProfiles(
@@ -245,44 +240,60 @@ class _GnPenSettingsState extends State<GnPenSettings> {
       onDelete: _deleteProfile,
     );
 
-    final main = _card(
+    return _card(
       context,
       width: mainWidth,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _header(context, tool, style),
-          const SizedBox(height: 4),
-          _styles(context, tool, style),
+          SizedBox(
+            height: 48,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final (index, label) in [
+                    DefterStrings.penSettingsTitle,
+                    DefterStrings.advancedBehaviours,
+                    DefterStrings.penProfiles,
+                  ].indexed)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ChoiceChip(
+                        key: ValueKey('penSection$index'),
+                        label: Text(label),
+                        selected: _section == index,
+                        showCheckmark: false,
+                        onSelected: (_) => setState(() => _section = index),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: 8),
-          _preview(context, tool),
-          const SizedBox(height: 6),
-          _basics(context, tool, style),
-          if (style != null && PenStyles.hasCurve(style)) ...[
+          if (_section == 0) ...[
+            _styles(context, tool, style),
+            const SizedBox(height: 12),
+            _preview(context, tool),
             const SizedBox(height: 8),
-            _curve(context, tool),
-          ],
-          const SizedBox(height: 8),
-          _colors(context, tool),
-          const SizedBox(height: 10),
-          _tools(context),
-          const SizedBox(height: 10),
-          _behaviours(context),
-          if (!wide) ...[const SizedBox(height: 14), profiles],
+            _basics(context, tool, style),
+            const SizedBox(height: 12),
+            _colors(context, tool),
+          ] else if (_section == 1) ...[
+            if (style != null && PenStyles.hasCurve(style)) ...[
+              _curve(context, tool),
+              const SizedBox(height: 12),
+            ],
+            _tools(context),
+            const SizedBox(height: 12),
+            _behaviours(context),
+          ] else
+            profiles,
         ],
       ),
-    );
-
-    if (!wide) return main;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        main,
-        const SizedBox(width: GnPenSettings.gap),
-        _card(context, width: GnPenSettings.profilesWidth, child: profiles),
-      ],
     );
   }
 
@@ -293,7 +304,7 @@ class _GnPenSettingsState extends State<GnPenSettings> {
   }) {
     // A grey ground with white cards on it, as in a grouped list.
     return FloatingPanel(
-      color: ColorScheme.of(context).surfaceContainer,
+      color: ColorScheme.of(context).surface,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: widget.maxHeight),
         child: SizedBox(

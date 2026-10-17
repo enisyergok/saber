@@ -52,28 +52,33 @@ class GridFolders extends StatelessWidget {
 
     return SliverPadding(
       padding: const .symmetric(horizontal: 24, vertical: 8),
-      sliver: SliverAlignedGrid.count(
-        itemCount: folders.length + extraCards.length,
-        crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        itemBuilder: (context, index) {
-          final cardType = extraCards.getOrNull(index) ?? .realFolder;
-          final folderName = cardType == .realFolder
-              ? folders[index - extraCards.length]
-              : null;
-          return _GridFolder(
-            cardType: cardType,
-            folderName: folderName,
-            parentPath: parentPath,
-            createFolder: createFolder,
-            doesFolderExist: doesFolderExist,
-            renameFolder: renameFolder,
-            isFolderEmpty: isFolderEmpty,
-            deleteFolder: deleteFolder,
-            onTap: onTap,
-          );
-        },
+      sliver: SliverLayoutBuilder(
+        builder: (context, constraints) => SliverAlignedGrid.count(
+          itemCount: folders.length + extraCards.length,
+          crossAxisCount: (constraints.crossAxisExtent / 176).floor().clamp(
+            1,
+            12,
+          ),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          itemBuilder: (context, index) {
+            final cardType = extraCards.getOrNull(index) ?? .realFolder;
+            final folderName = cardType == .realFolder
+                ? folders[index - extraCards.length]
+                : null;
+            return _GridFolder(
+              cardType: cardType,
+              folderName: folderName,
+              parentPath: parentPath,
+              createFolder: createFolder,
+              doesFolderExist: doesFolderExist,
+              renameFolder: renameFolder,
+              isFolderEmpty: isFolderEmpty,
+              deleteFolder: deleteFolder,
+              onTap: onTap,
+            );
+          },
+        ),
       ),
     );
   }
@@ -110,7 +115,13 @@ class _GridFolder extends StatefulWidget {
 }
 
 class _GridFolderState extends State<_GridFolder> {
-  ValueNotifier<bool> expanded = ValueNotifier(false);
+  final ValueNotifier<bool> expanded = ValueNotifier(false);
+
+  @override
+  void dispose() {
+    expanded.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,149 +132,171 @@ class _GridFolderState extends State<_GridFolder> {
     );
     return PressScale(
       child: MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          if (expanded.value) return;
-          switch (widget.cardType) {
-            case .newFolder:
-              showDialog(
-                context: context,
-                builder: (context) => NewFolderDialog(
-                  createFolder: widget.createFolder,
-                  doesFolderExist: widget.doesFolderExist,
-                ),
-              );
-            case .backFolder:
-              widget.onTap('..');
-            case .realFolder:
-              widget.onTap(widget.folderName!);
-          }
-        },
-        onLongPress: widget.cardType == .realFolder
-            ? () => expanded.value = !expanded.value
-            : null,
-        onSecondaryTap: widget.cardType == .realFolder
-            ? () => expanded.value = !expanded.value
-            : null,
-        child: Material(
-          color: cardElevatedColor,
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
-          clipBehavior: Clip.antiAlias,
-          child: Padding(
-            padding: const .symmetric(horizontal: 8, vertical: 12),
-            child: Column(
-              mainAxisSize: .min,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Tooltip(
-                          message: switch (widget.cardType) {
-                            .backFolder => t.home.backFolder,
-                            .newFolder => t.home.newFolder.newFolder,
-                            .realFolder => '',
-                          },
-                          child: AdaptiveIcon(
-                            color: switch (widget.cardType) {
-                              .backFolder => colorScheme.onSurfaceVariant,
-                              .newFolder => colorScheme.primary,
-                              .realFolder => folderColour(
-                                '${widget.parentPath}/${widget.folderName}',
-                              ),
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            if (expanded.value) return;
+            switch (widget.cardType) {
+              case .newFolder:
+                showDialog(
+                  context: context,
+                  builder: (context) => NewFolderDialog(
+                    createFolder: widget.createFolder,
+                    doesFolderExist: widget.doesFolderExist,
+                  ),
+                );
+              case .backFolder:
+                widget.onTap('..');
+              case .realFolder:
+                widget.onTap(widget.folderName!);
+            }
+          },
+          onLongPress: widget.cardType == .realFolder
+              ? () => expanded.value = !expanded.value
+              : null,
+          onSecondaryTap: widget.cardType == .realFolder
+              ? () => expanded.value = !expanded.value
+              : null,
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const .symmetric(horizontal: 8, vertical: 12),
+              child: Column(
+                mainAxisSize: .min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Tooltip(
+                            message: switch (widget.cardType) {
+                              .backFolder => t.home.backFolder,
+                              .newFolder => t.home.newFolder.newFolder,
+                              .realFolder => '',
                             },
-                            icon: switch (widget.cardType) {
-                              .backFolder => Icons.folder_open_rounded,
-                              .newFolder => Icons.create_new_folder_rounded,
-                              .realFolder => Icons.folder_rounded,
-                            },
-                            cupertinoIcon: switch (widget.cardType) {
-                              .backFolder => CupertinoIcons.folder_open,
-                              .newFolder =>
-                                CupertinoIcons.folder_fill_badge_plus,
-                              .realFolder => CupertinoIcons.folder_fill,
-                            },
-                            size: 50,
+                            child: AdaptiveIcon(
+                              color: switch (widget.cardType) {
+                                .backFolder => colorScheme.onSurfaceVariant,
+                                .newFolder => colorScheme.primary,
+                                .realFolder => folderColour(
+                                  '${widget.parentPath}/${widget.folderName}',
+                                ),
+                              },
+                              icon: switch (widget.cardType) {
+                                .backFolder => Icons.folder_open_rounded,
+                                .newFolder => Icons.create_new_folder_rounded,
+                                .realFolder => Icons.folder_rounded,
+                              },
+                              cupertinoIcon: switch (widget.cardType) {
+                                .backFolder => CupertinoIcons.folder_open,
+                                .newFolder =>
+                                  CupertinoIcons.folder_fill_badge_plus,
+                                .realFolder => CupertinoIcons.folder_fill,
+                              },
+                              size: 90,
+                            ),
                           ),
                         ),
-                      ),
-                      if (widget.cardType == .realFolder)
-                        Positioned.fill(
-                          child: ValueListenableBuilder(
-                            valueListenable: expanded,
-                            builder: (context, expanded, child) =>
-                                AnimatedOpacity(
-                                  opacity: expanded ? 1 : 0,
-                                  duration: const Duration(milliseconds: 200),
-                                  child: IgnorePointer(
-                                    ignoring: !expanded,
-                                    child: child!,
+                        if (widget.cardType == .realFolder)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: IconButton(
+                              tooltip: MaterialLocalizations.of(context)
+                                  .showMenuTooltip,
+                              icon: const Icon(
+                                Symbols.more_horiz_rounded,
+                                size: 20,
+                              ),
+                              onPressed: () => expanded.value = !expanded.value,
+                            ),
+                          ),
+                        if (widget.cardType == .realFolder)
+                          Positioned.fill(
+                            child: ValueListenableBuilder(
+                              valueListenable: expanded,
+                              builder: (context, expanded, child) =>
+                                  AnimatedOpacity(
+                                    opacity: expanded ? 1 : 0,
+                                    duration: const Duration(milliseconds: 200),
+                                    child: IgnorePointer(
+                                      ignoring: !expanded,
+                                      child: child!,
+                                    ),
                                   ),
-                                ),
-                            child: GestureDetector(
-                              onTap: () => expanded.value = !expanded.value,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: .topCenter,
-                                    end: .bottomCenter,
-                                    colors: [
-                                      cardElevatedColor.withValues(alpha: 0.3),
-                                      cardElevatedColor.withValues(alpha: 0.9),
-                                      cardElevatedColor.withValues(alpha: 1),
+                              child: GestureDetector(
+                                onTap: () => expanded.value = !expanded.value,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: .topCenter,
+                                      end: .bottomCenter,
+                                      colors: [
+                                        cardElevatedColor.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        cardElevatedColor.withValues(
+                                          alpha: 0.9,
+                                        ),
+                                        cardElevatedColor.withValues(alpha: 1),
+                                      ],
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: .center,
+                                    crossAxisAlignment: .end,
+                                    children: [
+                                      RenameFolderButton(
+                                        folderName: widget.folderName!,
+                                        doesFolderExist: widget.doesFolderExist,
+                                        renameFolder:
+                                            (String folderName) async {
+                                              await widget.renameFolder(
+                                                widget.folderName!,
+                                                folderName,
+                                              );
+                                              expanded.value = false;
+                                            },
+                                      ),
+                                      DeleteFolderButton(
+                                        folderName: widget.folderName!,
+                                        deleteFolder:
+                                            (String folderName) async {
+                                              await widget.deleteFolder(
+                                                folderName,
+                                              );
+                                              expanded.value = false;
+                                            },
+                                        isFolderEmpty: widget.isFolderEmpty,
+                                      ),
                                     ],
                                   ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: .center,
-                                  crossAxisAlignment: .end,
-                                  children: [
-                                    RenameFolderButton(
-                                      folderName: widget.folderName!,
-                                      doesFolderExist: widget.doesFolderExist,
-                                      renameFolder: (String folderName) async {
-                                        await widget.renameFolder(
-                                          widget.folderName!,
-                                          folderName,
-                                        );
-                                        expanded.value = false;
-                                      },
-                                    ),
-                                    DeleteFolderButton(
-                                      folderName: widget.folderName!,
-                                      deleteFolder: (String folderName) async {
-                                        await widget.deleteFolder(folderName);
-                                        expanded.value = false;
-                                      },
-                                      isFolderEmpty: widget.isFolderEmpty,
-                                    ),
-                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                switch (widget.cardType) {
-                  .backFolder => const Icon(Symbols.arrow_back_rounded),
-                  .newFolder => Text(t.home.newFolder.newFolder),
-                  .realFolder => Text(
-                    widget.folderName!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                },
-              ],
+                  const SizedBox(height: 8),
+                  switch (widget.cardType) {
+                    .backFolder => const Icon(Symbols.arrow_back_rounded),
+                    .newFolder => Text(t.home.newFolder.newFolder),
+                    .realFolder => Text(
+                      widget.folderName!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  },
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }

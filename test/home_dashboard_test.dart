@@ -90,7 +90,9 @@ void main() {
       await tester.tap(find.text(DefterStrings.navPlanners));
       await tester.pumpAndSettle();
       expect(
-        tester.widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage)).group,
+        tester
+            .widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage))
+            .group,
         PaperGroup.planner,
       );
       await tester.pageBack();
@@ -98,7 +100,9 @@ void main() {
       await tester.tap(find.text(DefterStrings.navTemplates));
       await tester.pumpAndSettle();
       expect(
-        tester.widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage)).group,
+        tester
+            .widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage))
+            .group,
         isNull,
       );
     });
@@ -186,10 +190,10 @@ void main() {
       );
       HomeSidebar.overrideFolders = folders;
       // Real directory listings don't complete inside a widget test.
-      BrowsePage.overrideChildren = DirectoryChildren(
-        const ['Fizik', 'Kimya'],
-        const [],
-      );
+      BrowsePage.overrideChildren = DirectoryChildren(const [
+        'Fizik',
+        'Kimya',
+      ], const []);
       final router = GoRouter(
         initialLocation: '${RoutePaths.prefixOfHome}/$subpage',
         routes: [
@@ -218,16 +222,21 @@ void main() {
       expect(find.byType(DashboardPage), findsOneWidget);
       expect(find.byType(HomeSidebar), findsOneWidget);
       expect(find.byType(VerticalNavbar), findsNothing);
-      expect(find.text(DefterStrings.heroTitle), findsOneWidget);
+      expect(find.text(DefterStrings.navNotes), findsWidgets);
       for (final label in [
         DefterStrings.actionNewNote,
         DefterStrings.actionFromTemplate,
         DefterStrings.actionImportPdf,
-        DefterStrings.actionAddImage,
         DefterStrings.actionNewFolder,
       ]) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
+      await tester.tap(find.byKey(const Key('libraryCreateMenu')));
+      await tester.pumpAndSettle();
+      expect(find.text(DefterStrings.actionAddImage), findsOneWidget);
+      expect(find.text(DefterStrings.actionImportNote), findsOneWidget);
+      await tester.tapAt(const Offset(250, 790));
+      await tester.pumpAndSettle();
       // folders with how much is in each
       expect(find.text(DefterStrings.itemCount(12)), findsOneWidget);
       expect(find.text(DefterStrings.itemCount(0)), findsOneWidget);
@@ -276,7 +285,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(TemplateGalleryPage), findsOneWidget);
       expect(
-        tester.widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage)).group,
+        tester
+            .widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage))
+            .group,
         PaperGroup.engineering,
       );
     });
@@ -296,7 +307,9 @@ void main() {
       );
     });
 
-    testWidgets('switched off, the classic home screen is back', (tester) async {
+    testWidgets('switched off, the classic home screen is back', (
+      tester,
+    ) async {
       stows.homeDashboard.value = false;
       await pumpHome(tester);
       expect(find.byType(HomeSidebar), findsNothing);
@@ -310,7 +323,8 @@ void main() {
     ) async {
       await pumpHome(tester, screen: const Size(390, 800));
       expect(find.byType(HomeSidebar), findsNothing);
-      expect(find.byType(DashboardPage), findsNothing);
+      expect(find.byType(DashboardPage), findsOneWidget);
+      expect(find.byType(NavigationBar), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

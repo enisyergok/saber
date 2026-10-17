@@ -82,7 +82,11 @@ void main() {
     return (pen: () => pen, calls: calls);
   }
 
-  Future<void> tapSlider(WidgetTester tester, int index, {required bool right}) async {
+  Future<void> tapSlider(
+    WidgetTester tester,
+    int index, {
+    required bool right,
+  }) async {
     final rect = tester.getRect(find.byType(Slider).at(index));
     await tester.tapAt(
       Offset(right ? rect.right - 4 : rect.left + 4, rect.center.dy),
@@ -152,7 +156,11 @@ void main() {
     pen = await choose(DefterStrings.styleCalligraphy);
     expect(pen.kind, PenKind.calligraphy);
     expect(find.byType(Slider), findsNWidgets(4));
+    await tester.tap(find.byKey(const ValueKey('penSection1')));
+    await tester.pumpAndSettle();
     expect(find.byType(PressureCurveEditor), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('penSection0')));
+    await tester.pumpAndSettle();
 
     pen = await choose(DefterStrings.stylePencil);
     expect(pen, isA<Pencil>());
@@ -191,6 +199,8 @@ void main() {
     tester,
   ) async {
     await pumpPanel(tester);
+    await tester.tap(find.byKey(const ValueKey('penSection1')));
+    await tester.pumpAndSettle();
     final editor = find.byType(PressureCurveEditor);
     final rect = tester.getRect(editor);
     final from =
@@ -233,6 +243,8 @@ void main() {
   testWidgets('the technical tools switch the real settings', (tester) async {
     final panel = await pumpPanel(tester);
 
+    await tester.tap(find.byKey(const ValueKey('penSection1')));
+    await tester.pumpAndSettle();
     final tools = {
       DefterStrings.toolShapes: stows.autoShapes,
       DefterStrings.toolAngle: stows.angleGuide,
@@ -265,6 +277,8 @@ void main() {
   ) async {
     final panel = await pumpPanel(tester);
 
+    await tester.tap(find.byKey(const ValueKey('penSection1')));
+    await tester.pumpAndSettle();
     final switches = find.byType(Switch);
     expect(switches, findsNWidgets(3));
     final prefs = [
@@ -290,6 +304,8 @@ void main() {
     await tester.tapAt(const Offset(5, 5));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const ValueKey('penSection0')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(DefterStrings.colorPicker));
     await tester.tap(find.byTooltip(DefterStrings.close));
     expect(panel.calls, ['colors', 'close']);
@@ -304,9 +320,10 @@ void main() {
 
   testWidgets('a profile sets the pen with one tap', (tester) async {
     final panel = await pumpPanel(tester);
-    // On a wide screen the profiles have their own card.
+    await tester.tap(find.byKey(const ValueKey('penSection2')));
+    await tester.pumpAndSettle();
     expect(find.byType(GnPenProfiles), findsOneWidget);
-    expect(find.text(DefterStrings.penProfiles), findsOneWidget);
+    expect(find.text(DefterStrings.penProfiles), findsWidgets);
 
     await tester.tap(find.text(DefterStrings.profileTechnical));
     await tester.pump();
@@ -335,6 +352,8 @@ void main() {
     final pen = panel.pen();
     pen.options.size = 7;
 
+    await tester.tap(find.byKey(const ValueKey('penSection2')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(DefterStrings.addProfile));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Kırmızı kalem');
@@ -374,19 +393,20 @@ void main() {
     expect(find.text('Düzeltme'), findsNothing);
   });
 
-  testWidgets('on a narrow screen the profiles go under the settings', (
+  testWidgets('profiles have a separate tab on a narrow screen', (
     tester,
   ) async {
-    await pumpPanel(tester, screen: const Size(700, 1900));
-    expect(tester.takeException(), isNull);
+    await pumpPanel(tester, screen: const Size(390, 900));
+    expect(find.byType(GnPenProfiles), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('penSection2')));
+    await tester.tap(find.byKey(const ValueKey('penSection2')));
+    await tester.pumpAndSettle();
     expect(find.byType(GnPenProfiles), findsOneWidget);
-    final panel = tester.getRect(find.byType(GnPenSettings));
-    expect(panel.width, lessThanOrEqualTo(700));
-    final profiles = tester.getRect(find.byType(GnPenProfiles));
-    final behaviours = tester.getRect(
-      find.text(DefterStrings.advancedBehaviours),
+    expect(
+      tester.getSize(find.byType(GnPenSettings)).width,
+      lessThanOrEqualTo(390),
     );
-    expect(profiles.top, greaterThan(behaviours.bottom));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('the grid tile shows whether the page is squared', (
@@ -398,6 +418,8 @@ void main() {
         .length;
 
     await pumpPanel(tester, gridOn: false);
+    await tester.tap(find.byKey(const ValueKey('penSection1')));
+    await tester.pumpAndSettle();
     final without = switchedOn();
     await pumpPanel(tester, gridOn: true);
     expect(switchedOn(), without + 1);

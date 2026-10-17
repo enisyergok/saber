@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
+import 'package:saber/components/home/library_header.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/pages/ask_notes.dart';
@@ -153,59 +154,62 @@ class _BrowsePageState extends State<BrowsePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.of(context);
     final platform = Theme.of(context).platform;
-    final crossAxisCount = MediaQuery.sizeOf(context).width ~/ 220 + 1;
+    const crossAxisCount = 2;
     useOnListenableChange(stows.browseSortMetric, findChildrenOfPath);
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            pinned: true,
-            scrolledUnderElevation: 1,
-            centerTitle: false,
-            title: Text(
-              t.home.titles.browse,
-              style: TextStyle(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
+          SliverToBoxAdapter(
+            child: LibraryHeader(
+              title: path == null || path == '/'
+                  ? DefterStrings.navNotes
+                  : p.basename(path!),
+              onSearch: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const SearchPage()),
               ),
-            ),
-            actions: [
-              IconButton(
-                tooltip: DefterStrings.search,
-                icon: const Icon(Symbols.search_rounded),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SearchPage()),
-                ),
-              ),
-              IconButton(
-                tooltip: DefterStrings.askNotes,
-                icon: const Icon(Icons.auto_awesome_rounded),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const AskNotesPage()),
-                ),
-              ),
-              IconButton(
-                tooltip: DefterStrings.favorites,
-                icon: const Icon(Symbols.star_rounded),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const FavoritesPage(),
+              actions: [
+                IconButton(
+                  tooltip: DefterStrings.askNotes,
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const AskNotesPage(),
+                    ),
                   ),
                 ),
+                IconButton(
+                  tooltip: DefterStrings.favorites,
+                  icon: const Icon(Symbols.star_rounded),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const FavoritesPage(),
+                    ),
+                  ),
+                ),
+                const SyncingButton(),
+              ],
+              bottom: Row(
+                children: [
+                  FilledButton.icon(
+                    onPressed: createNote,
+                    icon: const Icon(Symbols.add_rounded),
+                    label: Text(DefterStrings.actionNewNote),
+                  ),
+                  const Spacer(),
+                  const BrowseSortButton(),
+                ],
               ),
-              const BrowseSortButton(),
-              const SyncingButton(),
-            ],
+            ),
           ),
+          const SliverToBoxAdapter(child: Divider(height: 1)),
           SliverToBoxAdapter(
             child: PathComponents(path, onPathComponentTap: onPathComponentTap),
           ),
           const SliverPadding(padding: .only(bottom: 16)),
           GridFolders(
-            isAtRoot: path?.isEmpty ?? true,
+            isAtRoot: path == null || path!.isEmpty || path == '/',
             parentPath: path ?? '',
             crossAxisCount: crossAxisCount,
             onTap: onDirectoryTap,

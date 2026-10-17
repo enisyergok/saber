@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:saber/components/canvas/canvas_preview.dart';
 import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/data/editor/editor_core_info.dart';
+import 'package:saber/data/defter_strings.dart';
 
 /// A strip of page thumbnails beside the editor, for seeing where you are in
 /// the notebook and jumping to another page. Shown on wide screens only.
@@ -30,7 +31,7 @@ class PageSidebar extends StatelessWidget {
   final ValueChanged<int> onPageSelected;
 
   /// How wide the sidebar is, including its edge line.
-  static const width = 132.0;
+  static const width = 160.0;
 
   /// The sidebar is only shown on screens at least this wide, so the page
   /// itself keeps enough room.
@@ -49,93 +50,123 @@ class PageSidebar extends StatelessWidget {
         color: colorScheme.surfaceContainerLow,
         border: Border(right: BorderSide(color: colorScheme.outlineVariant)),
       ),
-      child: ValueListenableBuilder<int>(
-        valueListenable: currentPage,
-        builder: (context, current, _) {
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-            itemCount: pages.length,
-            itemBuilder: (context, index) {
-              final page = pages[index];
-              final isCurrent = index == current;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: InkWell(
-                  borderRadius: _radius,
-                  onTap: () => onPageSelected(index),
-                  child: Column(
-                    children: [
-                      AspectRatio(
-                        aspectRatio: page.size.width / page.size.height,
-                        child: DecoratedBox(
-                          position: DecorationPosition.foreground,
-                          decoration: BoxDecoration(
-                            borderRadius: _radius,
-                            border: Border.all(
-                              color: isCurrent
-                                  ? colorScheme.primary
-                                  : colorScheme.outlineVariant,
-                              width: isCurrent ? 3 : 1,
-                            ),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: _radius,
-                            child: FittedBox(
-                              child: IgnorePointer(
-                                child: CanvasPreview(
-                                  pageIndex: index,
-                                  height: null,
-                                  coreInfo: coreInfo,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    DefterStrings.pageSidebar,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${pages.length}',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: ValueListenableBuilder<int>(
+              valueListenable: currentPage,
+              builder: (context, current, _) {
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
+                  itemCount: pages.length,
+                  itemBuilder: (context, index) {
+                    final page = pages[index];
+                    final isCurrent = index == current;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: InkWell(
+                        borderRadius: _radius,
+                        onTap: () => onPageSelected(index),
+                        child: Column(
+                          children: [
+                            AspectRatio(
+                              aspectRatio: page.size.width / page.size.height,
+                              child: DecoratedBox(
+                                position: DecorationPosition.foreground,
+                                decoration: BoxDecoration(
+                                  borderRadius: _radius,
+                                  border: Border.all(
+                                    color: isCurrent
+                                        ? colorScheme.primary
+                                        : colorScheme.outlineVariant,
+                                    width: isCurrent ? 3 : 1,
+                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: _radius,
+                                  child: FittedBox(
+                                    child: IgnorePointer(
+                                      child: CanvasPreview(
+                                        pageIndex: index,
+                                        height: null,
+                                        coreInfo: coreInfo,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${index + 1}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isCurrent
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: isCurrent
+                                        ? colorScheme.primary
+                                        : null,
+                                  ),
+                                ),
+                                if (page.bookmarked)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 2),
+                                    child: Icon(
+                                      Icons.bookmark_rounded,
+                                      size: 14,
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
+                                if (onPageAction != null)
+                                  SizedBox(
+                                    width: 32,
+                                    height: 24,
+                                    child: PageMenuButton(
+                                      pageIndex: index,
+                                      iconSize: 16,
+                                      canDelete:
+                                          canDeletePage?.call(index) ?? true,
+                                      onAction: (action) =>
+                                          onPageAction!(index, action),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${index + 1}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isCurrent
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: isCurrent ? colorScheme.primary : null,
-                            ),
-                          ),
-                          if (page.bookmarked)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 2),
-                              child: Icon(
-                                Icons.bookmark_rounded,
-                                size: 14,
-                                color: colorScheme.primary,
-                              ),
-                            ),
-                          if (onPageAction != null)
-                            SizedBox(
-                              width: 32,
-                              height: 24,
-                              child: PageMenuButton(
-                                pageIndex: index,
-                                iconSize: 16,
-                                canDelete: canDeletePage?.call(index) ?? true,
-                                onAction: (action) =>
-                                    onPageAction!(index, action),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

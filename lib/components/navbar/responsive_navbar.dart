@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_to_regexp/path_to_regexp.dart';
-import 'package:saber/components/navbar/horizontal_navbar.dart';
 import 'package:saber/components/navbar/vertical_navbar.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
@@ -88,29 +87,15 @@ class ResponsiveNavbar extends HookWidget {
       );
     } // else mobile
 
-    final navbarClearance = HorizontalNavbar.clearanceHeightOf(context);
-    final mediaQuery = MediaQuery.of(context);
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: Stack(
-        children: [
-          MediaQuery(
-            data: mediaQuery.copyWith(
-              padding: mediaQuery.padding + .only(bottom: navbarClearance),
-              viewPadding:
-                  mediaQuery.viewPadding + .only(bottom: navbarClearance),
-            ),
-            child: body,
-          ),
-          PositionedDirectional(
-            bottom: 0,
-            end: 0,
-            child: HorizontalNavbar(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (i) => onDestinationSelected(context, i),
-            ),
-          ),
-        ],
+    return Scaffold(
+      body: body,
+      bottomNavigationBar: NavigationBar(
+        height: 72,
+        selectedIndex: selectedIndex,
+        onDestinationSelected: (i) => onDestinationSelected(context, i),
+        destinations: HomeRoutes.routes
+            .map((route) => route.destination)
+            .toList(),
       ),
     );
   }

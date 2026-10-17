@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/notebook_cover.dart';
+import 'package:saber/components/home/library_header.dart';
 import 'package:saber/components/home/preview_card.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/theming/defter_design.dart';
@@ -110,13 +111,12 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  void _push(Widget page) => Navigator.of(
-    context,
-  ).push(MaterialPageRoute<void>(builder: (_) => page));
+  void _push(Widget page) =>
+      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
 
-  void _snack(String message) => ScaffoldMessenger.of(
-    context,
-  ).showSnackBar(SnackBar(content: Text(message)));
+  void _snack(String message) =>
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
 
   // -- the actions ----------------------------------------------------------
 
@@ -216,39 +216,48 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final data = _data;
-    final horizontalPadding = MediaQuery.sizeOf(context).width >= 900
-        ? 32.0
-        : 16.0;
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(horizontalPadding, 18, horizontalPadding, 32),
-          children: [
-            _libraryHeader(context),
-            const SizedBox(height: 22),
-            _section(
-              context,
-              title: DefterStrings.navRecent,
-              action: TextButton(
-                onPressed: () => context.go(HomeRoutes.routes[1].path),
-                child: Text(DefterStrings.seeAll),
-              ),
-              child: _recent(context, data),
+      body: Column(
+        children: [
+          _libraryHeader(context),
+          const Divider(height: 1),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                _section(
+                  context,
+                  title: DefterStrings.folders,
+                  action: TextButton.icon(
+                    onPressed: _newFolder,
+                    icon: const Icon(
+                      Symbols.create_new_folder_rounded,
+                      size: 18,
+                    ),
+                    label: Text(DefterStrings.actionNewFolder),
+                  ),
+                  child: _folders(context, data),
+                ),
+                const SizedBox(height: 28),
+                _section(
+                  context,
+                  title: DefterStrings.navRecent,
+                  action: TextButton(
+                    onPressed: () => context.go(HomeRoutes.routes[1].path),
+                    child: Text(DefterStrings.seeAll),
+                  ),
+                  child: _recent(context, data),
+                ),
+                const SizedBox(height: 28),
+                _section(
+                  context,
+                  title: DefterStrings.navTemplates,
+                  child: _templates(context),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            _section(
-              context,
-              title: DefterStrings.folders,
-              child: _folders(context, data),
-            ),
-            const SizedBox(height: 20),
-            _section(
-              context,
-              title: DefterStrings.navTemplates,
-              child: _templates(context),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -287,312 +296,76 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  /// A quiet library header: search and creation actions stay together so
-  /// the notes remain the visual focus. It intentionally uses Marj's own
-  /// paper/ink language instead of reproducing another app's artwork.
-  Widget _libraryHeader(BuildContext context) {
-    final colors = ColorScheme.of(context);
-
-    Widget action(IconData icon, String label, VoidCallback onTap) =>
-        FilledButton.tonalIcon(
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            backgroundColor: colors.primaryContainer,
-            foregroundColor: colors.onPrimaryContainer,
+  Widget _libraryHeader(BuildContext context) => LibraryHeader(
+    title: DefterStrings.navNotes,
+    onSearch: () => _push(const SearchPage()),
+    actions: [
+      IconButton(
+        tooltip: DefterStrings.askNotes,
+        icon: const Icon(Icons.auto_awesome_rounded),
+        onPressed: () => _push(const AskNotesPage()),
+      ),
+      PopupMenuButton<int>(
+        key: const Key('libraryCreateMenu'),
+        tooltip: DefterStrings.newItem,
+        icon: const Icon(Symbols.add_circle_rounded),
+        onSelected: (value) {
+          switch (value) {
+            case 0:
+              _newNote();
+            case 1:
+              _push(const TemplateGalleryPage());
+            case 2:
+              _importPdf();
+            case 3:
+              _addImage();
+            case 4:
+              _newFolder();
+            case 5:
+              _importNote();
+          }
+        },
+        itemBuilder: (_) => [
+          PopupMenuItem(value: 0, child: Text(DefterStrings.actionNewNote)),
+          PopupMenuItem(
+            value: 1,
+            child: Text(DefterStrings.actionFromTemplate),
           ),
-          onPressed: onTap,
-          icon: Icon(icon, size: 18),
-          label: Text(label),
-        );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  DefterStrings.navNotes,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: DefterStrings.askNotes,
-                icon: const Icon(Icons.auto_awesome_rounded),
-                onPressed: () => _push(const AskNotesPage()),
-              ),
-              IconButton(
-                tooltip: DefterStrings.navSettings,
-                icon: const Icon(Symbols.settings_rounded),
-                onPressed: () => context.go(HomeRoutes.routes[3].path),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            DefterStrings.heroTitle,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 18),
-          Material(
-            color: colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
-            child: InkWell(
-              onTap: () => _push(const SearchPage()),
-              borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Symbols.search_rounded,
-                      size: 20,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        DefterStrings.searchNotes,
-                        style: TextStyle(color: colors.onSurfaceVariant),
-                      ),
-                    ),
-                    Icon(
-                      Symbols.tune_rounded,
-                      size: 18,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              action(
-                Symbols.add_rounded,
-                DefterStrings.actionNewNote,
-                _newNote,
-              ),
-              action(
-                Symbols.dashboard_customize_rounded,
-                DefterStrings.actionFromTemplate,
-                () => _push(const TemplateGalleryPage()),
-              ),
-              OutlinedButton.icon(
-                onPressed: _importPdf,
-                icon: const Icon(Symbols.picture_as_pdf_rounded, size: 18),
-                label: Text(DefterStrings.actionImportPdf),
-              ),
-              OutlinedButton.icon(
-                onPressed: _addImage,
-                icon: const Icon(Symbols.image_rounded, size: 18),
-                label: Text(DefterStrings.actionAddImage),
-              ),
-              OutlinedButton.icon(
-                onPressed: _newFolder,
-                icon: const Icon(Symbols.create_new_folder_rounded, size: 18),
-                label: Text(DefterStrings.actionNewFolder),
-              ),
-            ],
-          ),
+          PopupMenuItem(value: 2, child: Text(DefterStrings.actionImportPdf)),
+          PopupMenuItem(value: 3, child: Text(DefterStrings.actionAddImage)),
+          PopupMenuItem(value: 4, child: Text(DefterStrings.actionNewFolder)),
+          PopupMenuItem(value: 5, child: Text(DefterStrings.actionImportNote)),
         ],
       ),
-    );
-  }
-
-  Widget _hero(BuildContext context) {
-    final colors = ColorScheme.of(context);
-    final dark = Theme.brightnessOf(context) == Brightness.dark;
-    final ink = colors.onSurface;
-
-    Widget action(
-      IconData icon,
-      String label,
-      VoidCallback onTap, {
-      bool primary = false,
-    }) => primary
-        ? FilledButton.icon(
-            onPressed: onTap,
-            icon: Icon(icon, size: 18),
-            label: Text(label),
-          )
-        : FilledButton.tonalIcon(
-            style: FilledButton.styleFrom(
-              backgroundColor: colors.surface.withValues(alpha: 0.9),
-              foregroundColor: colors.onSurface,
-            ),
-            onPressed: onTap,
-            icon: Icon(icon, size: 18),
-            label: Text(label),
-          );
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: CustomPaint(
-        painter: HeroPainter(
-          dark: dark,
-          accent: DefterDesign.pictureTint(colors),
+    ],
+    bottom: Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        FilledButton.icon(
+          onPressed: _newNote,
+          icon: const Icon(Symbols.add_rounded, size: 18),
+          label: Text(DefterStrings.actionNewNote),
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 14, 16, 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Spacer(),
-                  // Tapping the field opens the search page: it searches
-                  // names, typed text and handwriting that has been read.
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: Material(
-                      color: colors.surface.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(22),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => _push(const SearchPage()),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 9,
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Symbols.search_rounded, size: 18, color: colors.onSurfaceVariant),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  DefterStrings.searchNotes,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: colors.onSurfaceVariant),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  IconButton.filledTonal(
-                    tooltip: DefterStrings.askNotes,
-                    style: IconButton.styleFrom(
-                      backgroundColor: colors.surface.withValues(alpha: 0.9),
-                    ),
-                    icon: const Icon(Icons.auto_awesome_rounded, size: 20),
-                    onPressed: () => _push(const AskNotesPage()),
-                  ),
-                  IconButton.filledTonal(
-                    tooltip: DefterStrings.navSettings,
-                    style: IconButton.styleFrom(
-                      backgroundColor: colors.surface.withValues(alpha: 0.9),
-                    ),
-                    icon: const Icon(Symbols.settings_rounded, size: 20),
-                    onPressed: () => context.go(HomeRoutes.routes[3].path),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                DefterStrings.heroTitle,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: ink,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                DefterStrings.heroSubtitle,
-                style: TextStyle(color: ink.withValues(alpha: 0.8)),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  action(
-                    Icons.add_circle_rounded,
-                    DefterStrings.actionNewNote,
-                    _newNote,
-                    primary: true,
-                  ),
-                  action(
-                    Symbols.dashboard_customize_rounded,
-                    DefterStrings.actionFromTemplate,
-                    () => _push(const TemplateGalleryPage()),
-                  ),
-                  action(
-                    Symbols.picture_as_pdf_rounded,
-                    DefterStrings.actionImportPdf,
-                    _importPdf,
-                  ),
-                  action(
-                    Symbols.image_rounded,
-                    DefterStrings.actionAddImage,
-                    _addImage,
-                  ),
-                  action(
-                    Symbols.create_new_folder_rounded,
-                    DefterStrings.actionNewFolder,
-                    _newFolder,
-                  ),
-                  PopupMenuButton<int>(
-                    tooltip: DefterStrings.actionMore,
-                    onSelected: (value) {
-                      switch (value) {
-                        case 0:
-                          _importNote();
-                        case 1:
-                          context.go(HomeRoutes.routes[2].path);
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 0,
-                        child: Text(DefterStrings.actionImportNote),
-                      ),
-                      PopupMenuItem(
-                        value: 1,
-                        child: Text(DefterStrings.navWhiteboard),
-                      ),
-                    ],
-                    child: Container(
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: colors.surface.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(Symbols.more_horiz_rounded, color: colors.onSurface),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        TextButton.icon(
+          onPressed: () => _push(const TemplateGalleryPage()),
+          icon: const Icon(Symbols.dashboard_customize_rounded, size: 18),
+          label: Text(DefterStrings.actionFromTemplate),
         ),
-      ),
-    );
-  }
+        TextButton.icon(
+          onPressed: _importPdf,
+          icon: const Icon(Symbols.file_upload_rounded, size: 18),
+          label: Text(DefterStrings.actionImportPdf),
+        ),
+      ],
+    ),
+  );
 
   Widget _recent(BuildContext context, DashboardData? data) {
     final colors = ColorScheme.of(context);
-    const coverWidth = 124.0;
-    const height = coverWidth / kNotebookCoverAspectRatio + kNotebookCaptionHeight;
+    const coverWidth = 156.0;
+    const height =
+        coverWidth / kNotebookCoverAspectRatio + kNotebookCaptionHeight;
     if (data == null) return const SizedBox(height: height);
 
     final recent = data.recent.take(DashboardPage.recentCount).toList();
@@ -668,84 +441,57 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _folders(BuildContext context, DashboardData? data) {
     final colors = ColorScheme.of(context);
-    if (data == null) return const SizedBox(height: 56);
-
-    Widget card({required Widget child, required VoidCallback onTap}) =>
-        PressScale(
-          child: Material(
-            color: colors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(DefterDesign.radiusControl),
-              side: BorderSide(color: colors.outlineVariant),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: onTap,
-              child: SizedBox(height: 56, child: child),
-            ),
-          ),
-        );
-
+    if (data == null) return const LinearProgressIndicator();
+    if (data.folders.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          DefterStrings.noFolders,
+          style: TextStyle(color: colors.onSurfaceVariant),
+        ),
+      );
+    }
     return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 24,
+      runSpacing: 16,
       children: [
         for (final MapEntry(key: name, value: count) in data.folders.entries)
           SizedBox(
-            width: 168,
-            child: card(
-              onTap: () => context.go(HomeRoutes.browseFilePath('/$name')),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    Icon(Icons.folder_rounded, size: 30, color: folderColour('/$name')),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          Text(
-                            DefterStrings.itemCount(count),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
+            width: 140,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => context.go(HomeRoutes.browseFilePath('/$name')),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.folder_rounded,
+                        size: 96,
+                        color: folderColour('/$name'),
                       ),
-                    ),
-                  ],
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DefterStrings.itemCount(count),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        if (data.folders.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Text(
-              DefterStrings.noFolders,
-              style: TextStyle(color: colors.onSurfaceVariant),
-            ),
-          ),
-        SizedBox(
-          width: 56,
-          child: Tooltip(
-            message: DefterStrings.actionNewFolder,
-            child: card(
-              onTap: _newFolder,
-              child: Icon(Symbols.add_rounded, color: colors.primary),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -762,21 +508,41 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         chip(Symbols.apps_rounded, DefterStrings.groupAll, null),
         chip(Symbols.reorder_rounded, PaperGroup.lined.label, PaperGroup.lined),
-        chip(Symbols.grid_4x4_rounded, PaperGroup.squared.label, PaperGroup.squared),
-        chip(Symbols.blur_on_rounded, PaperGroup.dotted.label, PaperGroup.dotted),
+        chip(
+          Symbols.grid_4x4_rounded,
+          PaperGroup.squared.label,
+          PaperGroup.squared,
+        ),
+        chip(
+          Symbols.blur_on_rounded,
+          PaperGroup.dotted.label,
+          PaperGroup.dotted,
+        ),
         chip(
           Symbols.calendar_month_rounded,
           PaperGroup.planner.label,
           PaperGroup.planner,
         ),
-        chip(Symbols.account_tree_rounded, PaperGroup.diagram.label, PaperGroup.diagram),
+        chip(
+          Symbols.account_tree_rounded,
+          PaperGroup.diagram.label,
+          PaperGroup.diagram,
+        ),
         chip(
           Symbols.architecture_rounded,
           PaperGroup.engineering.label,
           PaperGroup.engineering,
         ),
-        chip(Symbols.school_rounded, PaperGroup.academic.label, PaperGroup.academic),
-        chip(Symbols.star_rounded, PaperGroup.special.label, PaperGroup.special),
+        chip(
+          Symbols.school_rounded,
+          PaperGroup.academic.label,
+          PaperGroup.academic,
+        ),
+        chip(
+          Symbols.star_rounded,
+          PaperGroup.special.label,
+          PaperGroup.special,
+        ),
       ],
     );
   }

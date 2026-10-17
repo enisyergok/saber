@@ -22,7 +22,10 @@ void main() {
     setupMockWindowManager();
     FlavorConfig.setup();
     await FileManager.init();
+    stows.editorFloatingBar.value = true;
   });
+
+  tearDown(() => stows.editorFloatingBar.value = false);
 
   Future<EditorState> pumpEditor(WidgetTester tester, Size size) async {
     tester.view.physicalSize = size;
@@ -38,9 +41,9 @@ void main() {
     return editor;
   }
 
-  test('the floating layout is the default', () {
+  test('the fixed notebook layout is the default', () {
     expect(stows.editorGnLayout.defaultValue, isTrue);
-    expect(stows.editorFloatingBar.defaultValue, isTrue);
+    expect(stows.editorFloatingBar.defaultValue, isFalse);
   });
 
   test('the controls take one row less on a wide screen', () {
@@ -57,7 +60,12 @@ void main() {
     expect(find.byType(AppBar), findsNothing);
     expect(find.byType(GnEditorBar), findsNothing);
     expect(find.byType(FloatEditorBar), findsOneWidget);
-    for (final key in ['floatPen', 'floatEraser', 'floatLasso', 'floatNoteName']) {
+    for (final key in [
+      'floatPen',
+      'floatEraser',
+      'floatLasso',
+      'floatNoteName',
+    ]) {
       expect(find.byKey(Key(key)), findsOneWidget, reason: key);
     }
     expect(tester.takeException(), isNull);

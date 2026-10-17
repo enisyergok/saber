@@ -125,7 +125,7 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
-  /// The Goodnotes-style editor: a dark top bar with tabs and tools, and the
+  /// The notebook editor: a neutral top bar with tabs and tools, and the
   /// options of the tool in use hanging from it over the page.
   final editorGnLayout = PlainStow(
     'editorGnLayout',
@@ -138,9 +138,31 @@ class Stows {
   /// FloatEditorBar).
   final editorFloatingBar = PlainStow(
     'editorFloatingBar',
-    true,
+    false,
     volatile: !_isOnMainIsolate,
   );
+
+  final interfaceRevision = PlainStow(
+    'interfaceRevision',
+    0,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Apply the requested interface once, including upgrades from the floating
+  /// default. Subsequent launches preserve choices made in Settings.
+  Future<void> migrateInterface() async {
+    await Future.wait([
+      interfaceRevision.waitUntilRead(),
+      editorGnLayout.waitUntilRead(),
+      editorFloatingBar.waitUntilRead(),
+      homeDashboard.waitUntilRead(),
+    ]);
+    if (interfaceRevision.value >= 1) return;
+    editorGnLayout.value = true;
+    editorFloatingBar.value = false;
+    homeDashboard.value = true;
+    interfaceRevision.value = 1;
+  }
 
   final editorToolbarAlignment = PlainStow(
     'editorToolbarAlignment',

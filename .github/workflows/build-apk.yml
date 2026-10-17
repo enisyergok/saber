@@ -66,6 +66,24 @@ jobs:
       - name: Disable Flutter CLI animations
         run: flutter config --no-cli-animations
 
+      - name: Verify notebook interface
+        run: |
+          set -o pipefail
+          flutter test --update-goldens --dart-define=CAPTURE_UI=true \
+            test/interface_redesign_test.dart \
+            test/editor_float_layout_test.dart \
+            test/home_dashboard_test.dart \
+            test/new_notebook_wizard_test.dart \
+            test/gn_pen_settings_test.dart 2>&1 | tee build-log.txt
+
+      - name: Upload interface review captures
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: interface-review
+          path: test/goldens/redesign/*.png
+          if-no-files-found: ignore
+
       - name: Build apk
         env:
           RUN_NUMBER: ${{ github.run_number }}

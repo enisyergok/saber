@@ -3314,8 +3314,9 @@ class EditorState extends State<Editor> {
   /// Room above the first page in the floating layout, so that the page
   /// starts under its controls (the page still scrolls under them).
   double get _floatingTopInset {
-    if (!stows.editorGnLayout.value || !stows.editorFloatingBar.value) return 0;
+    if (!stows.editorGnLayout.value) return 0;
     if (DynamicMaterialApp.isFullscreen) return 0;
+    if (!stows.editorFloatingBar.value) return 64;
     return MediaQuery.viewPaddingOf(context).top +
         FloatEditorBar.reservedHeight(MediaQuery.sizeOf(context).width);
   }

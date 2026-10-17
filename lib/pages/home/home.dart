@@ -77,9 +77,8 @@ class _HomePageState extends State<HomePage> {
           HomePage.whiteboardSubpage => const Whiteboard(),
           HomePage.settingsSubpage => const SettingsPage(),
           HomePage.recentSubpage => const RecentPage(),
-          // On a phone there is no room for it: the notes are the home.
           HomePage.dashboardSubpage =>
-            _showsDashboard
+            stows.homeDashboard.value
                 ? const DashboardPage()
                 : BrowsePage(path: widget.path),
           _ => BrowsePage(path: widget.path),

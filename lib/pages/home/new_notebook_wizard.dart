@@ -219,13 +219,17 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
             ? colors.primary.withValues(alpha: 0.18)
             : colors.surfaceContainerHighest,
       ),
-      child: Text(
-        '${index + 1}',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: current ? colors.onPrimary : colors.onSurface,
-        ),
+      child: Icon(
+        const [
+          Symbols.description_rounded,
+          Symbols.book_rounded,
+          Symbols.aspect_ratio_rounded,
+          Symbols.edit_rounded,
+          Symbols.folder_rounded,
+          Symbols.check_rounded,
+        ][index],
+        size: 17,
+        color: current ? colors.onPrimary : colors.onSurface,
       ),
     );
   }
@@ -243,9 +247,8 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                 Expanded(
                   child: Text(
                     DefterStrings.wizardTitle,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -303,36 +306,41 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
 
   Widget _topSteps(BuildContext context, ColorScheme colors) {
     return ColoredBox(
-      color: colors.surfaceContainerLow,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-        child: Row(
-          children: [
-            for (var i = 0; i < NewNotebookWizard.stepCount; i++)
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () => _goTo(i),
-                  child: _stepDot(colors, i),
-                ),
-              ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                _stepNames[_step],
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
+      color: colors.surface,
+      child: Column(
+        children: [
+          ListTile(
+            title: Text(
+              DefterStrings.wizardTitle,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
-            IconButton(
+            trailing: IconButton(
               tooltip: DefterStrings.cancelWord,
               icon: const Icon(Symbols.close_rounded),
               onPressed: () => Navigator.of(context).pop(),
             ),
-          ],
-        ),
+          ),
+          SizedBox(
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (var i = 0; i < NewNotebookWizard.stepCount; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(_stepNames[i]),
+                      selected: _step == i,
+                      showCheckmark: false,
+                      onSelected: (_) => _goTo(i),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+        ],
       ),
     );
   }
@@ -379,9 +387,8 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
     padding: const EdgeInsets.only(bottom: 8),
     child: Text(
       text,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.w700),
     ),
   );
 
@@ -498,7 +505,9 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
       final selected = format == _spec.format;
       final size = format.pageSize(landscape: _spec.landscape);
       return Material(
-        color: selected ? colors.primary.withValues(alpha: 0.12) : colors.surface,
+        color: selected
+            ? colors.primary.withValues(alpha: 0.12)
+            : colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
@@ -540,7 +549,10 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
                 ),
                 Text(
                   format.describe(landscape: _spec.landscape),
-                  style: TextStyle(fontSize: 10.5, color: colors.onSurfaceVariant),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -552,52 +564,52 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
     return _split(
       side: Center(child: _pagePreview()),
       main: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _heading(context, DefterStrings.stepSize),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
-                _heading(context, DefterStrings.stepSize),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final format in PaperFormat.values) formatTile(format),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: SegmentedButton<bool>(
-                  showSelectedIcon: false,
-                  segments: [
-                    ButtonSegment(
-                      value: false,
-                      icon: const Icon(Symbols.crop_portrait_rounded),
-                      label: Text(DefterStrings.orientationPortrait),
-                    ),
-                    ButtonSegment(
-                      value: true,
-                      icon: const Icon(Symbols.crop_landscape_rounded),
-                      label: Text(DefterStrings.orientationLandscape),
-                    ),
-                  ],
-                  selected: {_spec.landscape},
-                  onSelectionChanged: (selection) =>
-                      setState(() => _spec.landscape = selection.first),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _heading(context, DefterStrings.paperColour),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 8,
-                  children: [
-                    for (final (colour, name) in PaperColours.all)
-                      _colourTile(colors, colour, name),
-                  ],
-                ),
+                for (final format in PaperFormat.values) formatTile(format),
               ],
             ),
+            const SizedBox(height: 14),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: SegmentedButton<bool>(
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    icon: const Icon(Symbols.crop_portrait_rounded),
+                    label: Text(DefterStrings.orientationPortrait),
+                  ),
+                  ButtonSegment(
+                    value: true,
+                    icon: const Icon(Symbols.crop_landscape_rounded),
+                    label: Text(DefterStrings.orientationLandscape),
+                  ),
+                ],
+                selected: {_spec.landscape},
+                onSelectionChanged: (selection) =>
+                    setState(() => _spec.landscape = selection.first),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _heading(context, DefterStrings.paperColour),
+            Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              children: [
+                for (final (colour, name) in PaperColours.all)
+                  _colourTile(colors, colour, name),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -699,7 +711,9 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
           color: path == '/' ? colors.onSurface : folderColour(path),
         ),
         title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-        trailing: selected ? Icon(Symbols.check_rounded, color: colors.primary) : null,
+        trailing: selected
+            ? Icon(Symbols.check_rounded, color: colors.primary)
+            : null,
         selected: selected,
         onTap: () => setState(() => _spec.folder = path),
       );
@@ -772,35 +786,35 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
               ),
       ),
       main: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _heading(context, DefterStrings.stepCreate),
-                row(DefterStrings.summaryTemplate, _spec.template.name, 0),
-                row(
-                  DefterStrings.summaryCover,
-                  _spec.cover?.name ?? DefterStrings.noCover,
-                  1,
-                ),
-                row(
-                  DefterStrings.summarySize,
-                  '${_spec.format.label} · '
-                  '${_spec.format.describe(landscape: _spec.landscape)} · '
-                  '${PaperColours.nameOf(_spec.paperColor)}',
-                  2,
-                ),
-                row(
-                  DefterStrings.summaryName,
-                  name.isEmpty ? DefterStrings.defaultName : name,
-                  3,
-                ),
-                row(
-                  DefterStrings.summaryFolder,
-                  _spec.folder == '/' ? DefterStrings.rootFolder : _spec.folder,
-                  4,
-                ),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _heading(context, DefterStrings.stepCreate),
+            row(DefterStrings.summaryTemplate, _spec.template.name, 0),
+            row(
+              DefterStrings.summaryCover,
+              _spec.cover?.name ?? DefterStrings.noCover,
+              1,
             ),
+            row(
+              DefterStrings.summarySize,
+              '${_spec.format.label} · '
+              '${_spec.format.describe(landscape: _spec.landscape)} · '
+              '${PaperColours.nameOf(_spec.paperColor)}',
+              2,
+            ),
+            row(
+              DefterStrings.summaryName,
+              name.isEmpty ? DefterStrings.defaultName : name,
+              3,
+            ),
+            row(
+              DefterStrings.summaryFolder,
+              _spec.folder == '/' ? DefterStrings.rootFolder : _spec.folder,
+              4,
+            ),
+          ],
+        ),
       ),
     );
   }

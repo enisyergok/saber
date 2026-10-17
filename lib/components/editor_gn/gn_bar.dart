@@ -12,6 +12,9 @@ import 'package:saber/data/benchmark/pen_latency_probe.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/select.dart';
+import 'package:saber/data/tools/pencil.dart';
+import 'package:saber/data/tools/highlighter.dart';
+import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 
 /// The editor's top bar: the open notebooks as tabs, and under them the main
@@ -83,48 +86,48 @@ class GnEditorBar extends StatelessWidget {
 
   static const tabRowHeight = 44.0;
   static const toolRowHeight = 56.0;
-  static const contentHeight = tabRowHeight + toolRowHeight;
+  static const navigationRowHeight = 48.0;
+  static const contentHeight =
+      tabRowHeight + navigationRowHeight + toolRowHeight;
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: controller,
-      builder: _buildBar,
-    );
+    return ListenableBuilder(listenable: controller, builder: _buildBar);
   }
 
   Widget _buildBar(BuildContext context, Widget? _) {
     final palette = GnPalette.of(context);
     final actions = GnActions(spec, controller);
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: palette.onHeader == Colors.white
+      value: Theme.brightnessOf(context) == Brightness.dark
           ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark,
       child: IconButtonTheme(
-      data: IconButtonThemeData(
-        style: IconButton.styleFrom(foregroundColor: palette.onHeader),
-      ),
-      child: DefaultTextStyle.merge(
-        style: TextStyle(color: palette.onHeader),
-        child: Material(
-          color: palette.header,
-          child: SafeArea(
-            bottom: false,
-            child: CompositedTransformTarget(
-              link: controller.barLink,
-              child: SizedBox(
-                height: contentHeight,
-                child: Column(
-                  children: [
-                    _tabRow(context, palette),
-                    _toolRow(context, palette, actions),
-                  ],
+        data: IconButtonThemeData(
+          style: IconButton.styleFrom(foregroundColor: palette.onHeader),
+        ),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: palette.onHeader),
+          child: Material(
+            color: palette.header,
+            child: SafeArea(
+              bottom: false,
+              child: CompositedTransformTarget(
+                link: controller.barLink,
+                child: SizedBox(
+                  height: contentHeight,
+                  child: Column(
+                    children: [
+                      _tabRow(context, palette),
+                      _navigationRow(context, palette),
+                      _toolRow(context, palette, actions),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -151,7 +154,7 @@ class GnEditorBar extends StatelessWidget {
                   name: shown[index],
                   selected: selected,
                   palette: palette,
-                  onTap: selected || path == null ? null : () => onSelectTab(path),
+                  onTap: selected ? null : () => onSelectTab(path),
                   onRename: selected ? onRename : null,
                   onClose: path == null ? null : () => onCloseTab(path),
                 );
@@ -162,6 +165,81 @@ class GnEditorBar extends StatelessWidget {
             tooltip: DefterStrings.gnNewTab,
             icon: const Icon(Symbols.add_rounded),
             onPressed: onNewTab,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _navigationRow(BuildContext context, GnPalette palette) {
+    return Container(
+      height: navigationRowHeight,
+      decoration: BoxDecoration(
+        color: palette.activeTab,
+        border: Border(
+          bottom: BorderSide(color: ColorScheme.of(context).outlineVariant),
+        ),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: DefterStrings.pageSidebar,
+            icon: Icon(
+              sidebarShown
+                  ? Icons.view_sidebar_rounded
+                  : Symbols.view_sidebar_rounded,
+            ),
+            onPressed: sidebarAvailable ? onToggleSidebar : null,
+          ),
+          IconButton(
+            tooltip: DefterStrings.askNotes,
+            icon: const Icon(Symbols.auto_awesome_rounded),
+            onPressed: onAskNotes,
+          ),
+
+          Expanded(
+            child: InkWell(
+              onTap: onRename,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  currentName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: onPages,
+            style: TextButton.styleFrom(
+              foregroundColor: palette.onHeader,
+              visualDensity: VisualDensity.compact,
+            ),
+            child: ValueListenableBuilder<int>(
+              valueListenable: visiblePage,
+              builder: (context, page, _) =>
+                  Text('${(page < 0 ? 0 : page) + 1} / $pageCount'),
+            ),
+          ),
+          IconButton(
+            tooltip: t.editor.menu.insertPage,
+            icon: const Icon(Symbols.note_add_rounded),
+            onPressed: spec.readOnly ? null : onAddPage,
+          ),
+          CompositedTransformTarget(
+            link: controller.links[GnPanel.export]!,
+            child: IconButton(
+              tooltip: t.editor.toolbar.export,
+              icon: const Icon(Symbols.ios_share_rounded),
+              onPressed: () => controller.toggle(GnPanel.export),
+            ),
+          ),
+          IconButton(
+            tooltip: DefterStrings.gnMenu,
+            icon: const Icon(Symbols.more_horiz_rounded),
+            onPressed: onMore,
           ),
         ],
       ),
@@ -199,17 +277,16 @@ class GnEditorBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            tooltip: DefterStrings.pageSidebar,
-            icon: Icon(
-              sidebarShown ? Icons.view_sidebar_rounded : Symbols.view_sidebar_rounded,
-            ),
-            onPressed: sidebarAvailable ? onToggleSidebar : null,
+            tooltip: t.editor.toolbar.undo,
+            icon: const Icon(Symbols.undo_rounded),
+            onPressed: !readOnly && spec.isUndoPossible ? spec.undo : null,
           ),
           IconButton(
-            tooltip: DefterStrings.askNotes,
-            icon: const Icon(Symbols.auto_awesome_rounded),
-            onPressed: onAskNotes,
+            tooltip: t.editor.toolbar.redo,
+            icon: const Icon(Symbols.redo_rounded),
+            onPressed: !readOnly && spec.isRedoPossible ? spec.redo : null,
           ),
+          const SizedBox(height: 24, child: VerticalDivider(width: 12)),
           Expanded(
             child: Center(
               child: SingleChildScrollView(
@@ -226,9 +303,51 @@ class GnEditorBar extends StatelessWidget {
                     toolButton(
                       icon: UniIcon(actions.writingPen.icon, size: 24),
                       tooltip: actions.writingPen.name,
-                      selected: actions.isDrawing,
+                      selected: actions.isPen,
                       panel: GnPanel.penSettings,
-                      onPressed: readOnly ? null : actions.tapPenButton,
+                      onPressed: readOnly
+                          ? null
+                          : () {
+                              if (actions.isPen) {
+                                controller.toggle(GnPanel.penSettings);
+                              } else {
+                                actions.selectPen();
+                              }
+                            },
+                    ),
+                    toolButton(
+                      icon: const Icon(Pencil.pencilIcon),
+                      tooltip: t.editor.pens.pencil,
+                      selected: actions.isPencil,
+                      onPressed: readOnly
+                          ? null
+                          : () {
+                              if (actions.isPencil) {
+                                controller.toggle(GnPanel.penSettings);
+                              } else {
+                                actions.selectPencil();
+                              }
+                            },
+                    ),
+                    toolButton(
+                      icon: const Icon(Highlighter.highlighterIcon),
+                      tooltip: t.editor.pens.highlighter,
+                      selected: actions.isHighlighter,
+                      onPressed: readOnly
+                          ? null
+                          : () {
+                              if (actions.isHighlighter) {
+                                controller.toggle(GnPanel.penSettings);
+                              } else {
+                                actions.selectHighlighter();
+                              }
+                            },
+                    ),
+                    toolButton(
+                      icon: const Icon(ShapePen.shapePenIcon),
+                      tooltip: t.editor.pens.shapePen,
+                      selected: actions.isShape,
+                      onPressed: readOnly ? null : actions.toggleShape,
                     ),
                     toolButton(
                       icon: const Icon(Symbols.ink_eraser_rounded),
@@ -296,36 +415,6 @@ class GnEditorBar extends StatelessWidget {
               ),
             ),
           ),
-          TextButton(
-            onPressed: onPages,
-            style: TextButton.styleFrom(
-              foregroundColor: palette.onHeader,
-              visualDensity: VisualDensity.compact,
-            ),
-            child: ValueListenableBuilder<int>(
-              valueListenable: visiblePage,
-              builder: (context, page, _) =>
-                  Text('${(page < 0 ? 0 : page) + 1} / $pageCount'),
-            ),
-          ),
-          IconButton(
-            tooltip: t.editor.menu.insertPage,
-            icon: const Icon(Symbols.note_add_rounded),
-            onPressed: spec.readOnly ? null : onAddPage,
-          ),
-          CompositedTransformTarget(
-            link: controller.links[GnPanel.export]!,
-            child: IconButton(
-              tooltip: t.editor.toolbar.export,
-              icon: const Icon(Symbols.ios_share_rounded),
-              onPressed: () => controller.toggle(GnPanel.export),
-            ),
-          ),
-          IconButton(
-            tooltip: DefterStrings.gnMenu,
-            icon: const Icon(Symbols.more_horiz_rounded),
-            onPressed: onMore,
-          ),
         ],
       ),
     );
@@ -362,8 +451,10 @@ class _ToolButton extends StatelessWidget {
               : palette.onHeader,
           disabledForegroundColor: palette.onHeader.withValues(alpha: 0.4),
           backgroundColor: selected ? palette.selectedTool : Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          minimumSize: const Size(46, 40),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          minimumSize: const Size(44, 44),
         ),
         icon: icon,
       ),
@@ -416,12 +507,19 @@ class _Tab extends StatelessWidget {
                 ),
               ),
               if (selected && onRename != null)
-                Icon(Symbols.keyboard_arrow_down_rounded, size: 18, color: palette.onHeader),
+                Icon(
+                  Symbols.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: palette.onHeader,
+                ),
               if (onClose != null)
                 IconButton(
                   iconSize: 16,
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+                  constraints: const BoxConstraints.tightFor(
+                    width: 28,
+                    height: 28,
+                  ),
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   onPressed: onClose,
                   icon: Icon(Symbols.close_rounded, color: palette.onHeader),

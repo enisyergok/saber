@@ -104,6 +104,7 @@ Future<void> appRunner(List<String> args) async {
     }),
   ]);
 
+  await stows.migrateInterface();
   setLocale();
   stows.locale.addListener(setLocale);
   stows.customDataDir.addListener(FileManager.migrateDataDir);

@@ -9,7 +9,6 @@ import 'package:saber/components/editor_gn/gn_controller.dart';
 import 'package:saber/components/editor_gn/float_bar.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/components/theming/dynamic_material_app.dart';
-import 'package:saber/components/theming/uni_icon.dart';
 import 'package:saber/components/toolbar/color_bar.dart';
 import 'package:saber/components/toolbar/export_bar.dart';
 import 'package:saber/components/toolbar/note_link_dialog.dart';
@@ -24,11 +23,8 @@ import 'package:saber/data/links/note_link.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/tools/notewise_tools.dart';
 import 'package:saber/data/tools/eraser.dart';
-import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/pen.dart';
-import 'package:saber/data/tools/pencil.dart';
 import 'package:saber/data/tools/select.dart';
-import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 
 /// What hangs from the top bar over the page: undo and redo, the strip with
@@ -134,7 +130,7 @@ class _GnOverlayState extends State<GnOverlay> {
                 ),
               ),
             ),
-          if (!floating)
+          if (!floating && strip != null)
             Positioned(
               top: 0,
               left: 0,
@@ -142,22 +138,13 @@ class _GnOverlayState extends State<GnOverlay> {
                 link: controller.barLink,
                 targetAnchor: Alignment.bottomLeft,
                 followerAnchor: Alignment.topLeft,
-                offset: const Offset(64, 8),
+                offset: const Offset(12, 8),
                 showWhenUnlinked: false,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.sizeOf(context).width - 24,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _UndoRedo(spec: widget.spec),
-                      if (strip != null) ...[
-                        const SizedBox(width: 8),
-                        Flexible(child: strip),
-                      ],
-                    ],
-                  ),
+                  child: strip,
                 ),
               ),
             ),
@@ -227,32 +214,6 @@ class _GnOverlayState extends State<GnOverlay> {
       content = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!floating) ...[
-            _PenChip(
-              selected: actions.isPen,
-              tooltip: actions.writingPen.name,
-              onTap: actions.selectPen,
-              child: UniIcon(actions.writingPen.icon, size: 24),
-            ),
-            _PenChip(
-              selected: actions.isPencil,
-              tooltip: t.editor.pens.pencil,
-              onTap: actions.selectPencil,
-              child: const Icon(Pencil.pencilIcon, size: 24),
-            ),
-            _PenChip(
-              selected: actions.isHighlighter,
-              tooltip: t.editor.pens.highlighter,
-              onTap: actions.selectHighlighter,
-              child: const Icon(Highlighter.highlighterIcon, size: 24),
-            ),
-            _PenChip(
-              selected: actions.isShape,
-              tooltip: t.editor.pens.shapePen,
-              onTap: actions.toggleShape,
-              child: const Icon(ShapePen.shapePenIcon, size: 24),
-            ),
-          ],
           QuickStyleBar(
             pen: tool,
             currentColor: currentColor,
@@ -291,7 +252,7 @@ class _GnOverlayState extends State<GnOverlay> {
       );
     }
     if (content == null) return null;
-    return FloatingPanel.pill(
+    return FloatingPanel(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -412,81 +373,6 @@ class _GnOverlayState extends State<GnOverlay> {
               child: Padding(padding: const EdgeInsets.all(10), child: body),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _UndoRedo extends StatelessWidget {
-  const _UndoRedo({required this.spec});
-
-  final Toolbar spec;
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingPanel.pill(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              tooltip: t.editor.toolbar.undo,
-              icon: const Icon(Symbols.undo_rounded),
-              onPressed: !spec.readOnly && spec.isUndoPossible
-                  ? spec.undo
-                  : null,
-            ),
-            IconButton(
-              tooltip: t.editor.toolbar.redo,
-              icon: const Icon(Symbols.redo_rounded),
-              onPressed: !spec.readOnly && spec.isRedoPossible
-                  ? spec.redo
-                  : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PenChip extends StatelessWidget {
-  const _PenChip({
-    required this.selected,
-    required this.tooltip,
-    required this.onTap,
-    required this.child,
-  });
-
-  final bool selected;
-  final String tooltip;
-  final VoidCallback onTap;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = ColorScheme.of(context);
-    return PressScale(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: IconButton(
-          tooltip: tooltip,
-          onPressed: onTap,
-          isSelected: selected,
-          style: IconButton.styleFrom(
-            fixedSize: const Size.square(DefterDesign.toolButtonSize),
-            minimumSize: const Size.square(DefterDesign.toolButtonSize),
-            foregroundColor: selected
-                ? DefterDesign.selectedToolForeground(colors)
-                : colors.onSurface,
-            backgroundColor: selected
-                ? DefterDesign.selectedToolBackground(colors)
-                : Colors.transparent,
-            shape: DefterDesign.toolButtonShape,
-          ),
-          icon: child,
         ),
       ),
     );

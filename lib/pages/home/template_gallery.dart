@@ -52,84 +52,124 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
               : DefterStrings.templatesOf(fixed.label),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // every kind, unless the page was opened for one kind
-          if (fixed == null)
-            SizedBox(
-              height: 48,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  chip(
-                    DefterStrings.groupAll,
-                    _group == null,
-                    () => setState(() {
-                      _group = null;
-                      _topic = null;
-                    }),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 760 && fixed == null;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (wide)
+                Container(
+                  width: 210,
+                  color: ColorScheme.of(context).surfaceContainerLow,
+                  child: ListView(
+                    padding: const EdgeInsets.all(12),
+                    children: [
+                      for (final group in <PaperGroup?>[
+                        null,
+                        ...PaperGroup.values,
+                      ])
+                        ListTile(
+                          title: Text(group?.label ?? DefterStrings.groupAll),
+                          selected: _group == group,
+                          selectedTileColor: ColorScheme.of(context)
+                              .primaryContainer,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          onTap: () => setState(() {
+                            _group = group;
+                            _topic = null;
+                          }),
+                        ),
+                    ],
                   ),
-                  for (final group in PaperGroup.values)
-                    chip(
-                      group.label,
-                      _group == group,
-                      () => setState(() {
-                        _group = group;
-                        _topic = null;
-                      }),
+                ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // every kind, unless the page was opened for one kind
+                    if (fixed == null && !wide)
+                      SizedBox(
+                        height: 48,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            chip(
+                              DefterStrings.groupAll,
+                              _group == null,
+                              () => setState(() {
+                                _group = null;
+                                _topic = null;
+                              }),
+                            ),
+                            for (final group in PaperGroup.values)
+                              chip(
+                                group.label,
+                                _group == group,
+                                () => setState(() {
+                                  _group = group;
+                                  _topic = null;
+                                }),
+                              ),
+                          ],
+                        ),
+                      ),
+                    if (topics.isNotEmpty)
+                      SizedBox(
+                        height: 48,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            chip(
+                              DefterStrings.groupAll,
+                              _topic == null,
+                              () => setState(() => _topic = null),
+                            ),
+                            for (final topic in topics)
+                              chip(
+                                topic.label,
+                                _topic == topic,
+                                () => setState(() => _topic = topic),
+                              ),
+                          ],
+                        ),
+                      ),
+                    Expanded(
+                      child: GridView.builder(
+                        padding: const EdgeInsets.all(24),
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 190,
+                              mainAxisExtent: 248,
+                              crossAxisSpacing: 24,
+                              mainAxisSpacing: 24,
+                            ),
+                        itemCount: templates.length,
+                        itemBuilder: (context, index) {
+                          final template = templates[index];
+                          return PaperThumb(
+                            template: template,
+                            // the paper is chosen: the wizard opens on the cover
+                            onTap: () => NotebookCreator.start(
+                              context,
+                              folder: widget.folder,
+                              template: template,
+                              startAt: 1,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          if (topics.isNotEmpty)
-            SizedBox(
-              height: 48,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  chip(
-                    DefterStrings.groupAll,
-                    _topic == null,
-                    () => setState(() => _topic = null),
-                  ),
-                  for (final topic in topics)
-                    chip(
-                      topic.label,
-                      _topic == topic,
-                      () => setState(() => _topic = topic),
-                    ),
-                ],
-              ),
-            ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 132,
-                mainAxisExtent: 186,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: templates.length,
-              itemBuilder: (context, index) {
-                final template = templates[index];
-                return PaperThumb(
-                  template: template,
-                  // the paper is chosen: the wizard opens on the cover
-                  onTap: () => NotebookCreator.start(
-                    context,
-                    folder: widget.folder,
-                    template: template,
-                    startAt: 1,
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
