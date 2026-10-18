@@ -205,30 +205,39 @@ class GnEditorBar extends StatelessWidget {
           ),
           const SizedBox(height: 24, child: VerticalDivider(width: 12)),
           Expanded(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onRename,
-                borderRadius: BorderRadius.circular(10),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          currentName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 34) return const SizedBox.shrink();
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onRename,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              currentName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          const Icon(
+                            Symbols.keyboard_arrow_down_rounded,
+                            size: 18,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 2),
-                      const Icon(Symbols.keyboard_arrow_down_rounded, size: 18),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           TextButton(
