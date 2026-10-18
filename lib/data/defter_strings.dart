@@ -564,7 +564,7 @@ abstract class DefterStrings {
   static String get homeDashboardSubtitle => _tr
       ? 'Kenar çubuğu, son kullanılanlar, klasörler ve şablonlar tek ekranda'
       : 'Sidebar, recent notes, folders and templates on one screen';
-  static String get appName => 'Marj';
+  static String get appName => 'Marj Studio';
   static String get navHome => _tr ? 'Ana Sayfa' : 'Home';
   static String get navNotes => _tr ? 'Notlarım' : 'My Notes';
   static String get navPlanners => _tr ? 'Planlayıcılar' : 'Planners';

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:saber/data/ci_build.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/is_this_a_test.dart';
 import 'package:saber/data/prefs.dart';
@@ -48,8 +48,9 @@ class const AppInfo({super.key}) extends StatelessWidget {
   void _showAboutDialog(BuildContext context) => showAboutDialog(
     context: context,
     applicationVersion: info,
-    applicationIcon: SvgPicture.asset(
-      'assets/icon/icon.svg',
+    applicationName: DefterStrings.appName,
+    applicationIcon: Image.asset(
+      'assets/icon/marj-studio.png',
       width: 50,
       height: 50,
     ),

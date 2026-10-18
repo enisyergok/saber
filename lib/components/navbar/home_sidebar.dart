@@ -102,14 +102,14 @@ class _HomeSidebarState extends State<HomeSidebar> {
     }
   }
 
-  void _push(Widget page) => Navigator.of(
-    context,
-  ).push(MaterialPageRoute<void>(builder: (_) => page));
+  void _push(Widget page) =>
+      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
 
   Future<void> _newFolder() async {
     final name = await showDialog<String>(
       context: context,
-      builder: (context) => NewFolderNameDialog(existing: _folders.keys.toSet()),
+      builder: (context) =>
+          NewFolderNameDialog(existing: _folders.keys.toSet()),
     );
     if (name == null) return;
     await FileManager.createFolder('/$name');
@@ -181,7 +181,11 @@ class _HomeSidebarState extends State<HomeSidebar> {
               padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
               child: Row(
                 children: [
-                  Icon(Icons.folder_rounded, size: 18, color: folderColour(path)),
+                  Icon(
+                    Icons.folder_rounded,
+                    size: 18,
+                    color: folderColour(path),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -235,10 +239,16 @@ class _HomeSidebarState extends State<HomeSidebar> {
                   children: [
                     const MarjMark(size: 26),
                     const SizedBox(width: 10),
-                    Text(
-                      DefterStrings.appName,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
+                    Expanded(
+                      child: Text(
+                        DefterStrings.appName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 20,
+                          letterSpacing: -0.4,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -253,7 +263,8 @@ class _HomeSidebarState extends State<HomeSidebar> {
               item(
                 Symbols.description_rounded,
                 DefterStrings.navNotes,
-                selected: browsing && (widget.path == null || widget.path!.isEmpty),
+                selected:
+                    browsing && (widget.path == null || widget.path!.isEmpty),
                 onTap: () => widget.go(HomeRoutes.browseFilePath('/')),
               ),
               item(
@@ -317,7 +328,9 @@ class _HomeSidebarState extends State<HomeSidebar> {
                       tooltip: DefterStrings.folders,
                       visualDensity: VisualDensity.compact,
                       icon: Icon(
-                        _foldersShown ? Symbols.expand_less_rounded : Symbols.expand_more_rounded,
+                        _foldersShown
+                            ? Symbols.expand_less_rounded
+                            : Symbols.expand_more_rounded,
                         size: 20,
                       ),
                       onPressed: () =>
@@ -418,10 +431,7 @@ class _NewFolderNameDialogState extends State<NewFolderNameDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(DefterStrings.cancelWord),
         ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(DefterStrings.stepCreate),
-        ),
+        FilledButton(onPressed: _submit, child: Text(DefterStrings.stepCreate)),
       ],
     );
   }
