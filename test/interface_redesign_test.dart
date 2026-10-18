@@ -123,14 +123,13 @@ void main() {
         addTearDown(editor.cancelAutosaveAndMarkSaved);
         expect(find.byType(GnEditorBar), findsOneWidget);
         await tester.tap(find.byTooltip(DefterStrings.searchNotes));
-        // The real search page refreshes its disk index asynchronously. The
-        // route itself is enough to verify the editor action here; waiting
-        // for every background refresh would make this test non-terminating
-        // on the mock file system.
-        await tester.pump();
+        // The real search page refreshes its disk index asynchronously. Give
+        // the route transition time to finish, without waiting for the
+        // background refresh on the mock file system.
+        await tester.pump(const Duration(milliseconds: 500));
         expect(find.byType(SearchPage), findsOneWidget);
         await tester.pageBack();
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 500));
         expect(tester.takeException(), isNull);
         await capture(tester, 'editor_$name');
         final highlighter = find.byTooltip(t.editor.pens.highlighter);
