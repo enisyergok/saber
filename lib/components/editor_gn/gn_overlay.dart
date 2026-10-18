@@ -249,6 +249,9 @@ class _GnOverlayState extends State<GnOverlay> {
         duplicateSelection: spec.duplicateSelection,
         deleteSelection: spec.deleteSelection,
         recognizeSelection: spec.recognizeSelection,
+        setColor: spec.setColor,
+        currentColor: tool.getDominantStrokeColor(),
+        invertColors: invert,
       );
     }
     if (content == null) return null;

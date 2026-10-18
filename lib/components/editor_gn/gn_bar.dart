@@ -36,6 +36,7 @@ class GnEditorBar extends StatelessWidget {
     required this.sidebarAvailable,
     required this.sidebarShown,
     required this.onToggleSidebar,
+    required this.onSearch,
     required this.onAskNotes,
     required this.onAddPage,
     required this.onRecordings,
@@ -67,6 +68,7 @@ class GnEditorBar extends StatelessWidget {
   final bool sidebarAvailable;
   final bool sidebarShown;
   final VoidCallback onToggleSidebar;
+  final VoidCallback onSearch;
   final VoidCallback onAskNotes;
   final VoidCallback onAddPage;
   final VoidCallback onRecordings;
@@ -192,21 +194,39 @@ class GnEditorBar extends StatelessWidget {
             onPressed: sidebarAvailable ? onToggleSidebar : null,
           ),
           IconButton(
+            tooltip: DefterStrings.searchNotes,
+            icon: const Icon(Symbols.search_rounded),
+            onPressed: onSearch,
+          ),
+          IconButton(
             tooltip: DefterStrings.askNotes,
             icon: const Icon(Symbols.auto_awesome_rounded),
             onPressed: onAskNotes,
           ),
-
+          const SizedBox(height: 24, child: VerticalDivider(width: 12)),
           Expanded(
-            child: InkWell(
-              onTap: onRename,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  currentName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onRename,
+                borderRadius: BorderRadius.circular(10),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          currentName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Symbols.keyboard_arrow_down_rounded, size: 18),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -223,6 +243,7 @@ class GnEditorBar extends StatelessWidget {
                   Text('${(page < 0 ? 0 : page) + 1} / $pageCount'),
             ),
           ),
+          const SizedBox(height: 24, child: VerticalDivider(width: 12)),
           IconButton(
             tooltip: t.editor.menu.insertPage,
             icon: const Icon(Symbols.note_add_rounded),
@@ -382,39 +403,43 @@ class GnEditorBar extends StatelessWidget {
                       panel: GnPanel.more,
                       onPressed: () => controller.toggle(GnPanel.more),
                     ),
-                    toolButton(
-                      icon: const Icon(Symbols.mic_rounded),
-                      tooltip: DefterStrings.recordings,
-                      selected: false,
-                      onPressed: onRecordings,
-                    ),
-                    if (onPenProbe != null)
-                      ValueListenableBuilder<bool>(
-                        valueListenable: PenLatencyProbe.instance.recording,
-                        builder: (context, recording, _) {
-                          if (!showPenProbe && !recording) {
-                            return const SizedBox.shrink();
-                          }
-                          return toolButton(
-                            icon: Icon(
-                              recording
-                                  ? Icons.stop_circle_rounded
-                                  : Symbols.speed_rounded,
-                              color: recording ? Colors.red : null,
-                            ),
-                            tooltip: recording
-                                ? DefterStrings.penProbeStop
-                                : DefterStrings.penProbeStart,
-                            selected: recording,
-                            onPressed: onPenProbe,
-                          );
-                        },
-                      ),
                   ],
                 ),
               ),
             ),
           ),
+          const SizedBox(height: 28, child: VerticalDivider(width: 12)),
+          _ToolButton(
+            key: const Key('gnRecordings'),
+            icon: const Icon(Symbols.mic_rounded),
+            tooltip: DefterStrings.recordings,
+            selected: false,
+            palette: palette,
+            onPressed: onRecordings,
+          ),
+          if (onPenProbe != null)
+            ValueListenableBuilder<bool>(
+              valueListenable: PenLatencyProbe.instance.recording,
+              builder: (context, recording, _) {
+                if (!showPenProbe && !recording) {
+                  return const SizedBox.shrink();
+                }
+                return _ToolButton(
+                  icon: Icon(
+                    recording
+                        ? Icons.stop_circle_rounded
+                        : Symbols.speed_rounded,
+                    color: recording ? Colors.red : null,
+                  ),
+                  tooltip: recording
+                      ? DefterStrings.penProbeStop
+                      : DefterStrings.penProbeStart,
+                  selected: recording,
+                  palette: palette,
+                  onPressed: onPenProbe,
+                );
+              },
+            ),
         ],
       ),
     );

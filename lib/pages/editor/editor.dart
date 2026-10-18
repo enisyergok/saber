@@ -85,6 +85,7 @@ import 'package:saber/components/editor_gn/gn_controller.dart';
 import 'package:saber/components/editor_gn/gn_overlay.dart';
 import 'package:saber/components/toolbar/recognize_dialog.dart';
 import 'package:saber/pages/ask_notes.dart';
+import 'package:saber/pages/search.dart';
 import 'package:saber/components/toolbar/recordings_dialog.dart';
 import 'package:saber/data/pdf/pdf_import.dart';
 import 'package:saber/data/pdf/pdf_note_text.dart';
@@ -3350,6 +3351,8 @@ class EditorState extends State<Editor> {
       sidebarShown: stows.editorPageSidebar.value,
       onToggleSidebar: () =>
           stows.editorPageSidebar.value = !stows.editorPageSidebar.value,
+      onSearch: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => const SearchPage())),
       onAskNotes: () => Navigator.of(context)
           .push(MaterialPageRoute<void>(builder: (_) => const AskNotesPage())),
       onAddPage: () => setState(() {

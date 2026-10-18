@@ -19,6 +19,7 @@ import 'package:saber/pages/home/dashboard.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/home/settings.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
+import 'package:saber/pages/search.dart';
 
 import 'utils/test_mock_channel_handlers.dart';
 
@@ -121,6 +122,11 @@ void main() {
         final editor = tester.state<EditorState>(find.byType(Editor));
         addTearDown(editor.cancelAutosaveAndMarkSaved);
         expect(find.byType(GnEditorBar), findsOneWidget);
+        await tester.tap(find.byTooltip(DefterStrings.searchNotes));
+        await tester.pumpAndSettle();
+        expect(find.byType(SearchPage), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         await capture(tester, 'editor_$name');
         final highlighter = find.byTooltip(t.editor.pens.highlighter);
