@@ -79,8 +79,8 @@ class const SyncingButton({super.key}) extends HookWidget {
           ),
           const Padding(
             padding: .all(4),
-            child: AspectRatio(
-              aspectRatio: 1,
+            child: SizedBox.square(
+              dimension: 24,
               child: AdaptiveIcon(
                 icon: Symbols.sync_rounded,
                 cupertinoIcon: CupertinoIcons.arrow_2_circlepath,

@@ -320,6 +320,7 @@ void main() {
 
   testWidgets('a profile sets the pen with one tap', (tester) async {
     final panel = await pumpPanel(tester);
+    await tester.ensureVisible(find.byKey(const ValueKey('penSection2')));
     await tester.tap(find.byKey(const ValueKey('penSection2')));
     await tester.pumpAndSettle();
     expect(find.byType(GnPenProfiles), findsOneWidget);
@@ -352,6 +353,7 @@ void main() {
     final pen = panel.pen();
     pen.options.size = 7;
 
+    await tester.ensureVisible(find.byKey(const ValueKey('penSection2')));
     await tester.tap(find.byKey(const ValueKey('penSection2')));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip(DefterStrings.addProfile));

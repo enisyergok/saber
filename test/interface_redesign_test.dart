@@ -17,6 +17,8 @@ import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
 import 'package:saber/pages/home/dashboard.dart';
 import 'package:saber/pages/home/template_gallery.dart';
+import 'package:saber/pages/home/settings.dart';
+import 'package:saber/pages/home/new_notebook_wizard.dart';
 
 import 'utils/test_mock_channel_handlers.dart';
 
@@ -31,6 +33,9 @@ void main() {
     stows.editorGnLayout.value = true;
     stows.editorFloatingBar.value = false;
     stows.homeDashboard.value = true;
+    // Each editor starts from a known tool, not the previous test's choice.
+    stows.lastTool.value = .fountainPen;
+    stows.lastPenVariant.value = 0;
   });
 
   Future<void> pump(
@@ -128,6 +133,10 @@ void main() {
         expect(find.byType(GnPenSettings), findsOneWidget);
         expect(tester.takeException(), isNull);
         await capture(tester, 'tool_menu_$name');
+        // Tapping the selected tool again closes its settings.
+        await tester.tap(highlighter);
+        await tester.pumpAndSettle();
+        expect(find.byType(GnPenSettings), findsNothing);
       },
     );
 
@@ -185,4 +194,33 @@ void main() {
     expect(tester.takeException(), isNull);
     await capture(tester, 'pen_dark_phone');
   });
+
+  for (final (name, size) in [
+    ('phone', const Size(390, 844)),
+    ('tablet', const Size(1280, 800)),
+  ]) {
+    testWidgets('actual settings $name has grouped categories', (tester) async {
+      await pump(tester, size, const SettingsPage());
+      expect(find.byType(SettingsSections), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await capture(tester, 'settings_full_$name');
+    });
+
+    testWidgets('new notebook $name exposes labeled creation stages', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        size,
+        Scaffold(
+          body: NewNotebookWizard(
+            loadFolders: () async => const ['/Dersler', '/Projeler'],
+          ),
+        ),
+      );
+      expect(find.text(DefterStrings.wizardTitle), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await capture(tester, 'new_notebook_$name');
+    });
+  }
 }

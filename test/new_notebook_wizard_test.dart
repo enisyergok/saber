@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/paper_thumb.dart';
 import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -80,7 +79,9 @@ void main() {
 
     // 2: the cover, from the classic tab
     expect(find.text(DefterStrings.coverDesign), findsOneWidget);
-    await tester.tap(find.widgetWithText(ChoiceChip, DefterStrings.coverClassic));
+    await tester.tap(
+      find.widgetWithText(ChoiceChip, DefterStrings.coverClassic),
+    );
     await tester.pumpAndSettle();
     final leather = CoverDesigns.byId('c-navy')!;
     await tester.tap(find.byTooltip(leather.name));
@@ -112,7 +113,9 @@ void main() {
     expect(find.text('Proje planı'), findsOneWidget);
     expect(find.text('/Projeler'), findsOneWidget);
     expect(find.text(DefterStrings.next), findsNothing);
-    await tester.tap(find.byIcon(Symbols.check_rounded));
+    await tester.tap(
+      find.widgetWithText(FilledButton, DefterStrings.stepCreate),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(NewNotebookWizard), findsNothing);
@@ -258,7 +261,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: TemplateGalleryPage()));
     expect(find.text(DefterStrings.navTemplates), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(ChoiceChip, PaperGroup.diagram.label));
+    await tester.tap(find.widgetWithText(ListTile, PaperGroup.diagram.label));
     await tester.pumpAndSettle();
     // the kind's topics appear as a second row
     expect(

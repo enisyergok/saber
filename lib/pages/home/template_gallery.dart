@@ -59,30 +59,32 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (wide)
-                Container(
+                SizedBox(
                   width: 210,
-                  color: ColorScheme.of(context).surfaceContainerLow,
-                  child: ListView(
-                    padding: const EdgeInsets.all(12),
-                    children: [
-                      for (final group in <PaperGroup?>[
-                        null,
-                        ...PaperGroup.values,
-                      ])
-                        ListTile(
-                          title: Text(group?.label ?? DefterStrings.groupAll),
-                          selected: _group == group,
-                          selectedTileColor: ColorScheme.of(context)
-                              .primaryContainer,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  child: Material(
+                    color: ColorScheme.of(context).surfaceContainerLow,
+                    child: ListView(
+                      padding: const EdgeInsets.all(12),
+                      children: [
+                        for (final group in <PaperGroup?>[
+                          null,
+                          ...PaperGroup.values,
+                        ])
+                          ListTile(
+                            title: Text(group?.label ?? DefterStrings.groupAll),
+                            selected: _group == group,
+                            selectedTileColor: ColorScheme.of(context)
+                                .primaryContainer,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            onTap: () => setState(() {
+                              _group = group;
+                              _topic = null;
+                            }),
                           ),
-                          onTap: () => setState(() {
-                            _group = group;
-                            _topic = null;
-                          }),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               Expanded(

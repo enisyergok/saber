@@ -76,14 +76,14 @@ class PaperThumb extends StatelessWidget {
                 ),
               ),
               if (showName) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 ExcludeSemantics(
                   child: Text(
                     template.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: selected ? FontWeight.w700 : null,
                       color: selected ? colors.primary : colors.onSurface,
                     ),

@@ -140,6 +140,11 @@ class GnEditorBar extends StatelessWidget {
       height: tabRowHeight,
       child: Row(
         children: [
+          IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const Icon(Symbols.chevron_left_rounded),
+            onPressed: onNewTab,
+          ),
           SaveIndicator(savingState: savingState, triggerSave: triggerSave),
           Expanded(
             child: ListView.separated(

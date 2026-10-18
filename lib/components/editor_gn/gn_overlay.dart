@@ -312,7 +312,7 @@ class _GnOverlayState extends State<GnOverlay> {
                 // From under the bar (the panel hangs 8 below it) to just
                 // above the bottom of the screen.
                 maxHeight: math.max(
-                  280.0,
+                  80.0,
                   MediaQuery.sizeOf(context).height -
                       MediaQuery.viewPaddingOf(context).vertical -
                       (floating
@@ -357,20 +357,47 @@ class _GnOverlayState extends State<GnOverlay> {
       top: 0,
       left: 0,
       child: CompositedTransformFollower(
-        link: controller.links[panel]!,
+        link: floating ? controller.links[panel]! : controller.barLink,
         targetAnchor: rightSide
             ? Alignment.bottomRight
-            : Alignment.bottomCenter,
-        followerAnchor: rightSide ? Alignment.topRight : Alignment.topCenter,
-        offset: const Offset(0, 8),
+            : floating
+            ? Alignment.bottomCenter
+            : Alignment.bottomLeft,
+        followerAnchor: rightSide
+            ? Alignment.topRight
+            : floating
+            ? Alignment.topCenter
+            : Alignment.topLeft,
+        offset: Offset(
+          floating
+              ? 0
+              : rightSide
+              ? -12
+              : 12,
+          8,
+        ),
         showWhenUnlinked: false,
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: width - 16),
+          constraints: BoxConstraints(
+            maxWidth: width - 24,
+            maxHeight: math.max(
+              80,
+              MediaQuery.sizeOf(context).height -
+                  MediaQuery.viewPaddingOf(context).vertical -
+                  (floating
+                      ? FloatEditorBar.reservedHeight(width)
+                      : GnEditorBar.contentHeight) -
+                  24,
+            ),
+          ),
           child: Appear(
             key: ValueKey(panel),
             alignment: rightSide ? Alignment.topRight : Alignment.topCenter,
             child: FloatingPanel(
-              child: Padding(padding: const EdgeInsets.all(10), child: body),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(10),
+                child: body,
+              ),
             ),
           ),
         ),

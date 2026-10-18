@@ -36,36 +36,38 @@ class _SettingsSectionsState extends State<SettingsSections> {
         groups.last.add(child);
       }
     }
-    Widget group(int index) => Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      decoration: BoxDecoration(
+    Widget group(int index) => Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Material(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.outlineVariant),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              headings[index],
-              style: TextTheme.of(context).titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: colors.outlineVariant),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                headings[index],
+                style: TextTheme.of(context).titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
             ),
-          ),
-          for (var i = 0; i < groups[index].length; i++) ...[
-            if (i > 0) const Divider(indent: 56, height: 1),
-            groups[index][i],
+            for (var i = 0; i < groups[index].length; i++) ...[
+              if (i > 0) const Divider(indent: 56, height: 1),
+              groups[index][i],
+            ],
           ],
-        ],
+        ),
       ),
     );
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 760;
-        return ColoredBox(
+        return Material(
           color: colors.surfaceContainerLow,
           child: Column(
             children: [
@@ -76,34 +78,36 @@ class _SettingsSectionsState extends State<SettingsSections> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (wide)
-                      Container(
+                      SizedBox(
                         width: 210,
-                        color: colors.surface,
-                        child: ListView(
-                          padding: const EdgeInsets.all(12),
-                          children: [
-                            for (var i = 0; i < headings.length; i++)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 4),
-                                child: ListTile(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                        child: Material(
+                          color: colors.surface,
+                          child: ListView(
+                            padding: const EdgeInsets.all(12),
+                            children: [
+                              for (var i = 0; i < headings.length; i++)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  child: ListTile(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    title: Text(
+                                      headings[i],
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    trailing: const Icon(
+                                      Icons.chevron_right,
+                                      size: 18,
+                                    ),
+                                    selected: _selected == i,
+                                    selectedTileColor: colors.primaryContainer,
+                                    selectedColor: colors.onPrimaryContainer,
+                                    onTap: () => setState(() => _selected = i),
                                   ),
-                                  title: Text(
-                                    headings[i],
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  trailing: const Icon(
-                                    Icons.chevron_right,
-                                    size: 18,
-                                  ),
-                                  selected: _selected == i,
-                                  selectedTileColor: colors.primaryContainer,
-                                  selectedColor: colors.onPrimaryContainer,
-                                  onTap: () => setState(() => _selected = i),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     Expanded(
