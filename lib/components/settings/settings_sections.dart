@@ -68,10 +68,27 @@ class _SettingsSectionsState extends State<SettingsSections> {
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 760;
         return Material(
-          color: colors.surfaceContainerLow,
+          color: colors.surface,
           child: Column(
             children: [
-              LibraryHeader(title: widget.title, actions: widget.actions),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(28, 22, 28, 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 29,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.7,
+                        ),
+                      ),
+                    ),
+                    ...widget.actions,
+                  ],
+                ),
+              ),
               const Divider(height: 1),
               Expanded(
                 child: Row(
@@ -79,9 +96,9 @@ class _SettingsSectionsState extends State<SettingsSections> {
                   children: [
                     if (wide)
                       SizedBox(
-                        width: 210,
+                        width: 236,
                         child: Material(
-                          color: colors.surface,
+                          color: const Color(0xfff6f6f6),
                           child: ListView(
                             padding: const EdgeInsets.all(12),
                             children: [
@@ -101,8 +118,8 @@ class _SettingsSectionsState extends State<SettingsSections> {
                                       size: 18,
                                     ),
                                     selected: _selected == i,
-                                    selectedTileColor: colors.primaryContainer,
-                                    selectedColor: colors.onPrimaryContainer,
+                                    selectedTileColor: const Color(0xffe2ecf8),
+                                    selectedColor: const Color(0xff4485bf),
                                     onTap: () => setState(() => _selected = i),
                                   ),
                                 ),

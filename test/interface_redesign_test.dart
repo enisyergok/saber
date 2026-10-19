@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_pen_settings.dart';
-import 'package:saber/components/home/library_header.dart';
+import 'package:saber/components/home/noteva_library.dart';
 import 'package:saber/components/settings/settings_sections.dart';
 import 'package:saber/components/settings/settings_subtitle.dart';
 import 'package:saber/components/theming/saber_theme.dart';
@@ -104,13 +104,12 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(LibraryHeader), findsOneWidget);
+      expect(find.byType(NotevaLibrary), findsOneWidget);
       expect(tester.takeException(), isNull);
       await capture(tester, 'library_$name');
       await tester.tap(find.byKey(const Key('libraryCreateMenu')));
       await tester.pumpAndSettle();
-      expect(find.text(DefterStrings.actionAddImage), findsOneWidget);
-      expect(find.text(DefterStrings.actionImportNote), findsOneWidget);
+      expect(find.byType(NewNotebookWizard), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

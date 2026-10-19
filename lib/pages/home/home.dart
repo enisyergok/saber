@@ -89,6 +89,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.subpage == HomePage.dashboardSubpage &&
+        stows.homeDashboard.value) {
+      return body;
+    }
     // hide navbar in fullscreen whiteboard
     if (widget.subpage == HomePage.whiteboardSubpage &&
         DynamicMaterialApp.isFullscreen) {

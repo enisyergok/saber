@@ -3,6 +3,10 @@ import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:saber/components/home/noteva_library.dart';
+import 'package:saber/components/home/favorite_note_button.dart';
+import 'package:saber/data/prefs.dart';
+import 'package:saber/pages/favorites.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/notebook_cover.dart';
@@ -24,7 +28,12 @@ import 'package:saber/pages/search.dart';
 /// What the home screen shows of the notes: the latest ones and the top
 /// folders with how much is in each.
 class DashboardData {
-  const DashboardData({this.recent = const [], this.folders = const {}});
+  const DashboardData({
+    this.recent = const [],
+    this.folders = const {},
+    this.documents = const [],
+  });
+  final List<LibraryDocument> documents;
 
   /// The paths of the notes last opened, newest first.
   final List<String> recent;
@@ -41,7 +50,49 @@ class DashboardData {
       folders[folder] =
           (inside?.files.length ?? 0) + (inside?.directories.length ?? 0);
     }
-    return DashboardData(recent: recent, folders: folders);
+    final documents = <LibraryDocument>[];
+    for (final name in root?.files ?? const <String>[]) {
+      final path = '/$name';
+      final file = FileManager.getFile('$path${Editor.extension}');
+      final thumbnail = FileManager.getFile('$path${Editor.extension}.p');
+      final modified = file.existsSync() ? file.lastModifiedSync() : null;
+      documents.add(
+        LibraryDocument(
+          id: path,
+          title: path.split('/').last,
+          modified: modified,
+          cover: thumbnail.existsSync()
+              ? Image.file(
+                  thumbnail,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) =>
+                      const Icon(Icons.description_outlined),
+                )
+              : null,
+          subtitle: modified == null
+              ? ''
+              : '${modified.day}.${modified.month}.${modified.year}',
+          favorite: stows.favoriteFiles.value.contains(
+            '$path${Editor.extension}',
+          ),
+        ),
+      );
+    }
+    for (final entry in folders.entries) {
+      documents.add(
+        LibraryDocument(
+          id: '/${entry.key}',
+          title: entry.key,
+          folder: true,
+          subtitle: DefterStrings.itemCount(entry.value),
+        ),
+      );
+    }
+    return DashboardData(
+      recent: recent,
+      folders: folders,
+      documents: documents,
+    );
   }
 }
 
@@ -215,6 +266,28 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    return NotevaLibrary(
+      loading: _data == null,
+      documents: _data?.documents ?? const [],
+      onOpen: (doc) => doc.folder
+          ? context.go(HomeRoutes.browseFilePath(doc.id))
+          : context.push(RoutePaths.editFilePath(doc.id)),
+      onCreate: _newNote,
+      onImport: _importNote,
+      onSearch: () => _push(const SearchPage()),
+      onFavorites: () => _push(const FavoritesPage()),
+      onTemplates: () => _push(const TemplateGalleryPage()),
+      onSettings: () => context.go(HomeRoutes.routes[3].path),
+      onFavorite: (doc) {
+        FavoriteNoteButton.toggle([doc.id]);
+        _load();
+      },
+    );
+  }
+
+  // Retained during the first-screen approval so the previous layout remains
+  // reviewable. The live entry point above uses NotevaLibrary.
+  Widget buildPreviousLibrary(BuildContext context) {
     final data = _data;
     return Scaffold(
       body: Column(
@@ -457,33 +530,44 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         for (final MapEntry(key: name, value: count) in data.folders.entries)
           SizedBox(
-            width: 140,
+            width: 176,
             child: Material(
-              color: Colors.transparent,
+              color: colors.surfaceContainerLow,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: BorderSide(color: colors.outlineVariant),
+              ),
+              clipBehavior: Clip.antiAlias,
               child: InkWell(
-                borderRadius: BorderRadius.circular(12),
                 onTap: () => context.go(HomeRoutes.browseFilePath('/$name')),
                 child: Padding(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
                   child: Column(
                     children: [
                       Icon(
                         Icons.folder_rounded,
-                        size: 96,
+                        size: 42,
                         color: folderColour('/$name'),
                       ),
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        DefterStrings.itemCount(count),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colors.onSurfaceVariant,
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          DefterStrings.itemCount(count),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ],

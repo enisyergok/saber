@@ -21,6 +21,7 @@ class TemplateGalleryPage extends StatefulWidget {
 }
 
 class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
+  static const goodnotesBlue = Color(0xff4485bf);
   late PaperGroup? _group = widget.group;
   PaperTopic? _topic;
 
@@ -46,6 +47,9 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xff171717),
+        elevation: 0,
         title: Text(
           fixed == null
               ? DefterStrings.navTemplates
@@ -73,8 +77,8 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
                           ListTile(
                             title: Text(group?.label ?? DefterStrings.groupAll),
                             selected: _group == group,
-                            selectedTileColor: ColorScheme.of(context)
-                                .primaryContainer,
+                            selectedTileColor: const Color(0xffe2ecf8),
+                            selectedColor: goodnotesBlue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -145,8 +149,8 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
                         padding: const EdgeInsets.all(24),
                         gridDelegate:
                             const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 190,
-                              mainAxisExtent: 248,
+                              maxCrossAxisExtent: 184,
+                              mainAxisExtent: 232,
                               crossAxisSpacing: 24,
                               mainAxisSpacing: 24,
                             ),

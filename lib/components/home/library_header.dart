@@ -25,68 +25,89 @@ class LibraryHeader extends StatelessWidget {
       color: colors.surface,
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final horizontal = constraints.maxWidth >= 700 ? 32.0 : 20.0;
+            return Padding(
+              padding: EdgeInsets.fromLTRB(horizontal, 20, horizontal, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: TextTheme.of(context).headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.8,
-                      ),
-                    ),
-                  ),
-                  ...actions,
-                ],
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  subtitle!,
-                  style: TextStyle(color: colors.onSurfaceVariant),
-                ),
-              ],
-              if (onSearch != null) ...[
-                const SizedBox(height: 20),
-                InkWell(
-                  onTap: onSearch,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 13,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.search,
-                          size: 21,
-                          color: colors.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            DefterStrings.searchNotes,
-                            style: TextStyle(color: colors.onSurfaceVariant),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextTheme.of(context).headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.8,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      if (actions.isNotEmpty)
+                        IconButtonTheme(
+                          data: IconButtonThemeData(
+                            style: IconButton.styleFrom(
+                              foregroundColor: colors.onSurface,
+                              backgroundColor: colors.surfaceContainerLow,
+                              shape: const CircleBorder(),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: actions,
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-              ],
-              if (bottom != null) ...[const SizedBox(height: 18), bottom!],
-            ],
-          ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle!,
+                      style: TextStyle(color: colors.onSurfaceVariant),
+                    ),
+                  ],
+                  if (onSearch != null) ...[
+                    const SizedBox(height: 18),
+                    InkWell(
+                      onTap: onSearch,
+                      borderRadius: BorderRadius.circular(14),
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: colors.outlineVariant),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.search,
+                              size: 21,
+                              color: colors.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                DefterStrings.searchNotes,
+                                style: TextStyle(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (bottom != null) ...[const SizedBox(height: 16), bottom!],
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

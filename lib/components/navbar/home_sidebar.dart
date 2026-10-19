@@ -254,6 +254,19 @@ class _HomeSidebarState extends State<HomeSidebar> {
                   ],
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: FilledButton.icon(
+                  onPressed: () => NotebookCreator.start(context),
+                  icon: const Icon(Symbols.add_rounded, size: 18),
+                  label: Text(DefterStrings.actionNewNote),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(42),
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                  ),
+                ),
+              ),
               item(
                 Symbols.home_rounded,
                 DefterStrings.navHome,

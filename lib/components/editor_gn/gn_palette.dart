@@ -35,18 +35,22 @@ class GnPalette {
         selectedToolForeground: colors.onSurface,
       );
     }
-    // Goodnotes keeps the document chrome quiet and lets the selected tool
-    // carry the accent. Marj keeps its ink blue in the active state instead
-    // of making the whole editor header a heavy colour block.
+    // Keep document chrome quiet and let the active tool carry the accent.
+    // Noteva uses the same neutral paper surfaces in the library and editor;
+    // the blue brand appears only in selection and primary actions.
     final header = colors.brightness == Brightness.light
-        ? colors.surfaceContainerLow
+        ? Colors.white
         : colors.surfaceContainerHigh;
     return GnPalette(
       header: header,
       onHeader: colors.onSurface,
       activeTab: colors.surface,
-      selectedTool: colors.primaryContainer,
-      selectedToolForeground: colors.onPrimaryContainer,
+      selectedTool: colors.brightness == Brightness.light
+          ? const Color(0xffe2ecf8)
+          : colors.primaryContainer,
+      selectedToolForeground: colors.brightness == Brightness.light
+          ? const Color(0xff4485bf)
+          : colors.onPrimaryContainer,
     );
   }
 }

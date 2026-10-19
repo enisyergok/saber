@@ -3,9 +3,10 @@
 Reference: Goodnotes' public “Improved User Interface” guide
 https://support.goodnotes.com/hc/en-us/articles/13682253498767-Improved-User-Interface
 
-This is an original Marj implementation of the document-library and editor
-layout patterns, not extracted Goodnotes code or artwork. The previous IPA
-inspection did not provide a usable visual specification.
+This is an original Noteva implementation of public document-library and
+editor layout patterns, not extracted Goodnotes code, artwork, or branding.
+The product keeps its own navy/cyan mark, copy, and component tokens while
+using familiar note-taking ergonomics.
 
 ## Visible changes
 
@@ -19,6 +20,22 @@ inspection did not provide a usable visual specification.
 - Template categories use a sidebar on tablets and scrollable chips on phones.
 - Notebook creation has labeled tabs on phones and icon categories on tablets.
 - Settings use category/detail panes on tablets and grouped cards on phones.
+- Library folder cards use compact paper surfaces, while the editor keeps a
+  quiet neutral chrome and makes the selected tool the visual anchor.
+
+## Interaction model
+
+Implemented interaction structure:
+
+- document tabs remain separate from navigation and tool rows;
+- selection controls are hosted by the existing editor overlay;
+- the library uses a persistent search surface, creation actions, folders,
+  recent documents, and template categories.
+
+Exact visual matching is not verified. Goodnotes 6.5.20 and the current
+Goodnotes interface differ; reference screenshots for the chosen version
+are needed before asserting layout parity. Automatic return to selection
+after inserting content has not been verified by this UI pass.
 
 ## Upgrade behavior
 
