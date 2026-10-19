@@ -50,7 +50,7 @@ class const AppInfo({super.key}) extends StatelessWidget {
     applicationVersion: info,
     applicationName: DefterStrings.appName,
     applicationIcon: Image.asset(
-      'assets/icon/marj-studio.png',
+      'assets/icon/noteva-preview.png',
       width: 50,
       height: 50,
     ),

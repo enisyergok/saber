@@ -13,8 +13,8 @@ class MarjMark extends StatelessWidget {
     final tint = color ?? (eInk ? ColorScheme.of(context).onSurface : null);
     return Image.asset(
       tint == null
-          ? 'assets/icon/marj-studio.png'
-          : 'assets/icon/marj-studio-mark.png',
+          ? 'assets/icon/noteva-preview.png'
+          : 'assets/icon/noteva-foreground-source.png',
       width: size,
       height: size,
       fit: BoxFit.contain,

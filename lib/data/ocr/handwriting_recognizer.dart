@@ -130,7 +130,7 @@ abstract class HandwritingRecognizer {
                 headers: {
                   'Authorization': 'Bearer ${apiKey.trim()}',
                   'Content-Type': 'application/json',
-                  'X-Title': 'Marj',
+                  'X-Title': 'Noteva',
                 },
                 body: body,
               )

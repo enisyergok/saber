@@ -205,8 +205,8 @@ flutter:
 
   assets:
     - assets/icon/icon.svg
-    - assets/icon/marj-studio.png
-    - assets/icon/marj-studio-mark.png
+    - assets/icon/noteva-preview.png
+    - assets/icon/noteva-foreground-source.png
     - assets/images/
     - assets/google_fonts/Atkinson_Hyperlegible_Next/OFL.txt
     - assets/google_fonts/Dekko/OFL.txt
@@ -278,13 +278,13 @@ flutter:
 
 # ./scripts/generate_icons.sh
 icons_launcher:
-  image_path: "assets/icon/icon.png"
+  image_path: "assets/icon/noteva-preview.png"
   platforms:
     android:
       enable: true
-      adaptive_background_color: "#ffc800"
-      adaptive_foreground_image: "assets/icon/icon_maskable.png"
-      adaptive_monochrome_image: "assets/icon/icon_monochrome.png"
+      adaptive_background_color: "#0B2A83"
+      adaptive_foreground_image: "assets/icon/noteva-foreground-source.png"
+      adaptive_monochrome_image: "assets/icon/noteva-foreground-source.png"
     ios:
       enable: true
       image_path: "assets/icon/icon_opaque.png"
