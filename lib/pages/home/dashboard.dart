@@ -120,6 +120,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   DashboardData? _data;
+  var _creationDialogOpen = false;
   StreamSubscription<FileOperation>? _writes;
   StreamSubscription<String>? _folderChanges;
 
@@ -171,7 +172,22 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // -- the actions ----------------------------------------------------------
 
-  Future<void> _newNote() => NotebookCreator.start(context);
+  Future<void> _newNote() async {
+    _creationDialogOpen = true;
+    try {
+      await NotebookCreator.start(context);
+    } finally {
+      _creationDialogOpen = false;
+    }
+  }
+
+  void _cancelPendingCreation() {
+    if (!_creationDialogOpen) return;
+    Future<void>.delayed(const Duration(milliseconds: 60), () {
+      if (!mounted || !_creationDialogOpen) return;
+      Navigator.of(context).pop();
+    });
+  }
 
   Future<void> _importPdf() async {
     if (!Editor.canRasterPdf) {
@@ -285,6 +301,7 @@ class _DashboardPageState extends State<DashboardPage> {
       onImportPdf: _importPdf,
       onAddImage: _addImage,
       onNewFolder: _newFolder,
+      onCreationCanceled: _cancelPendingCreation,
       onTemplateGroup: (group) => _push(TemplateGalleryPage(group: group)),
     );
   }

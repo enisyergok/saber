@@ -38,6 +38,7 @@ class NotevaLibrary extends StatefulWidget {
     required this.onImportPdf,
     required this.onAddImage,
     required this.onNewFolder,
+    this.onCreationCanceled,
     this.onTemplateGroup,
     this.loading = false,
   });
@@ -53,6 +54,7 @@ class NotevaLibrary extends StatefulWidget {
       onAddImage,
       onNewFolder;
   final ValueChanged<PaperGroup>? onTemplateGroup;
+  final VoidCallback? onCreationCanceled;
   final bool loading;
 
   @override
@@ -629,9 +631,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         // Goodnotes-style quick actions. If the menu is dismissed without a
         // selection, dismiss that pending wizard as well.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
-          }
+          widget.onCreationCanceled?.call();
         });
       },
       onSelected: (value) => switch (value) {
