@@ -283,7 +283,9 @@ class _DashboardPageState extends State<DashboardPage> {
         _load();
       },
       onImportPdf: _importPdf,
+      onAddImage: _addImage,
       onNewFolder: _newFolder,
+      onTemplateGroup: (group) => _push(TemplateGalleryPage(group: group)),
     );
   }
 

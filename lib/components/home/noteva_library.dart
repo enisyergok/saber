@@ -36,7 +36,9 @@ class NotevaLibrary extends StatefulWidget {
     required this.onSettings,
     required this.onImport,
     required this.onImportPdf,
+    required this.onAddImage,
     required this.onNewFolder,
+    this.onTemplateGroup,
     this.loading = false,
   });
   final List<LibraryDocument> documents;
@@ -48,7 +50,9 @@ class NotevaLibrary extends StatefulWidget {
       onSettings,
       onImport,
       onImportPdf,
+      onAddImage,
       onNewFolder;
+  final ValueChanged<PaperGroup>? onTemplateGroup;
   final bool loading;
 
   @override
@@ -293,7 +297,14 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                                     size: 16,
                                   ),
                                   label: Text(group.label),
-                                  onPressed: widget.onTemplates,
+                                  onPressed: () {
+                                    final onGroup = widget.onTemplateGroup;
+                                    if (onGroup != null) {
+                                      onGroup(group);
+                                    } else {
+                                      widget.onTemplates();
+                                    }
+                                  },
                                 ),
                             ],
                           ),
@@ -588,32 +599,61 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         ),
       ),
     );
-    return InkWell(
-      key: const Key('libraryCreateMenu'),
-      onTap: widget.onCreate,
-      onLongPress: widget.onImport,
-      child: large
-          ? Column(
+    final tile = large
+        ? Column(
+            children: [
+              icon,
+              const SizedBox(height: 10),
+              const Text('Yeni …', style: TextStyle(color: blue)),
+            ],
+          )
+        : SizedBox(
+            height: 78,
+            child: Row(
               children: [
+                const SizedBox(width: 8),
                 icon,
-                const SizedBox(height: 10),
-                const Text('Yeni …', style: TextStyle(color: blue)),
+                const SizedBox(width: 14),
+                const Text(
+                  'Yeni …',
+                  style: TextStyle(color: blue, fontSize: 14),
+                ),
               ],
-            )
-          : SizedBox(
-              height: 78,
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  icon,
-                  const SizedBox(width: 14),
-                  const Text(
-                    'Yeni …',
-                    style: TextStyle(color: blue, fontSize: 14),
-                  ),
-                ],
-              ),
             ),
+          );
+    return PopupMenuButton<String>(
+      key: const Key('libraryCreateMenu'),
+      onOpened: widget.onCreate,
+      onSelected: (value) => switch (value) {
+        'new' => widget.onCreate(),
+        'template' => widget.onTemplates(),
+        'pdf' => widget.onImportPdf(),
+        'image' => widget.onAddImage(),
+        'folder' => widget.onNewFolder(),
+        'note' => widget.onImport(),
+        _ => null,
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(value: 'new', child: Text(DefterStrings.actionNewNote)),
+        PopupMenuItem(
+          value: 'template',
+          child: Text(DefterStrings.actionFromTemplate),
+        ),
+        PopupMenuItem(value: 'pdf', child: Text(DefterStrings.actionImportPdf)),
+        PopupMenuItem(
+          value: 'image',
+          child: Text(DefterStrings.actionAddImage),
+        ),
+        PopupMenuItem(
+          value: 'folder',
+          child: Text(DefterStrings.actionNewFolder),
+        ),
+        PopupMenuItem(
+          value: 'note',
+          child: Text(DefterStrings.actionImportNote),
+        ),
+      ],
+      child: tile,
     );
   }
 }
