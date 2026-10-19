@@ -624,6 +624,16 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
     return PopupMenuButton<String>(
       key: const Key('libraryCreateMenu'),
       onOpened: widget.onCreate,
+      onCanceled: () {
+        // The creation tile opens the existing wizard while exposing the
+        // Goodnotes-style quick actions. If the menu is dismissed without a
+        // selection, dismiss that pending wizard as well.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+        });
+      },
       onSelected: (value) => switch (value) {
         'new' => widget.onCreate(),
         'template' => widget.onTemplates(),
