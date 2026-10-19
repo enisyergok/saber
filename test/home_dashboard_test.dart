@@ -235,8 +235,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(DefterStrings.actionAddImage), findsOneWidget);
       expect(find.text(DefterStrings.actionImportNote), findsOneWidget);
+      expect(find.byType(NewNotebookWizard), findsNothing);
       await tester.tapAt(const Offset(250, 790));
       await tester.pumpAndSettle();
+      expect(find.byType(NewNotebookWizard), findsNothing);
+      expect(find.byType(DashboardPage), findsOneWidget);
       // folders with how much is in each
       expect(find.text(DefterStrings.itemCount(12)), findsOneWidget);
       expect(find.text(DefterStrings.itemCount(0)), findsOneWidget);

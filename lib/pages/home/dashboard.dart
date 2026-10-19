@@ -35,6 +35,20 @@ class DashboardData {
   });
   final List<LibraryDocument> documents;
 
+  /// Include folder summaries supplied by every loader, without duplicating
+  /// folders already present in the document listing.
+  List<LibraryDocument> get libraryDocuments => [
+    ...documents,
+    for (final entry in folders.entries)
+      if (!documents.any((doc) => doc.id == '/${entry.key}'))
+        LibraryDocument(
+          id: '/${entry.key}',
+          title: entry.key,
+          folder: true,
+          subtitle: DefterStrings.itemCount(entry.value),
+        ),
+  ];
+
   /// The paths of the notes last opened, newest first.
   final List<String> recent;
 
@@ -120,7 +134,6 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   DashboardData? _data;
-  var _creationDialogOpen = false;
   StreamSubscription<FileOperation>? _writes;
   StreamSubscription<String>? _folderChanges;
 
@@ -172,22 +185,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // -- the actions ----------------------------------------------------------
 
-  Future<void> _newNote() async {
-    _creationDialogOpen = true;
-    try {
-      await NotebookCreator.start(context);
-    } finally {
-      _creationDialogOpen = false;
-    }
-  }
-
-  void _cancelPendingCreation() {
-    if (!_creationDialogOpen) return;
-    Future<void>.delayed(const Duration(milliseconds: 60), () {
-      if (!mounted || !_creationDialogOpen) return;
-      Navigator.of(context).pop();
-    });
-  }
+  Future<void> _newNote() => NotebookCreator.start(context);
 
   Future<void> _importPdf() async {
     if (!Editor.canRasterPdf) {
@@ -284,7 +282,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return NotevaLibrary(
       loading: _data == null,
-      documents: _data?.documents ?? const [],
+      documents: _data?.libraryDocuments ?? const [],
       onOpen: (doc) => doc.folder
           ? context.go(HomeRoutes.browseFilePath(doc.id))
           : context.push(RoutePaths.editFilePath(doc.id)),
@@ -301,7 +299,6 @@ class _DashboardPageState extends State<DashboardPage> {
       onImportPdf: _importPdf,
       onAddImage: _addImage,
       onNewFolder: _newFolder,
-      onCreationCanceled: _cancelPendingCreation,
       onTemplateGroup: (group) => _push(TemplateGalleryPage(group: group)),
     );
   }

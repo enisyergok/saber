@@ -109,6 +109,11 @@ void main() {
       await capture(tester, 'library_$name');
       await tester.tap(find.byKey(const Key('libraryCreateMenu')));
       await tester.pumpAndSettle();
+      expect(find.byType(NewNotebookWizard), findsNothing);
+      await tester.tap(
+        find.widgetWithText(PopupMenuItem<String>, DefterStrings.actionNewNote),
+      );
+      await tester.pumpAndSettle();
       expect(find.byType(NewNotebookWizard), findsOneWidget);
       expect(tester.takeException(), isNull);
     });

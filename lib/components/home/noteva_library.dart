@@ -38,7 +38,6 @@ class NotevaLibrary extends StatefulWidget {
     required this.onImportPdf,
     required this.onAddImage,
     required this.onNewFolder,
-    this.onCreationCanceled,
     this.onTemplateGroup,
     this.loading = false,
   });
@@ -54,7 +53,6 @@ class NotevaLibrary extends StatefulWidget {
       onAddImage,
       onNewFolder;
   final ValueChanged<PaperGroup>? onTemplateGroup;
-  final VoidCallback? onCreationCanceled;
   final bool loading;
 
   @override
@@ -412,6 +410,12 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                             ),
                           if (widget.loading)
                             const LinearProgressIndicator(minHeight: 2),
+                          if (!widget.loading &&
+                              !documents.any((doc) => !doc.folder))
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text(DefterStrings.noRecentNotes),
+                            ),
                           Expanded(
                             child: grid
                                 ? GridView.builder(
@@ -625,15 +629,6 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
           );
     return PopupMenuButton<String>(
       key: const Key('libraryCreateMenu'),
-      onOpened: widget.onCreate,
-      onCanceled: () {
-        // The creation tile opens the existing wizard while exposing the
-        // Goodnotes-style quick actions. If the menu is dismissed without a
-        // selection, dismiss that pending wizard as well.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onCreationCanceled?.call();
-        });
-      },
       onSelected: (value) => switch (value) {
         'new' => widget.onCreate(),
         'template' => widget.onTemplates(),
