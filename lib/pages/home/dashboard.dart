@@ -282,6 +282,8 @@ class _DashboardPageState extends State<DashboardPage> {
         FavoriteNoteButton.toggle([doc.id]);
         _load();
       },
+      onImportPdf: _importPdf,
+      onNewFolder: _newFolder,
     );
   }
 

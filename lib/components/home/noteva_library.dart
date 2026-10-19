@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:saber/components/home/library_glyph.dart';
+import 'package:saber/components/theming/defter_design.dart';
+import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/notebooks/paper_templates.dart';
 
 /// Presentation shared by the real library and the visual review harness.
 /// File access and navigation are supplied by the application, never simulated.
@@ -32,6 +35,8 @@ class NotevaLibrary extends StatefulWidget {
     required this.onTemplates,
     required this.onSettings,
     required this.onImport,
+    required this.onImportPdf,
+    required this.onNewFolder,
     this.loading = false,
   });
   final List<LibraryDocument> documents;
@@ -41,7 +46,9 @@ class NotevaLibrary extends StatefulWidget {
       onFavorites,
       onTemplates,
       onSettings,
-      onImport;
+      onImport,
+      onImportPdf,
+      onNewFolder;
   final bool loading;
 
   @override
@@ -49,7 +56,7 @@ class NotevaLibrary extends StatefulWidget {
 }
 
 class _NotevaLibraryState extends State<NotevaLibrary> {
-  static const blue = Color(0xff4485bf);
+  static const blue = DefterDesign.gnBlue;
   bool sidebar = true, grid = false, selecting = false;
   int sort = 0;
   final selected = <String>{};
@@ -68,9 +75,9 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
   Widget build(BuildContext context) {
     final dark = Theme.brightnessOf(context) == Brightness.dark;
     final background = dark ? const Color(0xff1c1c1e) : Colors.white;
-    final rail = dark ? const Color(0xff252527) : const Color(0xfff6f6f6);
-    final line = dark ? const Color(0xff414144) : const Color(0xffe2e2e2);
-    final ink = dark ? Colors.white : const Color(0xff171717);
+    final rail = dark ? const Color(0xff252527) : DefterDesign.gnLibraryRail;
+    final line = dark ? const Color(0xff414144) : DefterDesign.gnDivider;
+    final ink = dark ? Colors.white : DefterDesign.gnText;
     final documents = [...widget.documents]
       ..sort(
         (a, b) => switch (sort) {
@@ -236,6 +243,64 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                               fontWeight: FontWeight.w700,
                               letterSpacing: -.7,
                             ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              FilledButton.icon(
+                                onPressed: widget.onCreate,
+                                icon: const LibraryGlyph(Icons.add, size: 18),
+                                label: Text(DefterStrings.actionNewNote),
+                              ),
+                              TextButton.icon(
+                                onPressed: widget.onTemplates,
+                                icon: const LibraryGlyph(
+                                  Icons.dashboard_customize_outlined,
+                                  size: 18,
+                                ),
+                                label: Text(DefterStrings.actionFromTemplate),
+                              ),
+                              TextButton.icon(
+                                onPressed: widget.onImportPdf,
+                                icon: const LibraryGlyph(
+                                  Icons.picture_as_pdf_outlined,
+                                  size: 18,
+                                ),
+                                label: Text(DefterStrings.actionImportPdf),
+                              ),
+                              TextButton.icon(
+                                onPressed: widget.onNewFolder,
+                                icon: const LibraryGlyph(
+                                  Icons.create_new_folder_outlined,
+                                  size: 18,
+                                ),
+                                label: Text(DefterStrings.actionNewFolder),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (final group in [
+                                PaperGroup.lined,
+                                PaperGroup.squared,
+                                PaperGroup.dotted,
+                                PaperGroup.engineering,
+                                PaperGroup.academic,
+                              ])
+                                ActionChip(
+                                  avatar: const LibraryGlyph(
+                                    Icons.grid_4x4,
+                                    size: 16,
+                                  ),
+                                  label: Text(group.label),
+                                  onPressed: widget.onTemplates,
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 9),
                           Divider(height: 1, color: line),

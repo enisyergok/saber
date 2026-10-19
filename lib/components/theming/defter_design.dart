@@ -12,6 +12,16 @@ import 'package:saber/data/is_this_a_test.dart';
 /// paper. Corners come in three sizes, shadows in two, and everything
 /// that moves uses the same few durations and curves.
 abstract class DefterDesign {
+  // Goodnotes release metadata and the reference captures point to a quiet
+  // neutral library, one blue action colour, and a pale blue selection wash.
+  // These tokens keep that geometry consistent without bundling proprietary
+  // font or image assets from the reference application.
+  static const gnBlue = Color(0xFF4485BF);
+  static const gnSelectedSurface = Color(0xFFE2ECF8);
+  static const gnLibraryRail = Color(0xFFF6F6F6);
+  static const gnDivider = Color(0xFFE2E2E2);
+  static const gnText = Color(0xFF171717);
+
   // -- colour ---------------------------------------------------------------
 
   /// The ink blue that is used when no accent colour was chosen.
@@ -141,12 +151,8 @@ abstract class DefterDesign {
           ? const Color(0xFF596070)
           : const Color(0xFFA7ACB7),
       outline: light ? const Color(0xFFB4B9C5) : const Color(0xFF5B606B),
-      outlineVariant: light
-          ? const Color(0xFFE1E3E9)
-          : const Color(0xFF2E3138),
-      inverseSurface: light
-          ? const Color(0xFF24262C)
-          : const Color(0xFFECEDF1),
+      outlineVariant: light ? const Color(0xFFE1E3E9) : const Color(0xFF2E3138),
+      inverseSurface: light ? const Color(0xFF24262C) : const Color(0xFFECEDF1),
       onInverseSurface: light
           ? const Color(0xFFF3F4F7)
           : const Color(0xFF15171C),
@@ -172,8 +178,11 @@ abstract class DefterDesign {
       header,
       Colors.black,
       _stepsUntil((t) {
-        final luminance = Color.lerp(header, Colors.black, t)!
-            .computeLuminance();
+        final luminance = Color.lerp(
+          header,
+          Colors.black,
+          t,
+        )!.computeLuminance();
         return 1.05 / (luminance + 0.05) >= 7.5;
       }),
     )!;
@@ -223,10 +232,8 @@ abstract class DefterDesign {
   /// A selected tool is deliberately a tint, not a heavy filled button. It
   /// keeps the page visible and makes the active pen easy to find in a dense
   /// toolbox.
-  static Color selectedToolBackground(ColorScheme colors) =>
-      colors.primary.withValues(
-        alpha: colors.brightness == .dark ? 0.28 : 0.14,
-      );
+  static Color selectedToolBackground(ColorScheme colors) => colors.primary
+      .withValues(alpha: colors.brightness == .dark ? 0.28 : 0.14);
 
   static Color selectedToolForeground(ColorScheme colors) => colors.primary;
 
