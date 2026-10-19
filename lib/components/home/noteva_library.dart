@@ -249,11 +249,6 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              FilledButton.icon(
-                                onPressed: widget.onCreate,
-                                icon: const LibraryGlyph(Icons.add, size: 18),
-                                label: Text(DefterStrings.actionNewNote),
-                              ),
                               TextButton.icon(
                                 onPressed: widget.onTemplates,
                                 icon: const LibraryGlyph(
