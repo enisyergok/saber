@@ -114,7 +114,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             height: 64,
                             child: Row(
                               children: [
-                                if (!wide)
+                                if (!wide || Navigator.of(context).canPop())
                                   BackButton(color: DefterDesign.gnBlue),
                                 if (wide && !_sidebar)
                                   IconButton(

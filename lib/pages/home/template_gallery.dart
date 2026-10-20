@@ -47,6 +47,20 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
       ),
     );
 
+    final topicChips = <Widget>[
+      chip(
+        DefterStrings.groupAll,
+        _topic == null,
+        () => setState(() => _topic = null),
+      ),
+      for (final topic in topics)
+        chip(
+          topic.label,
+          _topic == topic,
+          () => setState(() => _topic = topic),
+        ),
+    ];
+
     return LibraryScreen(
       destination: LibraryDestination.templates,
       title: fixed == null
@@ -119,25 +133,25 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
                           ],
                         ),
                       ),
-                    if (topics.isNotEmpty)
+                    if (topics.isNotEmpty && constraints.maxWidth >= 600)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        child: Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: topicChips,
+                        ),
+                      ),
+                    if (topics.isNotEmpty && constraints.maxWidth < 600)
                       SizedBox(
                         height: 48,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          children: [
-                            chip(
-                              DefterStrings.groupAll,
-                              _topic == null,
-                              () => setState(() => _topic = null),
-                            ),
-                            for (final topic in topics)
-                              chip(
-                                topic.label,
-                                _topic == topic,
-                                () => setState(() => _topic = topic),
-                              ),
-                          ],
+                          children: topicChips,
                         ),
                       ),
                     Expanded(
