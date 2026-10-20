@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/home/preview_card.dart';
+import 'package:saber/components/home/noteva_library.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/navbar/vertical_navbar.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -295,9 +296,12 @@ void main() {
       );
     });
 
-    testWidgets('the sidebar stays when another part is open', (tester) async {
+    testWidgets('the unified library stays when notes are open', (
+      tester,
+    ) async {
       final router = await pumpHome(tester, subpage: HomePage.browseSubpage);
-      expect(find.byType(HomeSidebar), findsOneWidget);
+      expect(find.byType(NotevaLibrary), findsOneWidget);
+      expect(find.byType(HomeSidebar), findsNothing);
       expect(find.byType(DashboardPage), findsNothing);
       expect(find.byType(BrowsePage), findsOneWidget);
       await tester.tap(find.text(DefterStrings.navHome));
