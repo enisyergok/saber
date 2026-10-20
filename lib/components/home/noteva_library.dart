@@ -78,11 +78,10 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
   @override
   Widget build(BuildContext context) {
     // Keep the approved library appearance independent of Android dark mode.
-    const dark = false;
-    final background = dark ? const Color(0xff1c1c1e) : Colors.white;
-    final rail = dark ? const Color(0xff252527) : DefterDesign.gnLibraryRail;
-    final line = dark ? const Color(0xff414144) : DefterDesign.gnDivider;
-    final ink = dark ? Colors.white : DefterDesign.gnText;
+    const background = Colors.white;
+    const rail = DefterDesign.gnLibraryRail;
+    const line = DefterDesign.gnDivider;
+    const ink = DefterDesign.gnText;
     final documents = [...widget.documents]
       ..sort(
         (a, b) => switch (sort) {
@@ -123,9 +122,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                 padding: const EdgeInsets.symmetric(horizontal: 14),
                 child: Material(
                   color: active
-                      ? (dark
-                            ? const Color(0xff294362)
-                            : const Color(0xffe2ecf8))
+                      ? DefterDesign.gnSelectedSurface
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(9),
                   child: ListTile(
