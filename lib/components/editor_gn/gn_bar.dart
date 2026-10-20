@@ -6,14 +6,12 @@ import 'package:saber/components/canvas/save_indicator.dart';
 import 'package:saber/components/editor_gn/gn_actions.dart';
 import 'package:saber/components/editor_gn/gn_controller.dart';
 import 'package:saber/components/editor_gn/gn_palette.dart';
-import 'package:saber/components/theming/uni_icon.dart';
+import 'package:saber/components/home/catalog_icon.dart';
 import 'package:saber/components/toolbar/toolbar.dart';
 import 'package:saber/data/benchmark/pen_latency_probe.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/tools/eraser.dart';
 import 'package:saber/data/tools/select.dart';
-import 'package:saber/data/tools/pencil.dart';
-import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/data/tools/shape_pen.dart';
 import 'package:saber/i18n/strings.g.dart';
 
@@ -195,7 +193,7 @@ class GnEditorBar extends StatelessWidget {
           ),
           IconButton(
             tooltip: DefterStrings.searchNotes,
-            icon: const Icon(Symbols.search_rounded),
+            icon: const CatalogIcon('search.svg'),
             onPressed: onSearch,
           ),
           IconButton(
@@ -262,13 +260,13 @@ class GnEditorBar extends StatelessWidget {
             link: controller.links[GnPanel.export]!,
             child: IconButton(
               tooltip: t.editor.toolbar.export,
-              icon: const Icon(Symbols.ios_share_rounded),
+              icon: const CatalogIcon('share.svg'),
               onPressed: () => controller.toggle(GnPanel.export),
             ),
           ),
           IconButton(
             tooltip: DefterStrings.gnMenu,
-            icon: const Icon(Symbols.more_horiz_rounded),
+            icon: const CatalogIcon('more.svg'),
             onPressed: onMore,
           ),
         ],
@@ -325,13 +323,13 @@ class GnEditorBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     toolButton(
-                      icon: const Icon(Symbols.lasso_select_rounded),
+                      icon: const CatalogIcon('lasso.svg'),
                       tooltip: t.editor.toolbar.select,
                       selected: tool is Select,
                       onPressed: readOnly ? null : actions.selectLasso,
                     ),
                     toolButton(
-                      icon: UniIcon(actions.writingPen.icon, size: 24),
+                      icon: const CatalogIcon('pen.svg', preserveColors: true),
                       tooltip: actions.writingPen.name,
                       selected: actions.isPen,
                       panel: GnPanel.penSettings,
@@ -346,7 +344,7 @@ class GnEditorBar extends StatelessWidget {
                             },
                     ),
                     toolButton(
-                      icon: const Icon(Pencil.pencilIcon),
+                      icon: const CatalogIcon('pencil.svg', preserveColors: true),
                       tooltip: t.editor.pens.pencil,
                       selected: actions.isPencil,
                       onPressed: readOnly
@@ -360,7 +358,7 @@ class GnEditorBar extends StatelessWidget {
                             },
                     ),
                     toolButton(
-                      icon: const Icon(Highlighter.highlighterIcon),
+                      icon: const CatalogIcon('highlighter.svg', preserveColors: true),
                       tooltip: t.editor.pens.highlighter,
                       selected: actions.isHighlighter,
                       onPressed: readOnly
@@ -380,19 +378,19 @@ class GnEditorBar extends StatelessWidget {
                       onPressed: readOnly ? null : actions.toggleShape,
                     ),
                     toolButton(
-                      icon: const Icon(Symbols.ink_eraser_rounded),
+                      icon: const CatalogIcon('eraser.svg'),
                       tooltip: t.editor.toolbar.toggleEraser,
                       selected: tool is Eraser,
                       onPressed: readOnly ? null : actions.selectEraser,
                     ),
                     toolButton(
-                      icon: const Icon(Symbols.text_fields_rounded),
+                      icon: const CatalogIcon('text.svg'),
                       tooltip: t.editor.toolbar.text,
                       selected: spec.textEditing,
                       onPressed: readOnly ? null : spec.toggleTextEditing,
                     ),
                     toolButton(
-                      icon: const Icon(Symbols.photo_rounded),
+                      icon: const CatalogIcon('image.svg'),
                       tooltip: t.editor.toolbar.photo,
                       selected: false,
                       onPressed: readOnly ? null : spec.pickPhoto,

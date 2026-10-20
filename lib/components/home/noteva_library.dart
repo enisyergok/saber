@@ -84,6 +84,8 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
     style: IconButton.styleFrom(
       foregroundColor: blue,
       minimumSize: const Size(44, 44),
+      fixedSize: const Size(44, 44),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
   );
 
@@ -400,8 +402,9 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
   }
 
   Widget cover(LibraryDocument doc, {bool large = false}) => SizedBox(
-    width: large ? 100 : 54,
-    height: large ? 130 : 64,
+    key: ValueKey('library-cover-${doc.id}'),
+    width: large ? 100 : 70,
+    height: large ? 130 : 57,
     child: Center(
       child:
           doc.cover ??
@@ -458,7 +461,6 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                 onChanged: (_) => open(doc),
               ),
             cover(doc),
-            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -483,6 +485,11 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
             ),
             PopupMenuButton<String>(
               tooltip: 'Belge işlemleri',
+              style: IconButton.styleFrom(
+                fixedSize: const Size(44, 44),
+                minimumSize: const Size(44, 44),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               icon: const LibraryGlyph(Icons.keyboard_arrow_down, color: blue),
               onSelected: (value) =>
                   value == 'open' ? widget.onOpen(doc) : widget.onFavorite(doc),

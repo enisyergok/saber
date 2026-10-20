@@ -165,6 +165,18 @@ void main() {
       expect(material.color, Colors.white);
       expect(tester.takeException(), isNull);
       await capture(tester, 'real_home_$name');
+      await tester.tap(find.byTooltip('Görünümü değiştir'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSize(find.byKey(const ValueKey('library-cover-/one'))),
+        const Size(70, 57),
+      );
+      expect(
+        tester.getSize(find.byTooltip('Belge işlemleri').first),
+        const Size(44, 44),
+      );
+      expect(tester.takeException(), isNull);
+      await capture(tester, 'recovered_library_list_$name');
     });
 
     testWidgets('library $name has search and functional create menu', (

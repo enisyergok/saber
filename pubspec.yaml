@@ -205,6 +205,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/goodnotes/icons/
     - assets/goodnotes/papers/
     - assets/icon/icon.svg
     - assets/icon/noteva-preview.png

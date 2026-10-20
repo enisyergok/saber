@@ -5,6 +5,12 @@ behavior and information architecture. Five Roobert font files and six paper
 SVGs are now bundled under `assets/goodnotes/`. Apple executables, compiled
 asset catalogs and model files are not Noteva runtime dependencies.
 
+The subsequent catalogue migration adds 29 selected recovered icon resources.
+Their source filenames and digests are recorded in
+`assets/goodnotes/icons/SOURCES.json`. They replace the hand-drawn library
+outlines and selected editor controls; the compiled `.car` files themselves are
+not bundled or interpreted on Android.
+
 ## Reference package areas
 
 | IPA area | What it indicates | Noteva implementation |

@@ -1,0 +1,185 @@
+{
+  "sourceArchive": "Goodnotes-6-v6.5.20-iosvizor.ipa",
+  "archiveSha256": "4e06c8e0333e3029d99cfa98cd98f36572bdbe1af71c96b5243b54521c5f0b6e",
+  "files": [
+    {
+      "asset": "sidebar.svg",
+      "sha256": "81247db8d938ced943568dcb1711021f4cc57ce8fd43eba366d9822d2485a0d6",
+      "extractionDirectory": "library-v2",
+      "renditionFile": "223_Sidebar.svg.txt"
+    },
+    {
+      "asset": "home.svg",
+      "sha256": "3324eb81d0c84fea4fa0bf7ac822e0ae5eeb3940874440f69a5717fdb5d85478",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1760_home-01.svg.txt"
+    },
+    {
+      "asset": "documents.svg",
+      "sha256": "565d7400ad6214cceb48df4dcffab139b968b3a028c7a5ef776a5a34d87e6f5d",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "096_documents-section-active.svg.txt"
+    },
+    {
+      "asset": "folder-orange.png",
+      "sha256": "ff4a53e051f5f1430d7d3db8379ee8db73c2a623d061a8c2b1c7a5e56622476e",
+      "extractionDirectory": "library-v2",
+      "renditionFile": "299_folder_orange_light.svg.png"
+    },
+    {
+      "asset": "bookmark.svg",
+      "sha256": "f08e0443732b769e5bcf64202572edc784f61d3231b01312584af8e18d268667",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1709_bookmark-section.svg.txt"
+    },
+    {
+      "asset": "search.svg",
+      "sha256": "ee3d5a8843276b7237a9766e00e8ff6a7e09ec25f56cb61522c8f9e997132338",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "102_search-sm.svg.txt"
+    },
+    {
+      "asset": "users.svg",
+      "sha256": "38f525351857671344f6d6b8f844a8b7e49a13035780c2debe6c20c98d24c145",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1832_users-02.svg.txt"
+    },
+    {
+      "asset": "marketplace.svg",
+      "sha256": "527c13566a54852a984b43f41e8eb9a67982c9b959747266f8885e1bcd9e18d4",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "2324_marketplace-section.svg.txt"
+    },
+    {
+      "asset": "bell.svg",
+      "sha256": "bfab69ee113f6cda7d70bf74d28856217430882c202d956fd03d485d43912283",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1088_bell-02.svg.txt"
+    },
+    {
+      "asset": "settings.svg",
+      "sha256": "8e80d204cc6c9d11433adab3a66a46592e79306d79f516f79e277cd175b539ac",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "3003_settings-01.svg.txt"
+    },
+    {
+      "asset": "check-circle.svg",
+      "sha256": "795b3b03aceaab2de654df64ab23ba8c401a4de770444b72568e0a372cf899f8",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1505_check-circle.svg.txt"
+    },
+    {
+      "asset": "list.svg",
+      "sha256": "3404f492589e1e67fe378ef52b7f02d55839abfc41d5acf5848e8b1733d80c91",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1635_list.svg.txt"
+    },
+    {
+      "asset": "grid.svg",
+      "sha256": "7929962dbfce6928deb26f0e11c667009da40fbd9df4296b0d671f989c9376e1",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "419_grid-01.svg.txt"
+    },
+    {
+      "asset": "star.svg",
+      "sha256": "c74467c58bb97a8a2f8209c9d51e9f03c665800f089c2040ed8bcd181b921aac",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "652_star-01.svg.txt"
+    },
+    {
+      "asset": "star-active.svg",
+      "sha256": "2fd934c494cf62d9aeb6714c445117160c265c204a5117659877be8e78589288",
+      "extractionDirectory": "library-v2",
+      "renditionFile": "082_star-active.svg.txt"
+    },
+    {
+      "asset": "chevron-down.svg",
+      "sha256": "3a57a265c7c75bb8f391e57f24299f0776dc77ff544363e720b5397e8715772d",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "303_chevron-down.svg.txt"
+    },
+    {
+      "asset": "chevron-left.svg",
+      "sha256": "b7a22e9f71e19646b84b41e431d5447793d48ac866f59b33adc1aefdb3ce4f0b",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1820_chevron-left.svg.txt"
+    },
+    {
+      "asset": "chevron-right.svg",
+      "sha256": "f83e8f68578ab9d259bae7289c9dffc0ec83a6afd2d6c595803f5f10d2dc3596",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1250_chevron-right.svg.txt"
+    },
+    {
+      "asset": "plus.svg",
+      "sha256": "9967efd89546c73c3016937e7dab577a600c53afcbd09bfef01efcdf8eb42d79",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1637_plus.svg.txt"
+    },
+    {
+      "asset": "download.svg",
+      "sha256": "ed24227f7c2f752ca0e2b006d516231178cda2bb823d06fca4e8d00835b8c8db",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "2026_download-01.svg.txt"
+    },
+    {
+      "asset": "pen.svg",
+      "sha256": "9f7742191f129a08a91154193219ba87c0f23e81bd12a3ee19e20967b59c41bb",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "063_ballpen.svg.txt"
+    },
+    {
+      "asset": "pencil.svg",
+      "sha256": "3c31d85b33fe1f22aa0d6e0eb1e6ac395ab57978857c173fcd16dd38a4c27a34",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "094_tool_pencil_hb.svg.txt"
+    },
+    {
+      "asset": "highlighter.svg",
+      "sha256": "eba5a362adf118ea93ffd9585e7f4e4739ab9273c49a040f6e206663f956f907",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "2908_tool_highlighter.svg.txt"
+    },
+    {
+      "asset": "lasso.svg",
+      "sha256": "d4ffe1205be566fbc3e30fcab5aa6c963347c0f4c0279879d34fff745425e24e",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1627_tool_lasso.svg.txt"
+    },
+    {
+      "asset": "eraser.svg",
+      "sha256": "9f2f3d472cff38606543a53db04afdf29ce33dec4a4054007447444abb9e8804",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1130_eraser.svg.txt"
+    },
+    {
+      "asset": "text.svg",
+      "sha256": "32c0acd017f86a948c07cf2566f32905e25ab22a079208b293bd4570724bce00",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1872_type-01.svg.txt"
+    },
+    {
+      "asset": "image.svg",
+      "sha256": "3efb1d1124fbe86eaa7d6e4220ab06dcdb5864980ebaf28cc569aa1f7f55a3bb",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "3174_image-01.svg.txt"
+    },
+    {
+      "asset": "share.svg",
+      "sha256": "e56dc215b2aea2b150d65752f07a9c84707c04ed03921a37b338b2a8d6330333",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "1185_share-01.svg.txt"
+    },
+    {
+      "asset": "more.svg",
+      "sha256": "c18debc735b423667990d390f64cf59f9174915974346b9a4f2799a995a938c9",
+      "extractionDirectory": "design-system-v2",
+      "renditionFile": "2406_dots-horizontal.svg.txt"
+    }
+  ],
+  "limitations": [
+    "Selected assets only, not all renditions",
+    "SVG filter rendering is not pixel-identical",
+    "Catalogue exports are independent-decoder output, not REA assetutil Evidence"
+  ]
+}
