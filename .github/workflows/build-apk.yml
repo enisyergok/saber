@@ -71,6 +71,7 @@ jobs:
           set -o pipefail
           flutter test --update-goldens --dart-define=CAPTURE_UI=true \
             test/interface_redesign_test.dart \
+            test/library_navigation_test.dart \
             test/editor_float_layout_test.dart \
             test/home_dashboard_test.dart \
             test/new_notebook_wizard_test.dart \

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:saber/components/home/library_glyph.dart';
+import 'package:saber/components/home/library_navigation.dart';
 import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/routes.dart';
@@ -31,34 +31,25 @@ class LibraryScreen extends StatefulWidget {
   static void navigate(BuildContext context, LibraryDestination destination) {
     switch (destination) {
       case LibraryDestination.home:
-        context.go(RoutePaths.dashboard);
+        LibraryNavigation.go(context, RoutePaths.dashboard);
       case LibraryDestination.documents:
-        context.go(HomeRoutes.browseFilePath('/'));
+        LibraryNavigation.go(context, HomeRoutes.browseFilePath('/'));
       case LibraryDestination.flashcards:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const FlashcardsPage()),
-        );
+        LibraryNavigation.open(context, const FlashcardsPage());
       case LibraryDestination.favorites:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const FavoritesPage()),
-        );
+        LibraryNavigation.open(context, const FavoritesPage());
       case LibraryDestination.search:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const SearchPage()),
-        );
+        LibraryNavigation.open(context, const SearchPage());
       case LibraryDestination.templates:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(builder: (_) => const TemplateGalleryPage()),
-        );
+        LibraryNavigation.open(context, const TemplateGalleryPage());
       case LibraryDestination.shared:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<void>(
-            builder: (_) => const LibraryScreen(
-              title: 'Paylaşılanlar',
-              destination: LibraryDestination.shared,
-              child: Center(
-                child: Text('Paylaşılan belge hizmeti henüz bağlı değil.'),
-              ),
+        LibraryNavigation.open(
+          context,
+          const LibraryScreen(
+            title: 'Paylaşılanlar',
+            destination: LibraryDestination.shared,
+            child: Center(
+              child: Text('Paylaşılan belge hizmeti henüz bağlı değil.'),
             ),
           ),
         );
@@ -134,8 +125,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                 ...widget.actions,
                                 IconButton(
                                   tooltip: 'Ayarlar',
-                                  onPressed: () =>
-                                      context.go(HomeRoutes.routes[3].path),
+                                  onPressed: () => LibraryNavigation.go(
+                                    context,
+                                    HomeRoutes.routes[3].path,
+                                  ),
                                   icon: const LibraryGlyph(
                                     Icons.settings_outlined,
                                     color: DefterDesign.gnBlue,

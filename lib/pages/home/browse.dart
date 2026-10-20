@@ -8,6 +8,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
 import 'package:saber/components/home/library_header.dart';
+import 'package:saber/components/home/library_screen.dart';
+import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/home/noteva_library.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/defter_strings.dart';
@@ -219,6 +221,8 @@ class _BrowsePageState extends State<BrowsePage> {
         MaterialPageRoute<void>(builder: (_) => const TemplateGalleryPage()),
       ),
       onSettings: () => context.go(HomeRoutes.routes[3].path),
+      onFlashcards: () =>
+          LibraryScreen.navigate(context, LibraryDestination.flashcards),
       onImport: () {},
       onImportPdf: () {},
       onAddImage: () {},
