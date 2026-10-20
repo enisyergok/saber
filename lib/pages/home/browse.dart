@@ -214,6 +214,9 @@ class _BrowsePageState extends State<BrowsePage> {
       onImportPdf: () {},
       onAddImage: () {},
       onNewFolder: createFolderFromLibrary,
+      onHome: () => context.go(RoutePaths.dashboard),
+      onNotes: () {},
+      notesMode: true,
       onTemplateGroup: (group) => Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => TemplateGalleryPage(group: group),

@@ -299,6 +299,8 @@ class _DashboardPageState extends State<DashboardPage> {
       onImportPdf: _importPdf,
       onAddImage: _addImage,
       onNewFolder: _newFolder,
+      onHome: () {},
+      onNotes: () => context.go(HomeRoutes.browseFilePath('/')),
       onTemplateGroup: (group) => _push(TemplateGalleryPage(group: group)),
     );
   }

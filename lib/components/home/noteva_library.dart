@@ -38,6 +38,9 @@ class NotevaLibrary extends StatefulWidget {
     required this.onImportPdf,
     required this.onAddImage,
     required this.onNewFolder,
+    this.onHome,
+    this.onNotes,
+    this.notesMode = false,
     this.onTemplateGroup,
     this.loading = false,
   });
@@ -52,6 +55,8 @@ class NotevaLibrary extends StatefulWidget {
       onImportPdf,
       onAddImage,
       onNewFolder;
+  final VoidCallback? onHome, onNotes;
+  final bool notesMode;
   final ValueChanged<PaperGroup>? onTemplateGroup;
   final bool loading;
 
@@ -164,10 +169,16 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                         ),
                       ),
                       nav(
-                        Icons.folder_outlined,
-                        'Belgeler',
-                        () {},
-                        active: true,
+                        Icons.home_outlined,
+                        DefterStrings.navHome,
+                        widget.onHome,
+                        active: !widget.notesMode,
+                      ),
+                      nav(
+                        Icons.description_outlined,
+                        DefterStrings.navNotes,
+                        widget.onNotes,
+                        active: widget.notesMode,
                       ),
                       nav(
                         Icons.bookmark_border,
