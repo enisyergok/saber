@@ -64,12 +64,30 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> selectCategory(WidgetTester tester, String label) async {
+    final chip = find.widgetWithText(ChoiceChip, label);
+    final categories = find
+        .byWidgetPredicate(
+          (widget) =>
+              widget is ListView && widget.scrollDirection == Axis.horizontal,
+        )
+        .first;
+    await tester.scrollUntilVisible(
+      chip,
+      150,
+      scrollable: find
+          .descendant(of: categories, matching: find.byType(Scrollable))
+          .first,
+    );
+    await tester.tap(chip);
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('the six steps make a notebook as it was chosen', (tester) async {
     final results = await openWizard(tester);
 
     // 1: the paper, from the planner tab
-    await tester.tap(find.widgetWithText(ChoiceChip, PaperGroup.planner.label));
-    await tester.pumpAndSettle();
+    await selectCategory(tester, PaperGroup.planner.label);
     final gantt = PaperTemplates.byId('gantt');
     expect(find.text(gantt.name), findsOneWidget);
     expect(find.text(PaperTemplates.byId('circuit').name), findsNothing);
@@ -79,10 +97,7 @@ void main() {
 
     // 2: the cover, from the classic tab
     expect(find.text(DefterStrings.coverDesign), findsOneWidget);
-    await tester.tap(
-      find.widgetWithText(ChoiceChip, DefterStrings.coverClassic),
-    );
-    await tester.pumpAndSettle();
+    await selectCategory(tester, DefterStrings.coverClassic);
     final leather = CoverDesigns.byId('c-navy')!;
     await tester.tap(find.byTooltip(leather.name));
     await tester.pump();

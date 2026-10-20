@@ -32,6 +32,12 @@ void main() {
     setupMockPathProvider();
     setupMockPrinting();
 
+    final unloadImmediately = EditorImage.shouldLoadOutImmediately;
+    EditorImage.shouldLoadOutImmediately = true;
+    addTearDown(() {
+      EditorImage.shouldLoadOutImmediately = unloadImmediately;
+    });
+
     FlavorConfig.setup();
     stows.editorGnLayout.value = false;
     final paper = stows.lastBackgroundPattern.value;
