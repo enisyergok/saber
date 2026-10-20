@@ -642,11 +642,11 @@ abstract class _Components {
         fontFamily: 'AtkinsonHyperlegibleNext',
         fontFamilyFallback: saberSansSerifFontFallbacks,
       );
-    } else if (platform == .linux) {
-      // Flutter picks Roboto but Adwaita Sans is a better default
-      return textTheme.withFont(fontFamily: 'Adwaita Sans');
     } else {
-      return textTheme;
+      return textTheme.withFont(
+        fontFamily: 'Roobert',
+        fontFamilyFallback: saberSansSerifFontFallbacks,
+      );
     }
   }
 

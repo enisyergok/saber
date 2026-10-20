@@ -30,6 +30,11 @@ The six-step Noteva notebook wizard and the pen-settings controls remain Noteva
 implementations. Shared-document service is not connected. These are not claimed
 to be a complete Goodnotes implementation.
 
+Subsequent packaged-resource integration adds five recovered Roobert font
+files and six paper SVG sources. The latter drive selected gallery previews.
+This supplements the screenshot references, but the bounded NIB graph and
+unconverted Apple asset catalogs do not establish full visual parity.
+
 Local widget testing currently requires the missing Rust toolchain used by
 super_native_extensions. GitHub Actions supplies the executable widget-test
 and Android-build environment. Real Huawei touch response requires device testing.

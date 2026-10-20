@@ -475,7 +475,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                     doc.subtitle,
                     style: const TextStyle(
                       color: Color(0xff929292),
-                      fontSize: 10,
+                      fontSize: 11,
                     ),
                   ),
                 ],

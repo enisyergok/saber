@@ -1,0 +1,13 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%" height="100%"
+>
+    <defs>
+        <pattern id="pattern" width="16" height="16" patternUnits="userSpaceOnUse">
+            <circle id="primitive" cx="0.5" cy="0.5" r="0.5" fill="rgb(208,210,211)"/>
+        </pattern>
+    </defs>
+
+    <rect width="100%" height="100%" fill="rgb(247,246,233)"/>
+    <rect id="patternRect" x="10" y="15" width="100%" height="100%" fill="url(#pattern)"/>
+</svg>

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/components/canvas/canvas_background_preview.dart';
+import 'package:saber/components/home/packaged_paper_preview.dart';
 import 'package:saber/data/covers/cover_designs.dart';
 import 'package:saber/data/editor/page.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -30,6 +31,17 @@ class PaperThumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = ColorScheme.of(context);
+    final fallback = CanvasBackgroundPreview(
+      selected: false,
+      invert: false,
+      backgroundColor: paperColor,
+      backgroundPattern: template.pattern,
+      backgroundImage: null,
+      pageSize: pageSize,
+      lineHeight: template.lineHeight,
+      lineThickness: stows.lastLineThickness.value,
+    );
+    final asset = PackagedPaperPreview.assets[template.id];
     final page = DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
@@ -42,16 +54,14 @@ class PaperThumb extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
         child: FittedBox(
           fit: BoxFit.fill,
-          child: CanvasBackgroundPreview(
-            selected: false,
-            invert: false,
-            backgroundColor: paperColor,
-            backgroundPattern: template.pattern,
-            backgroundImage: null,
-            pageSize: pageSize,
-            lineHeight: template.lineHeight,
-            lineThickness: stows.lastLineThickness.value,
-          ),
+          child: asset == null
+              ? fallback
+              : PackagedPaperPreview(
+                  asset: asset,
+                  pageSize: pageSize,
+                  paperColor: paperColor,
+                  fallback: fallback,
+                ),
         ),
       ),
     );
