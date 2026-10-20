@@ -97,8 +97,8 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         },
       );
     return Theme(
-      data: Theme.of(context).copyWith(
-        brightness: Brightness.light,
+      data: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: blue,
           brightness: Brightness.light,
