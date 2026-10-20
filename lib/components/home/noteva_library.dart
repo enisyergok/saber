@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:saber/components/home/library_glyph.dart';
 import 'package:saber/components/home/library_sidebar.dart';
+import 'package:saber/components/home/library_shell.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -117,8 +118,9 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final wide = constraints.maxWidth >= 700;
-              final showRail = wide && sidebar;
+              final shell = LibraryShellScope.maybeOf(context);
+              final wide = shell?.wide ?? constraints.maxWidth >= 700;
+              final showRail = shell == null && wide && sidebar;
               final navigation = LibrarySidebar(
                 width: (constraints.maxWidth * .271).clamp(220.0, 300.0),
                 selected: widget.notesMode
@@ -168,11 +170,14 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                             height: 64,
                             child: Row(
                               children: [
-                                if (!showRail && wide)
+                                if (shell != null
+                                    ? !shell.shown
+                                    : !showRail && wide)
                                   button(
                                     Icons.space_dashboard_outlined,
                                     'Kenar çubuğunu göster',
-                                    () => setState(() => sidebar = true),
+                                    shell?.toggle ??
+                                        () => setState(() => sidebar = true),
                                   ),
                                 if (!wide) ...[
                                   button(Icons.search, 'Ara', widget.onSearch),

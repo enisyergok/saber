@@ -213,12 +213,10 @@ class _BrowsePageState extends State<BrowsePage> {
         FavoriteNoteButton.toggle([document.id]);
         findChildrenOfPath();
       },
-      onSearch: () => Navigator.of(context)
-          .push(MaterialPageRoute<void>(builder: (_) => const SearchPage())),
-      onFavorites: () => Navigator.of(context)
-          .push(MaterialPageRoute<void>(builder: (_) => const FavoritesPage())),
-      onTemplates: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => const TemplateGalleryPage()),
+      onSearch: () => context.go('/home/search'),
+      onFavorites: () => context.go('/home/favorites'),
+      onTemplates: () => context.go(
+        '/home/templates?path=${Uri.encodeQueryComponent(currentPath)}',
       ),
       onSettings: () => context.go(HomeRoutes.routes[3].path),
       onFlashcards: () =>

@@ -1,6 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:saber/components/home/library_screen.dart';
+import 'package:saber/components/home/library_shell.dart';
+import 'package:saber/components/home/library_sidebar.dart';
+import 'package:saber/pages/favorites.dart';
+import 'package:saber/pages/search.dart';
+import 'package:saber/pages/home/flashcards.dart';
+import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/components/home/sentry_consent_dialog.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/navbar/responsive_navbar.dart';
@@ -78,6 +84,17 @@ class _HomePageState extends State<HomePage> {
           HomePage.whiteboardSubpage => const Whiteboard(),
           HomePage.settingsSubpage => const SettingsPage(),
           HomePage.recentSubpage => const RecentPage(),
+          'flashcards' => const FlashcardsPage(),
+          'favorites' => const FavoritesPage(),
+          'search' => const SearchPage(),
+          'templates' => TemplateGalleryPage(folder: widget.path),
+          'shared' => const LibraryScreen(
+            title: 'Paylaşılanlar',
+            destination: LibraryDestination.shared,
+            child: Center(
+              child: Text('Paylaşılan belge hizmeti henüz bağlı değil.'),
+            ),
+          ),
           HomePage.dashboardSubpage =>
             stows.homeDashboard.value
                 ? const DashboardPage()
@@ -90,17 +107,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.subpage == HomePage.settingsSubpage && _showsDashboard) {
-      return LibraryScreen(title: 'Ayarlar', showHeader: false, child: body);
+    final destination = switch (widget.subpage) {
+      HomePage.dashboardSubpage => LibraryDestination.home,
+      HomePage.browseSubpage => LibraryDestination.documents,
+      'flashcards' => LibraryDestination.flashcards,
+      'favorites' => LibraryDestination.favorites,
+      'search' => LibraryDestination.search,
+      'templates' => LibraryDestination.templates,
+      'shared' => LibraryDestination.shared,
+      _ => null,
+    };
+    if (destination != null ||
+        widget.subpage == HomePage.settingsSubpage && _showsDashboard) {
+      return LibraryShell(
+        selected: destination,
+        child: widget.subpage == HomePage.settingsSubpage
+            ? LibraryScreen(title: 'Ayarlar', showHeader: false, child: body)
+            : body,
+      );
     }
-    // The document library owns its navigation rail. Wrapping it in the
-    // legacy shell adds a second sidebar and changes the available width.
-    if ((widget.subpage == HomePage.dashboardSubpage &&
-            stows.homeDashboard.value) ||
-        widget.subpage == HomePage.browseSubpage) {
-      return Scaffold(body: body);
-    }
-
     // hide navbar in fullscreen whiteboard
     if (widget.subpage == HomePage.whiteboardSubpage &&
         DynamicMaterialApp.isFullscreen) {

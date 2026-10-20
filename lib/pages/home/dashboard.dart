@@ -23,7 +23,6 @@ import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/pages/editor/editor.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
 import 'package:saber/pages/home/template_gallery.dart';
-import 'package:saber/pages/home/flashcards.dart';
 import 'package:saber/pages/search.dart';
 
 /// What the home screen shows of the notes: the latest ones and the top
@@ -289,10 +288,10 @@ class _DashboardPageState extends State<DashboardPage> {
           : context.push(RoutePaths.editFilePath(doc.id)),
       onCreate: _newNote,
       onImport: _importNote,
-      onSearch: () => _push(const SearchPage()),
-      onFavorites: () => _push(const FavoritesPage()),
-      onTemplates: () => _push(const TemplateGalleryPage()),
-      onFlashcards: () => _push(const FlashcardsPage()),
+      onSearch: () => context.go('/home/search'),
+      onFavorites: () => context.go('/home/favorites'),
+      onTemplates: () => context.go('/home/templates'),
+      onFlashcards: () => context.go('/home/flashcards'),
       onSettings: () => context.go(HomeRoutes.routes[3].path),
       onFavorite: (doc) {
         FavoriteNoteButton.toggle([doc.id]);

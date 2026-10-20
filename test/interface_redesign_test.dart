@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/components/editor_gn/gn_bar.dart';
 import 'package:saber/components/editor_gn/gn_pen_settings.dart';
@@ -17,6 +18,8 @@ import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
 import 'package:saber/pages/home/dashboard.dart';
 import 'package:saber/pages/home/home.dart';
+import 'package:saber/pages/home/browse.dart';
+import 'package:saber/components/home/library_shell.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/home/settings.dart';
@@ -92,6 +95,70 @@ void main() {
     stows.editorFloatingBar.value = true;
     await stows.migrateInterface();
     expect(stows.editorFloatingBar.value, isTrue);
+  });
+
+  testWidgets('library sections retain one rail and never push a new page', (
+    tester,
+  ) async {
+    stows.sentryConsent.value = .granted;
+    DashboardPage.overrideData = const DashboardData();
+    BrowsePage.overrideChildren = DirectoryChildren([], []);
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      DashboardPage.overrideData = null;
+      BrowsePage.overrideChildren = null;
+      tester.view.reset();
+    });
+    final router = GoRouter(
+      initialLocation: '/home/dashboard',
+      routes: [
+        GoRoute(
+          path: '/home/:subpage',
+          builder: (_, state) =>
+              HomePage(subpage: state.pathParameters['subpage']!, path: null),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      TranslationProvider(child: MaterialApp.router(routerConfig: router)),
+    );
+    await tester.loadAssets();
+    await tester.pump();
+    final rail = tester.element(find.byType(LibrarySidebar));
+    final shell = tester.state(find.byType(LibraryShell));
+    for (final (label, section) in [
+      (DefterStrings.navFlashcards, 'flashcards'),
+      ('Favoriler', 'favorites'),
+      ('Ara', 'search'),
+      ('Paylaşılanlar', 'shared'),
+      ('Şablonlar', 'templates'),
+      ('Belgeler', 'browse'),
+      (DefterStrings.navHome, 'dashboard'),
+    ]) {
+      await tester.tap(find.byKey(ValueKey('library-nav-$label')));
+      await tester.pump();
+      await tester.loadAssets();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump();
+      expect(router.routeInformationProvider.value.uri.path, '/home/$section');
+      expect(router.canPop(), isFalse);
+      expect(find.byType(LibrarySidebar), findsOneWidget);
+      expect(tester.element(find.byType(LibrarySidebar)), same(rail));
+      expect(tester.state(find.byType(LibraryShell)), same(shell));
+      expect(tester.takeException(), isNull);
+    }
+    await tester.tap(find.byTooltip('Kenar çubuğunu gizle'));
+    await tester.pump();
+    router.go('/home/favorites');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump();
+    expect(find.byType(LibrarySidebar), findsNothing);
+    await tester.tap(find.byTooltip('Kenar çubuğunu göster'));
+    await tester.pump();
+    expect(find.byType(LibrarySidebar), findsOneWidget);
   });
 
   for (final (name, size) in [

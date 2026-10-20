@@ -4,10 +4,7 @@ import 'package:saber/components/home/library_navigation.dart';
 import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/routes.dart';
-import 'package:saber/pages/favorites.dart';
-import 'package:saber/pages/home/flashcards.dart';
-import 'package:saber/pages/home/template_gallery.dart';
-import 'package:saber/pages/search.dart';
+import 'package:saber/components/home/library_shell.dart';
 
 /// A persistent library rail and document header for secondary screens.
 class LibraryScreen extends StatefulWidget {
@@ -35,24 +32,15 @@ class LibraryScreen extends StatefulWidget {
       case LibraryDestination.documents:
         LibraryNavigation.go(context, HomeRoutes.browseFilePath('/'));
       case LibraryDestination.flashcards:
-        LibraryNavigation.open(context, const FlashcardsPage());
+        LibraryNavigation.go(context, '/home/flashcards');
       case LibraryDestination.favorites:
-        LibraryNavigation.open(context, const FavoritesPage());
+        LibraryNavigation.go(context, '/home/favorites');
       case LibraryDestination.search:
-        LibraryNavigation.open(context, const SearchPage());
+        LibraryNavigation.go(context, '/home/search');
       case LibraryDestination.templates:
-        LibraryNavigation.open(context, const TemplateGalleryPage());
+        LibraryNavigation.go(context, '/home/templates');
       case LibraryDestination.shared:
-        LibraryNavigation.open(
-          context,
-          const LibraryScreen(
-            title: 'Paylaşılanlar',
-            destination: LibraryDestination.shared,
-            child: Center(
-              child: Text('Paylaşılan belge hizmeti henüz bağlı değil.'),
-            ),
-          ),
-        );
+        LibraryNavigation.go(context, '/home/shared');
     }
   }
 
@@ -72,10 +60,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
         body: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final wide = constraints.maxWidth >= 700;
+              final shell = LibraryShellScope.maybeOf(context);
+              final wide = shell?.wide ?? constraints.maxWidth >= 700;
               return Row(
                 children: [
-                  if (wide && _sidebar) ...[
+                  if (shell == null && wide && _sidebar) ...[
                     LibrarySidebar(
                       width: (constraints.maxWidth * .271).clamp(220.0, 300.0),
                       selected: widget.destination,
@@ -94,12 +83,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (!widget.showHeader && !_sidebar)
+                        if (!widget.showHeader && !(shell?.shown ?? _sidebar))
                           Align(
                             alignment: Alignment.centerLeft,
                             child: IconButton(
                               tooltip: 'Kenar çubuğunu göster',
-                              onPressed: () => setState(() => _sidebar = true),
+                              onPressed:
+                                  shell?.toggle ??
+                                  () => setState(() => _sidebar = true),
                               icon: const LibraryGlyph(
                                 Icons.space_dashboard_outlined,
                               ),
@@ -110,13 +101,16 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             height: 64,
                             child: Row(
                               children: [
-                                if (!wide || Navigator.of(context).canPop())
+                                if (shell == null &&
+                                    (!wide || Navigator.of(context).canPop()))
                                   BackButton(color: DefterDesign.gnBlue),
-                                if (wide && !_sidebar)
+                                if (shell != null && !shell.shown ||
+                                    shell == null && wide && !_sidebar)
                                   IconButton(
                                     tooltip: 'Kenar çubuğunu göster',
-                                    onPressed: () =>
-                                        setState(() => _sidebar = true),
+                                    onPressed:
+                                        shell?.toggle ??
+                                        () => setState(() => _sidebar = true),
                                     icon: const LibraryGlyph(
                                       Icons.space_dashboard_outlined,
                                     ),
