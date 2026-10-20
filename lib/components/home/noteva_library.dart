@@ -135,7 +135,11 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                   child: ListTile(
                     minTileHeight: 41,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 9),
-                    leading: LibraryGlyph(icon, color: ink),
+                    // The navigation includes standard Material icons as well
+                    // as the custom library glyphs. Use the font icon here so
+                    // every route remains visible when a new menu item is
+                    // added.
+                    leading: Icon(icon, size: 22, color: ink),
                     horizontalTitleGap: 10,
                     title: Text(text, style: const TextStyle(fontSize: 16)),
                     onTap: action,
@@ -461,8 +465,10 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         ? DefterDesign.gnSelectedSurface
         : Colors.transparent,
     child: InkWell(
-      onTap: () => open(doc),
+      onTap: () => doc.folder ? widget.onOpen(doc) : open(doc),
       onLongPress: selecting
+          ? null
+          : doc.folder
           ? null
           : () => setState(() {
               selecting = true;
@@ -541,8 +547,10 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         : Colors.transparent,
     borderRadius: BorderRadius.circular(10),
     child: InkWell(
-      onTap: () => open(doc),
+      onTap: () => doc.folder ? widget.onOpen(doc) : open(doc),
       onLongPress: selecting
+          ? null
+          : doc.folder
           ? null
           : () => setState(() {
               selecting = true;
