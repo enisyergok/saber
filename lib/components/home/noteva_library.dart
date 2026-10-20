@@ -248,6 +248,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                           ),
                           Text(
                             'Belgeler',
+                            key: const Key('libraryTitle'),
                             style: TextStyle(
                               fontSize: wide ? 29 : 28,
                               fontWeight: FontWeight.w700,

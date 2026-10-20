@@ -222,7 +222,7 @@ void main() {
       expect(find.byType(DashboardPage), findsOneWidget);
       expect(find.byType(HomeSidebar), findsNothing);
       expect(find.byType(VerticalNavbar), findsNothing);
-      expect(find.text('Belgeler'), findsOneWidget);
+      expect(find.byKey(const Key('libraryTitle')), findsOneWidget);
       expect(find.byType(ActionChip), findsNothing);
       await tester.tap(find.byKey(const Key('libraryCreateMenu')));
       await tester.pumpAndSettle();

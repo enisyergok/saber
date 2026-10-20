@@ -131,7 +131,7 @@ void main() {
       expect(find.byType(HomeSidebar), findsNothing);
       expect(find.byType(NavigationBar), findsNothing);
       expect(find.byType(ActionChip), findsNothing);
-      expect(find.text('Belgeler'), findsOneWidget);
+      expect(find.byKey(const Key('libraryTitle')), findsOneWidget);
       final material = tester.widget<Material>(
         find
             .descendant(
