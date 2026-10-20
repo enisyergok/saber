@@ -367,11 +367,11 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                                 ? GridView.builder(
                                     padding: const EdgeInsets.only(top: 12),
                                     gridDelegate:
-                                        const SliverGridDelegateWithMaxCrossAxisExtent(
-                                          maxCrossAxisExtent: 180,
-                                          mainAxisExtent: 200,
-                                          crossAxisSpacing: 24,
-                                          mainAxisSpacing: 16,
+                                        SliverGridDelegateWithMaxCrossAxisExtent(
+                                          maxCrossAxisExtent: wide ? 188 : 156,
+                                          mainAxisExtent: wide ? 222 : 206,
+                                          crossAxisSpacing: wide ? 24 : 12,
+                                          mainAxisSpacing: 18,
                                         ),
                                     itemCount: documents.length + 1,
                                     itemBuilder: (context, index) => index == 0
@@ -445,98 +445,147 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
     ),
   );
 
-  Widget _row(LibraryDocument doc) => InkWell(
-    onTap: () => open(doc),
-    child: SizedBox(
-      height: 73,
-      child: Row(
-        children: [
-          if (selecting)
-            Checkbox(
-              value: selected.contains(doc.id),
-              onChanged: (_) => open(doc),
-            ),
-          cover(doc),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  doc.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: blue, fontSize: 14),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  doc.subtitle,
-                  style: const TextStyle(
-                    color: Color(0xff929292),
-                    fontSize: 10,
+  Widget _row(LibraryDocument doc) => Material(
+    color: selected.contains(doc.id)
+        ? DefterDesign.gnSelectedSurface
+        : Colors.transparent,
+    child: InkWell(
+      onTap: () => open(doc),
+      onLongPress: selecting
+          ? null
+          : () => setState(() {
+              selecting = true;
+              selected.add(doc.id);
+            }),
+      child: SizedBox(
+        height: 73,
+        child: Row(
+          children: [
+            if (selecting)
+              Checkbox(
+                value: selected.contains(doc.id),
+                onChanged: (_) => open(doc),
+              ),
+            cover(doc),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    doc.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: blue, fontSize: 14),
                   ),
-                ),
+                  const SizedBox(height: 3),
+                  Text(
+                    doc.subtitle,
+                    style: const TextStyle(
+                      color: Color(0xff929292),
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuButton<String>(
+              tooltip: 'Belge işlemleri',
+              icon: const LibraryGlyph(Icons.keyboard_arrow_down, color: blue),
+              onSelected: (value) =>
+                  value == 'open' ? widget.onOpen(doc) : widget.onFavorite(doc),
+              itemBuilder: (_) => [
+                const PopupMenuItem(value: 'open', child: Text('Aç')),
+                if (!doc.folder)
+                  PopupMenuItem(
+                    value: 'favorite',
+                    child: Text(
+                      doc.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle',
+                    ),
+                  ),
               ],
             ),
-          ),
-          PopupMenuButton<String>(
-            tooltip: 'Belge işlemleri',
-            icon: const LibraryGlyph(Icons.keyboard_arrow_down, color: blue),
-            onSelected: (value) =>
-                value == 'open' ? widget.onOpen(doc) : widget.onFavorite(doc),
-            itemBuilder: (_) => [
-              const PopupMenuItem(value: 'open', child: Text('Aç')),
-              if (!doc.folder)
-                PopupMenuItem(
-                  value: 'favorite',
-                  child: Text(
-                    doc.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle',
-                  ),
-                ),
-            ],
-          ),
-          if (!doc.folder)
-            button(
-              doc.favorite ? Icons.star : Icons.star_border,
-              'Favori',
-              () => widget.onFavorite(doc),
-            )
-          else
-            button(Icons.chevron_right, 'Klasörü aç', () => widget.onOpen(doc)),
-        ],
+            if (!doc.folder)
+              button(
+                doc.favorite ? Icons.star : Icons.star_border,
+                'Favori',
+                () => widget.onFavorite(doc),
+              )
+            else
+              button(
+                Icons.chevron_right,
+                'Klasörü aç',
+                () => widget.onOpen(doc),
+              ),
+          ],
+        ),
       ),
     ),
   );
 
-  Widget _gridTile(LibraryDocument doc) => InkWell(
-    onTap: () => open(doc),
-    child: Column(
-      children: [
-        cover(doc, large: true),
-        const SizedBox(height: 8),
-        Text(
-          doc.title,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 13, color: blue),
-        ),
-        Text(
-          doc.subtitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 10, color: Colors.grey),
-        ),
-        if (selecting)
-          SizedBox(
-            height: 22,
-            child: Checkbox(
-              value: selected.contains(doc.id),
-              onChanged: (_) => open(doc),
-            ),
+  Widget _gridTile(LibraryDocument doc) => Material(
+    color: selected.contains(doc.id)
+        ? DefterDesign.gnSelectedSurface
+        : Colors.transparent,
+    borderRadius: BorderRadius.circular(10),
+    child: InkWell(
+      onTap: () => open(doc),
+      onLongPress: selecting
+          ? null
+          : () => setState(() {
+              selecting = true;
+              selected.add(doc.id);
+            }),
+      borderRadius: BorderRadius.circular(10),
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              cover(doc, large: true),
+              if (!doc.folder)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2, right: 2),
+                  child: IconButton(
+                    visualDensity: VisualDensity.compact,
+                    tooltip: doc.favorite
+                        ? 'Favorilerden çıkar'
+                        : 'Favorilere ekle',
+                    onPressed: () => widget.onFavorite(doc),
+                    icon: Icon(
+                      doc.favorite ? Icons.star : Icons.star_border,
+                      size: 20,
+                      color: blue,
+                    ),
+                  ),
+                ),
+            ],
           ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            doc.title,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 13, color: blue),
+          ),
+          Text(
+            doc.subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 10, color: Colors.grey),
+          ),
+          if (selecting)
+            SizedBox(
+              height: 22,
+              child: Checkbox(
+                value: selected.contains(doc.id),
+                onChanged: (_) => open(doc),
+              ),
+            ),
+        ],
+      ),
     ),
   );
 
