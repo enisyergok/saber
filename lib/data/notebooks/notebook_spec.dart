@@ -122,9 +122,10 @@ abstract class PendingNotebook {
 
 /// The paper colours offered when a notebook is made.
 abstract class PaperColours {
-  /// Colour (null for the usual white) and its name.
+  /// Colour (null to retain the selected paper's default) and its name.
   static List<(Color?, String)> get all => [
-    (null, DefterStrings.colourWhite),
+    (null, DefterStrings.isTr ? 'Varsayılan' : 'Default'),
+    (const Color(0xFFFFFFFF), DefterStrings.colourWhite),
     (const Color(0xFFFFF8E7), DefterStrings.colourCream),
     (const Color(0xFFF7F1E3), DefterStrings.colourIvory),
     (const Color(0xFFE5E5E5), DefterStrings.colourGrey),
@@ -154,6 +155,7 @@ abstract class CoverGroups {
     'pattern' => DefterStrings.coverPatterned,
     'classic' => DefterStrings.coverClassic,
     'scene' => DefterStrings.coverNature,
+    'recovered' => DefterStrings.isTr ? 'Paket kapakları' : 'Packaged covers',
     _ => group,
   };
 }

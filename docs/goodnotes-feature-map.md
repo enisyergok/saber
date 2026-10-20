@@ -45,7 +45,9 @@ not bundled or interpreted on Android.
 `Assets.car`, compiled `.nib` files, Apple Core ML models and Goodnotes binaries
 remain evidence sources only. The selected fonts drive Noteva typography and
 the selected SVGs drive matching gallery previews through a pattern renderer.
-These previews do not replace the saved document background implementation.
+The subsequent recovered-template integration embeds prepared SVG backgrounds
+in new notes, not just previews. All 41 available built-in SVGs are now wired as
+13 papers and 28 covers; see `recovered-templates.md` for persistence and limits.
 The IPA archive has malformed ZIP records; an earlier extraction reported 605
 members could not be recovered; those missing members remain unclaimed.
 

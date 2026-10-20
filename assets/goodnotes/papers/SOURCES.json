@@ -1,0 +1,175 @@
+{
+  "archiveSha256": "4e06c8e0333e3029d99cfa98cd98f36572bdbe1af71c96b5243b54521c5f0b6e",
+  "bundle": "GNDynamicTemplates_GNDynamicTemplates.bundle",
+  "files": [
+    {
+      "file": "blank.svg",
+      "sha256": "1f9032237d77632724e7a1c088efb01a6b78c53dc054b03b4a5bb1fb7fa61d59"
+    },
+    {
+      "file": "cornell.svg",
+      "sha256": "062eaeaf5a389c78a722e239cf057192a19a50b4b9aae945fab76038b7e5349f"
+    },
+    {
+      "file": "dottedgrid.svg",
+      "sha256": "e2834e0c7c71edc1d9d1ed0263dc347fff90ae249be87e66d7acdfdd517db627"
+    },
+    {
+      "file": "enclosed1.svg",
+      "sha256": "4184dad14ca2d6c460ca59c4b027f364f83c9bab74e43d719fa71692caeab253"
+    },
+    {
+      "file": "enclosed2.svg",
+      "sha256": "f9ab5b56820f05ecb53df2eb1b2a2e847dc39c69ee358be6dd564e36fed63973"
+    },
+    {
+      "file": "enclosed3.svg",
+      "sha256": "b7b07a943167b1e13d85deae664df2a38c6e8b193e73b20f89c370547c87d597"
+    },
+    {
+      "file": "enclosed4.svg",
+      "sha256": "13f77e51f533a0edf12e0c5fa0e31fecadc4e92666a95c511b988c208e8767dc"
+    },
+    {
+      "file": "enclosed5.svg",
+      "sha256": "b81de2163e3d836bed685acfc59956b83e6bc6fd57f83b0aaa4ded5e77961d8a"
+    },
+    {
+      "file": "enclosed6.svg",
+      "sha256": "9d7b72bdd40951fb5249ab32b2f9922d1d8d9369661bbecdff76097fb8184234"
+    },
+    {
+      "file": "grid.svg",
+      "sha256": "dbd0b20bef12a232001cb10c07ca5c6022d5c6d835f4374d0c4da9e0a93b96cf"
+    },
+    {
+      "file": "legal.svg",
+      "sha256": "3f3fbd023986f1af5b21479ddb79bd27129aa017394b46d36733105c16128ba9"
+    },
+    {
+      "file": "plainBeige.svg",
+      "sha256": "684a3196582220345d8b7420a53a360020f75719ba26e9f62f5a23b94e8347c9"
+    },
+    {
+      "file": "plainDarkgrey.svg",
+      "sha256": "39ffa45fe974ab7b91b47371be04b50f1c69fa78a60153c96931a4d9bc7c6675"
+    },
+    {
+      "file": "plainGreen.svg",
+      "sha256": "f087d24e6ef617a323ee8408cf273cfe7f199e8c64f5cb9baad1a751f9275e29"
+    },
+    {
+      "file": "plainGrey.svg",
+      "sha256": "917c9be8f573b09de95d7621da17ea4e392f3b27298aacd656e7bf70075aea1b"
+    },
+    {
+      "file": "plainWhite.svg",
+      "sha256": "8d7dca769cc544e2ed962a5ad0c5362cfeca412a4459669ca816cc18efb82fa9"
+    },
+    {
+      "file": "ruledNarrow.svg",
+      "sha256": "57b76cee699ef5dc41538b87cb2ee556ccb705a7b51619be24e3a4952df83834"
+    },
+    {
+      "file": "ruledWide.svg",
+      "sha256": "abf0031958f2523a31be533f0cd8744b43efc869b116962cf896ef80d8778b02"
+    },
+    {
+      "file": "simpleAllblack.svg",
+      "sha256": "120e2760da4409cca8d3fb8e3f0fccd09c5ba9adddc876d59311d16f52e1bd61"
+    },
+    {
+      "file": "simpleBlack.svg",
+      "sha256": "a1513b6082783540e61db090bc957f5c43b2b31367dbeff63a67a9fe2593836c"
+    },
+    {
+      "file": "simpleBlue.svg",
+      "sha256": "028bbe7748ca536ab9e7963e09ff4563ccfeb258021548a174df7351c283fdac"
+    },
+    {
+      "file": "simpleGreen.svg",
+      "sha256": "60f6915a48c30bc0609fa9a9deacecd09838b1bc96f309aed4fffd895378bccb"
+    },
+    {
+      "file": "simplePink.svg",
+      "sha256": "2621e6409249a2fbb28f6cda72250b1eab87fed5372b9b7fb7eacad0cbea5aa6"
+    },
+    {
+      "file": "simpleRed.svg",
+      "sha256": "4190401bd1fcf5bbb3a54df7c5d19f86af7ea15e3ce5ca14f5b0f025776765db"
+    },
+    {
+      "file": "simpleWhite.svg",
+      "sha256": "fd66cffa71dcb8103833cb11407ebe10fa4b63b673e47fe75653f0868d6316e7"
+    },
+    {
+      "file": "simpleYellow.svg",
+      "sha256": "c0cfd46cffedf7ec6913c441bbdcd800dd2b16fee49ff7f0e9bbd3335f3b9e9c"
+    },
+    {
+      "file": "singleColumn.svg",
+      "sha256": "4fbb555088e33a8f53d4db6c189835e831d67c8d55a539831dc52b784f0981c4"
+    },
+    {
+      "file": "singleColumnMix.svg",
+      "sha256": "a7879b5dd032aeade25201796d1e02764a04bcbe3cf0e9bcd22dc93be4df16c4"
+    },
+    {
+      "file": "solidBabyblue.svg",
+      "sha256": "f62ed6b6fa4a6eb39375ae146bd392ce7420db6c49e5e4830ebcdff7067a783c"
+    },
+    {
+      "file": "solidBlue.svg",
+      "sha256": "4297152e815091e88b8a2ad5cc1c5331c0b83054097f1babc0e2748a75151e31"
+    },
+    {
+      "file": "solidGreen.svg",
+      "sha256": "57c3994b9afbe2bc73ed945a4837c367f6ba6ec274c10c14e73d687d81f7c2f1"
+    },
+    {
+      "file": "solidGrey.svg",
+      "sha256": "ef037f3bd1b2fcb394c02a56f3985953004043d8408e9c180653ae145f77f4b1"
+    },
+    {
+      "file": "solidPink.svg",
+      "sha256": "ae47b9e857e01646592b40be6213ce345237ca83242594e8b5536e1b4ea52db4"
+    },
+    {
+      "file": "solidRed.svg",
+      "sha256": "8d57b4ae2bf3aaad8b32fcfb82cb88ecdfd4aaabf93d05c6f366a35504abf442"
+    },
+    {
+      "file": "solidTeal.svg",
+      "sha256": "2783eb40f206a749996351b9a42ebd7e8a8fc703076aa2a684fecc4e9f6049da"
+    },
+    {
+      "file": "solidWhite.svg",
+      "sha256": "03aaea19558b34d6a423667309edf94199e6cd165f46527653d348df24c762ce"
+    },
+    {
+      "file": "solidYellow.svg",
+      "sha256": "b8c52471d8a469468fc97c1f1c7765c629c1db23c418d007a4fc74585c953852"
+    },
+    {
+      "file": "threeColumn.svg",
+      "sha256": "f10833d42aaeace0fb25a06dbb22794dc37f7ff664da0b11469a5b1c9168a78b"
+    },
+    {
+      "file": "twoColumn.svg",
+      "sha256": "766465f67f5d518c85762a9fd5f257caed9acca2cb6fbeae80a8aa5b98d07bae"
+    },
+    {
+      "file": "twoColumnLeft.svg",
+      "sha256": "0643838a17529eb9a1e7bcc981231e375ebb9f617ad385aad97a3214c084eec1"
+    },
+    {
+      "file": "twoColumnRight.svg",
+      "sha256": "56dbe363525a2f9fd9d3e776671c3d344ee44c982d805e7f39213aa7a38716d5"
+    }
+  ],
+  "notes": [
+    "SVG text is also embedded unchanged in recovered_sources.dart for synchronous cover drawing.",
+    "Known dimension formulas are ported into Dart; no package JavaScript is executed.",
+    "Source comments mention missing pencil decoration on some covers; unavailable source artwork is not invented."
+  ]
+}

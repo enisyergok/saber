@@ -4,10 +4,11 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/notebooks/recovered_template.dart';
+import 'package:saber/components/home/packaged_template_painter.dart';
 
-/// A notebook cover, drawn in code (so there is nothing to download and
-/// every design is original). Covers are drawn at the size of a page and
-/// become the first page of a notebook.
+/// A notebook-card cover drawn locally, from native designs or recovered SVG
+/// geometry. The cover is separate from the writable document pages.
 class CoverDesign {
   const CoverDesign({
     required this.id,
@@ -16,6 +17,7 @@ class CoverDesign {
     required this.nameEn,
     required this.paint,
     this.titleColor = const Color(0xFF222222),
+    this.preserveArtwork = false,
   });
 
   final String id;
@@ -27,6 +29,7 @@ class CoverDesign {
 
   /// The colour the notebook's title is written in.
   final Color titleColor;
+  final bool preserveArtwork;
 
   String get name => (DefterStrings.isTr) ? nameTr : nameEn;
 
@@ -35,6 +38,10 @@ class CoverDesign {
     canvas.save();
     canvas.clipRect(Offset.zero & size);
     paint(canvas, size);
+    if (preserveArtwork) {
+      canvas.restore();
+      return;
+    }
     final spine = Paint()
       ..shader = ui.Gradient.linear(
         Offset.zero,
@@ -538,17 +545,37 @@ Paint p0(Color color) => Paint()..color = color;
 
 /// All the covers, in the order they are offered.
 abstract class CoverDesigns {
-  static List<CoverDesign> get all => _designs;
+  static final _recovered = List<CoverDesign>.unmodifiable([
+    for (final resource in RecoveredTemplates.covers)
+      CoverDesign(
+        id: 'pkg-${resource.replaceAll('.svg', '')}',
+        group: 'recovered',
+        nameTr: RecoveredTemplates.title(resource, turkish: true),
+        nameEn: RecoveredTemplates.title(resource, turkish: false),
+        preserveArtwork: true,
+        paint: (canvas, size) => PackagedTemplatePainter(resource, size).paint(canvas, size),
+      ),
+  ]);
+  static List<CoverDesign> get all => [..._designs, ..._recovered];
 
   static CoverDesign? byId(String? id) {
-    for (final design in _designs) {
+    for (final design in all) {
       if (design.id == id) return design;
     }
     return null;
   }
 
-  static List<CoverDesign> inGroup(String group) =>
-      [for (final d in _designs) if (d.group == group) d];
+  static List<CoverDesign> inGroup(String group) => [
+    for (final d in all)
+      if (d.group == group) d,
+  ];
 
-  static const groups = ['minimal', 'gradient', 'pattern', 'classic', 'scene'];
+  static const groups = [
+    'minimal',
+    'gradient',
+    'pattern',
+    'classic',
+    'scene',
+    'recovered',
+  ];
 }

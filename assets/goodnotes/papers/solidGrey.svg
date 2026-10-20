@@ -1,0 +1,7 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%" height="100%"
+>
+    <rect width="100%" height="100%" fill="rgb(56,59,67)"/>
+    <rect id="stripe" x="85%" width="5%" height="100%" fill="rgb(150,211,87)"/>
+</svg>

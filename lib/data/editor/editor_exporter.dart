@@ -61,7 +61,7 @@ abstract class EditorExporter {
     BuildContext context, {
     EInkStyle? eInk,
   }) async {
-    if (coreInfo.pages.isNotEmpty && coreInfo.pages.last.isEmpty) {
+    if (coreInfo.pages.length > 1 && coreInfo.pages.last.isEmpty) {
       // don't export the empty last page
       coreInfo = coreInfo.copyWith(
         pages: coreInfo.pages.toList()..removeLast(),

@@ -79,7 +79,10 @@ jobs:
             test/note_search_test.dart \
             test/trash_test.dart \
             test/packaged_paper_preview_test.dart \
-            test/library_catalog_test.dart 2>&1 | tee build-log.txt
+            test/library_catalog_test.dart \
+            test/recovered_templates_test.dart \
+            test/editor_notebook_spec_test.dart \
+            test/cover_designs_test.dart 2>&1 | tee build-log.txt
 
       - name: Upload interface review captures
         if: always()

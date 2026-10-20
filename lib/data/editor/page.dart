@@ -62,7 +62,9 @@ class EditorPage extends ChangeNotifier implements HasSize {
       strokes.isEmpty &&
       images.isEmpty &&
       quill.controller.document.isEmpty() &&
-      backgroundImage == null;
+      (backgroundImage == null ||
+          backgroundImage is SvgEditorImage &&
+              (backgroundImage as SvgEditorImage).templateResource != null);
   bool get isNotEmpty => !isEmpty;
 
   /// The height of the canvas cropped to the content.

@@ -21,6 +21,7 @@ import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
 import 'package:perfect_freehand/perfect_freehand.dart';
 import 'package:saber/components/canvas/_asset_cache.dart';
+import 'package:saber/data/notebooks/recovered_template.dart';
 import 'package:saber/components/canvas/_stroke.dart';
 import 'package:saber/components/canvas/canvas.dart';
 import 'package:saber/components/canvas/canvas_gesture_detector.dart';
@@ -359,6 +360,19 @@ class EditorState extends State<Editor> {
     }
     coreInfo.pages.clear();
     final page = EditorPage(size: size);
+    if (spec.template.resource case final String resource) {
+      page.backgroundImage = SvgEditorImage(
+        templateResource: resource,
+        id: coreInfo.nextImageId++, assetCache: coreInfo.assetCache,
+        svgString: RecoveredTemplates.render(resource, size.width, size.height,
+          paperColor: spec.paperColor?.toARGB32()),
+        svgFile: null, pageIndex: 0, pageSize: size,
+        naturalSize: size, srcRect: Offset.zero & size, dstRect: Offset.zero & size,
+        backgroundFit: BoxFit.fill, invertible: false, newImage: false,
+        onMoveImage: null, onDeleteImage: null, onMiscChange: autosaveAfterDelay,
+      );
+      history.markUnsaved();
+    }
     coreInfo.pages.add(page);
     listenToQuillChanges(page.quill, 0);
     coreInfo
@@ -551,10 +565,18 @@ class EditorState extends State<Editor> {
     while (pageIndex >= coreInfo.pages.length - 1) {
       final page = EditorPage(
         size: _sizeForPageAfter(coreInfo.pages.length - 1),
+        backgroundImage: _templateAfter(coreInfo.pages.length - 1),
       );
+      page.updatePageIndex(coreInfo.pages.length);
       coreInfo.pages.add(page);
       listenToQuillChanges(page.quill, coreInfo.pages.length - 1);
     }
+  }
+
+  SvgEditorImage? _templateAfter(int index) {
+    final before = coreInfo.pages.getOrNull(index)?.backgroundImage;
+    if (before is! SvgEditorImage || before.templateResource == null) return null;
+    return before.copy()..id = coreInfo.nextImageId++;
   }
 
   /// The size of a page added after the page at [index]: the same as that
@@ -3965,7 +3987,8 @@ class EditorState extends State<Editor> {
 
   void insertPageAfter(int pageIndex) => setState(() {
     if (coreInfo.readOnly) return;
-    final page = EditorPage(size: _sizeForPageAfter(pageIndex));
+    final page = EditorPage(size: _sizeForPageAfter(pageIndex),
+      backgroundImage: _templateAfter(pageIndex));
     coreInfo.pages.insert(pageIndex + 1, page);
     _renumberPages();
     history.recordChange(

@@ -1,6 +1,8 @@
 part of 'editor_image.dart';
 
 class SvgEditorImage extends EditorImage {
+  /// A baked-in paper resource, not an imported/movable image.
+  final String? templateResource;
   late SvgLoader svgLoader;
 
   static final log = Logger('SvgEditorImage');
@@ -10,6 +12,7 @@ class SvgEditorImage extends EditorImage {
   AssetCache get assetCache => super.assetCache;
 
   new({
+    this.templateResource,
     required super.id,
     required super.assetCache,
     required String? svgString,
@@ -69,6 +72,9 @@ class SvgEditorImage extends EditorImage {
     }
 
     return SvgEditorImage(
+      templateResource: json['templateResource'] is String
+          ? json['templateResource'] as String
+          : null,
       id:
           json['id'] ??
           -1, // -1 will be replaced by EditorCoreInfo._handleEmptyImageIds()
@@ -104,6 +110,7 @@ class SvgEditorImage extends EditorImage {
   @override
   Map<String, dynamic> toJson(OrderedAssetCache assets) {
     final json = super.toJson(assets);
+    if (templateResource != null) json['templateResource'] = templateResource;
 
     // remove non-svg fields
     json.remove('t'); // thumbnail bytes
@@ -204,25 +211,27 @@ class SvgEditorImage extends EditorImage {
   SvgEditorImage copy() {
     final svgData = _extractSvg();
     return SvgEditorImage(
-      id: id,
-      // ignore: deprecated_member_use_from_same_package
-      assetCache: assetCache,
-      svgString: svgData.string,
-      svgFile: svgData.file,
-      pageIndex: pageIndex,
-      pageSize: .infinite,
-      invertible: invertible,
-      backgroundFit: backgroundFit,
-      onMoveImage: onMoveImage,
-      onDeleteImage: onDeleteImage,
-      onMiscChange: onMiscChange,
-      onLoad: onLoad,
-      newImage: newImage,
-      dstRect: dstRect,
-      srcRect: srcRect,
-      naturalSize: naturalSize,
-      isThumbnail: isThumbnail,
-    ).._quarterTurns = _quarterTurns
-    .._cut = _cut;
+        templateResource: templateResource,
+        id: id,
+        // ignore: deprecated_member_use_from_same_package
+        assetCache: assetCache,
+        svgString: svgData.string,
+        svgFile: svgData.file,
+        pageIndex: pageIndex,
+        pageSize: .infinite,
+        invertible: invertible,
+        backgroundFit: backgroundFit,
+        onMoveImage: onMoveImage,
+        onDeleteImage: onDeleteImage,
+        onMiscChange: onMiscChange,
+        onLoad: onLoad,
+        newImage: newImage,
+        dstRect: dstRect,
+        srcRect: srcRect,
+        naturalSize: naturalSize,
+        isThumbnail: isThumbnail,
+      )
+      .._quarterTurns = _quarterTurns
+      .._cut = _cut;
   }
 }

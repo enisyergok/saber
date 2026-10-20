@@ -1,0 +1,14 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%" height="100%"
+>
+    <defs>
+        <pattern id="pattern" width="100%" height="16" patternUnits="userSpaceOnUse">
+            <rect id="primitive" fill="rgb(208,210,211)" width="100%" height="0.5"/>
+        </pattern>
+    </defs>
+
+    <rect width="100%" height="100%" fill="rgb(247,246,233)"/>
+    <rect id="leftLines" x="30" y="50" width="25%" height="80%" fill="url(#pattern)"/>
+    <rect id="rightLines" x="30%" y="50" width="50%" height="80%" fill="url(#pattern)"/>
+</svg>

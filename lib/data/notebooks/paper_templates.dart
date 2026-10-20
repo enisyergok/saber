@@ -1,9 +1,11 @@
 import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/notebooks/recovered_template.dart';
 import 'package:saber/i18n/extensions/canvas_background_pattern_localized.dart';
 import 'package:sbn/canvas_background_pattern.dart';
 
 /// The kinds of paper, as the tabs of the new notebook screen show them.
 enum PaperGroup {
+  recovered,
   blank,
   lined,
   squared,
@@ -15,6 +17,7 @@ enum PaperGroup {
   special;
 
   String get label => switch (this) {
+    PaperGroup.recovered => DefterStrings.isTr ? 'Paket kâğıtları' : 'Packaged papers',
     PaperGroup.blank => DefterStrings.groupBlank,
     PaperGroup.lined => DefterStrings.groupLined,
     PaperGroup.squared => DefterStrings.groupSquared,
@@ -109,7 +112,11 @@ class PaperTemplate {
   /// For papers that come in several line spacings: which one this is.
   final PaperSpacing? spacing;
 
-  String get name => switch (spacing) {
+  String? get resource => RecoveredTemplates.paperAssets[id];
+
+  String get name => id.startsWith('pkg-')
+      ? RecoveredTemplates.title(resource!, turkish: DefterStrings.isTr)
+      : switch (spacing) {
     null => pattern.localizedName,
     final spacing => switch (pattern) {
       CanvasBackgroundPattern.lined => spacing.lined,
@@ -372,12 +379,20 @@ abstract class PaperTemplates {
     PaperTemplate('square-split', CanvasBackgroundPattern.squareSplit, groups: {PaperGroup.special}),
     PaperTemplate('staffs', CanvasBackgroundPattern.staffs, groups: {PaperGroup.special}),
     PaperTemplate('tablature', CanvasBackgroundPattern.tablature, groups: {PaperGroup.special}),
+    PaperTemplate('pkg-cornell', CanvasBackgroundPattern.collegeLtr, groups: {PaperGroup.recovered, PaperGroup.academic}),
+    PaperTemplate('pkg-single', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
+    PaperTemplate('pkg-single-mix', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
+    PaperTemplate('pkg-two', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
+    PaperTemplate('pkg-two-left', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
+    PaperTemplate('pkg-two-right', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
+    PaperTemplate('pkg-three', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
   ];
 
   /// The papers under [group]; all of them for null.
   static List<PaperTemplate> inGroup(PaperGroup? group) => [
     for (final template in all)
-      if (group == null || template.groups.contains(group)) template,
+      if (group == null || (group == PaperGroup.recovered
+          ? template.resource != null : template.groups.contains(group))) template,
   ];
 
   /// The papers of [group] about [topic]; the whole group for null.

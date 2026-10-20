@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/data/editor/page.dart';
+import 'package:saber/components/canvas/_asset_cache.dart';
+import 'package:saber/components/canvas/image/editor_image.dart';
+import 'package:saber/data/editor/editor_exporter.dart';
+import 'package:saber/data/notebooks/recovered_template.dart';
+
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/notebooks/notebook_spec.dart';
@@ -63,6 +72,32 @@ void main() {
       expect(page.size, spec.pageSize);
     }
     expect(spec.pageSize.width, greaterThan(spec.pageSize.height));
+    final original = info.pages.first.backgroundImage! as SvgEditorImage;
+    expect(original.templateResource, 'ruledNarrow.svg');
+    final assets = OrderedAssetCache();
+    final json = original.toJson(assets);
+    final bytes = await assets.getBytes(json['a'] as int);
+    expect(
+      utf8.decode(bytes),
+      RecoveredTemplates.render(
+        'ruledNarrow.svg',
+        spec.pageSize.width,
+        spec.pageSize.height,
+        paperColor: 0xfffff8e7,
+      ),
+    );
+    final reopened = SvgEditorImage.fromJson(
+      json,
+      inlineAssets: [Uint8List.fromList(bytes)],
+      sbnPath: '/roundtrip',
+      assetCache: info.assetCache,
+    );
+    expect(reopened.templateResource, 'ruledNarrow.svg');
+    expect(reopened.dstRect, Offset.zero & spec.pageSize);
+    expect(
+      (reopened.svgLoader as SvgStringLoader).provideSvg(null),
+      utf8.decode(bytes),
+    );
     // the paper becomes the one new notes start on, as before
     expect(stows.lastBackgroundPattern.value, CanvasBackgroundPattern.lined);
 
@@ -70,9 +105,48 @@ void main() {
     editor.insertPageAfter(0);
     await tester.pump();
     expect(info.pages[1].size, spec.pageSize);
+    expect(
+      (info.pages[1].backgroundImage as SvgEditorImage).templateResource,
+      'ruledNarrow.svg',
+    );
     editor.createPage(info.pages.length + 1);
     expect(info.pages.last.size, spec.pageSize);
     expect(info.pages.last.size, isNot(EditorPage.defaultSize));
+    expect(
+      (info.pages.last.backgroundImage as SvgEditorImage).templateResource,
+      'ruledNarrow.svg',
+    );
+    expect(info.pages.last.backgroundImage!.pageIndex, info.pages.length - 1);
+    expect(
+      info.pages.last.isEmpty,
+      isTrue,
+      reason: 'paper alone must not accumulate nonempty trailing pages',
+    );
+    reopened.dispose();
+    final packagedPapers = PaperTemplates.inGroup(PaperGroup.recovered);
+    expect(packagedPapers.length, 13);
+    for (final paper in packagedPapers) {
+      await editor.applyNotebookSpec(NotebookSpec(template: paper));
+      final background = info.pages.first.backgroundImage! as SvgEditorImage;
+      final savedAssets = OrderedAssetCache();
+      final saved = background.toJson(savedAssets);
+      final savedBytes = Uint8List.fromList(
+        await savedAssets.getBytes(saved['a'] as int),
+      );
+      final loaded = SvgEditorImage.fromJson(
+        saved,
+        inlineAssets: [savedBytes],
+        sbnPath: '/resource-roundtrip',
+        assetCache: info.assetCache,
+      );
+      expect(loaded.templateResource, paper.resource);
+      expect(
+        (loaded.svgLoader as SvgStringLoader).provideSvg(null),
+        RecoveredTemplates.render(paper.resource!, 1000, 1400),
+      );
+      loaded.dispose();
+    }
+    await editor.applyNotebookSpec(spec);
 
     // Once there is something on the note, a setup no longer changes it.
     editor.drawTestStroke();
@@ -82,5 +156,22 @@ void main() {
     );
     expect(info.backgroundPattern, CanvasBackgroundPattern.lined);
     expect(info.pages.first.size, spec.pageSize);
+    await tester.runAsync(() async {
+      final image = await EditorExporter.screenshotPage(
+        coreInfo: info,
+        pageIndex: 0,
+        pixelRatio: .25,
+      );
+      expect(image.width, closeTo(spec.pageSize.width * .25, 1));
+      expect(image.height, closeTo(spec.pageSize.height * .25, 1));
+      image.dispose();
+      final document = await EditorExporter.generatePdf(
+        info,
+        tester.element(find.byType(Editor)),
+      );
+      final pdfBytes = await document.save();
+      expect(ascii.decode(pdfBytes.sublist(0, 5)), '%PDF-');
+      expect(pdfBytes.length, greaterThan(1000));
+    });
   });
 }
