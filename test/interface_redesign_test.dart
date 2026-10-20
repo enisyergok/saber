@@ -16,6 +16,8 @@ import 'package:saber/data/tools/highlighter.dart';
 import 'package:saber/i18n/strings.g.dart';
 import 'package:saber/pages/editor/editor.dart';
 import 'package:saber/pages/home/dashboard.dart';
+import 'package:saber/pages/home/home.dart';
+import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/home/settings.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
@@ -92,6 +94,57 @@ void main() {
     ('phone', const Size(390, 844)),
     ('tablet', const Size(1280, 800)),
   ]) {
+    testWidgets('real home entry $name matches the approved light library', (
+      tester,
+    ) async {
+      stows.sentryConsent.value = .granted;
+      DashboardPage.overrideData = DashboardData(
+        documents: [
+          LibraryDocument(
+            id: '/one',
+            title: 'Adsız Not Defteri (1)',
+            subtitle: 'Bugün, 12:30',
+            modified: DateTime(2026, 10, 19, 12, 30),
+          ),
+          LibraryDocument(
+            id: '/two',
+            title: 'Adsız Not Defteri',
+            subtitle: 'Bugün, 10:51',
+            modified: DateTime(2026, 10, 19, 10, 51),
+          ),
+          const LibraryDocument(
+            id: '/folder',
+            title: 'Adsız',
+            subtitle: '21.09.2023, 16:39',
+            folder: true,
+          ),
+        ],
+      );
+      addTearDown(() => DashboardPage.overrideData = null);
+      await pump(
+        tester,
+        size,
+        const HomePage(subpage: HomePage.dashboardSubpage, path: null),
+        dark: true,
+      );
+      expect(find.byType(NotevaLibrary), findsOneWidget);
+      expect(find.byType(HomeSidebar), findsNothing);
+      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.byType(ActionChip), findsNothing);
+      expect(find.text('Belgeler'), findsOneWidget);
+      final material = tester.widget<Material>(
+        find
+            .descendant(
+              of: find.byType(NotevaLibrary),
+              matching: find.byType(Material),
+            )
+            .first,
+      );
+      expect(material.color, Colors.white);
+      expect(tester.takeException(), isNull);
+      await capture(tester, 'real_home_$name');
+    });
+
     testWidgets('library $name has search and functional create menu', (
       tester,
     ) async {

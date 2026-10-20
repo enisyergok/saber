@@ -215,14 +215,17 @@ void main() {
       return router;
     }
 
-    testWidgets('a tablet opens on the home screen with its sidebar', (
+    testWidgets('a tablet opens the library without the legacy sidebar', (
       tester,
     ) async {
       await pumpHome(tester);
       expect(find.byType(DashboardPage), findsOneWidget);
-      expect(find.byType(HomeSidebar), findsOneWidget);
+      expect(find.byType(HomeSidebar), findsNothing);
       expect(find.byType(VerticalNavbar), findsNothing);
-      expect(find.text(DefterStrings.navNotes), findsWidgets);
+      expect(find.text('Belgeler'), findsOneWidget);
+      expect(find.byType(ActionChip), findsNothing);
+      await tester.tap(find.byKey(const Key('libraryCreateMenu')));
+      await tester.pumpAndSettle();
       for (final label in [
         DefterStrings.actionNewNote,
         DefterStrings.actionFromTemplate,
@@ -231,8 +234,6 @@ void main() {
       ]) {
         expect(find.text(label), findsOneWidget, reason: label);
       }
-      await tester.tap(find.byKey(const Key('libraryCreateMenu')));
-      await tester.pumpAndSettle();
       expect(find.text(DefterStrings.actionAddImage), findsOneWidget);
       expect(find.text(DefterStrings.actionImportNote), findsOneWidget);
       expect(find.byType(NewNotebookWizard), findsNothing);
@@ -261,11 +262,13 @@ void main() {
       );
     });
 
-    testWidgets('new note opens the wizard, a template chip its gallery', (
+    testWidgets('creation menu opens the wizard and the template gallery', (
       tester,
     ) async {
       // tall enough that nothing has to be scrolled to
       await pumpHome(tester, screen: const Size(1280, 1800));
+      await tester.tap(find.byKey(const Key('libraryCreateMenu')));
+      await tester.pumpAndSettle();
       expect(find.text(DefterStrings.actionNewNote), findsOneWidget);
       await tester.tap(find.text(DefterStrings.actionNewNote));
       await tester.pumpAndSettle();
@@ -279,19 +282,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(NewNotebookWizard), findsNothing);
 
-      final chip = find.widgetWithText(
-        ActionChip,
-        PaperGroup.engineering.label,
-      );
-      expect(chip, findsOneWidget, reason: 'the kinds of templates are listed');
-      await tester.tap(chip);
+      await tester.tap(find.byKey(const Key('libraryCreateMenu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(DefterStrings.actionFromTemplate));
       await tester.pumpAndSettle();
       expect(find.byType(TemplateGalleryPage), findsOneWidget);
       expect(
         tester
             .widget<TemplateGalleryPage>(find.byType(TemplateGalleryPage))
             .group,
-        PaperGroup.engineering,
+        isNull,
       );
     });
 
@@ -321,13 +321,13 @@ void main() {
       expect(find.byType(VerticalNavbar), findsOneWidget);
     });
 
-    testWidgets('a phone keeps its bottom bar and shows the notes', (
+    testWidgets('a phone opens the library without the legacy bottom bar', (
       tester,
     ) async {
       await pumpHome(tester, screen: const Size(390, 800));
       expect(find.byType(HomeSidebar), findsNothing);
       expect(find.byType(DashboardPage), findsOneWidget);
-      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(NavigationBar), findsNothing);
       expect(tester.takeException(), isNull);
     });
   });

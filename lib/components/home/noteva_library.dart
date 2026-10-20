@@ -77,7 +77,8 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.brightnessOf(context) == Brightness.dark;
+    // Keep the approved library appearance independent of Android dark mode.
+    const dark = false;
     final background = dark ? const Color(0xff1c1c1e) : Colors.white;
     final rail = dark ? const Color(0xff252527) : DefterDesign.gnLibraryRail;
     final line = dark ? const Color(0xff414144) : DefterDesign.gnDivider;
@@ -97,6 +98,11 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
       );
     return Theme(
       data: Theme.of(context).copyWith(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: blue,
+          brightness: Brightness.light,
+        ),
         dividerColor: line,
         textTheme: Theme.of(context).textTheme
             .apply(bodyColor: ink, displayColor: ink),
@@ -249,66 +255,6 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              TextButton.icon(
-                                onPressed: widget.onTemplates,
-                                icon: const LibraryGlyph(
-                                  Icons.dashboard_customize_outlined,
-                                  size: 18,
-                                ),
-                                label: Text(DefterStrings.actionFromTemplate),
-                              ),
-                              TextButton.icon(
-                                onPressed: widget.onImportPdf,
-                                icon: const LibraryGlyph(
-                                  Icons.picture_as_pdf_outlined,
-                                  size: 18,
-                                ),
-                                label: Text(DefterStrings.actionImportPdf),
-                              ),
-                              TextButton.icon(
-                                onPressed: widget.onNewFolder,
-                                icon: const LibraryGlyph(
-                                  Icons.create_new_folder_outlined,
-                                  size: 18,
-                                ),
-                                label: Text(DefterStrings.actionNewFolder),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              for (final group in [
-                                PaperGroup.lined,
-                                PaperGroup.squared,
-                                PaperGroup.dotted,
-                                PaperGroup.engineering,
-                                PaperGroup.academic,
-                              ])
-                                ActionChip(
-                                  avatar: const LibraryGlyph(
-                                    Icons.grid_4x4,
-                                    size: 16,
-                                  ),
-                                  label: Text(group.label),
-                                  onPressed: () {
-                                    final onGroup = widget.onTemplateGroup;
-                                    if (onGroup != null) {
-                                      onGroup(group);
-                                    } else {
-                                      widget.onTemplates();
-                                    }
-                                  },
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 9),
                           Divider(height: 1, color: line),
                           SizedBox(
                             height: 48,
