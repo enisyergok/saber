@@ -133,6 +133,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(9),
                   child: ListTile(
+                    key: ValueKey('library-nav-$text'),
                     minTileHeight: 41,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 9),
                     // The navigation includes standard Material icons as well

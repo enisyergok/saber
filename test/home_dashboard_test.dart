@@ -306,7 +306,7 @@ void main() {
       expect(find.byType(BrowsePage), findsOneWidget);
       // The redesigned library has one document entry instead of separate
       // Home and Notes entries. It remains on the current document library.
-      await tester.tap(find.text('Belgeler'));
+      await tester.tap(find.byKey(const Key('library-nav-Belgeler')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(NotevaLibrary), findsOneWidget);
