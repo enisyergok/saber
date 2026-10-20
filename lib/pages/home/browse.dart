@@ -48,6 +48,7 @@ class BrowsePage extends StatefulHookWidget {
 
 class _BrowsePageState extends State<BrowsePage> {
   DirectoryChildren? children;
+  int _listingRequest = 0;
 
   String? path;
 
@@ -102,14 +103,17 @@ class _BrowsePageState extends State<BrowsePage> {
       if (!location.startsWith(RoutePaths.prefixOfHome)) return;
     }
 
-    children =
+    final request = ++_listingRequest;
+    final requestedPath = path;
+    final result =
         BrowsePage.overrideChildren ??
         await FileManager.getChildrenOfDirectory(
           path ?? '/',
           sortMetric: stows.browseSortMetric.value,
         );
 
-    if (mounted) setState(() {});
+    if (!mounted || request != _listingRequest || requestedPath != path) return;
+    setState(() => children = result);
   }
 
   void onDirectoryTap(String folder) {
@@ -130,6 +134,9 @@ class _BrowsePageState extends State<BrowsePage> {
       newPath = null;
     }
     path = newPath;
+    // Remove the previous folder's cards immediately. Otherwise they can be
+    // tapped again while the new directory listing is still loading.
+    setState(() => children = null);
     context.go(HomeRoutes.browseFilePath(path ?? '/'));
     findChildrenOfPath();
   }
@@ -215,7 +222,7 @@ class _BrowsePageState extends State<BrowsePage> {
       onAddImage: () {},
       onNewFolder: createFolderFromLibrary,
       onHome: () => context.go(RoutePaths.dashboard),
-      onNotes: () {},
+      onNotes: () => onPathComponentTap(null),
       notesMode: true,
       onTemplateGroup: (group) => Navigator.of(context).push(
         MaterialPageRoute<void>(

@@ -315,6 +315,15 @@ void main() {
         router.routerDelegate.currentConfiguration.uri.toString(),
         HomeRoutes.browseFilePath('/'),
       );
+      await tester.tap(
+        find.byKey(ValueKey('library-nav-${DefterStrings.navHome}')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(DashboardPage), findsOneWidget);
+      expect(
+        router.routerDelegate.currentConfiguration.uri.toString(),
+        RoutePaths.dashboard,
+      );
     });
 
     testWidgets('switched off, the classic home screen is back', (

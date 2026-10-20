@@ -136,11 +136,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                     key: ValueKey('library-nav-$text'),
                     minTileHeight: 41,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 9),
-                    // The navigation includes standard Material icons as well
-                    // as the custom library glyphs. Use the font icon here so
-                    // every route remains visible when a new menu item is
-                    // added.
-                    leading: Icon(icon, size: 22, color: ink),
+                    leading: LibraryGlyph(icon, size: 22, color: ink),
                     horizontalTitleGap: 10,
                     title: Text(text, style: const TextStyle(fontSize: 16)),
                     onTap: action,
@@ -174,10 +170,16 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                         ),
                       ),
                       nav(
+                        Icons.home_outlined,
+                        DefterStrings.navHome,
+                        widget.onHome,
+                        active: !widget.notesMode,
+                      ),
+                      nav(
                         Icons.description_outlined,
                         'Belgeler',
-                        widget.notesMode ? widget.onNotes : widget.onHome,
-                        active: true,
+                        widget.onNotes,
+                        active: widget.notesMode,
                       ),
                       nav(
                         Icons.bookmark_border,

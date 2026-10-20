@@ -66,6 +66,42 @@ class _GlyphPainter extends CustomPainter {
       );
       line(9, 4, 9, 20);
       for (final y in [7.0, 10.0, 13.0]) line(4, y, 6.5, y);
+    } else if (icon == Icons.home_outlined) {
+      path(
+        Path()
+          ..moveTo(2, 11)
+          ..lineTo(12, 3)
+          ..lineTo(22, 11),
+      );
+      path(
+        Path()
+          ..moveTo(5, 9)
+          ..lineTo(5, 21)
+          ..lineTo(10, 21)
+          ..lineTo(10, 15)
+          ..lineTo(14, 15)
+          ..lineTo(14, 21)
+          ..lineTo(19, 21)
+          ..lineTo(19, 9),
+      );
+    } else if (icon == Icons.description_outlined) {
+      pen.strokeWidth = 1.8;
+      path(
+        Path()
+          ..moveTo(5, 2)
+          ..lineTo(14, 2)
+          ..lineTo(20, 8)
+          ..lineTo(20, 22)
+          ..lineTo(5, 22)
+          ..close(),
+      );
+      path(
+        Path()
+          ..moveTo(14, 2)
+          ..lineTo(14, 8)
+          ..lineTo(20, 8),
+      );
+      for (final y in [12.0, 16.0, 19.0]) line(8, y, 16, y);
     } else if (icon == Icons.folder_outlined || icon == Icons.folder) {
       final back = Path()
         ..moveTo(2, 8)
@@ -112,7 +148,6 @@ class _GlyphPainter extends CustomPainter {
           ..lineTo(12, 17)
           ..close(),
       );
-      fill(star(12, 8.5, 3.7), color);
     } else if (icon == Icons.search) {
       canvas.drawCircle(const Offset(10, 10), 7, pen);
       line(15.2, 15.2, 21, 21);
