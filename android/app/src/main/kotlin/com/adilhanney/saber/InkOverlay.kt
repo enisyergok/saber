@@ -108,6 +108,10 @@ class InkOverlay(private val activity: Activity) {
         val bottom: Float,
         /// Whether to draw the guessed piece ahead of the pen.
         val predict: Boolean,
+        /// Huawei's stylus wrapper exposes a bounded point budget. Zero keeps
+        /// the generic predictor behaviour; positive values bound preview
+        /// points only and never alter the saved stroke.
+        val predictionPointLimit: Int,
     )
 
     private class Segment(
@@ -464,7 +468,12 @@ class InkOverlay(private val activity: Activity) {
         }
         try {
             val i = predicted.findPointerIndex(penId).let { if (it < 0) 0 else it }
-            val count = predicted.historySize + 1
+            val rawCount = predicted.historySize + 1
+            val count = if (config.predictionPointLimit > 0) {
+                min(rawCount, config.predictionPointLimit)
+            } else {
+                rawCount
+            }
             val points = FloatArray(2 * (count + 1))
             points[0] = lastX
             points[1] = lastY

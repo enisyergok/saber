@@ -69,6 +69,7 @@ import 'package:saber/data/tools/pen_assist.dart';
 import 'package:saber/data/tools/pen_boost.dart';
 import 'package:saber/data/tools/pen_feel.dart';
 import 'package:saber/data/tools/pen_overlay.dart';
+import 'package:saber/data/tools/stylus_profile.dart';
 import 'package:saber/data/tools/pressure_calibration.dart';
 import 'package:saber/data/tools/pressure_curve.dart';
 import 'package:saber/data/tools/pencil.dart';
@@ -2609,7 +2610,12 @@ class EditorState extends State<Editor> {
       'top': topLeft.dy,
       'right': bottomRight.dx,
       'bottom': bottomRight.dy,
-      'predict': stows.penPredict.value,
+      // Huawei's native wrapper exposes prediction separately from the
+      // generic pen setting. Both must be enabled; neither setting overwrites
+      // the other.
+      'predict':
+          stows.penPredict.value && StylusProfile.vendorPredictionEnabled,
+      'predictionPointLimit': StylusProfile.predictionPointLimit,
     };
   }
 
@@ -3749,7 +3755,11 @@ class EditorState extends State<Editor> {
           _zoomBoxImage = image;
         });
       } catch (error, stackTrace) {
-        log.warning('Could not capture the canvas for the zoom box', error, stackTrace);
+        log.warning(
+          'Could not capture the canvas for the zoom box',
+          error,
+          stackTrace,
+        );
       }
     });
   }

@@ -91,6 +91,7 @@ class MainActivity: FlutterActivity() {
             right = number("right"),
             bottom = number("bottom"),
             predict = map["predict"] as? Boolean ?: false,
+            predictionPointLimit = (map["predictionPointLimit"] as? Number)?.toInt() ?: 0,
         )
     }
 

@@ -32,4 +32,13 @@ abstract final class StylusProfile {
   static bool get enabled => isHuaweiLike || stows.huaweiPenMode.value;
 
   static double get pressureResponse => enabled ? 0.62 : 0.72;
+
+  /// Huawei's shipped wrapper exposes prediction as an independent switch.
+  /// Keep it scoped to Huawei devices so generic pen behaviour is unchanged.
+  static bool get vendorPredictionEnabled =>
+      !enabled || stows.huaweiPenPrediction.value;
+
+  /// Point budget used by the fast preview only; saved strokes are untouched.
+  static int get predictionPointLimit =>
+      enabled ? stows.huaweiPenPointLimit.value.clamp(0, 10000).toInt() : 0;
 }

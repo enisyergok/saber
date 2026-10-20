@@ -280,6 +280,23 @@ class Stows {
     volatile: !_isOnMainIsolate,
   );
 
+  /// Enables the Huawei stylus prediction path without changing the generic
+  /// pen prediction preference. This mirrors Huawei's separate
+  /// `setPredictEnable` switch.
+  final huaweiPenPrediction = PlainStow(
+    'huaweiPenPrediction',
+    true,
+    volatile: !_isOnMainIsolate,
+  );
+
+  /// Maximum predicted points retained by the fast ink layer for Huawei pens.
+  /// The Huawei wrapper validates its point budget between 0 and 10000.
+  final huaweiPenPointLimit = PlainStow(
+    'huaweiPenPointLimit',
+    32,
+    volatile: !_isOnMainIsolate,
+  );
+
   /// Reduces streamline once the nib has settled, preserving detail in slow
   /// handwriting without making fast strokes feel delayed.
   final penStablePrecision = PlainStow(
