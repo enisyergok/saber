@@ -296,7 +296,7 @@ void main() {
       );
     });
 
-    testWidgets('the unified library stays when notes are open', (
+    testWidgets('the unified library stays when documents are open', (
       tester,
     ) async {
       final router = await pumpHome(tester, subpage: HomePage.browseSubpage);
@@ -304,13 +304,16 @@ void main() {
       expect(find.byType(HomeSidebar), findsNothing);
       expect(find.byType(DashboardPage), findsNothing);
       expect(find.byType(BrowsePage), findsOneWidget);
-      await tester.tap(find.text(DefterStrings.navHome));
+      // The redesigned library has one document entry instead of separate
+      // Home and Notes entries. It remains on the current document library.
+      await tester.tap(find.text('Belgeler'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.byType(DashboardPage), findsOneWidget);
+      expect(find.byType(NotevaLibrary), findsOneWidget);
+      expect(find.byType(BrowsePage), findsOneWidget);
       expect(
         router.routerDelegate.currentConfiguration.uri.toString(),
-        RoutePaths.dashboard,
+        HomeRoutes.browseFilePath('/'),
       );
     });
 
