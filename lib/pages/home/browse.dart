@@ -8,11 +8,13 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:path/path.dart' as p;
 import 'package:saber/components/home/delete_note_button.dart';
 import 'package:saber/components/home/library_header.dart';
+import 'package:saber/components/home/noteva_library.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/pages/ask_notes.dart';
 import 'package:saber/pages/favorites.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
+import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/search.dart';
 import 'package:saber/components/home/export_note_button.dart';
 import 'package:saber/components/home/grid_folders.dart';
@@ -20,6 +22,7 @@ import 'package:saber/components/home/masonry_files.dart';
 import 'package:saber/components/home/move_note_button.dart';
 import 'package:saber/components/home/new_note_button.dart';
 import 'package:saber/components/home/new_notebook_dialog.dart';
+import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/home/notebook_cover.dart';
 import 'package:saber/components/home/path_components.dart';
 import 'package:saber/components/home/rename_note_button.dart';
@@ -152,8 +155,74 @@ class _BrowsePageState extends State<BrowsePage> {
     findChildrenOfPath();
   }
 
+  Future<void> createFolderFromLibrary() async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => NewFolderNameDialog(
+        existing: (children?.directories ?? const <String>[]).toSet(),
+      ),
+    );
+    if (name != null) await createFolder(name);
+  }
+
+  void openLibraryDocument(LibraryDocument document) {
+    if (document.folder) {
+      onPathComponentTap(document.id);
+    } else {
+      context.push(RoutePaths.editFilePath(document.id));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    useOnListenableChange(stows.browseSortMetric, findChildrenOfPath);
+    final currentPath = path ?? '/';
+    final documents = [
+      for (final folder in children?.directories ?? const <String>[])
+        LibraryDocument(
+          id: p.join(currentPath, folder),
+          title: folder,
+          subtitle: 'Klasör',
+          folder: true,
+        ),
+      for (final file in children?.files ?? const <String>[])
+        LibraryDocument(
+          id: p.join(currentPath, file),
+          title: p.basenameWithoutExtension(file),
+          subtitle: 'Not',
+        ),
+    ];
+
+    return NotevaLibrary(
+      loading: children == null,
+      documents: documents,
+      onOpen: openLibraryDocument,
+      onCreate: createNote,
+      onFavorite: (document) {
+        FavoriteNoteButton.toggle([document.id]);
+        findChildrenOfPath();
+      },
+      onSearch: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => const SearchPage())),
+      onFavorites: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => const FavoritesPage())),
+      onTemplates: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => const TemplateGalleryPage()),
+      ),
+      onSettings: () => context.go(HomeRoutes.routes[3].path),
+      onImport: () {},
+      onImportPdf: () {},
+      onAddImage: () {},
+      onNewFolder: createFolderFromLibrary,
+      onTemplateGroup: (group) => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => TemplateGalleryPage(group: group),
+        ),
+      ),
+    );
+  }
+
+  Widget buildLegacy(BuildContext context) {
     final platform = Theme.of(context).platform;
     const crossAxisCount = 2;
     useOnListenableChange(stows.browseSortMetric, findChildrenOfPath);

@@ -91,9 +91,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // The document library owns its navigation rail. Wrapping it in the
     // legacy shell adds a second sidebar and changes the available width.
-    if (widget.subpage == HomePage.dashboardSubpage &&
-        stows.homeDashboard.value) {
-      return const Scaffold(body: DashboardPage());
+    if ((widget.subpage == HomePage.dashboardSubpage &&
+            stows.homeDashboard.value) ||
+        widget.subpage == HomePage.browseSubpage) {
+      return Scaffold(body: body);
     }
 
     // hide navbar in fullscreen whiteboard
