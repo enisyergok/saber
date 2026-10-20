@@ -674,6 +674,12 @@ class _SettingsPageState extends State<SettingsPage> {
             pref: stows.huaweiPenMode,
           ),
           SettingsSwitch(
+            title: DefterStrings.huaweiPenPrediction,
+            subtitle: DefterStrings.huaweiPenPredictionSubtitle,
+            icon: Symbols.speed_rounded,
+            pref: stows.huaweiPenPrediction,
+          ),
+          SettingsSwitch(
             title: DefterStrings.penStablePrecision,
             subtitle: DefterStrings.penStablePrecisionSubtitle,
             icon: Symbols.gps_fixed_rounded,

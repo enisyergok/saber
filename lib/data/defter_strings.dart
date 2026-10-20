@@ -101,6 +101,11 @@ abstract class DefterStrings {
   static String get huaweiPenModeSubtitle => _tr
       ? 'M-Pencil basınç geçişlerini kalibre eder'
       : 'Tunes M-Pencil pressure transitions';
+  static String get huaweiPenPrediction =>
+      _tr ? 'Huawei düşük gecikme' : 'Huawei low latency';
+  static String get huaweiPenPredictionSubtitle => _tr
+      ? 'Huawei kalem tahminini ve hızlı önizleme akışını kullanır'
+      : 'Uses Huawei pen prediction and the fast preview path';
   static String get penStablePrecision =>
       _tr ? 'Sabit çizgide hassasiyet' : 'Stable-stroke precision';
   static String get penStablePrecisionSubtitle => _tr
@@ -1266,7 +1271,9 @@ abstract class DefterStrings {
       : '$n notes are damaged in the backup and were left out';
   static String backupError(String failure) => switch (failure) {
     'notABackup' =>
-      _tr ? 'Bu dosya Noteva yedeği değil.' : 'This file is not a Noteva backup.',
+      _tr
+          ? 'Bu dosya Noteva yedeği değil.'
+          : 'This file is not a Noteva backup.',
     'newerFormat' =>
       _tr
           ? 'Bu yedek uygulamanın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.'
