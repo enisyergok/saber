@@ -6,6 +6,7 @@ import 'package:saber/data/defter_strings.dart';
 enum LibraryDestination {
   home,
   documents,
+  flashcards,
   favorites,
   search,
   shared,
@@ -32,6 +33,11 @@ class LibrarySidebar extends StatelessWidget {
     final entries = <(LibraryDestination, IconData, String)>[
       (LibraryDestination.home, Icons.home_outlined, DefterStrings.navHome),
       (LibraryDestination.documents, Icons.description_outlined, 'Belgeler'),
+      (
+        LibraryDestination.flashcards,
+        Icons.style_outlined,
+        DefterStrings.navFlashcards,
+      ),
       (LibraryDestination.favorites, Icons.bookmark_border, 'Favoriler'),
       (LibraryDestination.search, Icons.search, 'Ara'),
       (LibraryDestination.shared, Icons.people_outline, 'Paylaşılanlar'),

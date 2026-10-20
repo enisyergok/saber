@@ -5,6 +5,7 @@ import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/pages/favorites.dart';
+import 'package:saber/pages/home/flashcards.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/search.dart';
 
@@ -33,6 +34,10 @@ class LibraryScreen extends StatefulWidget {
         context.go(RoutePaths.dashboard);
       case LibraryDestination.documents:
         context.go(HomeRoutes.browseFilePath('/'));
+      case LibraryDestination.flashcards:
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute<void>(builder: (_) => const FlashcardsPage()),
+        );
       case LibraryDestination.favorites:
         Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(builder: (_) => const FavoritesPage()),

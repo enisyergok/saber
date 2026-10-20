@@ -9,6 +9,27 @@ abstract class DefterStrings {
   static bool get _tr => LocaleSettings.currentLocale.languageCode == 'tr';
   static bool get isTr => _tr;
 
+  static String get navFlashcards => _tr ? 'Çalışma Kartları' : 'Flashcards';
+  static String get flashcardsTitle => _tr ? 'Çalışma Kartları' : 'Flashcards';
+  static String get flashcardsEmpty => _tr
+      ? 'Henüz çalışma kartı yok. Yeni kart ekleyerek başlayın.'
+      : 'No flashcards yet. Add a card to get started.';
+  static String get flashcardsAdd => _tr ? 'Kart ekle' : 'Add card';
+  static String get flashcardsDue => _tr ? 'Bugün çalışılacaklar' : 'Due today';
+  static String get flashcardsAll => _tr ? 'Tüm kartlar' : 'All cards';
+  static String get flashcardsFront => _tr ? 'Ön yüz' : 'Front';
+  static String get flashcardsBack => _tr ? 'Arka yüz' : 'Back';
+  static String get flashcardsDeck => _tr ? 'Deste' : 'Deck';
+  static String get flashcardsSave => _tr ? 'Kaydet' : 'Save';
+  static String get flashcardsCancel => _tr ? 'Vazgeç' : 'Cancel';
+  static String get flashcardsReveal => _tr ? 'Cevabı göster' : 'Show answer';
+  static String get flashcardsAgain => _tr ? 'Tekrar' : 'Again';
+  static String get flashcardsHard => _tr ? 'Zor' : 'Hard';
+  static String get flashcardsGood => _tr ? 'İyi' : 'Good';
+  static String get flashcardsEasy => _tr ? 'Kolay' : 'Easy';
+  static String get flashcardsNoDue =>
+      _tr ? 'Bugün için bekleyen kart yok.' : 'No cards are due today.';
+
   static String get fountainPenName => _tr ? 'Dolma Kalem' : 'Fountain Pen';
   static String get ballpointPenName =>
       _tr ? 'Tükenmez Kalem' : 'Ballpoint Pen';

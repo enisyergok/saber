@@ -41,6 +41,7 @@ class NotevaLibrary extends StatefulWidget {
     required this.onNewFolder,
     this.onHome,
     this.onNotes,
+    this.onFlashcards,
     this.notesMode = false,
     this.onTemplateGroup,
     this.loading = false,
@@ -59,6 +60,7 @@ class NotevaLibrary extends StatefulWidget {
       onAddImage,
       onNewFolder;
   final VoidCallback? onHome, onNotes;
+  final VoidCallback? onFlashcards;
   final bool notesMode;
   final ValueChanged<PaperGroup>? onTemplateGroup;
   final bool loading;
@@ -129,6 +131,8 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                       widget.onHome?.call();
                     case LibraryDestination.documents:
                       widget.onNotes?.call();
+                    case LibraryDestination.flashcards:
+                      widget.onFlashcards?.call();
                     case LibraryDestination.favorites:
                       widget.onFavorites();
                     case LibraryDestination.search:
