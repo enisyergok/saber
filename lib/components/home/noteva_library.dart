@@ -173,16 +173,10 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                         ),
                       ),
                       nav(
-                        Icons.home_outlined,
-                        DefterStrings.navHome,
-                        widget.onHome,
-                        active: !widget.notesMode,
-                      ),
-                      nav(
                         Icons.description_outlined,
-                        DefterStrings.navNotes,
-                        widget.onNotes,
-                        active: widget.notesMode,
+                        'Belgeler',
+                        widget.notesMode ? widget.onNotes : widget.onHome,
+                        active: true,
                       ),
                       nav(
                         Icons.bookmark_border,
