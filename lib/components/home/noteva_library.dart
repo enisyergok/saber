@@ -61,7 +61,9 @@ class NotevaLibrary extends StatefulWidget {
 
 class _NotevaLibraryState extends State<NotevaLibrary> {
   static const blue = DefterDesign.gnBlue;
-  bool sidebar = true, grid = false, selecting = false;
+  // Goodnotes opens the document library as a cover grid. Users can switch
+  // to the compact list from the toolbar when they need denser browsing.
+  bool sidebar = true, grid = true, selecting = false;
   int sort = 0;
   final selected = <String>{};
 

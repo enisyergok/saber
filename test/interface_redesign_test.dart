@@ -159,6 +159,7 @@ void main() {
       );
       expect(find.byType(NotevaLibrary), findsOneWidget);
       expect(tester.takeException(), isNull);
+      expect(find.byTooltip('Görünümü değiştir'), findsOneWidget);
       await capture(tester, 'library_$name');
       await tester.tap(find.byKey(const Key('libraryCreateMenu')));
       await tester.pumpAndSettle();
