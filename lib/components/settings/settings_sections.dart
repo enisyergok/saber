@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saber/components/settings/settings_subtitle.dart';
-import 'package:saber/components/home/library_header.dart';
+import 'package:saber/components/theming/defter_design.dart';
 
 /// A category/detail settings screen on tablets, grouped sections on phones.
 class SettingsSections extends StatefulWidget {
@@ -39,11 +39,8 @@ class _SettingsSectionsState extends State<SettingsSections> {
     Widget group(int index) => Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Material(
-        color: colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: colors.outlineVariant),
-        ),
+        color: colors.surfaceContainerLow,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -98,7 +95,9 @@ class _SettingsSectionsState extends State<SettingsSections> {
                       SizedBox(
                         width: 236,
                         child: Material(
-                          color: const Color(0xfff6f6f6),
+                          color: colors.brightness == Brightness.light
+                              ? DefterDesign.gnLibraryRail
+                              : colors.surfaceContainerLow,
                           child: ListView(
                             padding: const EdgeInsets.all(12),
                             children: [

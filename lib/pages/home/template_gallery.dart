@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:saber/components/home/library_screen.dart';
+import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/home/paper_thumb.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -45,18 +47,12 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
       ),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xff171717),
-        elevation: 0,
-        title: Text(
-          fixed == null
-              ? DefterStrings.navTemplates
-              : DefterStrings.templatesOf(fixed.label),
-        ),
-      ),
-      body: LayoutBuilder(
+    return LibraryScreen(
+      destination: LibraryDestination.templates,
+      title: fixed == null
+          ? DefterStrings.navTemplates
+          : DefterStrings.templatesOf(fixed.label),
+      child: LayoutBuilder(
         builder: (context, constraints) {
           final wide = constraints.maxWidth >= 760 && fixed == null;
           return Row(

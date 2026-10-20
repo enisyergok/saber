@@ -522,7 +522,7 @@ class _Tab extends StatelessWidget {
     );
     return Material(
       color: selected ? palette.activeTab : Colors.transparent,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap ?? onRename,

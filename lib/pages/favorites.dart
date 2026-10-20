@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:saber/components/home/library_glyph.dart';
+import 'package:saber/components/home/library_screen.dart';
+import 'package:saber/components/home/library_sidebar.dart';
+import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/data/routes.dart';
@@ -24,9 +27,10 @@ class FavoritesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(DefterStrings.favorites)),
-      body: ListenableBuilder(
+    return LibraryScreen(
+      title: DefterStrings.favorites,
+      destination: LibraryDestination.favorites,
+      child: ListenableBuilder(
         listenable: stows.favoriteFiles,
         builder: (context, _) {
           final favorites = [
@@ -43,14 +47,22 @@ class FavoritesPage extends StatelessWidget {
               final slash = path.lastIndexOf('/');
               final folder = path.substring(0, slash);
               return ListTile(
-                leading: const Icon(Icons.star_rounded, color: Colors.amber),
+                leading: const LibraryGlyph(
+                  Icons.description_outlined,
+                  color: DefterDesign.gnBlue,
+                ),
                 title: Text(path.substring(slash + 1)),
                 subtitle: folder.isEmpty ? null : Text(folder),
                 trailing: IconButton(
                   tooltip: DefterStrings.removeFromFavorites,
-                  icon: const Icon(Symbols.star_rounded),
+                  icon: const LibraryGlyph(
+                    Icons.star,
+                    color: DefterDesign.gnBlue,
+                  ),
                   onPressed: () {
-                    stows.favoriteFiles.value.remove(stows.favoriteFiles.value[i]);
+                    stows.favoriteFiles.value.remove(
+                      stows.favoriteFiles.value[i],
+                    );
                     stows.favoriteFiles.notifyListeners();
                   },
                 ),

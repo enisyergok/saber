@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:saber/components/home/library_glyph.dart';
+import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/theming/defter_design.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
@@ -43,6 +44,8 @@ class NotevaLibrary extends StatefulWidget {
     this.notesMode = false,
     this.onTemplateGroup,
     this.loading = false,
+    this.folderPath,
+    this.onParentFolder,
   });
   final List<LibraryDocument> documents;
   final ValueChanged<LibraryDocument> onOpen, onFavorite;
@@ -59,6 +62,8 @@ class NotevaLibrary extends StatefulWidget {
   final bool notesMode;
   final ValueChanged<PaperGroup>? onTemplateGroup;
   final bool loading;
+  final String? folderPath;
+  final VoidCallback? onParentFolder;
 
   @override
   State<NotevaLibrary> createState() => _NotevaLibraryState();
@@ -88,7 +93,6 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
     const background = Colors.white;
     const rail = DefterDesign.gnLibraryRail;
     const line = DefterDesign.gnDivider;
-    const ink = DefterDesign.gnText;
     final documents = [...widget.documents]
       ..sort(
         (a, b) => switch (sort) {
@@ -103,16 +107,7 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
         },
       );
     return Theme(
-      data: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: blue,
-          brightness: Brightness.light,
-        ),
-        dividerColor: line,
-        textTheme: Theme.of(context).textTheme
-            .apply(bodyColor: ink, displayColor: ink),
-      ),
+      data: DefterDesign.libraryTheme(Theme.of(context)),
       child: Material(
         color: background,
         child: SafeArea(
@@ -120,85 +115,36 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
             builder: (context, constraints) {
               final wide = constraints.maxWidth >= 700;
               final showRail = wide && sidebar;
-              Widget nav(
-                IconData icon,
-                String text,
-                VoidCallback? action, {
-                bool active = false,
-              }) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Material(
-                  color: active
-                      ? DefterDesign.gnSelectedSurface
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(9),
-                  child: ListTile(
-                    key: ValueKey('library-nav-$text'),
-                    minTileHeight: 41,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 9),
-                    leading: LibraryGlyph(icon, size: 22, color: ink),
-                    horizontalTitleGap: 10,
-                    title: Text(text, style: const TextStyle(fontSize: 16)),
-                    onTap: action,
-                  ),
-                ),
-              );
-              final navigation = ColoredBox(
-                color: rail,
-                child: SizedBox(
-                  width: (constraints.maxWidth * .271).clamp(220.0, 300.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 12, 0, 0),
-                        child: button(
-                          Icons.space_dashboard_outlined,
-                          'Kenar çubuğunu gizle',
-                          () => setState(() => sidebar = false),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.fromLTRB(20, 10, 14, 5),
-                        child: Text(
-                          'Noteva',
-                          style: TextStyle(
-                            fontSize: 29,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: -1,
+              final navigation = LibrarySidebar(
+                width: (constraints.maxWidth * .271).clamp(220.0, 300.0),
+                selected: widget.notesMode
+                    ? LibraryDestination.documents
+                    : LibraryDestination.home,
+                onHide: () => setState(() => sidebar = false),
+                onSelected: (destination) {
+                  switch (destination) {
+                    case LibraryDestination.home:
+                      widget.onHome?.call();
+                    case LibraryDestination.documents:
+                      widget.onNotes?.call();
+                    case LibraryDestination.favorites:
+                      widget.onFavorites();
+                    case LibraryDestination.search:
+                      widget.onSearch();
+                    case LibraryDestination.templates:
+                      widget.onTemplates();
+                    case LibraryDestination.shared:
+                      showDialog<void>(
+                        context: context,
+                        builder: (_) => const AlertDialog(
+                          title: Text('Paylaşılanlar'),
+                          content: Text(
+                            'Paylaşılan belge hizmeti henüz bağlı değil.',
                           ),
                         ),
-                      ),
-                      nav(
-                        Icons.home_outlined,
-                        DefterStrings.navHome,
-                        widget.onHome,
-                        active: !widget.notesMode,
-                      ),
-                      nav(
-                        Icons.description_outlined,
-                        'Belgeler',
-                        widget.onNotes,
-                        active: widget.notesMode,
-                      ),
-                      nav(
-                        Icons.bookmark_border,
-                        'Favoriler',
-                        widget.onFavorites,
-                      ),
-                      nav(Icons.search, 'Ara', widget.onSearch),
-                      Tooltip(
-                        message: 'Paylaşılan belge hizmeti henüz bağlı değil',
-                        child: nav(Icons.people_outline, 'Paylaşılanlar', null),
-                      ),
-                      nav(
-                        Icons.storefront_outlined,
-                        'Şablonlar',
-                        widget.onTemplates,
-                      ),
-                    ],
-                  ),
-                ),
+                      );
+                  }
+                },
               );
               return Row(
                 children: [
@@ -268,6 +214,37 @@ class _NotevaLibraryState extends State<NotevaLibrary> {
                           ),
                           const SizedBox(height: 10),
                           Divider(height: 1, color: line),
+                          if (widget.folderPath != null &&
+                              widget.folderPath != '/')
+                            SizedBox(
+                              height: 44,
+                              child: Row(
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: widget.onParentFolder,
+                                    icon: const LibraryGlyph(
+                                      Icons.chevron_left,
+                                      color: blue,
+                                      size: 16,
+                                    ),
+                                    label: const Text('Geri'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      widget.folderPath!,
+                                      key: const Key('libraryFolderPath'),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: blue,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           SizedBox(
                             height: 48,
                             child: Row(

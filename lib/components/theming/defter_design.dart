@@ -22,6 +22,79 @@ abstract class DefterDesign {
   static const gnDivider = Color(0xFFE2E2E2);
   static const gnText = Color(0xFF171717);
 
+  /// Chrome shared by library pages, their menus and modal operations.
+  static ThemeData libraryTheme(ThemeData inherited) {
+    final colors = ColorScheme.fromSeed(seedColor: gnBlue).copyWith(
+      primary: gnBlue,
+      surface: Colors.white,
+      onSurface: gnText,
+      primaryContainer: gnSelectedSurface,
+      surfaceContainer: gnLibraryRail,
+      surfaceContainerLow: gnLibraryRail,
+      outlineVariant: gnDivider,
+    );
+    const shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    );
+    return inherited.copyWith(
+      brightness: Brightness.light,
+      colorScheme: colors,
+      scaffoldBackgroundColor: Colors.white,
+      canvasColor: Colors.white,
+      dividerColor: gnDivider,
+      splashFactory: NoSplash.splashFactory,
+      iconTheme: const IconThemeData(color: gnBlue, size: 23),
+      textTheme: inherited.textTheme.apply(
+        bodyColor: gnText,
+        displayColor: gnText,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: gnBlue,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+      dialogTheme: const DialogThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: shape,
+        titleTextStyle: TextStyle(
+          color: gnText,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      popupMenuTheme: const PopupMenuThemeData(
+        color: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: shape,
+        elevation: 6,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: gnLibraryRail,
+        contentPadding: const EdgeInsets.all(12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(9),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      listTileTheme: const ListTileThemeData(
+        textColor: gnText,
+        iconColor: gnBlue,
+        selectedColor: gnBlue,
+        selectedTileColor: gnSelectedSurface,
+        minVerticalPadding: 12,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: gnDivider,
+        thickness: 1,
+        space: 1,
+      ),
+    );
+  }
+
   // -- colour ---------------------------------------------------------------
 
   /// The ink blue that is used when no accent colour was chosen.
@@ -319,12 +392,7 @@ class DefterPageTransitionsBuilder extends PageTransitionsBuilder {
 /// from the bar, the buttons next to a picture. Paper with a hairline
 /// around it and a soft shadow under it, the same everywhere.
 class FloatingPanel extends StatelessWidget {
-  const new({
-    super.key,
-    required this.child,
-    this.radius = DefterDesign.radiusSheet,
-    this.color,
-  });
+  const new({super.key, required this.child, this.radius = 12, this.color});
 
   /// A panel with fully round ends (a pill).
   const FloatingPanel.pill({super.key, required this.child, this.color})

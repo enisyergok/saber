@@ -201,6 +201,8 @@ class _BrowsePageState extends State<BrowsePage> {
     ];
 
     return NotevaLibrary(
+      folderPath: currentPath,
+      onParentFolder: () => onPathComponentTap(p.posix.dirname(currentPath)),
       loading: children == null,
       documents: documents,
       onOpen: openLibraryDocument,

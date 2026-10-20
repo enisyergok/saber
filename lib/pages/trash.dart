@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:saber/components/home/library_glyph.dart';
+import 'package:saber/components/home/library_screen.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/file_manager/file_manager.dart';
@@ -75,19 +77,17 @@ class _TrashPageState extends State<TrashPage> {
   @override
   Widget build(BuildContext context) {
     final notes = _notes;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(DefterStrings.trash),
-        actions: [
-          if (notes != null && notes.isNotEmpty)
-            IconButton(
-              tooltip: DefterStrings.emptyTrash,
-              icon: const Icon(Symbols.delete_sweep_rounded),
-              onPressed: _confirmEmpty,
-            ),
-        ],
-      ),
-      body: switch (notes) {
+    return LibraryScreen(
+      title: DefterStrings.trash,
+      actions: [
+        if (notes != null && notes.isNotEmpty)
+          IconButton(
+            tooltip: DefterStrings.emptyTrash,
+            icon: const Icon(Symbols.delete_sweep_rounded),
+            onPressed: _confirmEmpty,
+          ),
+      ],
+      child: switch (notes) {
         null => const Center(child: CircularProgressIndicator()),
         [] => Center(child: Text(DefterStrings.trashEmpty)),
         _ => ListView.builder(
@@ -95,7 +95,7 @@ class _TrashPageState extends State<TrashPage> {
           itemBuilder: (context, index) {
             final trashedPath = notes[index];
             return ListTile(
-              leading: const Icon(Symbols.description_rounded),
+              leading: const LibraryGlyph(Icons.description_outlined),
               title: Text(TrashPage.displayName(trashedPath)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

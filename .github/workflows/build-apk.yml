@@ -75,7 +75,9 @@ jobs:
             test/home_dashboard_test.dart \
             test/new_notebook_wizard_test.dart \
             test/marj_mark_test.dart \
-            test/gn_pen_settings_test.dart 2>&1 | tee build-log.txt
+            test/gn_pen_settings_test.dart \
+            test/note_search_test.dart \
+            test/trash_test.dart 2>&1 | tee build-log.txt
 
       - name: Upload interface review captures
         if: always()

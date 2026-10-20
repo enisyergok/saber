@@ -21,6 +21,10 @@ import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/pages/home/template_gallery.dart';
 import 'package:saber/pages/home/settings.dart';
 import 'package:saber/pages/home/new_notebook_wizard.dart';
+import 'package:saber/pages/favorites.dart';
+import 'package:saber/pages/search.dart';
+import 'package:saber/pages/trash.dart';
+import 'package:saber/components/home/library_sidebar.dart';
 
 import 'utils/test_mock_channel_handlers.dart';
 
@@ -94,6 +98,24 @@ void main() {
     ('phone', const Size(390, 844)),
     ('tablet', const Size(1280, 800)),
   ]) {
+    for (final (screen, page) in <(String, Widget)>[
+      ('favorites', const FavoritesPage()),
+      ('search', const SearchPage(refreshIndex: false)),
+      ('trash', const TrashPage()),
+    ]) {
+      testWidgets('$screen $name retains library navigation and fits', (
+        tester,
+      ) async {
+        await pump(tester, size, page);
+        await tester.pumpAndSettle();
+        expect(
+          find.byType(LibrarySidebar),
+          size.width >= 700 ? findsOneWidget : findsNothing,
+        );
+        expect(tester.takeException(), isNull);
+        await capture(tester, '${screen}_$name');
+      });
+    }
     testWidgets('real home entry $name matches the approved light library', (
       tester,
     ) async {

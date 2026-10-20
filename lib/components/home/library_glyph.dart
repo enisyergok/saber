@@ -272,6 +272,13 @@ class _GlyphPainter extends CustomPainter {
           ..lineTo(12, 16)
           ..lineTo(20, 8),
       );
+    } else if (icon == Icons.chevron_left) {
+      path(
+        Path()
+          ..moveTo(15, 6)
+          ..lineTo(9, 12)
+          ..lineTo(15, 18),
+      );
     } else if (icon == Icons.chevron_right) {
       path(
         Path()

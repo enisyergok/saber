@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:saber/components/home/library_glyph.dart';
+import 'package:saber/components/home/library_screen.dart';
+import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/data/routes.dart';
 import 'package:saber/data/search/note_search.dart';
@@ -85,26 +87,31 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final hasQuery = _controller.text.trim().isNotEmpty;
-    return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          controller: _controller,
-          autofocus: true,
-          textInputAction: TextInputAction.search,
-          decoration: InputDecoration(
-            hintText: DefterStrings.searchHint,
-            border: InputBorder.none,
+    return LibraryScreen(
+      title: 'Ara',
+      destination: LibraryDestination.search,
+      header: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: TextField(
+              controller: _controller,
+              autofocus: true,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: DefterStrings.searchHint,
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: const LibraryGlyph(Icons.search),
+                ),
+              ),
+              onChanged: _onChanged,
+            ),
           ),
-          onChanged: _onChanged,
-        ),
-        bottom: _indexing
-            ? const PreferredSize(
-                preferredSize: Size.fromHeight(2),
-                child: LinearProgressIndicator(minHeight: 2),
-              )
-            : null,
+          if (_indexing) const LinearProgressIndicator(minHeight: 2),
+        ],
       ),
-      body: _results.isEmpty
+      child: _results.isEmpty
           ? Center(
               child: Text(
                 !hasQuery
@@ -122,7 +129,7 @@ class _SearchPageState extends State<SearchPage> {
                 final folder = result.path.substring(0, slash);
                 final name = result.path.substring(slash + 1);
                 return ListTile(
-                  leading: const Icon(Symbols.description_rounded),
+                  leading: const LibraryGlyph(Icons.description_outlined),
                   title: Text(name),
                   subtitle: Text(
                     [

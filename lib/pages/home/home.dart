@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:saber/components/home/library_screen.dart';
 import 'package:saber/components/home/sentry_consent_dialog.dart';
 import 'package:saber/components/navbar/home_sidebar.dart';
 import 'package:saber/components/navbar/responsive_navbar.dart';
@@ -89,6 +90,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.subpage == HomePage.settingsSubpage && _showsDashboard) {
+      return LibraryScreen(title: 'Ayarlar', showHeader: false, child: body);
+    }
     // The document library owns its navigation rail. Wrapping it in the
     // legacy shell adds a second sidebar and changes the available width.
     if ((widget.subpage == HomePage.dashboardSubpage &&

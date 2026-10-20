@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saber/components/eink/eink_scope.dart';
+import 'package:saber/components/theming/defter_design.dart';
 
 /// The colours of the editor's document chrome: quiet paper surfaces with a
 /// clear accent for the active tool, or plain grey in e-ink mode.
@@ -43,8 +44,12 @@ class GnPalette {
         : colors.surfaceContainerHigh;
     return GnPalette(
       header: header,
-      onHeader: colors.onSurface,
-      activeTab: colors.surface,
+      onHeader: colors.brightness == Brightness.light
+          ? DefterDesign.gnBlue
+          : colors.onSurface,
+      activeTab: colors.brightness == Brightness.light
+          ? DefterDesign.gnLibraryRail
+          : colors.surface,
       selectedTool: colors.brightness == Brightness.light
           ? const Color(0xffe2ecf8)
           : colors.primaryContainer,
