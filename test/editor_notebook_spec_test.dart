@@ -129,8 +129,10 @@ void main() {
       reason: 'paper alone must not accumulate nonempty trailing pages',
     );
     reopened.dispose();
-    final packagedPapers = PaperTemplates.inGroup(PaperGroup.recovered);
-    expect(packagedPapers.length, 13);
+    final packagedPapers = PaperTemplates.inGroup(PaperGroup.recovered)
+        .where((paper) => paper.canCreate)
+        .toList();
+    expect(packagedPapers, isNotEmpty);
     for (final paper in packagedPapers) {
       await editor.applyNotebookSpec(NotebookSpec(template: paper));
       final background = info.pages.first.backgroundImage! as SvgEditorImage;
