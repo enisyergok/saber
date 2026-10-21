@@ -1,0 +1,266 @@
+[1/10] Material Fonts                                              260ms
+[2/10] Gradle Wrapper                                               17ms
+[3/10] Flutter SDK
+  ├─ [1/5] sky_engine                                              121ms
+  ├─ [2/5] flutter_gpu                                              18ms
+  ├─ [3/5] flutter_patched_sdk                                     250ms
+  ├─ [4/5] flutter_patched_sdk_product                             200ms
+  └─ [5/5] linux-x64                                               884ms
+[10/10] linux-x64/font-subset                                      101ms
+Resolving dependencies...
+Downloading packages...
+  android_file_picker 2.0.0 (2.1.1 available)
+  animated_vector_annotations 0.2.2 (0.3.0 available)
+  animations 2.2.0 (3.0.0 available)
+  archive 4.0.9 (4.5.2 available)
+  assorted_layout_widgets 11.0.0 (13.1.0 available)
++ audioplayers 6.8.1
++ audioplayers_android 5.3.0
++ audioplayers_darwin 6.5.0
++ audioplayers_linux 4.3.0
++ audioplayers_platform_interface 7.2.0
++ audioplayers_web 5.3.0
++ audioplayers_windows 4.4.1
+  background_downloader 9.6.3 (9.6.4 available)
+  code_assets 1.2.1 (2.1.0 available)
+  connectivity_plus 7.3.1 (7.3.2 available)
+  cross_file 0.3.5+5 (0.4.0 available)
+  cupertino_icons 1.0.9 (2.0.0 available)
+  dbus 0.7.15 (0.8.0 available)
+  desktop_webview_window 0.3.0 (0.4.0 available)
+  dynamic_color 1.9.0 (2.1.0 available)
+  equatable 2.1.0 (3.0.0 available)
+  file_picker_darwin 2.1.2 (2.3.2 available)
+  file_picker_linux 2.0.0 (2.0.2 available)
+  file_picker_platform_interface 4.0.0 (4.2.0 available)
+  file_picker_web 4.0.0 (4.2.0 available)
+  flex_color_picker 3.8.0 (4.0.0 available)
+  flex_seed_scheme 4.0.1 (5.0.1 available)
+  flutter_keyboard_visibility_linux 1.0.0 (2.0.0 available)
+  flutter_keyboard_visibility_macos 1.0.0 (2.0.0 available)
+  flutter_keyboard_visibility_platform_interface 2.0.0 (3.0.0 available)
+  flutter_keyboard_visibility_temp_fork 0.1.5 (0.1.6 available)
+  flutter_keyboard_visibility_windows 1.0.0 (2.0.0 available)
+! flutter_speed_dial 7.0.0 from git https://github.com/adil192/flutter_speed_dial.git at 272a49 (overridden)
+  go_router 17.5.0 (18.1.1 available)
+  golden_screenshot 11.1.1 (12.1.1 available)
++ google_mlkit_commons 0.13.0
++ google_mlkit_digital_ink_recognition 0.16.1
+  gsettings 0.2.8 (0.2.9 available)
+  image 4.10.1 (4.12.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+! native_toolchain_rust 1.0.4+0 (overridden) (1.0.7 available)
+  nm 0.5.0 (0.6.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  path_provider_android 2.2.23 (2.3.1 available)
+  pdf 3.12.0 (3.13.1 available)
+  pdfium_dart 0.2.5 (0.4.0 available)
+  pdfium_flutter 0.2.3 (0.4.0 available)
+  pdfrx 2.4.8 (2.9.0 available)
+  pdfrx_engine 0.4.7 (0.7.4 available)
+  permission_handler_apple 9.6.2 (9.6.3 available)
+  pointycastle 3.9.1 (4.0.0 available)
+  printing 5.14.3 (5.15.1 available)
+  qr 3.0.2 (4.0.0 available)
++ record 6.2.1 (7.1.2 available)
++ record_android 1.5.2 (2.2.0 available)
++ record_ios 1.2.1 (2.1.1 available)
++ record_linux 1.3.1 (2.1.3 available)
++ record_macos 1.2.2 (2.1.1 available)
++ record_platform_interface 1.6.0 (2.1.0 available)
++ record_web 1.3.0 (2.1.3 available)
++ record_windows 1.0.7 (2.3.0 available)
+  screen_retriever 0.2.2 (0.3.0 available)
+  shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_android 2.4.28 (2.5.1 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
+  synchronized 3.4.2 (3.5.0 available)
+  test_api 0.7.12 (0.7.15 available)
+  timezone 0.10.1 (0.11.2 available)
+  url_launcher 6.3.2 (6.3.3 available)
+  vector_graphics 1.2.3 (1.2.4 available)
+  vector_graphics_compiler 1.3.0 (1.3.2 available)
+  vm_service 15.3.0 (15.4.0 available)
+  window_to_front 0.0.4 (1.0.0 available)
+  windows_file_picker 2.0.0 (2.0.1 available)
+  xml 6.6.1 (7.1.0 available)
+  yaru 10.2.0 (11.0.0 available)
+These packages are no longer being depended on:
+- ansicolor 2.0.3
+- glob 2.2.0
+- globbing 1.0.0
+- injector 3.0.0
+- jni 0.14.2
+- onyxsdk_pen 1.5.0 from path packages/onyxsdk_pen
+- package_config 2.2.0
+- package_info_plus 10.2.2
+- package_info_plus_platform_interface 4.1.0
+- properties 2.1.1
+- sentry 9.30.1
+- sentry_dart_plugin 3.4.0
+- sentry_flutter 9.30.1
+- sentry_logging 9.30.1
+- system_info2 4.1.0
+Changed 32 dependencies!
+66 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+File modified during build. Build must be rerun.
+
+::group::✅ Passing tests
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: interface upgrade runs once and preserves later choices
+✅ /home/runner/work/saber/saber/test/library_navigation_test.dart: returns from overlay to unchanged URL /home in one tap
+✅ /home/runner/work/saber/saber/test/library_navigation_test.dart: returns from overlay to unchanged URL /documents in one tap
+✅ /home/runner/work/saber/saber/test/library_navigation_test.dart: returns from overlay to unchanged URL /settings in one tap
+✅ /home/runner/work/saber/saber/test/library_navigation_test.dart: switches several library pages without replacing router root
+✅ /home/runner/work/saber/saber/test/library_navigation_test.dart: back from secondary destination preserves original settings page
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: library sections retain one rail and never push a new page
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: favorites phone retains library navigation and fits
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: search phone retains library navigation and fits
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: trash phone retains library navigation and fits
+✅ /home/runner/work/saber/saber/test/reference_split_view_test.dart: open, resize and close preserve notebook state and pane bounds
+✅ /home/runner/work/saber/saber/test/reference_split_view_test.dart: narrow screens stack panels and permit vertical resizing
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: real home entry phone matches the approved light library
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: library phone has search and functional create menu
+✅ /home/runner/work/saber/saber/test/live_note_cover_test.dart: a changed cover replaces the displayed bytes without reopening
+✅ /home/runner/work/saber/saber/test/live_note_cover_test.dart: an older pending read cannot overwrite a newer cover
+::endgroup::
+::group::✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: fixed editor phone exposes drawing tools and fits the screen
+unhandled element <defs/>; Picture key: Svg loader
+unhandled element <sodipodi:namedview/>; Picture key: Svg loader
+unhandled element <metadata/>; Picture key: Svg loader
+::endgroup::
+::group::✅ Passing tests
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: template gallery phone stays within its viewport
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: favorites tablet retains library navigation and fits
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: search tablet retains library navigation and fits
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: trash tablet retains library navigation and fits
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: real home entry tablet matches the approved light library
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: the fixed notebook layout is the default
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: the controls take one row less on a wide screen
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: library tablet has search and functional create menu
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: fixed editor tablet exposes drawing tools and fits the screen
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: the page fills the screen and the tools float over it
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: template gallery tablet stays within its viewport
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: settings categories switch the visible section
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: on a narrow screen it works the same
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: dark pen settings fit a phone
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: actual settings phone has grouped categories
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: new notebook phone exposes labeled creation stages
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: the pen's quick options hang under the tool box and can be hidden
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: actual settings tablet has grouped categories
+✅ /home/runner/work/saber/saber/test/interface_redesign_test.dart: new notebook tablet exposes labeled creation stages
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: tapping the pen in use opens its settings
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: the eraser button picks the eraser
+✅ /home/runner/work/saber/saber/test/editor_float_layout_test.dart: the first page starts under the controls
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Sidebar it leads to every part of the home screen
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Sidebar planners and templates open their galleries
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Sidebar folders are listed, open their notes and unfold
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Sidebar a new folder needs a name that is free
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Sidebar folder names are checked
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Sidebar a folder always has the same colour
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Home screen a tablet opens the library without the legacy sidebar
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Home screen a folder card opens the folder
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: the six steps make a notebook as it was chosen
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: a notebook can be made at once, with the defaults
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: a name that cannot be a file name is not accepted
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Home screen creation menu opens the wizard and the template gallery
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Home screen the unified library stays when documents are open
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Home screen switched off, the classic home screen is back
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: cancelling makes nothing
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: Home screen a phone opens the library without the legacy bottom bar
+✅ /home/runner/work/saber/saber/test/home_dashboard_test.dart: the home screen has an address of its own
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: it opens with what was already chosen
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: the steps at the side jump straight to a step
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: it fits a phone
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: a gallery shows one kind of paper by topic
+✅ /home/runner/work/saber/saber/test/new_notebook_wizard_test.dart: the gallery of everything has a tab for each kind
+✅ /home/runner/work/saber/saber/test/marj_mark_test.dart: brand asset decodes and fits a 24.0 pixel slot
+✅ /home/runner/work/saber/saber/test/marj_mark_test.dart: brand asset decodes and fits a 48.0 pixel slot
+✅ /home/runner/work/saber/saber/test/marj_mark_test.dart: brand asset decodes and fits a 96.0 pixel slot
+✅ /home/runner/work/saber/saber/test/marj_mark_test.dart: e-ink mode uses a contrast-aware monochrome mark
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.fold: makes Turkish letters comparable
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.fold: keeps the length of ordinary text
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.search: finds notes by content, ignoring Turkish letters and case
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.search: ranks name matches first
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.search: every word has to match
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.search: words may match the name or the content
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.search: gives a snippet around the match
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex.search: an empty query finds nothing
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the sliders change the pen's real settings
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex on disk: indexes typed text, notices edits and deletions
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex on disk: is saved and loaded again
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: NoteSearchIndex on disk: a damaged index file is ignored
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: each of the six pens can be chosen
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: reset puts the pen and the curve back
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: dragging a point of the pressure curve changes it
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the curve graph maps a touch to a point and a height
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the technical tools switch the real settings
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the advanced switches, the colours and closing work
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: a profile sets the pen with one tap
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: SearchPage: shows results and opens the tapped one
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: Favorites: toggle adds, then removes
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: Favorites: toggle adds the missing ones when only some are favourites
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: Favorites: withoutExtension
+::endgroup::
+::group::✅ /home/runner/work/saber/saber/test/note_search_test.dart: Favorites: page lists favourites and opens one
+unhandled element <filter/>; Picture key: Svg loader
+::endgroup::
+::group::✅ Passing tests
+✅ /home/runner/work/saber/saber/test/note_search_test.dart: Favorites: page says so when there are none
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: profiles can be added, updated, renamed and deleted
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: profiles have a separate tab on a narrow screen
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the grid tile shows whether the page is squared
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the preview line has points that vary with pressure
+✅ /home/runner/work/saber/saber/test/gn_pen_settings_test.dart: the profile line is drawn with the profile's own settings
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: a trashed note leaves the library and keeps its parts
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: the trash folder is hidden from the library
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: a trashed note is no longer recent or a favourite
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: restoring puts the note back with everything
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: restoring never overwrites a note with the same name
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: trashing two notes with one name keeps both
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: a folder goes to the trash note by note
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: emptying the trash deletes for good
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: a note already in the trash is left alone
+✅ /home/runner/work/saber/saber/test/trash_test.dart: Trash: favourites follow a renamed note
+✅ /home/runner/work/saber/saber/test/trash_test.dart: TrashPage: displayName hides the trash folder and extension
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: blank.svg loads and paints its packaged artwork
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: ruledNarrow.svg loads and paints its packaged artwork
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: ruledWide.svg loads and paints its packaged artwork
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: grid.svg loads and paints its packaged artwork
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: dottedgrid.svg loads and paints its packaged artwork
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: legal.svg loads and paints its packaged artwork
+✅ /home/runner/work/saber/saber/test/packaged_paper_preview_test.dart: missing artwork retains the usable fallback
+✅ /home/runner/work/saber/saber/test/trash_test.dart: TrashPage: lists trashed notes and restores one
+::endgroup::
+::group::✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: all bound catalog assets decode and retain a fixed icon slot
+unhandled element <filter/>; Picture key: Svg loader
+unhandled element <defs/>; Picture key: Svg loader
+unhandled element <sodipodi:namedview/>; Picture key: Svg loader
+unhandled element <metadata/>; Picture key: Svg loader
+::endgroup::
+::group::✅ Passing tests
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: all 41 resources produce loadable self-contained SVG at Size(1000.0, 1400.0)
+✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: search.svg is rendered from recovered SVG, not a guessed path
+✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: documents.svg is rendered from recovered SVG, not a guessed path
+✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: bookmark.svg is rendered from recovered SVG, not a guessed path
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: all 41 resources produce loadable self-contained SVG at Size(1414.3, 1000.0)
+✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: sidebar.svg is rendered from recovered SVG, not a guessed path
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: all 41 resources produce loadable self-contained SVG at Size(704.8, 1000.0)
+✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: marketplace.svg is rendered from recovered SVG, not a guessed path
+✅ /home/runner/work/saber/saber/test/library_catalog_test.dart: an unmapped control keeps a visible platform icon
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: all 41 resources produce loadable self-contained SVG at Size(1000.0, 1000.0)
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: two-column geometry follows the packaged ten-unit gutter formula
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: custom colour changes only the paper background, not guide colours
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: paint every packaged papers and capture its actual artwork
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: paint every packaged covers and capture its actual artwork
+✅ /home/runner/work/saber/saber/test/recovered_templates_test.dart: Cornell renders the vertical cue line, not just its ruled paper
+✅ /home/runner/work/saber/saber/test/cover_designs_test.dart: recovered cover metadata reopens the same source design
+✅ /home/runner/work/saber/saber/test/cover_designs_test.dart: cover ids are unique and every group is used
+✅ /home/runner/work/saber/saber/test/cover_designs_test.dart: every cover renders to a PNG
+::endgroup::
+::group::❌ /home/runner/work/saber/saber/test/editor_notebook_spec_test.dart: Editor: a notebook made in the new notebook screen (failed)
+TimeoutException after 0:10:00.000000: Test timed out after 10 minutes.
+dart:isolate  _RawReceivePort._handleMessage
+::endgroup::
+
+::error::133 tests passed, 1 failed.
