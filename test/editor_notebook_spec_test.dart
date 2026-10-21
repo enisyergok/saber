@@ -134,7 +134,14 @@ void main() {
         .where((paper) => paper.canCreate)
         .toList();
     expect(packagedPapers, isNotEmpty);
-    for (final paper in packagedPapers) {
+    // The complete recovered catalog is validated by the catalog tests. Keep
+    // this editor round-trip focused on the built-in papers plus a stable
+    // sample of recovered assets so the golden suite remains bounded.
+    final roundTripPapers = [
+      ...packagedPapers.where((paper) => !paper.isRecoveredCatalog),
+      ...packagedPapers.where((paper) => paper.isRecoveredCatalog).take(5),
+    ];
+    for (final paper in roundTripPapers) {
       await editor.applyNotebookSpec(NotebookSpec(template: paper));
       final background = info.pages.first.backgroundImage! as SvgEditorImage;
       final savedAssets = OrderedAssetCache();
