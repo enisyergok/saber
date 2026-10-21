@@ -11,6 +11,7 @@ import 'package:saber/components/home/library_header.dart';
 import 'package:saber/components/home/library_screen.dart';
 import 'package:saber/components/home/library_sidebar.dart';
 import 'package:saber/components/home/noteva_library.dart';
+import 'package:saber/components/home/saved_note_cover.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/defter_strings.dart';
 import 'package:saber/pages/ask_notes.dart';
@@ -199,6 +200,9 @@ class _BrowsePageState extends State<BrowsePage> {
           id: p.join(currentPath, file),
           title: p.basenameWithoutExtension(file),
           subtitle: 'Not',
+          cover: SavedNoteCover(
+            notePath: p.join(currentPath, file).replaceAll('\\', '/'),
+          ),
         ),
     ];
 

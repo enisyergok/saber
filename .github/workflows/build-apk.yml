@@ -73,6 +73,7 @@ jobs:
             test/interface_redesign_test.dart \
             test/library_navigation_test.dart \
             test/reference_split_view_test.dart \
+            test/live_note_cover_test.dart \
             test/editor_float_layout_test.dart \
             test/home_dashboard_test.dart \
             test/new_notebook_wizard_test.dart \

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:saber/components/home/noteva_library.dart';
+import 'package:saber/components/home/saved_note_cover.dart';
 import 'package:saber/components/home/favorite_note_button.dart';
 import 'package:saber/data/prefs.dart';
 import 'package:saber/pages/favorites.dart';
@@ -68,21 +69,13 @@ class DashboardData {
     for (final name in root?.files ?? const <String>[]) {
       final path = '/$name';
       final file = FileManager.getFile('$path${Editor.extension}');
-      final thumbnail = FileManager.getFile('$path${Editor.extension}.p');
       final modified = file.existsSync() ? file.lastModifiedSync() : null;
       documents.add(
         LibraryDocument(
           id: path,
           title: path.split('/').last,
           modified: modified,
-          cover: thumbnail.existsSync()
-              ? Image.file(
-                  thumbnail,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) =>
-                      const Icon(Icons.description_outlined),
-                )
-              : null,
+          cover: SavedNoteCover(notePath: path),
           subtitle: modified == null
               ? ''
               : '${modified.day}.${modified.month}.${modified.year}',
