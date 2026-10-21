@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_screenshot/golden_screenshot.dart';
 import 'package:saber/data/editor/page.dart';
@@ -148,9 +149,12 @@ void main() {
         assetCache: info.assetCache,
       );
       expect(loaded.templateResource, paper.resource);
+      final expectedSvg = paper.resource!.startsWith('assets/goodnotes/catalog/')
+          ? await rootBundle.loadString(paper.resource!)
+          : RecoveredTemplates.render(paper.resource!, 1000, 1400);
       expect(
         (loaded.svgLoader as SvgStringLoader).provideSvg(null),
-        RecoveredTemplates.render(paper.resource!, 1000, 1400),
+        expectedSvg,
       );
       loaded.dispose();
     }
