@@ -1,0 +1,59 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    width="595" height="842" preserveAspectRatio="none"
+>
+    <rect class="gnBackground" id="backgroundRect" width="100%" height="100%" fill="#e1d0bb" />
+    <rect class="gnForeground" id="bottomRect" x="30%" y="30%" width="70%" height="70%" fill="#ffffff" fill-opacity="0.2" />
+    <rect class="gnForeground" id="topRect" x="20%" y="40%" width="80%" height="60%" fill="#ffffff" fill-opacity="0.3" />
+
+    <rect id="line" x="65%" y="95%" width="25%" height="1" fill="#373b44"/>
+
+    <!-- pen.svg from https://goodnotes.atlassian.net/browse/CSAN-2475 -->
+    <svg id="pen" x="51%" y="18%" width="14.2" height="22.72">
+        <defs>
+            <style>
+            .cls-1, .cls-2 {
+                fill: none;
+            }
+
+            .cls-3 {
+                clip-path: url(#clippath);
+            }
+
+            .cls-4 {
+                fill: #373b44;
+            }
+
+            .cls-2 {
+                clip-rule: evenodd;
+            }
+
+            .cls-5 {
+                clip-path: url(#clippath-1);
+            }
+            </style>
+            <clipPath id="clippath">
+            <path class="cls-2" d="m4.56,11.01C1.87,15.56.24,19.73.47,21.27l-.43.72c-.11.2,0,.48.27.63.26.15.57.11.68-.08l.43-.73c1.48-.58,4.36-4.03,7.05-8.58l1.21-2.04c-.63-.14-1.39-.53-2.07-.92-.69-.39-1.4-.84-1.84-1.31l-1.21,2.04Zm1.71-3.47v.64c-.03.2.74.8,1.78,1.38,1.06.59,1.99.94,2.13.79l.59-.28C13.65,5.27,14.98.79,13.73.09c-1.25-.7-4.58,2.64-7.46,7.45Z"/>
+            </clipPath>
+            <clipPath id="clippath-1">
+            <rect class="cls-1" x="-484.22" y="-610.6" width="559.48" height="697.22"/>
+            </clipPath>
+        <style type="text/css"><![CDATA[
+.gnBackground {
+    fill: #ffffff;
+}
+
+.gnForeground {
+    fill: #d3d3d3;
+}
+
+]]></style>
+</defs>
+        <g class="cls-3">
+            <g class="cls-5">
+            <rect class="cls-4" x="-7.1" y="-7.1" width="28.4" height="36.92"/>
+            </g>
+        </g>
+    </svg>
+</svg>

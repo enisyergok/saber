@@ -1,0 +1,55 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="595" height="842" preserveAspectRatio="none"
+><style type="text/css"><![CDATA[
+.gnBackground {
+    fill: #FFFFFF;
+}
+
+.gnForegroundStroke {
+    stroke: #D0D2D3;
+}
+
+.gnAccentStroke {
+    stroke: #333333;
+}
+
+]]></style>
+    <style>
+        .gnBackground {
+            fill: #F8F7E9;
+        }
+        .gnForegroundStroke {
+            stroke: #D0D2D3;
+        }
+        .gnAccentStroke {
+            stroke: #333333;
+        }
+    </style>
+
+    <rect class="gnBackground" width="100%" height="100%" />
+    <line class="gnForegroundStroke" x1="30%" x2="70%" y1="70" y2="70" stroke-width="0.5" />
+
+    <svg id="contentSVG" y="100" width="100%" height="85%" overflow="visible">
+        <line class="gnForegroundStroke" x1="0" x2="100%" y1="4.75%" y2="4.75%" stroke-width="0.5" />
+
+        <g class="gnForegroundStroke" stroke-width="0.5">
+            <!-- 5.25y = 100; y ~= 19.048 -->
+            <line x1="0" x2="100%" y1="23.798%" y2="23.798%" />
+            <line x1="0" x2="100%" y1="42.846%" y2="42.846%" />
+            <line x1="0" x2="100%" y1="61.894%" y2="61.894%" />
+            <line x1="0" x2="100%" y1="80.942%" y2="80.942%" />
+
+            <!-- 7x = 100; x ~= 14.29 -->
+            <line x1="14.29%" x2="14.29%" y1="0" y2="100%" />
+            <line x1="28.57%" x2="28.57%" y1="0" y2="100%" />
+            <line x1="42.86%" x2="42.86%" y1="0" y2="100%" />
+            <line x1="57.14%" x2="57.14%" y1="0" y2="100%" />
+            <line x1="71.43%" x2="71.43%" y1="0" y2="100%" />
+            <line x1="85.71%" x2="85.71%" y1="0" y2="100%" />
+        </g>
+
+        <line class="gnAccentStroke" x1="0" x2="100%" y1="0" y2="0" stroke-width="0.5" />
+        <line class="gnAccentStroke" x1="0" x2="100%" y1="100%" y2="100%" stroke-width="0.5" />
+    </svg>
+</svg>

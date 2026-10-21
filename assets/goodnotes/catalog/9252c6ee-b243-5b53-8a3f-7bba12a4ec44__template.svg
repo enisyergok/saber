@@ -1,0 +1,27 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="595" height="842" preserveAspectRatio="none"
+>
+    <defs>
+        <pattern id="horizontalLines" width="100%" height="16" patternUnits="userSpaceOnUse">
+            <rect class="gnForegroundFill" width="100%" height="0.5" y="15.5" fill="#D0D2D3"/>
+        </pattern>
+        <pattern id="verticalLines" width="16" height="100%" patternUnits="userSpaceOnUse">
+            <rect class="gnForegroundFill" height="100%" width="0.5" x="15.5" fill="#D0D2D3"/>
+        </pattern>
+    <style type="text/css"><![CDATA[
+.gnBackground {
+  fill: #FFFFFF;
+}
+
+.gnForegroundFill {
+  fill: #D0D2D3;
+}
+]]></style>
+</defs>
+
+    <rect class="gnBackground" width="100%" height="100%" fill="#F8F7E9"/>
+    <rect id="horizontalLinesRect" width="100%" height="100%" fill="url(#horizontalLines)"/>
+    <rect id="verticalLinesRect" width="100%" height="100%" fill="url(#verticalLines)"/>
+    <rect id="gn-typing-1" data-line-height="15.5" data-line-spacing="0.5" x="24" y="32" width="100%" height="100%" fill="none"/>
+</svg>

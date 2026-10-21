@@ -41,7 +41,7 @@ class PaperThumb extends StatelessWidget {
       lineHeight: template.lineHeight,
       lineThickness: stows.lastLineThickness.value,
     );
-    final asset = PackagedPaperPreview.assets[template.id];
+    final asset = template.resource;
     final page = DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(
@@ -68,39 +68,58 @@ class PaperThumb extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       selected: selected,
-      label: template.name,
+      label: template.metadataLabel.isEmpty
+          ? template.name
+          : '${template.name}, ${template.metadataLabel}',
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Column(
-            children: [
-              // as large as the space allows, in the shape of the page
-              Expanded(
-                child: Center(
-                  child: AspectRatio(
-                    aspectRatio: pageSize.width / pageSize.height,
-                    child: page,
-                  ),
-                ),
-              ),
-              if (showName) ...[
-                const SizedBox(height: 8),
-                ExcludeSemantics(
-                  child: Text(
-                    template.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: selected ? FontWeight.w700 : null,
-                      color: selected ? colors.primary : colors.onSurface,
+        child: Opacity(
+          opacity: onTap == null ? 0.58 : 1,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              children: [
+                // as large as the space allows, in the shape of the page
+                Expanded(
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: pageSize.width / pageSize.height,
+                      child: page,
                     ),
                   ),
                 ),
+                if (showName) ...[
+                  const SizedBox(height: 8),
+                  ExcludeSemantics(
+                    child: Text(
+                      template.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: selected ? FontWeight.w700 : null,
+                        color: selected ? colors.primary : colors.onSurface,
+                      ),
+                    ),
+                  ),
+                  if (template.metadataLabel.isNotEmpty)
+                    ExcludeSemantics(
+                      child: Text(
+                        template.metadataLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: selected
+                              ? colors.primary
+                              : colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

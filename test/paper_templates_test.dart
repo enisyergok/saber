@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saber/data/flavor_config.dart';
 import 'package:saber/data/notebooks/paper_templates.dart';
+import 'package:saber/data/notebooks/recovered_catalog.dart';
 import 'package:sbn/canvas_background_pattern.dart';
 
 void main() {
@@ -17,7 +18,55 @@ void main() {
     for (final template in PaperTemplates.all) {
       expect(template.name, isNotEmpty, reason: template.id);
       expect(template.groups, isNotEmpty, reason: template.id);
-      expect(template.lineHeight, inInclusiveRange(20, 60), reason: template.id);
+      expect(
+        template.lineHeight,
+        inInclusiveRange(20, 60),
+        reason: template.id,
+      );
+    }
+  });
+
+  test('recovered catalog metadata is fully exposed with stable ids', () {
+    expect(RecoveredCatalog.records, hasLength(1284));
+    expect(
+      RecoveredCatalog.records.map((record) => record.id).toSet(),
+      hasLength(RecoveredCatalog.records.length),
+    );
+    expect(RecoveredCatalog.flashCardCount, 6);
+    expect(RecoveredCatalog.dynamicCount, 52);
+    expect(RecoveredCatalog.renderableCount, greaterThanOrEqualTo(500));
+    expect(RecoveredCatalog.portablePackageCount, greaterThan(0));
+
+    final recovered = PaperTemplates.inGroup(PaperGroup.recovered);
+    expect(
+      recovered.where((template) => template.isRecoveredCatalog),
+      hasLength(RecoveredCatalog.records.length),
+    );
+    expect(
+      PaperTemplates.byId(RecoveredCatalog.records.first.id).catalog,
+      same(RecoveredCatalog.records.first),
+    );
+    expect(recovered.where((template) => template.canCreate), isNotEmpty);
+    expect(recovered.where((template) => !template.canCreate), isNotEmpty);
+  });
+
+  test('ZIP catalog records point only to packaged SVG/CSS assets', () {
+    final extracted = RecoveredCatalog.records
+        .where(
+          (record) =>
+              record.sourceKind == RecoveredCatalogSourceKind.zipPackage,
+        )
+        .toList();
+    expect(extracted, isNotEmpty);
+    expect(extracted.where((record) => record.isRenderable), isNotEmpty);
+    for (final record in extracted.where((record) => record.isRenderable)) {
+      expect(record.sourceAsset, startsWith('assets/goodnotes/catalog/'));
+      expect(record.sourceAsset, endsWith('__template.svg'));
+      expect(
+        record.styleAssets,
+        everyElement(startsWith('assets/goodnotes/catalog/')),
+      );
+      expect(record.styleAssets, everyElement(endsWith('.css')));
     }
   });
 
@@ -26,7 +75,11 @@ void main() {
       expect(PaperTemplates.inGroup(group), isNotEmpty, reason: '$group');
       expect(group.label, isNotEmpty);
       for (final topic in PaperTemplates.topicsOf(group)) {
-        expect(PaperTemplates.about(group, topic), isNotEmpty, reason: '$topic');
+        expect(
+          PaperTemplates.about(group, topic),
+          isNotEmpty,
+          reason: '$topic',
+        );
         expect(topic.label, isNotEmpty);
       }
     }
@@ -82,7 +135,10 @@ void main() {
     ).map((t) => t.pattern);
     expect(
       electronics,
-      containsAll([CanvasBackgroundPattern.circuit, CanvasBackgroundPattern.pcb]),
+      containsAll([
+        CanvasBackgroundPattern.circuit,
+        CanvasBackgroundPattern.pcb,
+      ]),
     );
     expect(electronics, isNot(contains(CanvasBackgroundPattern.wireframe)));
   });
@@ -101,7 +157,10 @@ void main() {
       'lined-narrow',
     );
     expect(PaperTemplates.of(CanvasBackgroundPattern.lined, 40).id, 'lined');
-    expect(PaperTemplates.of(CanvasBackgroundPattern.grid, 70).id, 'grid-large');
+    expect(
+      PaperTemplates.of(CanvasBackgroundPattern.grid, 70).id,
+      'grid-large',
+    );
     expect(PaperTemplates.of(CanvasBackgroundPattern.gantt, 40).id, 'gantt');
   });
 

@@ -1,0 +1,12 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="595" height="842" preserveAspectRatio="none"
+><style type="text/css"><![CDATA[
+.gnBackground {
+  fill: #FFFFFF;
+}
+
+]]></style>
+    <rect class="gnBackground" width="100%" height="100%" fill="#F8F7E9" />
+    <rect id="gn-typing-1" data-line-height="16" x="24" y="34" width="80%" height="80%" fill="none" />
+</svg>

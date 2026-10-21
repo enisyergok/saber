@@ -1,0 +1,97 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="595" height="842" preserveAspectRatio="none"
+>
+    <style>
+        .gnBackground {
+            fill: #F8F7E9;
+        }
+        .gnForegroundFill {
+            fill: #D0D2D3;
+        }
+        .gnForegroundStroke {
+            stroke: #D0D2D3;
+        }
+        .gnAccentStroke {
+            stroke: #333333;
+        }
+    </style>
+
+    <defs>
+        <pattern id="pattern" width="100%" height="36" patternUnits="userSpaceOnUse">
+            <svg overflow="visible">
+                <rect class="gnForegroundStroke" x="0" y="0" width="100%" height="36" fill="none" stroke-width="0.5" />
+                <rect class="gnForegroundStroke" x="70" y="12" width="11" height="11" fill="none" stroke-width="0.5" />
+            </svg>
+        </pattern>
+    <style type="text/css"><![CDATA[
+.gnBackground {
+    fill: #FFFFFF;
+}
+
+.gnForegroundFill {
+    fill: #D0D2D3;
+}
+
+.gnForegroundStroke {
+    stroke: #D0D2D3;
+}
+
+.gnAccentStroke {
+    stroke: #333333;
+}
+
+]]></style>
+</defs>
+
+    <rect class="gnBackground" width="100%" height="100%" fill="#F8F7E9" />
+    <svg id="contentSVG" class="gnForegroundStroke" x="25" y="30" width="90%" height="90%"> 
+        <rect id="mainRow" class="gnForegroundStroke" width="100%" height="30" fill="none" stroke-width="1" />
+
+        <!-- Clock Icon -->
+        <svg x="20.5" y="8.5" width="13.21" height="13.21" viewBox="0 0 13.21 13.21" overflow="visible">
+            <defs>
+                <style>
+                .cls-1 {
+                    stroke-linecap: round;
+                }
+                .cls-1, .cls-2 {
+                    fill: none;
+                    stroke-miterlimit: 10;
+                }
+                </style>
+            </defs>
+            <g>
+                <g>
+                <path class="cls-2 gnForegroundStroke" d="m12.71,6.6c0,3.37-2.73,6.1-6.1,6.1S.5,9.97.5,6.6,3.23.5,6.6.5s6.1,2.73,6.1,6.1Z"/>
+                <polyline class="cls-1 gnForegroundStroke" points="3.25 4.17 6.6 6.6 9.25 5.38"/>
+                </g>
+            </g>
+        </svg>
+
+        <!-- Checkmark Icon -->
+        <svg x="70" y="10.5" width="11.88" height="8.7" viewBox="0 -1 11 11" overflow="visible">
+            <defs>
+                <style>
+                .cls-1 {
+                    fill: none;
+                    stroke-miterlimit: 10;
+                }
+                </style>
+            </defs>
+            <g>
+                <polyline class="cls-1 gnForegroundStroke" points=".35 4.45 3.89 7.99 11.53 .35"/>
+            </g>
+        </svg>
+
+        <svg y="30" height="100%" overflow="visible">
+            <rect class="gnForegroundStroke" width="100%" height="100%" fill="url(#pattern)" stroke-width="1" />
+        </svg>
+        <line class="gnAccentStroke" x1="0" x2="100%" y1="30" y2="30" stroke-width="1" />
+        <line class="gnForegroundStroke" x1="54" x2="54" y1="0" y2="100%" stroke-width="0.5" />
+        <line class="gnForegroundStroke" x1="570" x2="570" y1="0" y2="100%" stroke-width="0.5" />
+    </svg>
+
+    <rect id="gn-typing-1" data-line-height="36" data-vertical-alignment="center" data-header-style="paragraph" x="114" y="60" width="473" height="90%" fill="none"/>
+    <rect id="gn-typing-2" data-line-height="36" data-vertical-alignment="center" data-header-style="paragraph" x="603" y="60" width="50%" height="90%" fill="none"/>
+</svg>

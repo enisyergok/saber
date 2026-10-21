@@ -1,4 +1,5 @@
 import 'package:saber/data/defter_strings.dart';
+import 'package:saber/data/notebooks/recovered_catalog.dart';
 import 'package:saber/data/notebooks/recovered_template.dart';
 import 'package:saber/i18n/extensions/canvas_background_pattern_localized.dart';
 import 'package:sbn/canvas_background_pattern.dart';
@@ -94,6 +95,7 @@ class PaperTemplate {
     this.topics = const {},
     this.lineHeight = defaultLineHeight,
     this.spacing,
+    this.catalog,
   });
 
   /// The line height of every paper that doesn't say otherwise.
@@ -111,10 +113,14 @@ class PaperTemplate {
 
   /// For papers that come in several line spacings: which one this is.
   final PaperSpacing? spacing;
+  final RecoveredCatalogRecord? catalog;
 
-  String? get resource => RecoveredTemplates.paperAssets[id];
+  String? get resource => catalog?.sourceAsset ?? RecoveredTemplates.paperAssets[id];
 
-  String get name => id.startsWith('pkg-')
+  bool get isRecoveredCatalog => catalog != null;
+  bool get canCreate => !isRecoveredCatalog || resource != null;
+
+  String get name => catalog?.name ?? (id.startsWith('pkg-')
       ? RecoveredTemplates.title(resource!, turkish: DefterStrings.isTr)
       : switch (spacing) {
     null => pattern.localizedName,
@@ -124,7 +130,9 @@ class PaperTemplate {
       CanvasBackgroundPattern.dots => spacing.dotted,
       _ => pattern.localizedName,
     },
-  };
+  });
+
+  String get metadataLabel => catalog?.metadataLabel ?? '';
 }
 
 enum PaperSpacing {
@@ -154,7 +162,7 @@ enum PaperSpacing {
 abstract class PaperTemplates {
   static const _p = CanvasBackgroundPattern.values;
 
-  static const all = <PaperTemplate>[
+  static const _base = <PaperTemplate>[
     PaperTemplate('blank', CanvasBackgroundPattern.none, groups: {PaperGroup.blank}),
 
     // -- lined --------------------------------------------------------------
@@ -388,11 +396,24 @@ abstract class PaperTemplates {
     PaperTemplate('pkg-three', CanvasBackgroundPattern.lined, groups: {PaperGroup.recovered, PaperGroup.lined}),
   ];
 
+  static final all = <PaperTemplate>[
+    ..._base,
+    for (final record in RecoveredCatalog.records)
+      PaperTemplate(
+        record.id,
+        CanvasBackgroundPattern.none,
+        groups: {PaperGroup.recovered},
+        lineHeight: record.lineHeight?.round() ?? PaperTemplate.defaultLineHeight,
+        catalog: record,
+      ),
+  ];
+
   /// The papers under [group]; all of them for null.
   static List<PaperTemplate> inGroup(PaperGroup? group) => [
     for (final template in all)
       if (group == null || (group == PaperGroup.recovered
-          ? template.resource != null : template.groups.contains(group))) template,
+          ? template.isRecoveredCatalog || template.resource != null
+          : template.groups.contains(group))) template,
   ];
 
   /// The papers of [group] about [topic]; the whole group for null.

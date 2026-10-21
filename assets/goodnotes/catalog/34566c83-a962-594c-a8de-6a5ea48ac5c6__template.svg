@@ -1,0 +1,67 @@
+<svg 
+	viewBox="0 0 1191 1191" 
+	fill="none" 
+	xmlns="http://www.w3.org/2000/svg"
+	preserveAspectRatio="xMidYMid slice"
+><style type="text/css"><![CDATA[
+.gnBackground {
+    fill: #F5F5F5 ;
+}
+
+.gnAccent {
+    fill: #D1CAB8;
+}
+]]></style>
+<rect class="gnBackground" width="100%" height="100%" fill="rgb(255,255,255)"/>
+
+<path class="gnAccent"  d="M-92 137.64H104.39L0.77002 -113L-92 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M104.39 137.64H300.78L197.16 -113L104.39 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M300.78 137.64H497.17L393.55 -113L300.78 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M497.17 137.64H693.56L589.94 -113L497.17 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M693.561 137.64H889.951L786.331 -113L693.561 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M889.95 137.64H1086.34L982.72 -113L889.95 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1086.34 137.64H1282.73L1179.11 -113L1086.34 137.64Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M-132 295.641H64L-39.4142 137.641L-132 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M64 295.641H261L157.058 137.641L64 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M261 295.641H457L353.586 137.641L261 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M457 295.641H654L550.058 137.641L457 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M654 295.641H850L746.586 137.641L654 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M850 295.641H1046L942.586 137.641L850 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1046 295.641H1243L1139.06 137.641L1046 295.641Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M-92 546.281H104.39L0.77002 295.641L-92 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M104.39 546.281H300.78L197.16 295.641L104.39 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M300.78 546.281H497.17L393.55 295.641L300.78 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M497.17 546.281H693.56L589.94 295.641L497.17 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M693.561 546.281H889.951L786.331 295.641L693.561 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M889.95 546.281H1086.34L982.72 295.641L889.95 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1086.34 546.281H1282.73L1179.11 295.641L1086.34 546.281Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M-132 704.279H64L-39.4142 546.279L-132 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M64 704.279H261L157.058 546.279L64 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M261 704.279H457L353.586 546.279L261 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M457 704.279H654L550.058 546.279L457 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M654 704.279H850L746.586 546.279L654 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M850 704.279H1046L942.586 546.279L850 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1046 704.279H1243L1139.06 546.279L1046 704.279Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M-92 954.919H104.39L0.77002 704.279L-92 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M104.39 954.919H300.78L197.16 704.279L104.39 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M300.78 954.919H497.17L393.55 704.279L300.78 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M497.17 954.919H693.56L589.94 704.279L497.17 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M693.561 954.919H889.951L786.331 704.279L693.561 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M889.95 954.919H1086.34L982.72 704.279L889.95 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1086.34 954.919H1282.73L1179.11 704.279L1086.34 954.919Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M-132 1112.92H64L-39.4142 954.92L-132 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M64 1112.92H261L157.058 954.92L64 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M261 1112.92H457L353.586 954.92L261 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M457 1112.92H654L550.058 954.92L457 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M654 1112.92H850L746.586 954.92L654 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M850 1112.92H1046L942.586 954.92L850 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1046 1112.92H1243L1139.06 954.92L1046 1112.92Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M-92 1363.56H104.39L0.77002 1112.92L-92 1363.56Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M104.39 1363.56H300.78L197.16 1112.92L104.39 1363.56Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M300.78 1363.56H497.17L393.55 1112.92L300.78 1363.56Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M497.17 1363.56H693.56L589.94 1112.92L497.17 1363.56Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M693.561 1363.56H889.951L786.331 1112.92L693.561 1363.56Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M889.95 1363.56H1086.34L982.72 1112.92L889.95 1363.56Z" fill="#D1CAB8"/>
+<path class="gnAccent"  d="M1086.34 1363.56H1282.73L1179.11 1112.92L1086.34 1363.56Z" fill="#D1CAB8"/>
+
+</svg>

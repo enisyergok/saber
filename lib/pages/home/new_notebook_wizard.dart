@@ -420,7 +420,9 @@ class _NewNotebookWizardState extends State<NewNotebookWizard> {
               return PaperThumb(
                 template: template,
                 selected: template.id == _spec.template.id,
-                onTap: () => setState(() => _spec.template = template),
+                onTap: template.canCreate
+                    ? () => setState(() => _spec.template = template)
+                    : null,
               );
             },
           ),

@@ -362,16 +362,19 @@ class EditorState extends State<Editor> {
     coreInfo.pages.clear();
     final page = EditorPage(size: size);
     if (spec.template.resource case final String resource) {
+      final svg = resource.startsWith('assets/goodnotes/catalog/')
+          ? await rootBundle.loadString(resource)
+          : RecoveredTemplates.render(
+              resource,
+              size.width,
+              size.height,
+              paperColor: spec.paperColor?.toARGB32(),
+            );
       page.backgroundImage = SvgEditorImage(
         templateResource: resource,
         id: coreInfo.nextImageId++,
         assetCache: coreInfo.assetCache,
-        svgString: RecoveredTemplates.render(
-          resource,
-          size.width,
-          size.height,
-          paperColor: spec.paperColor?.toARGB32(),
-        ),
+        svgString: svg,
         svgFile: null,
         pageIndex: 0,
         pageSize: size,

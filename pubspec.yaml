@@ -207,6 +207,7 @@ flutter:
   assets:
     - assets/goodnotes/icons/
     - assets/goodnotes/papers/
+    - assets/goodnotes/catalog/
     - assets/icon/icon.svg
     - assets/icon/noteva-preview.png
     - assets/icon/noteva-foreground-source.png

@@ -1,0 +1,27 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="595" height="842" preserveAspectRatio="none"
+>
+    <defs>
+        <pattern id="pattern" width="100%" height="17.5" patternUnits="userSpaceOnUse">
+            <rect id="primitive" class="gnForegroundFill" y="17" width="100%" height="0.5" fill="#D0D2D3"/>
+        </pattern>
+    <style type="text/css"><![CDATA[
+.gnBackground {
+  fill: #FFFFFF;
+}
+
+.gnForegroundFill {
+  fill: #D0D2D3;
+}
+
+]]></style>
+</defs>
+
+    <rect class="gnBackground" width="100%" height="100%" fill="#F8F7E9"/>
+    <rect id="leftLines" x="30" y="33" width="25%" height="80%" fill="url(#pattern)"/>
+    <rect id="rightLines" x="30%" y="33" width="50%" height="80%" fill="url(#pattern)"/>
+
+    <rect id="gn-typing-2" data-line-height="17" data-line-spacing="0.5" x="30" y="33" width="25%" height="80%" fill="none"/>
+    <rect id="gn-typing-1" data-line-height="17" data-line-spacing="0.5" x="30%" y="33" width="50%" height="80%" fill="none"/>
+</svg>

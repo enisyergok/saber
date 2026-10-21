@@ -170,12 +170,14 @@ class _TemplateGalleryPageState extends State<TemplateGalleryPage> {
                           return PaperThumb(
                             template: template,
                             // the paper is chosen: the wizard opens on the cover
-                            onTap: () => NotebookCreator.start(
-                              context,
-                              folder: widget.folder,
-                              template: template,
-                              startAt: 1,
-                            ),
+                            onTap: template.canCreate
+                                ? () => NotebookCreator.start(
+                                    context,
+                                    folder: widget.folder,
+                                    template: template,
+                                    startAt: 1,
+                                  )
+                                : null,
                           );
                         },
                       ),

@@ -1,0 +1,66 @@
+<svg 
+	viewBox="0 0 1191 1191" 
+	fill="none" 
+	xmlns="http://www.w3.org/2000/svg"
+	preserveAspectRatio="xMidYMax slice"
+><style type="text/css"><![CDATA[
+.gnBackground {
+    fill: #F7F7F7 ;
+}
+
+.gnAccent {
+    fill: #000000;
+}
+]]></style>
+<rect class="gnBackground" width="100%" height="100%" fill="#FFFFFF"/>
+
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-12.0444 631.496L470.856 747.616L470.425 749.405L-12.4746 633.285L-12.0444 631.496Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-34.0151 664.016L448.875 780.136L448.445 781.925L-34.4453 665.805L-34.0151 664.016Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-57.2251 698.605L425.665 814.715L425.235 816.504L-57.6553 700.394L-57.2251 698.605Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-80.7256 733.186L402.164 849.306L401.734 851.095L-81.1558 734.975L-80.7256 733.186Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-104.235 767.775L378.665 883.885L378.235 885.674L-104.665 769.564L-104.235 767.775Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-127.735 802.355L355.165 918.475L354.735 920.264L-128.165 804.144L-127.735 802.355Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-151.235 836.945L331.665 953.055L331.235 954.844L-151.665 838.734L-151.235 836.945Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-174.735 871.525L308.155 987.645L307.724 989.434L-175.166 873.314L-174.735 871.525Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-198.235 906.115L284.655 1022.23L284.225 1024.01L-198.665 907.904L-198.235 906.115Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-221.735 940.695L261.155 1056.82L260.725 1058.6L-222.165 942.484L-221.735 940.695Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-245.245 975.285L237.655 1091.4L237.225 1093.18L-245.675 977.074L-245.245 975.285Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-268.745 1009.87L214.155 1125.98L213.725 1127.76L-269.175 1011.65L-268.745 1009.87Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-292.245 1044.46L190.655 1160.57L190.225 1162.35L-292.675 1046.24L-292.245 1044.46Z" fill="#D8D8D8"/>
+<path class="gnAccent" opacity="0.2"  fill-rule="evenodd" clip-rule="evenodd" d="M-308.355 1079.82L174.545 1195.94L174.115 1197.73L-308.785 1081.61L-308.355 1079.82Z" fill="#D8D8D8"/>
+
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M448.04 781.029C448.04 780.521 448.452 780.109 448.96 780.109H523.2C523.708 780.109 524.12 780.521 524.12 781.029C524.12 781.537 523.708 781.949 523.2 781.949H448.96C448.452 781.949 448.04 781.537 448.04 781.029Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M424.53 815.609C424.53 815.101 424.942 814.689 425.45 814.689H544.18C544.688 814.689 545.1 815.101 545.1 815.609C545.1 816.118 544.688 816.529 544.18 816.529H425.45C424.942 816.529 424.53 816.118 424.53 815.609Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M401.03 850.199C401.03 849.691 401.442 849.279 401.95 849.279H565.16C565.668 849.279 566.08 849.691 566.08 850.199C566.08 850.707 565.668 851.119 565.16 851.119H401.95C401.442 851.119 401.03 850.707 401.03 850.199Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M377.53 884.779C377.53 884.271 377.942 883.859 378.45 883.859H586.15C586.658 883.859 587.07 884.271 587.07 884.779C587.07 885.287 586.658 885.699 586.15 885.699H378.45C377.942 885.699 377.53 885.287 377.53 884.779Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M354.03 919.369C354.03 918.861 354.442 918.449 354.95 918.449H607.13C607.638 918.449 608.05 918.861 608.05 919.369C608.05 919.877 607.638 920.289 607.13 920.289H354.95C354.442 920.289 354.03 919.877 354.03 919.369Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M330.53 953.949C330.53 953.441 330.942 953.029 331.45 953.029H628.12C628.628 953.029 629.04 953.441 629.04 953.949C629.04 954.457 628.628 954.869 628.12 954.869H331.45C330.942 954.869 330.53 954.457 330.53 953.949Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M307.021 988.539C307.021 988.031 307.432 987.619 307.941 987.619H649.1C649.609 987.619 650.021 988.031 650.021 988.539C650.021 989.047 649.609 989.459 649.1 989.459H307.941C307.432 989.459 307.021 989.047 307.021 988.539Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M283.521 1023.12C283.521 1022.61 283.932 1022.2 284.441 1022.2H670.081C670.589 1022.2 671.001 1022.61 671.001 1023.12C671.001 1023.63 670.589 1024.04 670.081 1024.04H284.441C283.932 1024.04 283.521 1023.63 283.521 1023.12Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M260.021 1057.71C260.021 1057.2 260.432 1056.79 260.941 1056.79H691.071C691.579 1056.79 691.991 1057.2 691.991 1057.71C691.991 1058.22 691.579 1058.63 691.071 1058.63H260.941C260.432 1058.63 260.021 1058.22 260.021 1057.71Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M236.521 1092.29C236.521 1091.78 236.932 1091.37 237.441 1091.37H712.051C712.559 1091.37 712.971 1091.78 712.971 1092.29C712.971 1092.8 712.559 1093.21 712.051 1093.21H237.441C236.932 1093.21 236.521 1092.8 236.521 1092.29Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M213.021 1126.87C213.021 1126.36 213.432 1125.95 213.941 1125.95H733.04C733.549 1125.95 733.96 1126.36 733.96 1126.87C733.96 1127.38 733.549 1127.79 733.04 1127.79H213.941C213.432 1127.79 213.021 1127.38 213.021 1126.87Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M189.521 1161.46C189.521 1160.95 189.932 1160.54 190.441 1160.54H754.021C754.529 1160.54 754.94 1160.95 754.94 1161.46C754.94 1161.97 754.529 1162.38 754.021 1162.38H190.441C189.932 1162.38 189.521 1161.97 189.521 1161.46Z" fill="#A7A7A7"/>
+<path class="gnAccent" opacity="0.5"  fill-rule="evenodd" clip-rule="evenodd" d="M470.36 748.379C470.36 747.871 470.772 747.459 471.28 747.459H502.91C503.418 747.459 503.83 747.871 503.83 748.379C503.83 748.887 503.418 749.299 502.91 749.299H471.28C470.772 749.299 470.36 748.887 470.36 748.379Z" fill="#A7A7A7"/>
+
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1223.2 227.544L503.45 749.254L502.37 747.765L1222.12 226.055L1223.2 227.544Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1243.49 260.066L523.74 781.776L522.66 780.286L1242.41 258.576L1243.49 260.066Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1264.48 294.656L544.719 816.356L543.64 814.866L1263.4 293.166L1264.48 294.656Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1285.46 329.236L565.7 850.946L564.62 849.456L1284.38 327.746L1285.46 329.236Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1306.45 363.826L586.69 885.526L585.61 884.036L1305.37 362.336L1306.45 363.826Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1327.43 398.406L607.67 920.116L606.59 918.626L1326.35 396.916L1327.43 398.406Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1348.41 432.996L628.66 954.696L627.58 953.206L1347.33 431.506L1348.41 432.996Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1369.4 467.576L649.639 989.286L648.56 987.796L1368.32 466.086L1369.4 467.576Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1390.38 502.166L670.62 1023.87L669.54 1022.38L1389.3 500.676L1390.38 502.166Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1411.37 536.746L691.61 1058.46L690.53 1056.97L1410.29 535.256L1411.37 536.746Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1430.33 571.336L710.58 1093.04L709.5 1091.55L1429.25 569.846L1430.33 571.336Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1451.65 605.916L731.9 1127.62L730.82 1126.13L1450.57 604.426L1451.65 605.916Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1251.25 803.656L754.558 1162.21L753.481 1160.71L1250.17 802.164L1251.25 803.656Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1340.12 941.166L843.428 1299.73L842.351 1298.23L1339.04 939.674L1340.12 941.166Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1373.03 969.697L876.338 1328.25L875.261 1326.76L1371.95 968.205L1373.03 969.697Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1402.89 999.556L906.199 1358.12L905.122 1356.62L1401.81 998.064L1402.89 999.556Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1431.45 1028.12L934.758 1386.67L933.681 1385.18L1430.37 1026.62L1431.45 1028.12Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1318.8 907.336L822.109 1265.89L821.032 1264.39L1317.72 905.844L1318.8 907.336Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1297.12 873.207L800.439 1231.76L799.362 1230.26L1296.04 871.715L1297.12 873.207Z" fill="#333333"/>
+<path class="gnAccent"  fill-rule="evenodd" clip-rule="evenodd" d="M1276.03 838.217L779.338 1196.77L778.261 1195.27L1274.95 836.725L1276.03 838.217Z" fill="#333333"/>
+</svg>

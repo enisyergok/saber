@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../data/notebooks/recovered_template.dart';
-import 'packaged_template_painter.dart';
+import 'package:saber/components/home/packaged_template_painter.dart';
+import 'package:saber/data/notebooks/recovered_template.dart';
 
 /// Renders the same materialized SVG geometry that is embedded in the note.
 class PackagedPaperPreview extends StatelessWidget {
@@ -20,6 +21,15 @@ class PackagedPaperPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (asset.startsWith('assets/goodnotes/catalog/')) {
+      return SvgPicture.asset(
+        asset,
+        width: pageSize.width,
+        height: pageSize.height,
+        fit: BoxFit.fill,
+        placeholderBuilder: (_) => fallback,
+      );
+    }
     if (!RecoveredTemplates.contains(asset)) return fallback;
     return SizedBox.fromSize(
       size: pageSize,
