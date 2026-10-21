@@ -117,7 +117,9 @@ class _HomePageState extends State<HomePage> {
       'shared' => LibraryDestination.shared,
       _ => null,
     };
-    if (destination != null ||
+    if ((destination != null &&
+            (widget.subpage != HomePage.dashboardSubpage ||
+                stows.homeDashboard.value)) ||
         widget.subpage == HomePage.settingsSubpage && _showsDashboard) {
       return LibraryShell(
         selected: destination,

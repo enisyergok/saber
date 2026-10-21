@@ -9,6 +9,13 @@ abstract class DefterStrings {
   static bool get _tr => LocaleSettings.currentLocale.languageCode == 'tr';
   static bool get isTr => _tr;
 
+  static String get referencePdf =>
+      _tr ? 'PDF ile yan yana' : 'PDF beside note';
+  static String get closeReference =>
+      _tr ? 'Yan paneli kapat' : 'Close reference';
+  static String get resizeReference =>
+      _tr ? 'Panel boyutunu değiştir' : 'Resize panels';
+
   static String get navFlashcards => _tr ? 'Çalışma Kartları' : 'Flashcards';
   static String get flashcardsTitle => _tr ? 'Çalışma Kartları' : 'Flashcards';
   static String get flashcardsEmpty => _tr

@@ -41,6 +41,7 @@ class EditorBottomSheet extends StatefulWidget {
     required this.pickPhotos,
     this.takePhoto,
     required this.importPdf,
+    this.openReferencePdf,
     this.lastPdfName,
     this.reopenPdf,
     required this.canRasterPdf,
@@ -59,6 +60,7 @@ class EditorBottomSheet extends StatefulWidget {
   final int? currentPageIndex;
   final void Function(CanvasBackgroundPattern) setBackgroundPattern;
   final void Function(Color?) setBackgroundColor;
+
   /// Gives the notebook a cover, or takes it away (null).
   final void Function(CoverDesign? design) setCover;
 
@@ -82,6 +84,7 @@ class EditorBottomSheet extends StatefulWidget {
   /// Takes a photo with the camera, or null if the device can't.
   final Future<int> Function()? takePhoto;
   final Future<bool> Function() importPdf;
+  final VoidCallback? openReferencePdf;
 
   /// The PDF whose window was last open, to take more from it.
   final String? lastPdfName;
@@ -383,9 +386,8 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
             const SizedBox(height: 6),
             Text(
               DefterStrings.coverOnCardOnly,
-              style: TextTheme.of(context).bodySmall?.copyWith(
-                color: ColorScheme.of(context).onSurfaceVariant,
-              ),
+              style: TextTheme.of(context).bodySmall
+                  ?.copyWith(color: ColorScheme.of(context).onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             Text(
@@ -528,6 +530,16 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                     },
                     child: const Text('PDF'),
                   ),
+                if (widget.openReferencePdf != null)
+                  ElevatedButton.icon(
+                    key: const Key('openReferencePdf'),
+                    icon: const Icon(Icons.vertical_split_outlined),
+                    label: Text(DefterStrings.referencePdf),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.openReferencePdf!();
+                    },
+                  ),
                 if (widget.canRasterPdf &&
                     widget.lastPdfName != null &&
                     widget.reopenPdf != null)
@@ -612,7 +624,9 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                     ? DefterStrings.hwOutdated
                     : DefterStrings.hwIndexedOn(
                         MaterialLocalizations.of(context).formatShortDate(
-                          DateTime.fromMillisecondsSinceEpoch(text.recognizedMs),
+                          DateTime.fromMillisecondsSinceEpoch(
+                            text.recognizedMs,
+                          ),
                         ),
                       );
                 return Wrap(
@@ -622,23 +636,28 @@ class _EditorBottomSheetState extends State<EditorBottomSheet> {
                     ElevatedButton.icon(
                       icon: const Icon(Symbols.manage_search_rounded),
                       label: Text(
-                        text == null ? DefterStrings.hwAdd : DefterStrings.hwRefresh,
+                        text == null
+                            ? DefterStrings.hwAdd
+                            : DefterStrings.hwRefresh,
                       ),
                       onPressed: () {
                         final navigator = Navigator.of(context);
                         final messenger = ScaffoldMessenger.maybeOf(context);
                         navigator.pop();
-                        Future.delayed(const Duration(milliseconds: 200), () async {
-                          final added = await HandwritingIndexDialog.show(
-                            navigator.context,
-                            widget.coreInfo,
-                          );
-                          if (added == true) {
-                            messenger?.showSnackBar(
-                              SnackBar(content: Text(DefterStrings.hwDone)),
+                        Future.delayed(
+                          const Duration(milliseconds: 200),
+                          () async {
+                            final added = await HandwritingIndexDialog.show(
+                              navigator.context,
+                              widget.coreInfo,
                             );
-                          }
-                        });
+                            if (added == true) {
+                              messenger?.showSnackBar(
+                                SnackBar(content: Text(DefterStrings.hwDone)),
+                              );
+                            }
+                          },
+                        );
                       },
                     ),
                     Text(status),

@@ -32,6 +32,7 @@ import 'package:saber/components/editor/editor_tab_strip.dart';
 import 'package:saber/components/editor/page_menu.dart';
 import 'package:saber/components/editor/page_sidebar.dart';
 import 'package:saber/components/editor/read_only_banner.dart';
+import 'package:saber/components/editor/reference_split_view.dart';
 import 'package:saber/components/editor/zoom_box_overlay.dart';
 import 'package:saber/components/theming/adaptive_alert_dialog.dart';
 import 'package:saber/components/theming/adaptive_icon.dart';
@@ -363,13 +364,26 @@ class EditorState extends State<Editor> {
     if (spec.template.resource case final String resource) {
       page.backgroundImage = SvgEditorImage(
         templateResource: resource,
-        id: coreInfo.nextImageId++, assetCache: coreInfo.assetCache,
-        svgString: RecoveredTemplates.render(resource, size.width, size.height,
-          paperColor: spec.paperColor?.toARGB32()),
-        svgFile: null, pageIndex: 0, pageSize: size,
-        naturalSize: size, srcRect: Offset.zero & size, dstRect: Offset.zero & size,
-        backgroundFit: BoxFit.fill, invertible: false, newImage: false,
-        onMoveImage: null, onDeleteImage: null, onMiscChange: autosaveAfterDelay,
+        id: coreInfo.nextImageId++,
+        assetCache: coreInfo.assetCache,
+        svgString: RecoveredTemplates.render(
+          resource,
+          size.width,
+          size.height,
+          paperColor: spec.paperColor?.toARGB32(),
+        ),
+        svgFile: null,
+        pageIndex: 0,
+        pageSize: size,
+        naturalSize: size,
+        srcRect: Offset.zero & size,
+        dstRect: Offset.zero & size,
+        backgroundFit: BoxFit.fill,
+        invertible: false,
+        newImage: false,
+        onMoveImage: null,
+        onDeleteImage: null,
+        onMiscChange: autosaveAfterDelay,
       );
       history.markUnsaved();
     }
@@ -575,7 +589,8 @@ class EditorState extends State<Editor> {
 
   SvgEditorImage? _templateAfter(int index) {
     final before = coreInfo.pages.getOrNull(index)?.backgroundImage;
-    if (before is! SvgEditorImage || before.templateResource == null) return null;
+    if (before is! SvgEditorImage || before.templateResource == null)
+      return null;
     return before.copy()..id = coreInfo.nextImageId++;
   }
 
@@ -2012,6 +2027,40 @@ class EditorState extends State<Editor> {
     ]).then((list) => list.nonNulls.toList());
   }
 
+  String? _referencePdfPath;
+  bool _pickingReference = false;
+
+  Future<void> _openReferencePdf() async {
+    if (_pickingReference || !Editor.canRasterPdf) return;
+    _pickingReference = true;
+    try {
+      final file = await FilePicker.pickFile(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+      if (file == null || !mounted) return;
+      final path = await PdfImport.localPath(
+        path: file.path,
+        name: file.name,
+        readBytes: file.readAsBytes,
+      );
+      await PdfImport.check(path);
+      if (!mounted) return;
+      setState(() => _referencePdfPath = path);
+      _queuePenOverlaySync();
+    } on PdfImportException catch (error, stack) {
+      log.warning('Could not open reference PDF', error, stack);
+      if (mounted) _showPdfImportError(error);
+    } catch (error, stack) {
+      log.warning('Could not pick reference PDF', error, stack);
+      if (mounted) {
+        _showPdfImportError(PdfImportException(.unreadable, '$error'));
+      }
+    } finally {
+      _pickingReference = false;
+    }
+  }
+
   /// Prompts the user to pick a PDF to import.
   /// Returns whether a PDF was imported.
   Future<bool> importPdf() async {
@@ -2688,7 +2737,7 @@ class EditorState extends State<Editor> {
       transformationController: _transformationController,
     );
     // The page, with what the measuring tools read shown over it.
-    final Widget canvas = Stack(
+    final Widget noteCanvas = Stack(
       children: [
         Positioned.fill(
           child: RepaintBoundary(key: _canvasRepaintKey, child: pageArea),
@@ -2700,6 +2749,48 @@ class EditorState extends State<Editor> {
             child: ZoomBoxOverlay(image: image, onClose: _closeZoomBox),
           ),
       ],
+    );
+
+    final Widget canvas = ReferenceSplitView(
+      notebook: noteCanvas,
+      resizeLabel: DefterStrings.resizeReference,
+      onLayoutChanged: () => PenOverlay.sync(_penOverlayConfig()),
+      reference: _referencePdfPath == null
+          ? null
+          : Column(
+              children: [
+                Material(
+                  child: Row(
+                    children: [
+                      IconButton(
+                        tooltip: DefterStrings.referencePdf,
+                        onPressed: _openReferencePdf,
+                        icon: const Icon(Icons.picture_as_pdf_outlined),
+                      ),
+                      Expanded(
+                        child: Text(
+                          p.basename(_referencePdfPath!),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: DefterStrings.closeReference,
+                        onPressed: () =>
+                            setState(() => _referencePdfPath = null),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: PdfViewer.file(
+                    _referencePdfPath!,
+                    key: ValueKey(_referencePdfPath),
+                  ),
+                ),
+              ],
+            ),
     );
 
     final readonlyBanner = ReadOnlyBanner(
@@ -3154,7 +3245,7 @@ class EditorState extends State<Editor> {
                     child: MediaQuery(
                       data: MediaQuery.of(context).copyWith(
                         size: Size(
-                          _viewportWidth,
+                          _availableEditorWidth,
                           MediaQuery.sizeOf(context).height,
                         ),
                       ),
@@ -3259,6 +3350,7 @@ class EditorState extends State<Editor> {
       pickPhotos: _pickPhotos,
       takePhoto: DeviceCamera.isAvailable ? takePhoto : null,
       importPdf: importPdf,
+      openReferencePdf: Editor.canRasterPdf ? _openReferencePdf : null,
       lastPdfName: lastPdfWindowName,
       reopenPdf: reopenPdfWindow,
       canRasterPdf: Editor.canRasterPdf,
@@ -3987,8 +4079,10 @@ class EditorState extends State<Editor> {
 
   void insertPageAfter(int pageIndex) => setState(() {
     if (coreInfo.readOnly) return;
-    final page = EditorPage(size: _sizeForPageAfter(pageIndex),
-      backgroundImage: _templateAfter(pageIndex));
+    final page = EditorPage(
+      size: _sizeForPageAfter(pageIndex),
+      backgroundImage: _templateAfter(pageIndex),
+    );
     coreInfo.pages.insert(pageIndex + 1, page);
     _renumberPages();
     history.recordChange(
@@ -4143,9 +4237,17 @@ class EditorState extends State<Editor> {
       MediaQuery.sizeOf(context).width >= PageSidebar.minScreenWidth;
 
   /// How wide the pages can be: the screen, less the sidebar.
-  double get _viewportWidth =>
+  double get _availableEditorWidth =>
       MediaQuery.sizeOf(context).width -
       (_sidebarVisible ? PageSidebar.width : 0);
+
+  double get _viewportWidth {
+    final area = _canvasGestureDetectorKey.currentContext?.findRenderObject();
+    if (area is RenderBox && area.hasSize && area.size.width > 0) {
+      return area.size.width;
+    }
+    return _availableEditorWidth;
+  }
 
   late int _lastCurrentPageIndex = coreInfo.initialPageIndex ?? 0;
 
